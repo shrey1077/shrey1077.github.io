@@ -1,0 +1,104 @@
+@import "tailwindcss";
+
+/*
+ * Global base styles.
+ *
+ * The design philosophy is an art gallery: a pure #FFFFFF background, no
+ * gradients, no textures, maximal negative space.
+ */
+
+/*
+ * Typography Constitution tokens (docs/TYPOGRAPHY.md).
+ *
+ * next/font (layout.tsx) provides --font-caveat / --font-fraunces /
+ * --font-plex-mono; these tokens turn them into Tailwind utilities:
+ *   font-hand-brand  → Caveat        (the "thought" voice — handwritten)
+ *   font-serif-brand → Fraunces      (the "creative" voice)
+ *   font-mono-brand  → IBM Plex Mono (the "logic" voice — final type)
+ */
+@theme inline {
+  --font-hand-brand: var(--font-caveat), "Segoe Script", cursive;
+  --font-serif-brand: var(--font-fraunces), ui-serif, Georgia, serif;
+  --font-mono-brand: var(--font-plex-mono), ui-monospace, "SFMono-Regular", monospace;
+}
+
+html,
+body {
+  background: #ffffff;
+}
+
+html {
+  /* Native smooth scrolling for the auto-scroll to the preview pane. */
+  scroll-behavior: smooth;
+}
+
+body {
+  margin: 0;
+  /* Phase 2 introduces vertical scrolling (hero → preview → footer). Horizontal
+   * scroll is never wanted. */
+  overflow-x: hidden;
+  overscroll-behavior-y: none;
+}
+
+/* Honor a user's reduced-motion preference for the scroll animation. */
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+}
+
+/* The WebGL canvas should never show a focus outline or text caret. */
+canvas {
+  display: block;
+  outline: none;
+}
+
+/*
+ * Brain OS navigation (Phase 4.2) — the buttons are extensions of the two
+ * hemispheres: solid graphite on the left, living paint on the right.
+ */
+
+/* Helvetica-first UI stack for the navigation labels. */
+.font-ui {
+  font-family: Helvetica, "Helvetica Neue", Arial, ui-sans-serif, system-ui, sans-serif;
+}
+
+/* RIGHT nav — a slow painted gradient in the creative palette that never sits
+ * still; hovering speeds the flow. Same colour language as the right hemisphere. */
+.brain-paint {
+  background-image: linear-gradient(
+    115deg,
+    #ff2e8b 0%, #ff5a3c 16%, #ff8a00 32%, #f5c518 46%,
+    #7fbf2e 60%, #00a6a6 74%, #3f6ad8 88%, #7a3fb0 100%
+  );
+  background-size: 280% 280%;
+  animation: brain-paint-drift 24s ease-in-out infinite;
+}
+.group:hover .brain-paint {
+  animation-duration: 9s;
+}
+@keyframes brain-paint-drift {
+  0% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
+
+/* LEFT nav — fine graphite grain that surfaces on hover and drifts, like
+ * pencil particles catching the light. */
+.brain-grain {
+  background-image: radial-gradient(rgba(255, 255, 255, 0.18) 0.5px, transparent 1.1px);
+  background-size: 6px 6px;
+  animation: brain-grain-drift 3.4s linear infinite;
+}
+@keyframes brain-grain-drift {
+  to {
+    background-position: 6px 4px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .brain-paint,
+  .brain-grain {
+    animation: none;
+  }
+}
