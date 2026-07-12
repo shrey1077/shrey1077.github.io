@@ -16,22 +16,73 @@ export interface Client {
   name: string;
   /** Short descriptor shown under the name on the card and detail page. */
   sector: string;
+  /** Brand accent hue — tints the placeholder page's monogram, plaque dot and
+   *  selection details so every client room feels its own. */
+  accent: string;
+  /** One quiet positioning line for the placeholder page. */
+  essence: string;
   /** Optional logo under /public (e.g. "/content/clients/<slug>/brand/logo.svg").
    *  Cards fall back to the typographic mark until real logo assets land. */
   logoSrc?: string;
 }
 
 export const CLIENTS: readonly Client[] = [
-  { slug: "tata-iis", name: "Tata IIS", sector: "Enterprise · Systems" },
+  {
+    slug: "tata-iis",
+    name: "Tata IIS",
+    sector: "Enterprise · Systems",
+    accent: "#14279B",
+    essence: "An identity system for an institution that teaches systems.",
+  },
+  {
+    slug: "azoth-biotech",
+    name: "Azoth Biotech",
+    sector: "Biotechnology",
+    accent: "#0E7C66",
+    essence: "Identity for a lab rewriting its own formula.",
+  },
   {
     slug: "abs",
-    name: "ABS Wholesale & Distribution",
+    name: "ABS Wholesale",
     sector: "Wholesale · Distribution",
+    accent: "#C4690F",
+    essence: "A brand built to move at warehouse scale.",
   },
-  { slug: "zabraku-media", name: "Zabraku Media", sector: "Media · Content" },
-  { slug: "azoth-biotech", name: "Azoth Biotech", sector: "Biotechnology" },
-  { slug: "mycoveda", name: "Mycoveda", sector: "Wellness · Nutrition" },
-  { slug: "newsmobile", name: "NewsMobile", sector: "Digital News" },
+  {
+    slug: "zabraku-media",
+    name: "Zabraku",
+    sector: "Media · Content",
+    accent: "#B3264A",
+    essence: "A media house with a story-first spine.",
+  },
+  {
+    slug: "uid",
+    name: "UID",
+    sector: "Design · Education",
+    accent: "#3B4CC0",
+    essence: "Design education, given its own design language.",
+  },
+  {
+    slug: "mycoveda",
+    name: "Mycoveda",
+    sector: "Wellness · Nutrition",
+    accent: "#5C7C3A",
+    essence: "Wellness rooted in quiet, potent nature.",
+  },
+  {
+    slug: "newsmobile",
+    name: "NewsMobile",
+    sector: "Digital News",
+    accent: "#C0392B",
+    essence: "A news identity moving at the speed of the feed.",
+  },
+  {
+    slug: "early-works",
+    name: "Early Works",
+    sector: "Archive · Beginnings",
+    accent: "#6B6B6B",
+    essence: "Where the hand learned before the system did.",
+  },
 ] as const;
 
 /** Look up a client by slug (used by the detail route). */
