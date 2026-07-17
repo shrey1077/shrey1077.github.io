@@ -1,0 +1,13 @@
+{
+  "order": 2,
+  "presentation": "publication",
+  "description": "Funding and admissions brochures — impact numbers, recruiter walls and contribution paths held together by the circuit-grid motif.",
+  "captions": {
+    "admissions-brochure-cover.webp": "Admissions brochure — the real campus on the cover, no renders.",
+    "admissions-brochure-courses.webp": "Course spreads, 2024 edition.",
+    "admissions-brochure-campus.webp": "Campus and labs spread.",
+    "funding-brochure-impact.webp": "The funding case: 70 companies, 200+ offers, transparent impact reporting.",
+    "funding-brochure-vision.webp": "Vision spread — why skilling, why now.",
+    "funding-brochure-spread.webp": "Contribution paths for partners."
+  }
+}
