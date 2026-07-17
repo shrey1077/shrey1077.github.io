@@ -31,7 +31,7 @@ export function ExperienceLayout({
   children,
 }: ExperienceLayoutProps) {
   return (
-    <main className="min-h-dvh w-full bg-white px-6 py-14 sm:px-10">
+    <main className="min-h-dvh w-full bg-gallery px-6 py-14 sm:px-10">
       <div className="mx-auto w-full max-w-7xl">
         <Link
           href={backHref}

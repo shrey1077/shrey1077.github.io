@@ -48,7 +48,7 @@ export function ClientWip({ client }: { client: Client }) {
   const next = CLIENTS[(index + 1) % count];
 
   return (
-    <main className="relative flex min-h-dvh w-full flex-col overflow-hidden bg-white px-6 py-10 sm:px-10 lg:px-16">
+    <main className="relative flex min-h-dvh w-full flex-col overflow-hidden bg-gallery px-6 py-10 sm:px-10 lg:px-16">
       {/* The ghost monogram — the client already inhabits the room. Centered by
           the flex wrapper (no CSS translate) so Framer owns the transform. */}
       <div

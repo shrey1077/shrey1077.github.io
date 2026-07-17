@@ -36,3 +36,13 @@ export type ActiveSection = "left" | "right" | null;
  * current phase to progressively enable functionality without restructuring.
  */
 export type ProjectPhase = 1 | 2 | 3 | 4 | 5;
+
+/**
+ * The hero's pose state (Phase 5 v4). `"center"` is the landing state — brain
+ * at its calibrated resting frame, headline in the flanks, mouse scrubbing
+ * live. Clicking a side commits to a hemisphere: the video plays to that end
+ * pose ("logic" = first frame, "creative" = last frame), the brain zooms out
+ * to the upper half, and that hemisphere's section panels rise below. There is
+ * no return to "center" (deliberate) — visitors move between the two poses.
+ */
+export type HeroPose = "center" | "logic" | "creative";

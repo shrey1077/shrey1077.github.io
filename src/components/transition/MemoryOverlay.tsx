@@ -31,7 +31,7 @@ export function MemoryOverlay({ active }: MemoryOverlayProps) {
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
           transition={{ duration: DURATION.medium, ease: EASE_GENTLE }}
-          className="pointer-events-none fixed inset-0 bg-white"
+          className="pointer-events-none fixed inset-0 bg-gallery"
           style={{ zIndex: Z_INDEX.overlay }}
         />
       )}

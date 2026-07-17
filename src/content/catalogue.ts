@@ -174,6 +174,31 @@ export function readCatalogue(slug: string): CatalogueCategory[] {
     }));
 }
 
+/** A few art pieces for the homepage's Art panel preview (Phase 5 v4).
+ *  Scans `public/content/art` (top-level files, then one folder deep) for
+ *  images; the panel falls back to typographic plates while this is empty. */
+export function readArtPreviews(limit = 4): ContentAsset[] {
+  const root = path.join(process.cwd(), "public", "content", "art");
+  const found: ContentAsset[] = [];
+  const push = (dir: string, urlSegments: string[]) => {
+    for (const file of listFiles(dir)) {
+      if (found.length >= limit) return;
+      if (assetKind(file) !== "image") continue;
+      found.push({
+        name: path.parse(file).name,
+        url: publicUrl("content", "art", ...urlSegments, file),
+        kind: "image",
+      });
+    }
+  };
+  push(root, []);
+  for (const sub of listDirs(root)) {
+    if (found.length >= limit) break;
+    push(path.join(root, sub), [sub]);
+  }
+  return found;
+}
+
 /** One category (by route id) with its direct assets. Null if unknown. */
 export function readCatalogueCategory(
   slug: string,

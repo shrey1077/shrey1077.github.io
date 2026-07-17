@@ -21,7 +21,7 @@ export function SiteFooter() {
     year > SITE.inceptionYear ? `${SITE.inceptionYear}–${year}` : `${year}`;
 
   return (
-    <footer className="flex min-h-[10vh] w-full items-center border-t border-neutral-200 bg-white px-6 py-6 sm:px-10">
+    <footer className="flex min-h-[10vh] w-full items-center border-t border-neutral-200 bg-gallery px-6 py-6 sm:px-10">
       <div className="mx-auto flex w-full max-w-7xl flex-col items-start justify-between gap-4 text-sm text-neutral-500 sm:flex-row sm:items-center">
         <span className="text-neutral-400">
           © {copyrightYears} {SITE.name}. All rights reserved.

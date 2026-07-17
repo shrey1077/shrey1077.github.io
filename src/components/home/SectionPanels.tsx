@@ -1,0 +1,694 @@
+"use client";
+
+/**
+ * SectionPanels — the hero's lower-half navigation (Phase 5 v4).
+ *
+ * Once a hemisphere is chosen the brain zooms out to the upper half and this
+ * system rises over the lower half:
+ *
+ *   pose "logic"    → the LEFT hemisphere's four sections as horizontal
+ *                     black-and-white rows (Clients / Projects / Logofolio /
+ *                     Career Path), plus a 5%-wide PAINTED strip on the right
+ *                     edge — the doorway to the creative side.
+ *   pose "creative" → the RIGHT hemisphere's four sections as painted rows
+ *                     (Art / Publications / The Extincts Project / AI
+ *                     Generations), plus a 5% graphite strip on the left edge
+ *                     leading back to logic.
+ *
+ * Rows are an accordion: clicking one expands it in place (siblings compress).
+ * The Clients row drops down into the client index; choosing a client replaces
+ * the whole panel area with an inline detail — company information on the
+ * left, the work/artwork on the painted right — no navigation, everything on
+ * this page. Every piece of text animates in (masked rises, letter settles,
+ * staggered fades). Reduced motion renders everything in place.
+ */
+
+import { useState } from "react";
+import Link from "next/link";
+import Image from "next/image";
+import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
+import { CLIENTS, clientBySlug } from "@/constants/clients";
+import { navSectionIndex, navSectionsFor } from "@/constants/navigation";
+import { DURATION, EASE_OUT } from "@/constants/motion";
+import { typeVoiceClass } from "@/constants/typography";
+import { TypeReveal } from "@/components/typography/TypeReveal";
+import { useSceneStore } from "@/state/useSceneStore";
+import type { NavSectionId } from "@/types/navigation";
+
+/* ── data contract (filled by the server page from the content folders) ── */
+
+export interface WorkCategory {
+  id: string;
+  name: string;
+  description?: string;
+  assetCount: number;
+}
+
+export interface ClientWork {
+  tagline?: string;
+  categories: WorkCategory[];
+}
+
+/** slug → work summary; only clients with a full experience appear here. */
+export type ClientWorkMap = Record<string, ClientWork>;
+
+/** An art piece for the Art panel's preview strip (from public/content/art). */
+export interface ArtPreview {
+  name: string;
+  url: string;
+}
+
+/** Typographic stand-ins shown while public/content/art is empty — they swap
+ *  for real images automatically the moment files land in that folder. */
+const ART_PLACEHOLDER_PLATES = [
+  { title: "Study 01", medium: "graphite on paper" },
+  { title: "Bloom Series", medium: "acrylic & ink" },
+  { title: "Night Field", medium: "mixed media" },
+] as const;
+
+/* ── palette ──────────────────────────────────────────────────────────── */
+
+/** Painted row surfaces for the creative sections (NavItem's hues, v4 home). */
+const PAINTED_ROWS: Record<string, string> = {
+  art: "linear-gradient(115deg,#ff2e8b,#ff5a3c,#ff2e8b)",
+  publications: "linear-gradient(115deg,#ff8a00,#f5c518,#ff8a00)",
+  "the-extincts-project": "linear-gradient(115deg,#00a6a6,#7fbf2e,#00a6a6)",
+  "ai-generations": "linear-gradient(115deg,#7a3fb0,#3f6ad8,#7a3fb0)",
+};
+
+/** Category-card accent chips (cycled by index) on the detail's painted side. */
+const CARD_GRADIENTS = [
+  "linear-gradient(115deg,#ff2e8b,#ff5a3c)",
+  "linear-gradient(115deg,#ff8a00,#f5c518)",
+  "linear-gradient(115deg,#00a6a6,#7fbf2e)",
+  "linear-gradient(115deg,#7a3fb0,#3f6ad8)",
+] as const;
+
+type PanelPose = "logic" | "creative";
+
+/* ── small shared bits ────────────────────────────────────────────────── */
+
+const riseIn = (reduce: boolean, delay = 0) =>
+  reduce
+    ? {}
+    : {
+        initial: { opacity: 0, y: 14 },
+        animate: { opacity: 1, y: 0 },
+        transition: { duration: DURATION.medium, ease: EASE_OUT, delay },
+      };
+
+/* ── one accordion row ────────────────────────────────────────────────── */
+
+function PanelRow({
+  id,
+  label,
+  description,
+  pose,
+  order,
+  open,
+  onToggle,
+  onClientPick,
+  artPreviews,
+}: {
+  id: NavSectionId;
+  label: string;
+  description: string;
+  pose: PanelPose;
+  order: number;
+  open: boolean;
+  onToggle: () => void;
+  onClientPick: (slug: string) => void;
+  artPreviews: ArtPreview[];
+}) {
+  const reduceMotion = useReducedMotion();
+  const logic = pose === "logic";
+
+  return (
+    <motion.div
+      animate={{ flexGrow: open ? 4.4 : 1 }}
+      transition={
+        reduceMotion ? { duration: 0 } : { duration: DURATION.slow, ease: EASE_OUT }
+      }
+      style={{ flexGrow: 1, flexBasis: 0 }}
+      className={[
+        "relative flex min-h-0 flex-col overflow-hidden",
+        logic ? "border-t border-neutral-200 bg-gallery" : "",
+      ].join(" ")}
+    >
+      {/* Painted surface (creative pose) — a living gradient per section. */}
+      {!logic && (
+        <span
+          aria-hidden
+          className="brain-paint absolute inset-0"
+          style={{ backgroundImage: PAINTED_ROWS[id] }}
+        />
+      )}
+
+      {/* Header — the whole strip is the toggle. */}
+      <button
+        type="button"
+        onClick={onToggle}
+        aria-expanded={open}
+        className="group relative z-10 flex w-full items-center gap-5 overflow-hidden px-6 py-3 text-left outline-none lg:gap-8 lg:px-[4vw]"
+      >
+        {/* Logic hover: a graphite sweep rises behind the row. */}
+        {logic && (
+          <span
+            aria-hidden
+            className="absolute inset-0 translate-y-[101%] bg-neutral-900 transition-transform duration-500 ease-out group-hover:translate-y-0 group-focus-visible:translate-y-0"
+          />
+        )}
+
+        <span
+          className={[
+            typeVoiceClass("logic", "meta"),
+            "relative text-[0.6rem]",
+            logic
+              ? "text-neutral-400 transition-colors duration-500 group-hover:text-white/60"
+              : "text-white/70",
+          ].join(" ")}
+        >
+          {navSectionIndex(id)}
+        </span>
+
+        <TypeReveal
+          text={label}
+          voice={logic ? "logic" : "creative"}
+          variant="display"
+          as="span"
+          reveal={reduceMotion ? "none" : "settle"}
+          delay={0.35 + order * 0.09}
+          className={[
+            "relative text-[clamp(1.15rem,2.2vw,2.1rem)] leading-none",
+            logic
+              ? "font-medium text-neutral-900 transition-colors duration-500 group-hover:text-white"
+              : "italic text-white [text-shadow:0_1px_6px_rgba(0,0,0,0.35)]",
+          ].join(" ")}
+        />
+
+        <span className="relative flex-1" />
+
+        <motion.span
+          aria-hidden
+          {...riseIn(!!reduceMotion, 0.6 + order * 0.09)}
+          className={[
+            "relative hidden max-w-[24rem] text-xs leading-relaxed lg:block",
+            logic
+              ? "text-neutral-400 transition-colors duration-500 group-hover:text-white/70"
+              : "text-white/80",
+          ].join(" ")}
+        >
+          {description}
+        </motion.span>
+
+        {/* + / × indicator. */}
+        <span
+          aria-hidden
+          className={[
+            "relative text-xl leading-none transition-transform duration-500",
+            open ? "rotate-45" : "",
+            logic
+              ? "text-neutral-400 group-hover:text-white"
+              : "text-white/90",
+          ].join(" ")}
+        >
+          +
+        </span>
+      </button>
+
+      {/* Drop-down body. */}
+      <AnimatePresence initial={false}>
+        {open && (
+          <motion.div
+            key="body"
+            initial={reduceMotion ? false : { opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0, transition: { duration: 0.2 } }}
+            transition={{ duration: DURATION.medium, ease: EASE_OUT, delay: 0.15 }}
+            className="relative z-10 min-h-0 flex-1 overflow-y-auto px-6 pb-4 lg:px-[4vw]"
+          >
+            {id === "clients" ? (
+              <div className="grid grid-cols-2 gap-px bg-transparent sm:grid-cols-4">
+                {CLIENTS.map((client, i) => (
+                  <motion.button
+                    key={client.slug}
+                    type="button"
+                    onClick={() => onClientPick(client.slug)}
+                    {...riseIn(!!reduceMotion, 0.15 + i * 0.05)}
+                    whileHover={reduceMotion ? undefined : { y: -3 }}
+                    className={[
+                      "group/card flex flex-col items-start gap-1 px-4 py-3 text-left outline-none",
+                      logic
+                        ? "border border-neutral-200 bg-white hover:border-neutral-900 focus-visible:border-neutral-900"
+                        : "border border-white/25 bg-black/10 backdrop-blur-[2px] hover:bg-black/25 focus-visible:bg-black/25",
+                    ].join(" ")}
+                  >
+                    <span
+                      className={[
+                        typeVoiceClass("creative", "display"),
+                        "text-[clamp(0.95rem,1.4vw,1.35rem)] leading-tight",
+                        logic ? "text-neutral-900" : "text-white",
+                      ].join(" ")}
+                    >
+                      {client.name}
+                    </span>
+                    <span
+                      className={[
+                        typeVoiceClass("logic", "meta"),
+                        "text-[0.5rem]",
+                        logic ? "text-neutral-400" : "text-white/70",
+                      ].join(" ")}
+                    >
+                      {client.sector}
+                    </span>
+                  </motion.button>
+                ))}
+              </div>
+            ) : id === "art" ? (
+              /* Art — a preview of a few works, and the door to the rooms. */
+              <div className="flex h-full min-h-0 items-stretch gap-3">
+                <div className="grid min-h-0 flex-1 grid-cols-3 gap-2">
+                  {artPreviews.length > 0
+                    ? artPreviews.slice(0, 3).map((piece, i) => (
+                        <motion.span
+                          key={piece.url}
+                          {...riseIn(!!reduceMotion, 0.15 + i * 0.07)}
+                          className="relative min-h-0 overflow-hidden border border-white/25 bg-black/10"
+                        >
+                          <Image
+                            src={piece.url}
+                            alt={piece.name}
+                            fill
+                            sizes="(min-width: 1024px) 20vw, 30vw"
+                            className="object-cover transition-transform duration-700 hover:scale-105"
+                          />
+                        </motion.span>
+                      ))
+                    : ART_PLACEHOLDER_PLATES.map((plate, i) => (
+                        <motion.span
+                          key={plate.title}
+                          {...riseIn(!!reduceMotion, 0.15 + i * 0.07)}
+                          className="flex min-h-0 flex-col justify-end gap-0.5 border border-white/25 bg-black/10 px-3 py-2 backdrop-blur-[2px]"
+                        >
+                          <span
+                            className={`${typeVoiceClass("creative", "display")} text-sm leading-tight text-white sm:text-base`}
+                          >
+                            {plate.title}
+                          </span>
+                          <span
+                            className={`${typeVoiceClass("logic", "meta")} text-[0.5rem] text-white/70`}
+                          >
+                            {plate.medium}
+                          </span>
+                        </motion.span>
+                      ))}
+                </div>
+                <motion.span
+                  {...riseIn(!!reduceMotion, 0.4)}
+                  className="flex shrink-0 items-center"
+                >
+                  <Link
+                    href="/clients"
+                    className={`${typeVoiceClass("creative", "label")} group/gal inline-flex items-center gap-2 rounded-full border border-white/70 px-5 py-2 text-sm text-white outline-none transition-colors duration-500 hover:bg-white hover:text-neutral-900 focus-visible:bg-white focus-visible:text-neutral-900`}
+                  >
+                    Enter the gallery
+                    <span
+                      aria-hidden
+                      className="inline-block transition-transform duration-500 group-hover/gal:translate-x-1"
+                    >
+                      →
+                    </span>
+                  </Link>
+                </motion.span>
+              </div>
+            ) : (
+              <motion.p
+                {...riseIn(!!reduceMotion, 0.2)}
+                className={[
+                  typeVoiceClass("creative", "meta"),
+                  "max-w-xl text-base",
+                  logic ? "text-neutral-500" : "text-white/90",
+                ].join(" ")}
+              >
+                Coming soon — this room is still being hung.
+              </motion.p>
+            )}
+          </motion.div>
+        )}
+      </AnimatePresence>
+    </motion.div>
+  );
+}
+
+/* ── the inline client detail (info left · painted work right) ───────── */
+
+function ClientDetail({
+  slug,
+  work,
+  onBack,
+}: {
+  slug: string;
+  work?: ClientWork;
+  onBack: () => void;
+}) {
+  const reduceMotion = useReducedMotion();
+  const setPendingMemory = useSceneStore((s) => s.setPendingMemory);
+  const client = clientBySlug(slug);
+  if (!client) return null;
+
+  /** The full experience is a memory dive, not a page load (ClientCard's
+   *  pattern) — the href stays real for middle-click / new tab. */
+  const beginRetrieval = (e: React.MouseEvent<HTMLAnchorElement>) => {
+    if (e.metaKey || e.ctrlKey || e.shiftKey || e.button !== 0) return;
+    e.preventDefault();
+    if (useSceneStore.getState().pendingMemory) return;
+    const rect = e.currentTarget.getBoundingClientRect();
+    const x = e.clientX || rect.left + rect.width / 2;
+    const y = e.clientY || rect.top + rect.height / 2;
+    setPendingMemory({ slug, x, y });
+  };
+
+  return (
+    <div className="grid h-full min-h-0 grid-cols-1 border-t border-neutral-200 lg:grid-cols-[minmax(0,5fr)_minmax(0,7fr)]">
+      {/* LEFT — the company, in the logic voice. */}
+      <div className="flex min-h-0 flex-col gap-3 overflow-y-auto bg-gallery px-6 py-4 lg:px-[4vw]">
+        <motion.button
+          type="button"
+          onClick={onBack}
+          {...riseIn(!!reduceMotion, 0.05)}
+          className={`${typeVoiceClass("logic", "meta")} group self-start text-[0.6rem] text-neutral-400 outline-none transition-colors duration-300 hover:text-neutral-900 focus-visible:text-neutral-900`}
+        >
+          <span aria-hidden className="inline-block transition-transform duration-300 group-hover:-translate-x-1">←</span>{" "}
+          all clients
+        </motion.button>
+
+        <motion.span
+          {...riseIn(!!reduceMotion, 0.12)}
+          className={`${typeVoiceClass("logic", "meta")} text-[0.6rem] text-neutral-400`}
+        >
+          {client.sector}
+        </motion.span>
+
+        <TypeReveal
+          text={client.name}
+          voice="creative"
+          variant="display"
+          as="h3"
+          reveal={reduceMotion ? "none" : "settle"}
+          delay={0.2}
+          className="text-[clamp(1.8rem,3.2vw,3rem)] leading-[1.05] text-neutral-900"
+        />
+
+        <motion.p
+          {...riseIn(!!reduceMotion, 0.42)}
+          className="max-w-md text-sm leading-relaxed text-neutral-600"
+        >
+          {client.essence}
+        </motion.p>
+
+        {work?.tagline && (
+          <motion.p
+            {...riseIn(!!reduceMotion, 0.52)}
+            className={`${typeVoiceClass("creative", "meta")} max-w-md text-base text-neutral-500`}
+          >
+            {work.tagline}
+          </motion.p>
+        )}
+
+        <motion.span {...riseIn(!!reduceMotion, 0.62)} className="mt-auto pt-3">
+          <Link
+            href={`/clients/${slug}`}
+            onClick={beginRetrieval}
+            className={`${typeVoiceClass("logic", "meta")} group inline-flex items-center gap-2 border-b border-neutral-300 pb-1 text-[0.65rem] text-neutral-500 outline-none transition-colors duration-500 hover:border-neutral-900 hover:text-neutral-900 focus-visible:border-neutral-900 focus-visible:text-neutral-900`}
+          >
+            Enter the full experience
+            <span aria-hidden className="inline-block transition-transform duration-500 group-hover:translate-x-1">→</span>
+          </Link>
+        </motion.span>
+      </div>
+
+      {/* RIGHT — the work, on the painted surface. */}
+      <div className="relative flex min-h-0 flex-col overflow-hidden bg-neutral-950">
+        <span aria-hidden className="brain-paint absolute inset-0 opacity-[0.16]" />
+        <div className="relative flex min-h-0 flex-1 flex-col gap-3 overflow-y-auto px-6 py-4 lg:px-8">
+          <motion.span
+            {...riseIn(!!reduceMotion, 0.25)}
+            className={`${typeVoiceClass("logic", "meta")} text-[0.6rem] text-white/60`}
+          >
+            The work
+          </motion.span>
+
+          {work && work.categories.length > 0 ? (
+            <div className="grid grid-cols-1 gap-2 sm:grid-cols-2 xl:grid-cols-3">
+              {work.categories.map((cat, i) => (
+                <motion.span key={cat.id} {...riseIn(!!reduceMotion, 0.3 + i * 0.06)}>
+                  <Link
+                    href={`/clients/${slug}/catalogue/${cat.id}`}
+                    className="group/cat flex h-full flex-col gap-1.5 border border-white/15 bg-white/[0.04] px-4 py-3 outline-none backdrop-blur-[2px] transition-all duration-500 hover:-translate-y-0.5 hover:border-white/45 hover:bg-white/[0.08] focus-visible:border-white focus-visible:bg-white/[0.08]"
+                  >
+                    <span
+                      aria-hidden
+                      className="h-1 w-8 rounded-full transition-[width] duration-500 group-hover/cat:w-14"
+                      style={{ backgroundImage: CARD_GRADIENTS[i % CARD_GRADIENTS.length] }}
+                    />
+                    <span
+                      className={`${typeVoiceClass("creative", "display")} text-base leading-tight text-white`}
+                    >
+                      {cat.name}
+                    </span>
+                    {cat.description && (
+                      <span className="line-clamp-2 text-[0.7rem] leading-relaxed text-white/60">
+                        {cat.description}
+                      </span>
+                    )}
+                    <span
+                      className={`${typeVoiceClass("logic", "meta")} mt-auto pt-1 text-[0.5rem] text-white/50`}
+                    >
+                      {cat.assetCount > 0 ? `${cat.assetCount} pieces` : "curating"}
+                    </span>
+                  </Link>
+                </motion.span>
+              ))}
+            </div>
+          ) : (
+            <motion.p
+              {...riseIn(!!reduceMotion, 0.35)}
+              className={`${typeVoiceClass("creative", "meta")} max-w-md text-lg text-white/90`}
+            >
+              The paint is still wet — this client&apos;s work is being hung.
+            </motion.p>
+          )}
+        </div>
+      </div>
+    </div>
+  );
+}
+
+/* ── the 20% way back to the middle ───────────────────────────────────── */
+
+/** A quiet gallery-wall column that returns the hero to its resting center —
+ *  the split brain, the headline, the scrub. Sits BETWEEN the rows and the
+ *  opposite hemisphere's strip, so each panel layer reads like the footage's
+ *  own timeline: logic — middle — colour. */
+function CenterColumn() {
+  const setHeroPose = useSceneStore((s) => s.setHeroPose);
+
+  return (
+    <button
+      type="button"
+      onClick={() => setHeroPose("center")}
+      aria-label="Return to the middle — the resting brain and headline"
+      className="group relative h-full w-[20vw] min-w-[7rem] shrink-0 overflow-hidden border-x border-neutral-200 bg-gallery outline-none transition-colors duration-500 hover:bg-white focus-visible:bg-white"
+    >
+      <span className="flex h-full flex-col items-center justify-center gap-5">
+        {/* The split emblem — half graphite, half paint: the middle itself. */}
+        <span aria-hidden className="flex h-1 w-14 overflow-hidden rounded-full">
+          <span className="h-full w-1/2 bg-neutral-900" />
+          <span className="brain-paint h-full w-1/2" />
+        </span>
+        <span
+          aria-hidden
+          className={`${typeVoiceClass("logic", "meta")} text-[0.6rem] tracking-[0.3em] text-neutral-500 transition-colors duration-500 [writing-mode:vertical-rl] group-hover:text-neutral-900`}
+        >
+          the middle
+        </span>
+        <span
+          aria-hidden
+          className={`${typeVoiceClass("thought", "meta")} text-lg text-neutral-400 transition-colors duration-500 group-hover:text-neutral-700`}
+        >
+          go back
+        </span>
+      </span>
+    </button>
+  );
+}
+
+/* ── the 5% flip strips ───────────────────────────────────────────────── */
+
+function FlipStrip({ to }: { to: PanelPose }) {
+  const setHeroPose = useSceneStore((s) => s.setHeroPose);
+  const creative = to === "creative";
+
+  return (
+    <button
+      type="button"
+      onClick={() => setHeroPose(to)}
+      aria-label={creative ? "Switch to the creative side" : "Switch to the logic side"}
+      className={[
+        "group relative h-full w-[5vw] min-w-[3rem] shrink-0 overflow-hidden outline-none",
+        "transition-[width] duration-500 ease-out hover:w-[7vw] focus-visible:w-[7vw]",
+        creative ? "" : "bg-neutral-900",
+      ].join(" ")}
+    >
+      {creative ? (
+        <span aria-hidden className="brain-paint absolute inset-0" />
+      ) : (
+        <span
+          aria-hidden
+          className="brain-grain absolute inset-0 opacity-40 transition-opacity duration-500 group-hover:opacity-100"
+        />
+      )}
+      <span
+        aria-hidden
+        className={[
+          "absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 whitespace-nowrap",
+          "[writing-mode:vertical-rl] tracking-[0.2em]",
+          creative
+            ? `${typeVoiceClass("creative", "label")} text-lg text-white [text-shadow:0_1px_6px_rgba(0,0,0,0.4)]`
+            : `${typeVoiceClass("logic", "meta")} text-[0.6rem] text-white/80`,
+        ].join(" ")}
+      >
+        {creative ? "colour →" : "← logic"}
+      </span>
+    </button>
+  );
+}
+
+/* ── one hemisphere's panel layer ─────────────────────────────────────── */
+
+/** Owns the accordion + inline-detail state. Rendered with `key={pose}`, so
+ *  flipping hemispheres REMOUNTS it — each side starts calm, no state to
+ *  reset (and no setState-in-effect for the React compiler to reject).
+ *
+ *  Column order mirrors the footage's timeline (logic — middle — colour):
+ *    logic pose:    [ rows | the middle 20% | colour strip 5% ]
+ *    creative pose: [ logic strip 5% | the middle 20% | rows ]
+ */
+function PoseLayer({
+  pose,
+  workMap,
+  artPreviews,
+}: {
+  pose: PanelPose;
+  workMap: ClientWorkMap;
+  artPreviews: ArtPreview[];
+}) {
+  const reduceMotion = useReducedMotion();
+  const [expanded, setExpanded] = useState<NavSectionId | null>(null);
+  const [activeClient, setActiveClient] = useState<string | null>(null);
+
+  const sections = navSectionsFor(pose === "logic" ? "left" : "right");
+
+  return (
+    <>
+      {pose === "creative" && (
+        <>
+          <FlipStrip to="logic" />
+          <CenterColumn />
+        </>
+      )}
+
+      <div className="relative min-w-0 flex-1">
+        <AnimatePresence mode="wait" initial={false}>
+          {activeClient ? (
+            <motion.div
+              key={`detail-${activeClient}`}
+              initial={reduceMotion ? false : { opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: 12, transition: { duration: 0.25 } }}
+              transition={{ duration: DURATION.medium, ease: EASE_OUT }}
+              className="h-full"
+            >
+              <ClientDetail
+                slug={activeClient}
+                work={workMap[activeClient]}
+                onBack={() => setActiveClient(null)}
+              />
+            </motion.div>
+          ) : (
+            <motion.div
+              key="rows"
+              initial={reduceMotion ? false : { opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0, transition: { duration: 0.25 } }}
+              transition={{ duration: DURATION.medium, ease: EASE_OUT }}
+              className="flex h-full flex-col"
+            >
+              {sections.map((section, i) => (
+                <PanelRow
+                  key={section.id}
+                  id={section.id}
+                  label={section.label}
+                  description={section.description}
+                  pose={pose}
+                  order={i}
+                  open={expanded === section.id}
+                  onToggle={() =>
+                    setExpanded((cur) => (cur === section.id ? null : section.id))
+                  }
+                  onClientPick={(slug) => setActiveClient(slug)}
+                  artPreviews={artPreviews}
+                />
+              ))}
+            </motion.div>
+          )}
+        </AnimatePresence>
+      </div>
+
+      {pose === "logic" && (
+        <>
+          <CenterColumn />
+          <FlipStrip to="creative" />
+        </>
+      )}
+    </>
+  );
+}
+
+/* ── the panel system ─────────────────────────────────────────────────── */
+
+export function SectionPanels({
+  workMap,
+  artPreviews,
+}: {
+  workMap: ClientWorkMap;
+  artPreviews: ArtPreview[];
+}) {
+  const reduceMotion = useReducedMotion();
+  const heroPose = useSceneStore((s) => s.heroPose);
+  const pose: PanelPose = heroPose === "creative" ? "creative" : "logic";
+
+  return (
+    <motion.div
+      data-panels
+      initial={reduceMotion ? false : { y: "104%" }}
+      animate={{ y: 0 }}
+      exit={reduceMotion ? { opacity: 0 } : { y: "104%" }}
+      transition={{ duration: DURATION.slow, ease: EASE_OUT }}
+      className="pointer-events-auto absolute inset-x-0 bottom-0 z-20 h-1/2"
+    >
+      <AnimatePresence mode="wait" initial={false}>
+        <motion.div
+          key={pose}
+          initial={reduceMotion ? false : { opacity: 0 }}
+          animate={{ opacity: 1 }}
+          exit={{ opacity: 0, transition: { duration: 0.25 } }}
+          transition={{ duration: DURATION.medium, ease: EASE_OUT }}
+          className="flex h-full w-full"
+        >
+          <PoseLayer pose={pose} workMap={workMap} artPreviews={artPreviews} />
+        </motion.div>
+      </AnimatePresence>
+    </motion.div>
+  );
+}

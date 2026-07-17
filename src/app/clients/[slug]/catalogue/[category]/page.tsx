@@ -58,7 +58,7 @@ export default async function CategoryPage({ params }: CategoryPageProps) {
   const files = data.assets.filter((a) => a.kind !== "image");
 
   return (
-    <main className="min-h-dvh w-full bg-white px-6 py-14 sm:px-10">
+    <main className="min-h-dvh w-full bg-gallery px-6 py-14 sm:px-10">
       <div className="mx-auto w-full max-w-5xl">
         <Link
           href={`/clients/${slug}`}

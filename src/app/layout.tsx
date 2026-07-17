@@ -49,7 +49,7 @@ export const viewport: Viewport = {
   width: "device-width",
   initialScale: 1,
   maximumScale: 1,
-  themeColor: "#ffffff",
+  themeColor: "#f9f9f9",
 };
 
 export default function RootLayout({
@@ -62,7 +62,7 @@ export default function RootLayout({
       lang="en"
       className={`${caveat.variable} ${fraunces.variable} ${plexMono.variable}`}
     >
-      <body className="bg-white text-neutral-900 antialiased">
+      <body className="bg-gallery text-neutral-900 antialiased">
         {children}
         {/* The memory-dive orchestrator — global so any page's client cards
             can begin a retrieval (thread → response → veil → dive). */}

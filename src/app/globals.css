@@ -20,11 +20,16 @@
   --font-hand-brand: var(--font-caveat), "Segoe Script", cursive;
   --font-serif-brand: var(--font-fraunces), ui-serif, Georgia, serif;
   --font-mono-brand: var(--font-plex-mono), ui-monospace, "SFMono-Regular", monospace;
+  /* The gallery wall — matched to the hero video's own background (#F9F9F9,
+   * sampled from its frames) so the footage dissolves into the page with no
+   * visible seam. Pure #fff is reserved for cards, which now sit a breath
+   * brighter than the wall, like mounted prints. */
+  --color-gallery: #f9f9f9;
 }
 
 html,
 body {
-  background: #ffffff;
+  background: #f9f9f9;
 }
 
 html {

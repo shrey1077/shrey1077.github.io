@@ -19,6 +19,7 @@
 import { create } from "zustand";
 import type {
   AnimationState,
+  HeroPose,
   NormalizedPointer,
   ProjectPhase,
 } from "@/types/scene";
@@ -48,6 +49,11 @@ interface SceneState {
    *  cards with the click point; consumed by MemoryTransitionHost, which draws
    *  the thread, raises the veil, and performs the navigation. */
   pendingMemory: { slug: string; x: number; y: number } | null;
+  /** The hero's pose (Phase 5 v4): landing "center", or a committed hemisphere.
+   *  Written by HeroStage's click zones and the panels' flip strip; read by
+   *  HeroVideo (drives playback), the layout (zoom-out), and SectionPanels
+   *  (which hemisphere's sections show, and in which theme). */
+  heroPose: HeroPose;
   /** The current build phase. Future systems branch on this. */
   currentPhase: ProjectPhase;
 }
@@ -61,6 +67,7 @@ interface SceneActions {
   setActiveSection: (section: NavSectionId | null) => void;
   setHoveredNav: (hover: NavHoverTarget | null) => void;
   setPendingMemory: (memory: { slug: string; x: number; y: number } | null) => void;
+  setHeroPose: (pose: HeroPose) => void;
   setCurrentPhase: (phase: ProjectPhase) => void;
 }
 
@@ -75,6 +82,7 @@ const INITIAL_STATE: SceneState = {
   activeSection: null,
   hoveredNav: null,
   pendingMemory: null,
+  heroPose: "center",
   currentPhase: 3,
 };
 
@@ -87,5 +95,6 @@ export const useSceneStore = create<SceneStore>((set) => ({
   setActiveSection: (activeSection) => set({ activeSection }),
   setHoveredNav: (hoveredNav) => set({ hoveredNav }),
   setPendingMemory: (pendingMemory) => set({ pendingMemory }),
+  setHeroPose: (heroPose) => set({ heroPose }),
   setCurrentPhase: (currentPhase) => set({ currentPhase }),
 }));
