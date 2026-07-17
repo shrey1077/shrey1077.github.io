@@ -30,6 +30,20 @@ export interface ClientExperienceConfig {
   slug: string;
   /** Short positioning line under the client name. */
   tagline: string;
+  /** Plays the client's Legacy intro overlay on first visit (LegacyIntro). */
+  legacyIntro?: boolean;
+  /** Section 01 renders the full logo system (guideline plates, campus
+   *  identities, partner wall) instead of the BrandOpening placeholder. */
+  logoSystem?: boolean;
+  /** Optional per-anchor rail-description overrides ("logos", "photography"…). */
+  sectionDescriptions?: Record<string, string>;
+  /** Closing company-info block (ExperienceFooter). */
+  footer?: {
+    /** The client's formal name for the record line. */
+    clientName: string;
+    /** Short factual lines about the engagement. */
+    facts: string[];
+  };
   /** Section 01 — opening brand experience. */
   brand: {
     /** The text mark shown in the construction frame until real logo assets land. */

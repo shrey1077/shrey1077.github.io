@@ -16,16 +16,39 @@ export const CLIENT_EXPERIENCES: readonly ClientExperienceConfig[] = [
   {
     slug: "tata-iis",
     tagline: "Brand & communication system for the Indian Institute of Skills",
+    legacyIntro: true,
+    logoSystem: true,
     brand: {
       markText: "Tata IIS",
-      note: "The identity is built on a strict construction grid — proportion, spacing, and typography all derive from it. The full logo-construction experience arrives with the official guidelines.",
+      note: "The identity is built on a strict construction grid — proportion, spacing, and typography all derive from it.",
     },
     institute: {
       parentName: "Indian Institute of Skills",
       parentNote: "A Tata initiative",
       branches: [
-        { id: "iis-ahmedabad", name: "IIS Ahmedabad", city: "Ahmedabad" },
-        { id: "iis-mumbai", name: "IIS Mumbai", city: "Mumbai" },
+        {
+          id: "iis-ahmedabad",
+          name: "IIS Ahmedabad",
+          city: "Ahmedabad",
+          logoSrc: "/content/clients/tata-iis/brand/iisa.png",
+        },
+        {
+          id: "iis-mumbai",
+          name: "IIS Mumbai",
+          city: "Mumbai",
+          logoSrc: "/content/clients/tata-iis/brand/iism.png",
+        },
+      ],
+    },
+    sectionDescriptions: {
+      photography: "Real campus, real labs — no stock, ever.",
+    },
+    footer: {
+      clientName: "Tata Indian Institute of Skills",
+      facts: [
+        "An initiative with the Ministry of Skill Development & Entrepreneurship, Government of India",
+        "Supported by Tata Trusts and Tata Sons",
+        "Campuses — Ahmedabad · Mumbai",
       ],
     },
   },

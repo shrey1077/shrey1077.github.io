@@ -30,3 +30,45 @@ export interface ExperienceAnchor {
   /** The DOM id of the target ExperienceSection. */
   anchor: string;
 }
+
+/* ── Folder-driven sections (Tata IIS build — docs/TATA_IIS_BUILD_PROMPT.md)
+ * A client's `sections/<Section>/<Collection>/` content tree renders through
+ * CollectionsSection. Each collection declares its presentation voice in
+ * `_meta.json`; the framework supplies the layout per voice. */
+
+import type { ContentAsset } from "@/content/catalogue";
+
+/** How a collection presents. */
+export type CollectionPresentation =
+  | "strip" // wide, one artifact per beat (environmental scale)
+  | "grid" // quiet 3-col plates
+  | "publication" // 2-col spreads
+  | "showcase" // one artifact, large and centered
+  | "pairs" // 2-up portrait pairs (question/answer)
+  | "row" // small supporting row
+  | "video-wall"; // posters first, one player at a time
+
+/** A content asset enriched with curation data from `_meta.json`. */
+export interface CollectionAsset extends ContentAsset {
+  /** One-line caption (from meta `captions`, keyed by filename). */
+  caption?: string;
+  /** Portrait-orientation hint (video-wall tiles). */
+  portrait?: boolean;
+}
+
+/** One curated collection (= one folder under a section). */
+export interface SectionCollection {
+  id: string;
+  name: string;
+  description?: string;
+  presentation: CollectionPresentation;
+  assets: CollectionAsset[];
+}
+
+/** One folder-driven section (= one folder under `sections/`). */
+export interface FolderSection {
+  id: string;
+  name: string;
+  description?: string;
+  collections: SectionCollection[];
+}

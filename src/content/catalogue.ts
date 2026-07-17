@@ -64,6 +64,12 @@ export interface PhotoCollection {
 interface FolderMeta {
   order?: number;
   description?: string;
+  /** Collection presentation voice (sections/ tree — types/experience.ts). */
+  presentation?: string;
+  /** filename → one-line caption. Key order doubles as curation order. */
+  captions?: Record<string, string>;
+  /** Filenames that are portrait-oriented (video-wall tiles). */
+  portrait?: string[];
 }
 
 /* ── Filesystem helpers ───────────────────────────────────────────────── */
@@ -258,5 +264,98 @@ export function readPhotography(slug: string): PhotoCollection[] {
       description: c.description,
       assetCount: c.assetCount,
       images: c.images,
+    }));
+}
+
+/* ── Folder-driven sections (Tata IIS build) ──────────────────────────── */
+
+import type {
+  CollectionAsset,
+  CollectionPresentation,
+  FolderSection,
+} from "@/types/experience";
+
+/** "01 The Brand at Scale" → "The Brand at Scale" (prefix orders folders). */
+function stripOrderPrefix(name: string): string {
+  return name.replace(/^\d+\s+/, "");
+}
+
+const PRESENTATIONS = new Set<CollectionPresentation>([
+  "strip", "grid", "publication", "showcase", "pairs", "row", "video-wall",
+]);
+
+function asPresentation(value: string | undefined): CollectionPresentation {
+  return PRESENTATIONS.has(value as CollectionPresentation)
+    ? (value as CollectionPresentation)
+    : "grid";
+}
+
+/**
+ * All folder-driven sections for a client, from
+ * `public/content/clients/<slug>/sections/<Section>/<Collection>/…`.
+ *
+ * Section and collection metas follow the same `_meta.json` contract as the
+ * catalogue; collections add `presentation`, `captions` (whose key order is
+ * the curation order) and `portrait`. Empty/missing tree → [] (the composing
+ * page then falls back to the catalogue plan).
+ */
+export function readSections(slug: string): FolderSection[] {
+  const root = clientDir(slug, "sections");
+  return listDirs(root)
+    .map((section) => {
+      const sectionDir = path.join(root, section);
+      const sectionMeta = readMeta(sectionDir);
+      const collections = listDirs(sectionDir)
+        .map((folder) => {
+          const dir = path.join(sectionDir, folder);
+          const meta = readMeta(dir);
+          const captionOrder = Object.keys(meta.captions ?? {});
+          const curationIndex = (file: string) => {
+            const i = captionOrder.indexOf(file);
+            return i === -1 ? Number.MAX_SAFE_INTEGER : i;
+          };
+          const assets: CollectionAsset[] = listFiles(dir)
+            .sort(
+              (a, b) => curationIndex(a) - curationIndex(b) || a.localeCompare(b),
+            )
+            .map((file) => ({
+              name: path.parse(file).name,
+              url: publicUrl("content", "clients", slug, "sections", section, folder, file),
+              kind: assetKind(file),
+              caption: meta.captions?.[file],
+              portrait: meta.portrait?.includes(file) || undefined,
+            }));
+          return {
+            id: folderToId(folder),
+            name: stripOrderPrefix(folder),
+            description: meta.description,
+            presentation: asPresentation(meta.presentation),
+            assets,
+            order: meta.order ?? Number.MAX_SAFE_INTEGER,
+          };
+        })
+        .sort((a, b) => a.order - b.order || a.name.localeCompare(b.name))
+        .map((c) => ({
+          id: c.id,
+          name: c.name,
+          description: c.description,
+          presentation: c.presentation,
+          assets: c.assets,
+        }));
+      return {
+        id: folderToId(section),
+        name: section,
+        description: sectionMeta.description,
+        collections,
+        order: sectionMeta.order ?? Number.MAX_SAFE_INTEGER,
+      };
+    })
+    .filter((s) => s.collections.length > 0)
+    .sort((a, b) => a.order - b.order || a.name.localeCompare(b.name))
+    .map((s) => ({
+      id: s.id,
+      name: s.name,
+      description: s.description,
+      collections: s.collections,
     }));
 }
