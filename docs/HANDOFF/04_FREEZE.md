@@ -3,6 +3,24 @@
 Everything below is correct. Future sessions must assume it is right and must
 NOT redesign it unless the user explicitly asks. Build on it; do not relitigate.
 
+**⚠ SUPERSEDED ITEMS (2026-07-13)** — the user explicitly directed these
+redesigns since this doc was written; treat the corresponding bullets below as
+historical, not current:
+- The 3D brain / WebGL pipeline (`components/brain/`, `components/scene/`,
+  `BrainModel.ts` GLB swap point) — **deleted**. Homepage background is now a
+  mouse-scrubbed video (`components/home/HeroVideo.tsx`).
+- "One reusable `PreviewPane`" and the flanking `BrainNavigation` — **both
+  deleted**. Replaced by `HeroStage`'s pose machine + `SectionPanels` (Phase 5
+  v4) — see `07_CONTEXT_BOOTSTRAP.md`.
+- "Pure `#FFFFFF` page" — background is now `#f9f9f9` (`bg-gallery`), matched
+  to the hero video.
+- `useDebugStore` / `useSystemsStore` (Leva tuning, system flags) — **deleted**
+  along with Leva/GSAP/three.js/R3F/drei as dependencies.
+
+Everything else below (Typography Constitution, motion principles, Memory
+Transition, the experience framework used by client pages) is still accurate
+and still frozen.
+
 ## Frozen: architecture & structure
 - Folder structure and `@/*` alias (see `02_ARCHITECTURE.md`).
 - Server Components by default; thin `"use client"` boundaries; WebGL via
