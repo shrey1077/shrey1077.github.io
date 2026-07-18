@@ -1,0 +1,13 @@
+{
+  "order": 3,
+  "cover": "nirvaan-poster.webp",
+  "presentation": "video-wall",
+  "description": "A performance-installation project — \"a quest for self-awakening\" — staged with three collaborators. Poster, trailer, and teaser.",
+  "captions": {
+    "trailer.mp4": "Trailer.",
+    "geet-malhar-ke-teaser.mp4": "Geet Malhar Ke — teaser."
+  },
+  "portrait": [
+    "geet-malhar-ke-teaser.mp4"
+  ]
+}

@@ -53,6 +53,69 @@ export const CLIENT_EXPERIENCES: readonly ClientExperienceConfig[] = [
       ],
     },
   },
+  {
+    slug: "azoth-biotech",
+    tagline: "Identity for a lab rewriting its own formula",
+    brand: {
+      markText: "Azoth Biotech",
+      note: "A DNA-helix mark, explored across a dozen directions before landing on the circular tangle.",
+    },
+    sectionDescriptions: {
+      brand: "A dozen directions for the mark, and its first campaign moment.",
+      catalogue: "A small, honest set — the identity engagement is early.",
+    },
+    footer: {
+      clientName: "Azoth Biotech",
+      facts: ["Biotechnology", "Identity in progress"],
+    },
+  },
+  {
+    slug: "newsmobile",
+    tagline: "A news identity moving at the speed of the feed",
+    brand: {
+      markText: "NewsMobile",
+      note: "Editorial infographics built to read in a scroll, branded consistently under deadline.",
+    },
+    sectionDescriptions: {
+      catalogue: "Policy launches, safety data, broadcast quotes — the daily feed, designed.",
+    },
+    footer: {
+      clientName: "NewsMobile",
+      facts: ["Digital news", "newsmobile.in · newsmobile.asia"],
+    },
+  },
+  {
+    slug: "zabraku-media",
+    tagline: "A media house with a story-first spine",
+    brand: {
+      markText: "Zabraku",
+      note: "The wordmark cut into a radial line field — a media identity built to move.",
+    },
+    sectionDescriptions: {
+      catalogue:
+        "A logo case study for RK Entertainment, then a year of the event marketing that followed it.",
+    },
+    footer: {
+      clientName: "Zabraku Media",
+      facts: ["Media · Content", "Brand identity + ongoing event campaigns"],
+    },
+  },
+  {
+    slug: "uid",
+    tagline: "Design education, given its own design language",
+    brand: {
+      markText: "UID",
+      note: "Coursework in identity, packaging, performance, and observation — the hand learning the system.",
+    },
+    sectionDescriptions: {
+      catalogue:
+        "A studio brand, a packaging system, a performance piece, and studies from life — the range a design education asks for.",
+    },
+    footer: {
+      clientName: "University Institute of Design",
+      facts: ["PG-1, Visual Communication", "Coursework archive"],
+    },
+  },
 ] as const;
 
 /** Look up an experience config by client slug. */

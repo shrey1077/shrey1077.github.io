@@ -1,0 +1,14 @@
+{
+  "order": 1,
+  "cover": "billboard-design-nature.webp",
+  "description": "A studio identity of one's own: a film-strip leaf mark, a colour and type system, and its applications — from a billboard's \"Design. Nature.\" line to a business card and a book jacket.",
+  "captions": {
+    "billboard-design-nature.webp": "\"The first zero-waste studio dedicated to environmental protection.\"",
+    "logo-explorations.webp": "The mark's route to the film-strip leaf.",
+    "colour-guidelines.webp": "Colour law — a two-tone green, a film-stock brown.",
+    "typography-guidelines.webp": "Typeface rationale.",
+    "business-cards.webp": "Founder's card.",
+    "vinyl-record-application.webp": "The mark on a vinyl sleeve.",
+    "hardcover-book-mockup.webp": "The mark on a hardcover spine."
+  }
+}
