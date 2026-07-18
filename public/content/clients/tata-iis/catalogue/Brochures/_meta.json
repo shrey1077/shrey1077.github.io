@@ -1,0 +1,19 @@
+{
+  "order": 2,
+  "cover": "admissions-brochure-page-01.webp",
+  "description": "Admissions and funding publications — impact numbers, recruiter walls and contribution paths on the circuit-grid motif.",
+  "captions": {
+    "admissions-brochure-page-01.webp": "Admissions brochure — cover.",
+    "admissions-brochure-page-02.webp": "Admissions brochure — the institute.",
+    "admissions-brochure-page-03.webp": "Admissions brochure — courses.",
+    "admissions-brochure-page-04.webp": "Admissions brochure — labs.",
+    "admissions-brochure-page-05.webp": "Admissions brochure — campus.",
+    "admissions-brochure-page-06.webp": "Admissions brochure — partners.",
+    "admissions-brochure-page-07.webp": "Admissions brochure — admissions.",
+    "admissions-brochure-page-08.webp": "Admissions brochure — back cover.",
+    "funding-brochure-impact.webp": "The funding case: 70 companies, 200+ offers, transparent impact reporting.",
+    "funding-brochure-vision.webp": "Vision spread — why skilling, why now.",
+    "funding-brochure-spread-i.webp": "Contribution paths for partners.",
+    "funding-brochure-spread-ii.webp": "Partnership models."
+  }
+}

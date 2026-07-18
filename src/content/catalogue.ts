@@ -64,6 +64,8 @@ export interface PhotoCollection {
 interface FolderMeta {
   order?: number;
   description?: string;
+  /** Filename of the image that fronts the category card. */
+  cover?: string;
   /** Collection presentation voice (sections/ tree — types/experience.ts). */
   presentation?: string;
   /** filename → one-line caption. Key order doubles as curation order. */
@@ -158,14 +160,18 @@ export function readCatalogue(slug: string): CatalogueCategory[] {
     .map((folder) => {
       const dir = path.join(root, folder);
       const meta = readMeta(dir);
-      const firstImage = listFiles(dir).find((f) => assetKind(f) === "image");
+      const files = listFiles(dir);
+      // Card cover: the meta's pick when it exists on disk, else first image.
+      const cover =
+        (meta.cover && files.includes(meta.cover) && meta.cover) ||
+        files.find((f) => assetKind(f) === "image");
       return {
         id: folderToId(folder),
         name: folder,
         description: meta.description,
         assetCount: countFilesDeep(dir),
-        coverUrl: firstImage
-          ? publicUrl("content", "clients", slug, "catalogue", folder, firstImage)
+        coverUrl: cover
+          ? publicUrl("content", "clients", slug, "catalogue", folder, cover)
           : undefined,
         order: meta.order ?? Number.MAX_SAFE_INTEGER,
       };
@@ -209,18 +215,27 @@ export function readArtPreviews(limit = 4): ContentAsset[] {
 export function readCatalogueCategory(
   slug: string,
   categoryId: string,
-): { category: CatalogueCategory; assets: ContentAsset[] } | null {
+): { category: CatalogueCategory; assets: CollectionAsset[] } | null {
   const root = clientDir(slug, "catalogue");
   const folder = listDirs(root).find((f) => folderToId(f) === categoryId);
   if (!folder) return null;
 
   const dir = path.join(root, folder);
   const meta = readMeta(dir);
-  const assets = listFiles(dir).map((file) => ({
-    name: file,
-    url: publicUrl("content", "clients", slug, "catalogue", folder, file),
-    kind: assetKind(file),
-  }));
+  const captionOrder = Object.keys(meta.captions ?? {});
+  const curationIndex = (file: string) => {
+    const i = captionOrder.indexOf(file);
+    return i === -1 ? Number.MAX_SAFE_INTEGER : i;
+  };
+  const assets: CollectionAsset[] = listFiles(dir)
+    .sort((a, b) => curationIndex(a) - curationIndex(b) || a.localeCompare(b))
+    .map((file) => ({
+      name: path.parse(file).name,
+      url: publicUrl("content", "clients", slug, "catalogue", folder, file),
+      kind: assetKind(file),
+      caption: meta.captions?.[file],
+      portrait: meta.portrait?.includes(file) || undefined,
+    }));
 
   return {
     category: {

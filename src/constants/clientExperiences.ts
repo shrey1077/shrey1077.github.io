@@ -41,7 +41,8 @@ export const CLIENT_EXPERIENCES: readonly ClientExperienceConfig[] = [
       ],
     },
     sectionDescriptions: {
-      photography: "Real campus, real labs — no stock, ever.",
+      catalogue:
+        "Every family of work, one card each — open a card to enter its gallery. Thirteen categories, the whole system.",
     },
     footer: {
       clientName: "Tata Indian Institute of Skills",

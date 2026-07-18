@@ -126,13 +126,17 @@ export function ClientExperience({ client, config }: ClientExperienceProps) {
     });
   }
 
-  sections.push({
-    index: nextIndex(),
-    title: "Photography",
-    anchor: "photography",
-    description: describe("photography"),
-    render: () => <PhotographySection collections={photography} />,
-  });
+  // Photography only exists as a section when the client actually keeps a
+  // photography/ tree — clients whose photos live in the catalogue skip it.
+  if (photography.length > 0) {
+    sections.push({
+      index: nextIndex(),
+      title: "Photography",
+      anchor: "photography",
+      description: describe("photography"),
+      render: () => <PhotographySection collections={photography} />,
+    });
+  }
 
   return (
     <ExperienceLayout currentSlug={client.slug}>

@@ -27,8 +27,19 @@ commit message starts with the checkpoint tag so any model can locate state:
 
 ## Composition (the section plan)
 
-Folder names become sections. Order tells the story: who we are (legacy →
-identity → structure), then the work at every scale, then proof of life.
+> **REWORK — CP5 (2026-07-18), supersedes the folder-sections plan below.**
+> The user reviewed CP3 and asked for **all works in catalogue format**. The
+> works now live as **13 catalogue categories** (hub-and-spoke: covered cards
+> under `03 Catalogue` → gallery-grade category routes with lightbox, video
+> wall, captions, prev/next). The page composition is now:
+> LegacyIntro → Hero → 01 Logos & Guidelines → 02 Structure → 03 Catalogue →
+> Footer. Content moved from `sections/` to `catalogue/<Category>/` (13
+> folders, ~180 assets, `_meta.json` adds `cover`). The `sections/` reader +
+> CollectionsSection remain in the framework for future clients but are no
+> longer used by Tata IIS. One new exclusion found during the expansion:
+> `Trainee Spotlight` (real student's name + photo).
+
+Original (CP3) plan, kept for history:
 
 ```
 LegacyIntro (7s overlay, plays once)          ← Intro/

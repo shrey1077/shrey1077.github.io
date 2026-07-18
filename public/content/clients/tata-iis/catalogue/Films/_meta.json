@@ -1,0 +1,15 @@
+{
+  "order": 3,
+  "cover": "one-of-one-msde.jpg",
+  "description": "The brand in motion — the flagship MSDE campus film, a JioHotstar broadcast spot, lab time-lapses, the logo render.",
+  "portrait": [
+    "additive-manufacturing-timelapse.mp4"
+  ],
+  "captions": {
+    "one-of-one-msde.mp4": "One of One — the flagship campus film for MSDE. 4½ minutes.",
+    "jio-hotstar-spot.mp4": "The 20-second spot that ran on JioHotstar.",
+    "skills-conclave-2025.mp4": "Skills Conclave 2025 — event film.",
+    "additive-manufacturing-timelapse.mp4": "Additive manufacturing, compressed to 46 seconds.",
+    "tata-iis-logo-render.mp4": "The wordmark render — the logo learning to move."
+  }
+}
