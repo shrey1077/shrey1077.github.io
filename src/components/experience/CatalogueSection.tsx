@@ -9,6 +9,7 @@
 
 import type { CatalogueCategory } from "@/content/catalogue";
 import { CatalogueCard } from "@/components/experience/CatalogueCard";
+import { Reveal } from "@/components/experience/Reveal";
 import { typeVoiceClass } from "@/constants/typography";
 
 interface CatalogueSectionProps {
@@ -28,12 +29,13 @@ export function CatalogueSection({ clientSlug, categories }: CatalogueSectionPro
   return (
     <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 sm:gap-4 xl:grid-cols-3">
       {categories.map((category, i) => (
-        <CatalogueCard
-          key={category.id}
-          clientSlug={clientSlug}
-          category={category}
-          position={i + 1}
-        />
+        <Reveal key={category.id} delay={(i % 3) * 0.06}>
+          <CatalogueCard
+            clientSlug={clientSlug}
+            category={category}
+            position={i + 1}
+          />
+        </Reveal>
       ))}
     </div>
   );

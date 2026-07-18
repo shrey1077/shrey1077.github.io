@@ -1,5 +1,15 @@
 {
   "order": 8,
   "cover": "amtech-pavilion-banner.webp",
-  "description": "Amtech and Skill Connect — every event ships as a kit: pavilion banners, case-study walls, standees, folders."
+  "description": "Amtech and Skill Connect — every event ships as a kit: pavilion banners, case-study walls, standees, folders.",
+  "story": "Events are where the brand meets strangers. For Amtech the institute stood beside Japanese industrial giants, so the pavilion spoke their language: engineering photography, case-study walls, restraint. Skill Connect went the other way — standees, photo frames and folders that make a career fair feel like a launch.",
+  "captions": {
+    "amtech-pavilion-banner.webp": "Amtech — the pavilion banner.",
+    "amtech-case-study-wall.webp": "Amtech — the case-study wall.",
+    "amtech-center-wall.webp": "Amtech — centre wall artboards.",
+    "skill-connect-standee.webp": "Skill Connect — the standee.",
+    "skill-connect-photo-frame.webp": "Skill Connect — the photo-op frame.",
+    "skill-connect-folder.webp": "Skill Connect — the bi-fold folder.",
+    "amtech-pavilion-banner-ii.webp": "Amtech — banner, second wave."
+  }
 }

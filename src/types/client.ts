@@ -44,6 +44,20 @@ export interface ClientExperienceConfig {
     /** Short factual lines about the engagement. */
     facts: string[];
   };
+  /** The client's own typographic voice + accent, applied to display moments
+   *  (hero name, category titles) across the experience and its catalogue
+   *  routes. `fontVar` is a CSS variable defined in app/layout.tsx. */
+  brandTheme?: {
+    /** e.g. "--font-cinzel". Falls back to the site serif when absent. */
+    fontVar: string;
+    /** Brand accent for quiet emphasis (eyebrows, indices, hovers). */
+    accent: string;
+    /** Extra letter-spacing for faces that want air (em units, optional). */
+    tracking?: string;
+  };
+  /** Engagement facts rendered as a mono stats row under the hero
+   *  ("180+ artifacts · 13 categories · 2 campuses"). */
+  stats?: { value: string; label: string }[];
   /** Section 01 — opening brand experience. */
   brand: {
     /** The text mark shown in the construction frame until real logo assets land. */

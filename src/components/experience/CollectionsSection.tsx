@@ -18,6 +18,7 @@
 
 import Image from "next/image";
 import type { CollectionAsset, SectionCollection } from "@/types/experience";
+import { Reveal } from "@/components/experience/Reveal";
 import { VideoWall } from "@/components/experience/VideoWall";
 import { typeVoiceClass } from "@/constants/typography";
 
@@ -60,8 +61,14 @@ function Plate({
   );
 }
 
+/** Curation discipline: any collection shows at most seven artifacts
+ *  (meta caption order decides which — the reader sorts by it). */
+const MAX_VISIBLE = 7;
+
 function CollectionBody({ collection }: { collection: SectionCollection }) {
-  const images = collection.assets.filter((a) => a.kind === "image");
+  const images = collection.assets
+    .filter((a) => a.kind === "image")
+    .slice(0, MAX_VISIBLE);
 
   switch (collection.presentation) {
     case "video-wall":
@@ -184,7 +191,7 @@ export function CollectionsSection({ collections }: CollectionsSectionProps) {
   return (
     <div className="flex flex-col gap-20">
       {collections.map((collection, i) => (
-        <div key={collection.id}>
+        <Reveal key={collection.id} delay={i === 0 ? 0 : 0.05}>
           <div className="mb-6 max-w-xl">
             <h3 className="flex items-baseline gap-3">
               <span
@@ -205,7 +212,7 @@ export function CollectionsSection({ collections }: CollectionsSectionProps) {
             )}
           </div>
           <CollectionBody collection={collection} />
-        </div>
+        </Reveal>
       ))}
     </div>
   );

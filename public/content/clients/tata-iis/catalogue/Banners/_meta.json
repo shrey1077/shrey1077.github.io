@@ -1,5 +1,15 @@
 {
   "order": 7,
   "cover": "campus-banner-ahmedabad.webp",
-  "description": "Wide-format campus and web banners for batches, campaigns and seasons."
+  "description": "Wide-format campus and web banners for batches, campaigns and seasons.",
+  "story": "The wide formats — campus gates, web headers, batch announcements. Wide is where hierarchy gets tested: the same five co-brands and two scripts, now in a strip one-fifth as tall as it is long.",
+  "captions": {
+    "campus-banner-ahmedabad.webp": "Campus banner, Ahmedabad.",
+    "campus-banner-mumbai.webp": "Campus banner, Mumbai.",
+    "iti-courses-banner.webp": "ITI courses — 4×3 announcement.",
+    "web-banner-iisa.webp": "Web header, IIS Ahmedabad.",
+    "march-batch-banner-mumbai.webp": "March batch, Mumbai.",
+    "august-batch-header.webp": "August batch header.",
+    "web-banner-iisa-ii.webp": "Web header — alternate."
+  }
 }

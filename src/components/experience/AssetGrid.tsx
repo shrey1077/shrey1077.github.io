@@ -20,7 +20,8 @@ interface AssetGridProps {
 }
 
 export function AssetGrid({ assets }: AssetGridProps) {
-  const images = assets.filter((a) => a.kind === "image");
+  // Curation discipline: at most seven artifacts per surface.
+  const images = assets.filter((a) => a.kind === "image").slice(0, 7);
 
   return (
     <ul className="grid grid-cols-2 gap-2 sm:grid-cols-3">

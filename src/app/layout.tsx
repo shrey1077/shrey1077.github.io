@@ -1,5 +1,13 @@
 import type { Metadata, Viewport } from "next";
-import { Caveat, Fraunces, IBM_Plex_Mono } from "next/font/google";
+import {
+  Anton,
+  Caveat,
+  Fraunces,
+  IBM_Plex_Mono,
+  Marcellus,
+  Michroma,
+  Orbitron,
+} from "next/font/google";
 import { MemoryTransitionHost } from "@/components/transition/MemoryTransitionHost";
 import "./globals.css";
 
@@ -38,6 +46,47 @@ const plexMono = IBM_Plex_Mono({
   display: "swap",
 });
 
+/* Client brand voices (docs/TATA_IIS_BUILD_PROMPT.md — CP7 refinement).
+ * Each client experience may declare a `brandTheme` whose display moments
+ * (hero name, category titles) speak in a face evoking that brand's own
+ * typography. Fonts are only fetched on pages whose text actually uses them.
+ *
+ *   • Marcellus → Tata IIS (the nub-serif engraved-caps spirit of Copperplate
+ *                 — closer kin than Trajan-like faces, per design research)
+ *   • Michroma  → Azoth Biotech (wide technical geometric sans)
+ *   • Anton     → NewsMobile (condensed news headline — display sizes only)
+ *   • Orbitron  → Zabraku Media (techno display; large, tracked-out use only)
+ *   • Fraunces  → UID (the site's own creative voice — student work stays home)
+ */
+
+const marcellus = Marcellus({
+  subsets: ["latin"],
+  weight: "400",
+  variable: "--font-marcellus",
+  display: "swap",
+});
+
+const michroma = Michroma({
+  subsets: ["latin"],
+  weight: "400",
+  variable: "--font-michroma",
+  display: "swap",
+});
+
+const anton = Anton({
+  subsets: ["latin"],
+  weight: "400",
+  variable: "--font-anton",
+  display: "swap",
+});
+
+const orbitron = Orbitron({
+  subsets: ["latin"],
+  weight: ["500", "700"],
+  variable: "--font-orbitron",
+  display: "swap",
+});
+
 export const metadata: Metadata = {
   title: "Mind — Interactive Brain",
   description:
@@ -60,7 +109,7 @@ export default function RootLayout({
   return (
     <html
       lang="en"
-      className={`${caveat.variable} ${fraunces.variable} ${plexMono.variable}`}
+      className={`${caveat.variable} ${fraunces.variable} ${plexMono.variable} ${marcellus.variable} ${michroma.variable} ${anton.variable} ${orbitron.variable}`}
     >
       <body className="bg-gallery text-neutral-900 antialiased">
         {children}

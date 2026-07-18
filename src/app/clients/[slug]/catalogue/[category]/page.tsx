@@ -13,8 +13,10 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import type { Metadata } from "next";
 import { CLIENTS, clientBySlug } from "@/constants/clients";
+import { clientExperienceBySlug } from "@/constants/clientExperiences";
 import { readCatalogue, readCatalogueCategory } from "@/content/catalogue";
 import { CatalogueGallery } from "@/components/experience/CatalogueGallery";
+import { Reveal } from "@/components/experience/Reveal";
 import { VideoWall } from "@/components/experience/VideoWall";
 import { typeVoiceClass } from "@/constants/typography";
 
@@ -72,8 +74,21 @@ export default async function CategoryPage({ params }: CategoryPageProps) {
   const prev = at > 0 ? catalogue[at - 1] : undefined;
   const next = at >= 0 && at < catalogue.length - 1 ? catalogue[at + 1] : undefined;
 
+  // The client's brand voice carries into its catalogue rooms.
+  const theme = clientExperienceBySlug(slug)?.brandTheme;
+  const themeVars = theme
+    ? ({
+        "--brand-font": `var(${theme.fontVar})`,
+        "--brand-accent": theme.accent,
+        ...(theme.tracking ? { "--brand-tracking": theme.tracking } : {}),
+      } as React.CSSProperties)
+    : undefined;
+
   return (
-    <main className="min-h-dvh w-full bg-gallery px-6 py-14 sm:px-10">
+    <main
+      className="min-h-dvh w-full bg-gallery px-6 py-14 sm:px-10"
+      style={themeVars}
+    >
       <div className="mx-auto w-full max-w-5xl">
         <Link
           href={`/clients/${slug}#catalogue`}
@@ -89,11 +104,18 @@ export default async function CategoryPage({ params }: CategoryPageProps) {
         </Link>
 
         <header className="mt-10 border-b border-neutral-200 pb-8">
-          <span className={`${META} text-xs text-neutral-400`}>
+          <span
+            className={`${META} text-xs`}
+            style={{ color: "var(--brand-accent, #a3a3a3)" }}
+          >
             Catalogue{at >= 0 ? ` · ${String(at + 1).padStart(2, "0")} / ${String(catalogue.length).padStart(2, "0")}` : ""}
           </span>
           <h1
-            className={`${typeVoiceClass("creative", "display")} mt-3 text-4xl text-neutral-900 sm:text-5xl`}
+            className="mt-3 text-4xl text-neutral-900 sm:text-5xl"
+            style={{
+              fontFamily: "var(--brand-font, var(--font-fraunces))",
+              letterSpacing: "var(--brand-tracking, -0.02em)",
+            }}
           >
             {data.category.name}
           </h1>
@@ -102,9 +124,16 @@ export default async function CategoryPage({ params }: CategoryPageProps) {
               {data.category.description}
             </p>
           )}
-          <span className={`${META} mt-4 block text-[0.6rem] text-neutral-400`}>
+          {data.category.story && (
+            <p className="mt-5 max-w-2xl border-l-2 pl-5 text-[0.95rem] font-light leading-relaxed text-neutral-600"
+              style={{ borderColor: "var(--brand-accent, #e5e5e5)" }}
+            >
+              {data.category.story}
+            </p>
+          )}
+          <span className={`${META} mt-5 block text-[0.6rem] text-neutral-400`}>
             {data.category.assetCount > 0
-              ? `${data.category.assetCount} asset${data.category.assetCount === 1 ? "" : "s"}`
+              ? `${data.category.assetCount} asset${data.category.assetCount === 1 ? "" : "s"} in the archive · showing the selected few`
               : "Awaiting assets"}
           </span>
         </header>
@@ -122,9 +151,15 @@ export default async function CategoryPage({ params }: CategoryPageProps) {
             </div>
           ) : (
             <div className="flex flex-col gap-12">
-              {videos.length > 0 && <VideoWall assets={data.assets} />}
+              {videos.length > 0 && (
+                <Reveal>
+                  <VideoWall assets={data.assets} />
+                </Reveal>
+              )}
               {galleryImages.length > 0 && (
-                <CatalogueGallery assets={galleryImages} />
+                <Reveal delay={0.05}>
+                  <CatalogueGallery assets={galleryImages} />
+                </Reveal>
               )}
               {files.length > 0 && (
                 <ul className="flex flex-col">

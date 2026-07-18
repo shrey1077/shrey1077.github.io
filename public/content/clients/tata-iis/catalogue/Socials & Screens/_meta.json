@@ -2,23 +2,14 @@
   "order": 12,
   "cover": "alfa-romeo-question.webp",
   "description": "The Guess-the-Logo brand-literacy series, the story/post template system, and the screens between meetings.",
+  "story": "The feed had two jobs: teach and staff. The Guess-the-Logo series taught design history through brands students already love — question by day, answer by night. Around it, a template system let the comms team publish daily without breaking the grid, and the Teams backdrops carried the brand into every meeting.",
   "captions": {
     "alfa-romeo-question.webp": "Brand literacy — question by day…",
     "alfa-romeo-answer.webp": "…answer by night: Alfa Romeo, and its first two F1 titles.",
     "citibank-question.webp": "Brand literacy — a banking identity.",
     "citibank-answer.webp": "Citibank, revealed.",
-    "story-frame-i.webp": "Story frame system.",
-    "story-frame-ii.webp": "Story frame system.",
-    "story-frame-iii.webp": "Story frame system.",
-    "post-template-i.webp": "Post template.",
-    "post-template-ii.webp": "Post template.",
-    "square-post.webp": "Square post.",
-    "square-post-ii.webp": "Square post.",
-    "story-launch.webp": "Launch story.",
+    "story-frame-i.webp": "The story-frame system.",
     "portrait-post-iisa.webp": "Portrait post — IISA palette.",
-    "portrait-post-iism.webp": "Portrait post — IISM palette.",
-    "birthday-template.webp": "Birthday template.",
-    "teams-call-backdrop.webp": "Teams call backdrop.",
-    "video-frame-backdrop.webp": "Video-call frame backdrop."
+    "teams-call-backdrop.webp": "The brand at every meeting."
   }
 }

@@ -16,6 +16,10 @@ import type { CollectionAsset } from "@/types/experience";
 import { MediaViewer } from "@/components/experience/MediaViewer";
 import { typeVoiceClass } from "@/constants/typography";
 
+/** Curation discipline: a section shows at most seven artifacts. The meta's
+ *  caption order decides WHICH seven (readCatalogueCategory sorts by it). */
+const MAX_VISIBLE = 7;
+
 interface CatalogueGalleryProps {
   assets: CollectionAsset[];
 }
@@ -23,7 +27,9 @@ interface CatalogueGalleryProps {
 export function CatalogueGallery({ assets }: CatalogueGalleryProps) {
   const [viewing, setViewing] = useState<ContentAsset | null>(null);
 
-  const images = assets.filter((a) => a.kind === "image");
+  const images = assets
+    .filter((a) => a.kind === "image")
+    .slice(0, MAX_VISIBLE);
   if (images.length === 0) return null;
 
   return (

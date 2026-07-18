@@ -33,8 +33,16 @@ const NO_VIDEO = process.argv.includes("--no-video");
 /** [source (under SRC), dest (under DEST_ROOT/<slug>), maxWidth, format?] */
 const IMAGES = [
   // ── Azoth Biotech ──────────────────────────────────────────────────────
+  ["Azoth/Asset 1@4x.png", "azoth-biotech/catalogue/Brand Identity/azoth-master-mark.webp", 1200],
   ["Azoth/lOGOS-01.png", "azoth-biotech/catalogue/Brand Identity/logo-explorations.webp", 2000],
   ["Azoth/dusseraAzoth-02.png", "azoth-biotech/catalogue/Brand Identity/dusshera-campaign-post.webp", 1600],
+  // Sub-brands proposed under the Azoth house (user-confirmed as Azoth work).
+  ["Azoth/mw_sheet-01-01.png", "azoth-biotech/catalogue/Sub-brands/mushroomworks-system.webp", 2000],
+  ["Azoth/LOGOS SHEETSMYCO-01.png", "azoth-biotech/catalogue/Sub-brands/mycoactives-system.webp", 2000],
+  ["Azoth/Asset 13@2x.png", "azoth-biotech/catalogue/Sub-brands/mycoactives-lockup.webp", 1600],
+  ["Azoth/kavaka 1@2x.png", "azoth-biotech/catalogue/Sub-brands/kavaka-lockup.webp", 1600],
+  ["Azoth/lionsmane-01.png", "azoth-biotech/catalogue/Sub-brands/lions-mane-lockup.webp", 1600],
+  ["Azoth/Naturalist-01.png", "azoth-biotech/catalogue/Sub-brands/the-naturalist-lockup.webp", 1600],
 
   // ── Newsmobile ──────────────────────────────────────────────────────────
   ["Newsmobile/gst launch.jpg", "newsmobile/catalogue/Editorial Infographics/gst-launch.webp", 1600],
@@ -107,16 +115,50 @@ const VIDEOS = [
 const METAS = {
   "azoth-biotech/catalogue/Brand Identity": {
     order: 1,
-    cover: "logo-explorations.webp",
+    cover: "azoth-master-mark.webp",
     description:
-      "An early-stage identity engagement — a DNA-helix mark explored across a dozen directions, landing on the circular tangle, and its first campaign moment. A small, honest set: the relationship is early.",
+      "A mycelium tangle bounded by a circle — the master mark, its exploration sheet, and its first festival moment.",
+    story:
+      "The brief: make biology feel engineered. Twelve directions were drawn — helixes, flasks, monograms — before the answer arrived from the organism itself: a mycelial network, clipped by a perfect circle, precise enough for a pharma label and alive enough for a festival post. The chrome stays neutral so one teal reads as the signal.",
+    captions: {
+      "azoth-master-mark.webp": "The master mark — a mycelium network held in a circle.",
+      "logo-explorations.webp": "Twelve directions on one sheet — the route to the tangle.",
+      "dusshera-campaign-post.webp":
+        "Dusshera, said in brand language: strike out your daemons.",
+    },
+  },
+  "azoth-biotech/catalogue/Sub-brands": {
+    order: 2,
+    cover: "mushroomworks-system.webp",
+    description:
+      "Five product sub-brands proposed under the Azoth house — Mushroomworks, MycoActives, Kavaka, Lion's Mane, The Naturalist.",
+    story:
+      "One house, many fruiting bodies. Each proposed line gets its own mark — a mushroom that reads as a growth arrow, a bolt-stemmed cap, a leaf-gilled monogram — while staying inside the parent's teal-and-grey grammar. Sheets show the system thinking: lockups, reverses, and typography tested together, not logo-by-logo.",
+    captions: {
+      "mushroomworks-system.webp": "Mushroomworks — the cap that grows into an arrow.",
+      "mycoactives-system.webp": "MycoActives — the exploration sheet.",
+      "mycoactives-lockup.webp": "MycoActives — bolt-stemmed, energy-first.",
+      "kavaka-lockup.webp": "Kavaka — the Sanskrit name, drawn as a mark.",
+      "lions-mane-lockup.webp": "Lion's Mane — the nootropic line.",
+      "the-naturalist-lockup.webp": "The Naturalist — the field-notes voice.",
+    },
   },
 
   "newsmobile/catalogue/Editorial Infographics": {
     order: 1,
     cover: "gst-launch.webp",
     description:
-      "Daily-news infographics — a policy launch, a road-safety data card, a broadcast quote, celebrity-list content — each built to read in a feed scroll, branded consistently under deadline.",
+      "Daily-news graphics built to read in a feed scroll — the story, in three lines flat.",
+    story:
+      "News design is deadline design. Each card had hours, not days: a policy launch broken into numbers, road deaths made legible without being lurid, a quote staged like broadcast. The discipline that survived the pace — one condensed headline voice, one red, the masthead always in the same corner — is what made six graphics from five years look like one newsroom.",
+    captions: {
+      "gst-launch.webp": "GST launch night — the quote, staged like broadcast.",
+      "killer-indian-roads.webp": "17 deaths an hour — data made legible, not lurid.",
+      "oil-prices-slashed.webp": "Fuel-price cut — one card, three timelines.",
+      "bond-drinks.webp": "Entertainment desk — Bond, ranked by glass.",
+      "worlds-richest-man.webp": "Bezos at $90.6B — the profile card.",
+      "highest-paid-actresses.webp": "Forbes list, in one scroll-stopping frame.",
+    },
   },
 
   "zabraku-media/catalogue/Brand Identity": {
@@ -124,6 +166,8 @@ const METAS = {
     cover: "rk-entertainment-case-study.webp",
     description:
       "Zabraku's own mark, and a logo case study built for RK Entertainment — bounding box, typeface rationale, and the champagne-glass monogram explained the way a client deck should.",
+    story:
+      "Two identities, one desk. Zabraku's own wordmark is cut into a radial line field — a media house that reads like a signal. For RK Entertainment, the case study does the persuading: the monogram's champagne glass is derived on a bounding grid, the typeface argued for in writing, because a nightlife client buys conviction before they buy a logo.",
     captions: {
       "zabraku-mark-i.webp": "The Zabraku wordmark, cut into a radial line field.",
       "zabraku-mark-ii.webp": "An alternate cover treatment — prism and gradient.",
@@ -136,7 +180,9 @@ const METAS = {
     order: 2,
     cover: "ohm-2-lineup-a-to-z.webp",
     description:
-      "Ongoing event marketing for the same client — full lineup boards, day bills, and teasers across a year of parties: Ohm 2.Ω, the After After Party, Phantom Halloween, Christmas.",
+      "A year of parties for one client — lineup boards, day bills and teasers: Ohm 2.Ω, the After After Party, Phantom Halloween, Christmas.",
+    story:
+      "Event design is scene reportage: Anjuna cliff, 3 AM onwards, no masks no entry. Across a full calendar the system flexed — grunge type over red-orange artwork for the festival, nebulae for the after-hours, a wreath for Christmas — while the sponsor rows, venue line and lineup typography held formation. The posters carry the colour; the identity carries the year.",
     captions: {
       "ohm-2-lineup-a-to-z.webp": "Ohm 2.Ω — the full A–Z lineup board, 12–15 August.",
       "ohm-2-lineup-15-aug.webp": "Ohm 2.Ω — the 15th August day bill.",
@@ -152,6 +198,8 @@ const METAS = {
     cover: "billboard-design-nature.webp",
     description:
       "A studio identity of one's own: a film-strip leaf mark, a colour and type system, and its applications — from a billboard's \"Design. Nature.\" line to a business card and a book jacket.",
+    story:
+      "The postgraduate brief that becomes a thesis statement: invent a studio, then behave like it exists. Puran's mark folds a film strip into a leaf; the guidelines commit to two greens and a film-stock brown; and the applications — billboard, card, vinyl, hardcover — are treated as deliverables, not decorations. Coursework, presented like finished practice.",
     captions: {
       "billboard-design-nature.webp":
         "\"The first zero-waste studio dedicated to environmental protection.\"",
@@ -168,6 +216,16 @@ const METAS = {
     cover: "packaging-family.webp",
     description:
       "Packaging for a hydroponic urban farming brand — a sprouting-leaf mark on a pentagon pack, sized for a produce family grown, not shipped, from far away.",
+    story:
+      "Structure first: the pentagon carton was cut, folded and rebuilt until it stood on a shelf, then the graphics arrived — a sprouting mark, produce photography, a green that means fresh rather than eco-generic. The family shot is the proof: one system, four SKUs, no exceptions.",
+    captions: {
+      "packaging-family.webp": "The family — one system, four SKUs.",
+      "pack-01.webp": "The pentagon carton, front face.",
+      "pack-02.webp": "Side elevation.",
+      "pack-03.webp": "The opening mechanism.",
+      "pack-04.webp": "Shelf stance.",
+      "brand-mark.webp": "Farmstacks — the sprouting mark.",
+    },
   },
   "uid/catalogue/Nirvaan — Body and Space": {
     order: 3,
@@ -175,6 +233,8 @@ const METAS = {
     presentation: "video-wall",
     description:
       "A performance-installation project — \"a quest for self-awakening\" — staged with three collaborators. Poster, trailer, and teaser.",
+    story:
+      "Body and space, treated as materials. The poster is hand-painted — watercolour ground, Devanagari brushwork — because the performance itself was analog: movement, breath, a basement at 3 PM. The films keep that honesty; nothing is graded into a trailer it wasn't.",
     captions: {
       "trailer.mp4": "Trailer.",
       "geet-malhar-ke-teaser.mp4": "Geet Malhar Ke — teaser.",
@@ -186,6 +246,16 @@ const METAS = {
     cover: "eye-studies-i.webp",
     description:
       "Observational studies and a hand-built object — pencil studies from life, and a physical perpetual-calendar model, \"Time Bound.\"",
+    story:
+      "Where the hand learned before the system did. Graphite studies of eyes and faces trained the seeing; \"Time Bound\" — a stepped, mosaic-skinned perpetual calendar built by hand — trained the making. Every polished system elsewhere on this site starts in rooms like these.",
+    captions: {
+      "eye-studies-i.webp": "Graphite — the eye, studied.",
+      "eye-studies-ii.webp": "Graphite — second sitting.",
+      "time-bound-calendar-model.webp": "\"Time Bound\" — the perpetual calendar, built by hand.",
+      "time-bound-calendar-model-ii.webp": "The calendar's dial detail.",
+      "study-iii.webp": "Study from life.",
+      "study-iv.webp": "Study from life.",
+    },
   },
 };
 

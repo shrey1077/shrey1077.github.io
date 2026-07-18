@@ -18,6 +18,18 @@ export const CLIENT_EXPERIENCES: readonly ClientExperienceConfig[] = [
     tagline: "Brand & communication system for the Indian Institute of Skills",
     legacyIntro: true,
     logoSystem: true,
+    brandTheme: {
+      // Marcellus — the nub-serif engraved-caps kin of Copperplate Gothic.
+      fontVar: "--font-marcellus",
+      accent: "#14279B",
+      tracking: "0.04em",
+    },
+    stats: [
+      { value: "180+", label: "Artifacts" },
+      { value: "13", label: "Categories" },
+      { value: "2", label: "Campuses" },
+      { value: "5", label: "Films" },
+    ],
     brand: {
       markText: "Tata IIS",
       note: "The identity is built on a strict construction grid — proportion, spacing, and typography all derive from it.",
@@ -56,6 +68,17 @@ export const CLIENT_EXPERIENCES: readonly ClientExperienceConfig[] = [
   {
     slug: "azoth-biotech",
     tagline: "Identity for a lab rewriting its own formula",
+    brandTheme: {
+      // Michroma — wide technical geometric, the wordmark's own species.
+      fontVar: "--font-michroma",
+      accent: "#17817A",
+      tracking: "0.05em",
+    },
+    stats: [
+      { value: "12", label: "Directions explored" },
+      { value: "5", label: "Sub-brands proposed" },
+      { value: "1", label: "Living system" },
+    ],
     brand: {
       markText: "Azoth Biotech",
       note: "A DNA-helix mark, explored across a dozen directions before landing on the circular tangle.",
@@ -72,6 +95,17 @@ export const CLIENT_EXPERIENCES: readonly ClientExperienceConfig[] = [
   {
     slug: "newsmobile",
     tagline: "A news identity moving at the speed of the feed",
+    brandTheme: {
+      // Anton — the condensed headline weight the cards themselves speak.
+      fontVar: "--font-anton",
+      accent: "#D0342C",
+      tracking: "0.01em",
+    },
+    stats: [
+      { value: "6", label: "Data stories selected" },
+      { value: "2014–18", label: "On the masthead" },
+      { value: "Daily", label: "Deadline rhythm" },
+    ],
     brand: {
       markText: "NewsMobile",
       note: "Editorial infographics built to read in a scroll, branded consistently under deadline.",
@@ -87,6 +121,17 @@ export const CLIENT_EXPERIENCES: readonly ClientExperienceConfig[] = [
   {
     slug: "zabraku-media",
     tagline: "A media house with a story-first spine",
+    brandTheme: {
+      // Orbitron — techno display; used large and tracked-out only.
+      fontVar: "--font-orbitron",
+      accent: "#B3264A",
+      tracking: "0.08em",
+    },
+    stats: [
+      { value: "2", label: "Identities built" },
+      { value: "4", label: "Campaign waves" },
+      { value: "1 yr", label: "Party calendar" },
+    ],
     brand: {
       markText: "Zabraku",
       note: "The wordmark cut into a radial line field — a media identity built to move.",
@@ -103,6 +148,17 @@ export const CLIENT_EXPERIENCES: readonly ClientExperienceConfig[] = [
   {
     slug: "uid",
     tagline: "Design education, given its own design language",
+    brandTheme: {
+      // The site's own creative voice — student work stays home in Fraunces.
+      fontVar: "--font-fraunces",
+      accent: "#3B4CC0",
+      tracking: "-0.02em",
+    },
+    stats: [
+      { value: "4", label: "Disciplines" },
+      { value: "PG-1", label: "Visual Communication" },
+      { value: "1", label: "Hand throughout" },
+    ],
     brand: {
       markText: "UID",
       note: "Coursework in identity, packaging, performance, and observation — the hand learning the system.",

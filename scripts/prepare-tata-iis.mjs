@@ -230,6 +230,8 @@ const METAS = {
     cover: "ahmedabad-entrance-monolith.webp",
     description:
       "The identity at architectural scale — hoardings, monoliths, facades. Five mandated co-brands, two languages, one hierarchy that reads at 60 km/h.",
+    story:
+      "Every large surface carried the same constraint: Skill India, the state government, MSDE, Tata Trusts and Tata Sons all had a mandated place, in two scripts. The system's answer was a strict hierarchy — institutional name largest, Hindi first where the law asks, partners in a fixed footer band — so that a monolith in Ahmedabad and a flyover hoarding in Mumbai read as one institution at any speed.",
     captions: {
       "ahmedabad-entrance-monolith.webp": "The Ahmedabad entrance monolith — bilingual naming, government and Tata marks in one hierarchy.",
       "mumbai-site-hoarding.webp": "Site hoarding at the Mumbai campus perimeter.",
@@ -250,19 +252,16 @@ const METAS = {
     cover: "admissions-brochure-page-01.webp",
     description:
       "Admissions and funding publications — impact numbers, recruiter walls and contribution paths on the circuit-grid motif.",
+    story:
+      "Two audiences, two arguments. The admissions brochure sells a future to an eighteen-year-old: real campus photography, courses up front, no renders. The funding brochure argues to a CSR head in spreads — 70 companies, 200+ offers, contribution paths — dense by design, held together by the circuit-grid motif that became the institute's editorial signature.",
     captions: {
-      "admissions-brochure-page-01.webp": "Admissions brochure — cover.",
-      "admissions-brochure-page-02.webp": "Admissions brochure — the institute.",
-      "admissions-brochure-page-03.webp": "Admissions brochure — courses.",
-      "admissions-brochure-page-04.webp": "Admissions brochure — labs.",
-      "admissions-brochure-page-05.webp": "Admissions brochure — campus.",
-      "admissions-brochure-page-06.webp": "Admissions brochure — partners.",
-      "admissions-brochure-page-07.webp": "Admissions brochure — admissions.",
-      "admissions-brochure-page-08.webp": "Admissions brochure — back cover.",
-      "funding-brochure-impact.webp": "The funding case: 70 companies, 200+ offers, transparent impact reporting.",
+      "admissions-brochure-page-01.webp": "Admissions brochure — the real campus on the cover.",
+      "funding-brochure-impact.webp": "The funding case: 70 companies, 200+ offers, transparent impact.",
       "funding-brochure-vision.webp": "Vision spread — why skilling, why now.",
       "funding-brochure-spread-i.webp": "Contribution paths for partners.",
-      "funding-brochure-spread-ii.webp": "Partnership models.",
+      "admissions-brochure-page-03.webp": "Course spreads, 2024 edition.",
+      "admissions-brochure-page-05.webp": "Campus and labs spread.",
+      "admissions-brochure-page-08.webp": "Back cover — the partner wall.",
     },
   },
   [`${CAT}/Films`]: {
@@ -270,6 +269,8 @@ const METAS = {
     cover: "one-of-one-msde.jpg",
     description:
       "The brand in motion — the flagship MSDE campus film, a JioHotstar broadcast spot, lab time-lapses, the logo render.",
+    story:
+      "The campus photography gap was real in year one — so the brand led with film instead. One of One walked the ministry through both campuses in four and a half minutes; a twenty-second cut ran on JioHotstar; the labs told their own story in time-lapse. No stock footage appears anywhere in the system.",
     portrait: ["additive-manufacturing-timelapse.mp4"],
     captions: {
       "one-of-one-msde.mp4": "One of One — the flagship campus film for MSDE. 4½ minutes.",
@@ -284,89 +285,136 @@ const METAS = {
     cover: "robotics-lab.webp",
     description:
       "One standee per lab, each naming its equipment partners — FANUC to Fronius. A template the campus team extends without a designer.",
+    story:
+      "Ten labs, one template: lab name in the campus colourway, the equipment photographed straight, partner logos earning their place at the base. The point was operational — when a new lab opens, the campus team fills the template themselves and the system doesn't blink.",
   },
   [`${CAT}/Campus Posters`]: {
     order: 5,
     cover: "workplace-safety-i.webp",
     description:
       "Safety and POSH Act series for workshop walls. Compliance given the same design care as campaigns.",
+    story:
+      "Compliance posters are usually where design goes to die. Here they got the same grid, the same illustration weight and the same type discipline as the campaigns — because a welding student reads the safety wall every day, and the POSH Act deserves better than a photocopied notice.",
+    captions: {
+      "workplace-safety-i.webp": "Workshop safety — the daily wall.",
+      "workplace-safety-ii.webp": "Safety series — PPE.",
+      "posh-act-i.webp": "POSH Act series — the right to a safe workplace.",
+      "posh-act-ii.webp": "POSH Act — what counts, what to do.",
+      "posh-act-iv.webp": "POSH Act — the redressal path.",
+      "workplace-safety-iii.webp": "Safety series — machine protocols.",
+      "workplace-safety-iv.webp": "Safety series — housekeeping.",
+    },
   },
   [`${CAT}/Flyers & Campaigns`]: {
     order: 6,
     cover: "flagship-courses.webp",
     description:
       "Course launches, partnerships and festivals — the everyday outbound voice, one grid across all of it.",
+    story:
+      "The highest-volume surface in the system: course flyers by the dozen, partnership announcements, festival greetings. One grid absorbed all of it — which is why a welding course flyer and a Diwali post from different months still read as siblings. The template is the brand doing its quiet daily work.",
     captions: {
-      "flagship-courses.webp": "Flagship course lineup.",
+      "flagship-courses.webp": "The flagship course lineup.",
       "labs-and-equipment.webp": "Labs and equipment overview.",
-      "job-fair.webp": "Job fair, April 2025.",
-      "leaders-summit.webp": "Leaders Summit 2025.",
-      "arai-ev-partnership-front.webp": "ARAI EV partnership — front.",
-      "arai-ev-partnership-back.webp": "ARAI EV partnership — back.",
-      "arai-one-pager.webp": "ARAI program one-pager.",
+      "arai-ev-partnership-front.webp": "ARAI EV partnership announcement.",
       "ev-skilling-program.webp": "EV skilling program.",
-      "culinary-program.webp": "Culinary program redesign.",
       "skills-conclave-2025.webp": "Skills Conclave 2025 announcement.",
-      "pse-south-gujarat.webp": "PSE outreach, South Gujarat.",
-      "diwali-greetings.webp": "Diwali greetings.",
+      "job-fair.webp": "Job fair, April 2025.",
+      "culinary-program.webp": "Culinary program redesign.",
+      "leaders-summit.webp": "Leaders Summit 2025.",
+      "diwali-greetings.webp": "Diwali, in brand voice.",
       "course-flyer-welding.webp": "Course flyer system — welding.",
-      "course-flyer-ev.webp": "Course flyer system — EV.",
-      "course-flyer-cnc.webp": "Course flyer system — CNC.",
-      "course-flyer-gefc.webp": "Course flyer system — GEFC.",
     },
   },
   [`${CAT}/Banners`]: {
     order: 7,
     cover: "campus-banner-ahmedabad.webp",
     description: "Wide-format campus and web banners for batches, campaigns and seasons.",
+    story:
+      "The wide formats — campus gates, web headers, batch announcements. Wide is where hierarchy gets tested: the same five co-brands and two scripts, now in a strip one-fifth as tall as it is long.",
+    captions: {
+      "campus-banner-ahmedabad.webp": "Campus banner, Ahmedabad.",
+      "campus-banner-mumbai.webp": "Campus banner, Mumbai.",
+      "iti-courses-banner.webp": "ITI courses — 4×3 announcement.",
+      "web-banner-iisa.webp": "Web header, IIS Ahmedabad.",
+      "march-batch-banner-mumbai.webp": "March batch, Mumbai.",
+      "august-batch-header.webp": "August batch header.",
+      "web-banner-iisa-ii.webp": "Web header — alternate.",
+    },
   },
   [`${CAT}/Events`]: {
     order: 8,
     cover: "amtech-pavilion-banner.webp",
     description:
       "Amtech and Skill Connect — every event ships as a kit: pavilion banners, case-study walls, standees, folders.",
+    story:
+      "Events are where the brand meets strangers. For Amtech the institute stood beside Japanese industrial giants, so the pavilion spoke their language: engineering photography, case-study walls, restraint. Skill Connect went the other way — standees, photo frames and folders that make a career fair feel like a launch.",
+    captions: {
+      "amtech-pavilion-banner.webp": "Amtech — the pavilion banner.",
+      "amtech-case-study-wall.webp": "Amtech — the case-study wall.",
+      "amtech-center-wall.webp": "Amtech — centre wall artboards.",
+      "skill-connect-standee.webp": "Skill Connect — the standee.",
+      "skill-connect-photo-frame.webp": "Skill Connect — the photo-op frame.",
+      "skill-connect-folder.webp": "Skill Connect — the bi-fold folder.",
+      "amtech-pavilion-banner-ii.webp": "Amtech — banner, second wave.",
+    },
   },
   [`${CAT}/Merchandise`]: {
     order: 9,
     cover: "skill-connect-polo.webp",
     description:
       "Polos, tees, planners and notebooks — the identity worn and carried.",
+    story:
+      "The wearable system: navy polos with the orange-tipped collar for staff, placement-day tees for graduating batches, planners and notebooks for desks. Merchandise is the loyalty test of an identity — it only works if people would wear it unasked.",
+    captions: {
+      "skill-connect-polo.webp": "The staff polo — navy, orange-tipped.",
+      "placement-polo-front.webp": "Placement day — front.",
+      "placement-polo-back.webp": "Placement day — back.",
+      "batch-tee-front.webp": "Batch tee, January 2025.",
+      "planner-mumbai.webp": "The campus planner, Mumbai.",
+      "notebook-skill-connect.webp": "Skill Connect notebook.",
+      "event-tee.webp": "The event tee.",
+    },
   },
   [`${CAT}/Stationery`]: {
     order: 10,
     cover: "letterhead-header.webp",
     description:
       "Letterheads, notepads, bookmarks, stickers — the credible everyday proof of a working identity.",
+    story:
+      "The unglamorous surfaces are where identities quietly die — or quietly hold. Letterhead margins matched the guideline grid; the visitor namecard, bookmark and mirror sticker each got the same care as a billboard, because a student meets the sticker more often than the hoarding.",
+    captions: {
+      "letterhead-header.webp": "Letterhead — the header rule.",
+      "letterhead-black.webp": "Letterhead — reversed.",
+      "notepad-cover-iisa.webp": "Notepad cover, IISA.",
+      "bookmark-front.webp": "The bookmark.",
+      "visitor-namecard.webp": "Visitor namecard.",
+      "stickers-mumbai.webp": "Sticker sheet, Mumbai.",
+      "mirror-sticker.webp": "The mirror sticker.",
+    },
   },
   [`${CAT}/Certificates`]: {
     order: 11,
     cover: "participation-certificate.webp",
     description:
       "What a student leaves holding. One certificate architecture; variants per campus, course and hiring partner.",
+    story:
+      "The single most-kept artifact the institute produces. One architecture — campus marks above, partner seals below, the name in the middle — flexes across forty-plus variants for courses, campuses and hiring partners without ever loosening its posture.",
   },
   [`${CAT}/Socials & Screens`]: {
     order: 12,
     cover: "alfa-romeo-question.webp",
     description:
       "The Guess-the-Logo brand-literacy series, the story/post template system, and the screens between meetings.",
+    story:
+      "The feed had two jobs: teach and staff. The Guess-the-Logo series taught design history through brands students already love — question by day, answer by night. Around it, a template system let the comms team publish daily without breaking the grid, and the Teams backdrops carried the brand into every meeting.",
     captions: {
       "alfa-romeo-question.webp": "Brand literacy — question by day…",
       "alfa-romeo-answer.webp": "…answer by night: Alfa Romeo, and its first two F1 titles.",
       "citibank-question.webp": "Brand literacy — a banking identity.",
       "citibank-answer.webp": "Citibank, revealed.",
-      "story-frame-i.webp": "Story frame system.",
-      "story-frame-ii.webp": "Story frame system.",
-      "story-frame-iii.webp": "Story frame system.",
-      "post-template-i.webp": "Post template.",
-      "post-template-ii.webp": "Post template.",
-      "square-post.webp": "Square post.",
-      "square-post-ii.webp": "Square post.",
-      "story-launch.webp": "Launch story.",
+      "story-frame-i.webp": "The story-frame system.",
       "portrait-post-iisa.webp": "Portrait post — IISA palette.",
-      "portrait-post-iism.webp": "Portrait post — IISM palette.",
-      "birthday-template.webp": "Birthday template.",
-      "teams-call-backdrop.webp": "Teams call backdrop.",
-      "video-frame-backdrop.webp": "Video-call frame backdrop.",
+      "teams-call-backdrop.webp": "The brand at every meeting.",
     },
   },
   [`${CAT}/Photography`]: {
@@ -374,6 +422,17 @@ const METAS = {
     cover: "automation-lab-training.webp",
     description:
       "Real campus, real labs, and the work photographed in place. No stock, ever.",
+    story:
+      "A standing rule from day one: no stock photography, anywhere in the system. These frames are the payoff — real students at real machines, and the standees photographed where they actually stand. When the brand shows a lab, it is that lab.",
+    captions: {
+      "automation-lab-training.webp": "The automation lab — Siemens rigs, real training.",
+      "standee-in-situ-i.webp": "The lab standee, installed.",
+      "standee-in-situ-ii.webp": "In situ — corridor run.",
+      "campus-frame-iv.webp": "Campus frame.",
+      "campus-frame-ix.webp": "Campus frame.",
+      "standee-in-situ-iii.webp": "In situ — workshop floor.",
+      "campus-frame-vi.webp": "Campus frame.",
+    },
   },
 };
 

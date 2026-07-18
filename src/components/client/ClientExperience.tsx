@@ -138,14 +138,29 @@ export function ClientExperience({ client, config }: ClientExperienceProps) {
     });
   }
 
+  // The client's own typographic voice + accent, scoped to this experience
+  // via CSS variables (ExperienceHero, category routes, and accent moments
+  // read them; absent a theme every var falls back to the site's voices).
+  const themeVars = config.brandTheme
+    ? ({
+        "--brand-font": `var(${config.brandTheme.fontVar})`,
+        "--brand-accent": config.brandTheme.accent,
+        ...(config.brandTheme.tracking
+          ? { "--brand-tracking": config.brandTheme.tracking }
+          : {}),
+      } as React.CSSProperties)
+    : undefined;
+
   return (
     <ExperienceLayout currentSlug={client.slug}>
+      <div style={themeVars}>
       {config.legacyIntro && <LegacyIntro />}
 
       <ExperienceHero
         eyebrow={`Client — ${client.sector}`}
         title={client.name}
         tagline={config.tagline}
+        stats={config.stats}
       />
 
       <ExperienceNavigation
@@ -170,6 +185,7 @@ export function ClientExperience({ client, config }: ClientExperienceProps) {
           clientFacts={config.footer.facts}
         />
       )}
+      </div>
     </ExperienceLayout>
   );
 }

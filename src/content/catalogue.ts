@@ -37,6 +37,8 @@ export interface CatalogueCategory {
   name: string;
   /** Optional blurb from `_meta.json`. */
   description?: string;
+  /** Longer narrative from `_meta.json` — the work explained (category page). */
+  story?: string;
   /** Number of asset files inside (recursive). */
   assetCount: number;
   /** Public URL of the first image found, if any (future card covers). */
@@ -64,6 +66,8 @@ export interface PhotoCollection {
 interface FolderMeta {
   order?: number;
   description?: string;
+  /** Longer narrative paragraph — the work explained (category pages). */
+  story?: string;
   /** Filename of the image that fronts the category card. */
   cover?: string;
   /** Collection presentation voice (sections/ tree — types/experience.ts). */
@@ -242,6 +246,7 @@ export function readCatalogueCategory(
       id: categoryId,
       name: folder,
       description: meta.description,
+      story: meta.story,
       assetCount: countFilesDeep(dir),
       coverUrl: assets.find((a) => a.kind === "image")?.url,
     },

@@ -1,5 +1,15 @@
 {
   "order": 5,
   "cover": "workplace-safety-i.webp",
-  "description": "Safety and POSH Act series for workshop walls. Compliance given the same design care as campaigns."
+  "description": "Safety and POSH Act series for workshop walls. Compliance given the same design care as campaigns.",
+  "story": "Compliance posters are usually where design goes to die. Here they got the same grid, the same illustration weight and the same type discipline as the campaigns — because a welding student reads the safety wall every day, and the POSH Act deserves better than a photocopied notice.",
+  "captions": {
+    "workplace-safety-i.webp": "Workshop safety — the daily wall.",
+    "workplace-safety-ii.webp": "Safety series — PPE.",
+    "posh-act-i.webp": "POSH Act series — the right to a safe workplace.",
+    "posh-act-ii.webp": "POSH Act — what counts, what to do.",
+    "posh-act-iv.webp": "POSH Act — the redressal path.",
+    "workplace-safety-iii.webp": "Safety series — machine protocols.",
+    "workplace-safety-iv.webp": "Safety series — housekeeping."
+  }
 }

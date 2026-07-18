@@ -1,5 +1,14 @@
 {
   "order": 4,
   "cover": "eye-studies-i.webp",
-  "description": "Observational studies and a hand-built object — pencil studies from life, and a physical perpetual-calendar model, \"Time Bound.\""
+  "description": "Observational studies and a hand-built object — pencil studies from life, and a physical perpetual-calendar model, \"Time Bound.\"",
+  "story": "Where the hand learned before the system did. Graphite studies of eyes and faces trained the seeing; \"Time Bound\" — a stepped, mosaic-skinned perpetual calendar built by hand — trained the making. Every polished system elsewhere on this site starts in rooms like these.",
+  "captions": {
+    "eye-studies-i.webp": "Graphite — the eye, studied.",
+    "eye-studies-ii.webp": "Graphite — second sitting.",
+    "time-bound-calendar-model.webp": "\"Time Bound\" — the perpetual calendar, built by hand.",
+    "time-bound-calendar-model-ii.webp": "The calendar's dial detail.",
+    "study-iii.webp": "Study from life.",
+    "study-iv.webp": "Study from life."
+  }
 }

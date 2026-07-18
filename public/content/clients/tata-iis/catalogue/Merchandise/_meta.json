@@ -1,5 +1,15 @@
 {
   "order": 9,
   "cover": "skill-connect-polo.webp",
-  "description": "Polos, tees, planners and notebooks — the identity worn and carried."
+  "description": "Polos, tees, planners and notebooks — the identity worn and carried.",
+  "story": "The wearable system: navy polos with the orange-tipped collar for staff, placement-day tees for graduating batches, planners and notebooks for desks. Merchandise is the loyalty test of an identity — it only works if people would wear it unasked.",
+  "captions": {
+    "skill-connect-polo.webp": "The staff polo — navy, orange-tipped.",
+    "placement-polo-front.webp": "Placement day — front.",
+    "placement-polo-back.webp": "Placement day — back.",
+    "batch-tee-front.webp": "Batch tee, January 2025.",
+    "planner-mumbai.webp": "The campus planner, Mumbai.",
+    "notebook-skill-connect.webp": "Skill Connect notebook.",
+    "event-tee.webp": "The event tee."
+  }
 }
