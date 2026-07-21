@@ -54,6 +54,8 @@ export interface ClientExperienceConfig {
     accent: string;
     /** Extra letter-spacing for faces that want air (em units, optional). */
     tracking?: string;
+    /** Uppercase the brand's display moments (engraved-caps faces like Cinzel). */
+    uppercase?: boolean;
   };
   /** Engagement facts rendered as a mono stats row under the hero
    *  ("180+ artifacts · 13 categories · 2 campuses"). */

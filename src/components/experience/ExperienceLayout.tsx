@@ -35,7 +35,7 @@ export function ExperienceLayout({
       <div className="mx-auto w-full max-w-7xl">
         <Link
           href={backHref}
-          className={`${typeVoiceClass("logic", "meta")} group inline-flex items-center gap-2 text-[0.65rem] text-neutral-400 outline-none transition-colors duration-300 hover:text-neutral-900 focus-visible:text-neutral-900`}
+          className={`${typeVoiceClass("logic", "meta")} group inline-flex items-center gap-2 text-[0.65rem] text-neutral-500 outline-none transition-colors duration-300 hover:text-neutral-900 focus-visible:text-neutral-900`}
         >
           <span
             aria-hidden

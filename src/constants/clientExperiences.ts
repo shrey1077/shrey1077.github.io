@@ -19,10 +19,12 @@ export const CLIENT_EXPERIENCES: readonly ClientExperienceConfig[] = [
     legacyIntro: true,
     logoSystem: true,
     brandTheme: {
-      // Marcellus — the nub-serif engraved-caps kin of Copperplate Gothic.
-      fontVar: "--font-marcellus",
+      // Cinzel, uppercase + wide tracking — the engraved-caps spirit of the
+      // Copperplate Gothic wordmark.
+      fontVar: "--font-cinzel",
       accent: "#14279B",
-      tracking: "0.04em",
+      tracking: "0.06em",
+      uppercase: true,
     },
     stats: [
       { value: "180+", label: "Artifacts" },
@@ -71,7 +73,8 @@ export const CLIENT_EXPERIENCES: readonly ClientExperienceConfig[] = [
     brandTheme: {
       // Michroma — wide technical geometric, the wordmark's own species.
       fontVar: "--font-michroma",
-      accent: "#17817A",
+      // Darkened from #17817A for AA contrast on the near-white ground.
+      accent: "#0F6E68",
       tracking: "0.05em",
     },
     stats: [
@@ -149,10 +152,11 @@ export const CLIENT_EXPERIENCES: readonly ClientExperienceConfig[] = [
     slug: "uid",
     tagline: "Design education, given its own design language",
     brandTheme: {
-      // The site's own creative voice — student work stays home in Fraunces.
-      fontVar: "--font-fraunces",
-      accent: "#3B4CC0",
-      tracking: "-0.02em",
+      // Syne — an expressive display grotesque; a design school gets a voice
+      // of its own rather than the site's default serif.
+      fontVar: "--font-syne",
+      accent: "#3546B0",
+      tracking: "-0.01em",
     },
     stats: [
       { value: "4", label: "Disciplines" },

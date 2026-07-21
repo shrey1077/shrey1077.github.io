@@ -12,7 +12,7 @@
  * images by shared basename (the pipeline emits `<film>.mp4` + `<film>.jpg`).
  */
 
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import Image from "next/image";
 import type { CollectionAsset } from "@/types/experience";
 import { typeVoiceClass } from "@/constants/typography";
@@ -34,7 +34,15 @@ function Tile({
   featured: boolean;
   onPlay: () => void;
 }) {
+  const videoRef = useRef<HTMLVideoElement>(null);
   const aspect = video.portrait ? "aspect-[9/16]" : "aspect-video";
+
+  // Kick playback imperatively once mounted — a bare autoPlay attribute after a
+  // state-driven remount is dropped by Safari's gesture heuristic.
+  useEffect(() => {
+    if (active) videoRef.current?.play?.().catch(() => {});
+  }, [active]);
+
   return (
     <figure className={featured ? "" : video.portrait ? "max-w-xs" : ""}>
       <div
@@ -42,6 +50,7 @@ function Tile({
       >
         {active ? (
           <video
+            ref={videoRef}
             src={video.url}
             poster={poster}
             controls
@@ -54,13 +63,14 @@ function Tile({
             type="button"
             onClick={onPlay}
             aria-label={`Play ${video.caption ?? video.name}`}
-            className="group absolute inset-0 block outline-none"
+            className="group absolute inset-0 block rounded-sm outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-neutral-900/60"
           >
             {poster && (
               <Image
                 src={poster}
                 alt=""
                 fill
+                priority={featured}
                 sizes={featured ? "(max-width: 1024px) 100vw, 896px" : "440px"}
                 className="object-cover transition-transform duration-700 group-hover:scale-[1.015]"
               />
@@ -74,7 +84,7 @@ function Tile({
         )}
       </div>
       <figcaption
-        className={`${typeVoiceClass("logic", "meta")} mt-2.5 text-[0.6rem] leading-relaxed text-neutral-400`}
+        className={`${typeVoiceClass("logic", "meta")} mt-2.5 text-[0.6rem] leading-relaxed text-neutral-500`}
       >
         {video.caption ?? video.name}
       </figcaption>

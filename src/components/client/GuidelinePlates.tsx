@@ -43,7 +43,7 @@ export function GuidelinePlates({ plates }: GuidelinePlatesProps) {
                 />
               </span>
               <span
-                className={`${typeVoiceClass("logic", "meta")} mt-2 block text-left text-[0.6rem] text-neutral-400 transition-colors duration-300 group-hover:text-neutral-900`}
+                className={`${typeVoiceClass("logic", "meta")} mt-2 block text-left text-[0.6rem] text-neutral-500 transition-colors duration-300 group-hover:text-neutral-900`}
               >
                 {String(i + 1).padStart(2, "0")}
               </span>

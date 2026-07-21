@@ -26,7 +26,7 @@ function Caption({ text }: { text?: string }) {
   if (!text) return null;
   return (
     <p
-      className={`${typeVoiceClass("logic", "meta")} mt-2.5 text-[0.6rem] leading-relaxed text-neutral-400`}
+      className={`${typeVoiceClass("logic", "meta")} mt-2.5 text-[0.6rem] leading-relaxed text-neutral-500`}
     >
       {text}
     </p>

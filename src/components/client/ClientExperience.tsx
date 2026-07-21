@@ -58,6 +58,7 @@ const DEFAULT_DESCRIPTIONS: Record<string, string> = {
 
 export function ClientExperience({ client, config }: ClientExperienceProps) {
   const folderSections = readSections(client.slug);
+  const catalogue = readCatalogue(client.slug);
   const photography = readPhotography(client.slug);
 
   const describe = (anchor: string, fallback?: string) =>
@@ -73,6 +74,12 @@ export function ClientExperience({ client, config }: ClientExperienceProps) {
   })[] = [];
   const nextIndex = () => String(sections.length + 1).padStart(2, "0");
 
+  // Section 01 — the opening brand beat.
+  //  • logoSystem clients (Tata IIS) get the full guideline system.
+  //  • clients with real catalogue work let the catalogue's own Brand Identity
+  //    category lead — no placeholder box (the "guidelines pending"
+  //    construction frame is a Tata-only staging device, not a house style).
+  //  • only a client with neither shows the BrandOpening placeholder.
   if (config.logoSystem) {
     sections.push({
       index: nextIndex(),
@@ -81,7 +88,7 @@ export function ClientExperience({ client, config }: ClientExperienceProps) {
       description: describe("logos"),
       render: () => <LogoSystem />,
     });
-  } else {
+  } else if (catalogue.length === 0 && folderSections.length === 0) {
     sections.push({
       index: nextIndex(),
       title: "Brand",
@@ -113,8 +120,7 @@ export function ClientExperience({ client, config }: ClientExperienceProps) {
         render: () => <CollectionsSection collections={section.collections} />,
       });
     }
-  } else {
-    const catalogue = readCatalogue(client.slug);
+  } else if (catalogue.length > 0) {
     sections.push({
       index: nextIndex(),
       title: "Catalogue",
@@ -147,6 +153,9 @@ export function ClientExperience({ client, config }: ClientExperienceProps) {
         "--brand-accent": config.brandTheme.accent,
         ...(config.brandTheme.tracking
           ? { "--brand-tracking": config.brandTheme.tracking }
+          : {}),
+        ...(config.brandTheme.uppercase
+          ? { "--brand-transform": "uppercase" }
           : {}),
       } as React.CSSProperties)
     : undefined;

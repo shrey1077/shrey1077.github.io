@@ -33,7 +33,7 @@ export function ExperienceFooter({ clientName, clientFacts = [] }: ExperienceFoo
           <p className="mt-1.5 text-sm text-neutral-500">{SITE.role}</p>
           <a
             href={`mailto:${SITE.email}`}
-            className={`${typeVoiceClass("logic", "meta")} mt-4 inline-block text-[0.65rem] text-neutral-400 transition-colors duration-300 hover:text-neutral-900`}
+            className={`${typeVoiceClass("logic", "meta")} mt-4 inline-block text-[0.65rem] text-neutral-500 transition-colors duration-300 hover:text-neutral-900`}
           >
             {SITE.email}
           </a>
@@ -42,7 +42,7 @@ export function ExperienceFooter({ clientName, clientFacts = [] }: ExperienceFoo
         {/* The client record. */}
         <div className="flex flex-col gap-8 sm:flex-row sm:justify-between sm:gap-10">
           <div>
-            <p className={`${typeVoiceClass("logic", "meta")} text-[0.6rem] text-neutral-400`}>
+            <p className={`${typeVoiceClass("logic", "meta")} text-[0.6rem] text-neutral-500`}>
               Client
             </p>
             <p className="mt-3 text-sm font-medium text-neutral-900">{clientName}</p>
@@ -55,7 +55,7 @@ export function ExperienceFooter({ clientName, clientFacts = [] }: ExperienceFoo
             </ul>
           </div>
           <div>
-            <p className={`${typeVoiceClass("logic", "meta")} text-[0.6rem] text-neutral-400`}>
+            <p className={`${typeVoiceClass("logic", "meta")} text-[0.6rem] text-neutral-500`}>
               Elsewhere
             </p>
             <ul className={`${typeVoiceClass("logic", "meta")} mt-3 space-y-2 text-[0.65rem]`}>
@@ -69,7 +69,7 @@ export function ExperienceFooter({ clientName, clientFacts = [] }: ExperienceFoo
                     href={link.href}
                     target="_blank"
                     rel="noreferrer noopener"
-                    className="text-neutral-400 transition-colors duration-300 hover:text-neutral-900"
+                    className="text-neutral-500 transition-colors duration-300 hover:text-neutral-900"
                   >
                     {link.label}
                   </a>
@@ -81,10 +81,10 @@ export function ExperienceFooter({ clientName, clientFacts = [] }: ExperienceFoo
       </div>
 
       <div className="mt-12 flex flex-col gap-2 border-t border-neutral-100 pt-6 sm:flex-row sm:items-baseline sm:justify-between">
-        <p className={`${typeVoiceClass("logic", "meta")} text-[0.6rem] text-neutral-400`}>
+        <p className={`${typeVoiceClass("logic", "meta")} text-[0.6rem] text-neutral-500`}>
           © {range} {SITE.name}
         </p>
-        <p className={`${typeVoiceClass("logic", "meta")} text-[0.6rem] text-neutral-300`}>
+        <p className={`${typeVoiceClass("logic", "meta")} text-[0.6rem] text-neutral-500`}>
           Client work © {clientName} — shown as portfolio record
         </p>
       </div>

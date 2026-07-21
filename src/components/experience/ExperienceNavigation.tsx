@@ -26,7 +26,7 @@ export function ExperienceNavigation({ anchors }: ExperienceNavigationProps) {
         <a
           key={a.anchor}
           href={`#${a.anchor}`}
-          className="group text-neutral-400 outline-none transition-colors duration-300 hover:text-neutral-900 focus-visible:text-neutral-900"
+          className="group text-neutral-500 outline-none transition-colors duration-300 hover:text-neutral-900 focus-visible:text-neutral-900"
         >
           <span className="mr-1.5 text-neutral-300 transition-colors duration-300 group-hover:text-neutral-500">
             {a.index}

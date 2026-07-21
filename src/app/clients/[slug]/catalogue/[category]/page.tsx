@@ -81,6 +81,7 @@ export default async function CategoryPage({ params }: CategoryPageProps) {
         "--brand-font": `var(${theme.fontVar})`,
         "--brand-accent": theme.accent,
         ...(theme.tracking ? { "--brand-tracking": theme.tracking } : {}),
+        ...(theme.uppercase ? { "--brand-transform": "uppercase" } : {}),
       } as React.CSSProperties)
     : undefined;
 
@@ -92,7 +93,7 @@ export default async function CategoryPage({ params }: CategoryPageProps) {
       <div className="mx-auto w-full max-w-5xl">
         <Link
           href={`/clients/${slug}#catalogue`}
-          className={`${META} group inline-flex items-center gap-2 text-[0.65rem] text-neutral-400 outline-none transition-colors duration-300 hover:text-neutral-900 focus-visible:text-neutral-900`}
+          className={`${META} group inline-flex items-center gap-2 rounded text-[0.65rem] text-neutral-500 outline-none transition-colors duration-300 hover:text-neutral-900 focus-visible:text-neutral-900 focus-visible:ring-2 focus-visible:ring-neutral-900/40 focus-visible:ring-offset-2`}
         >
           <span
             aria-hidden
@@ -105,8 +106,8 @@ export default async function CategoryPage({ params }: CategoryPageProps) {
 
         <header className="mt-10 border-b border-neutral-200 pb-8">
           <span
-            className={`${META} text-xs`}
-            style={{ color: "var(--brand-accent, #a3a3a3)" }}
+            className={`${META} text-sm`}
+            style={{ color: "var(--brand-accent, #525252)" }}
           >
             Catalogue{at >= 0 ? ` · ${String(at + 1).padStart(2, "0")} / ${String(catalogue.length).padStart(2, "0")}` : ""}
           </span>
@@ -115,12 +116,13 @@ export default async function CategoryPage({ params }: CategoryPageProps) {
             style={{
               fontFamily: "var(--brand-font, var(--font-fraunces))",
               letterSpacing: "var(--brand-tracking, -0.02em)",
+              textTransform: "var(--brand-transform, none)" as React.CSSProperties["textTransform"],
             }}
           >
             {data.category.name}
           </h1>
           {data.category.description && (
-            <p className="mt-4 max-w-xl text-sm leading-relaxed text-neutral-500">
+            <p className="mt-4 max-w-xl text-sm leading-relaxed text-neutral-600">
               {data.category.description}
             </p>
           )}
@@ -131,7 +133,7 @@ export default async function CategoryPage({ params }: CategoryPageProps) {
               {data.category.story}
             </p>
           )}
-          <span className={`${META} mt-5 block text-[0.6rem] text-neutral-400`}>
+          <span className={`${META} mt-5 block text-[0.6rem] text-neutral-500`}>
             {data.category.assetCount > 0
               ? `${data.category.assetCount} asset${data.category.assetCount === 1 ? "" : "s"} in the archive · showing the selected few`
               : "Awaiting assets"}
@@ -141,10 +143,10 @@ export default async function CategoryPage({ params }: CategoryPageProps) {
         <div className="py-10">
           {data.assets.length === 0 ? (
             <div className="flex min-h-[30vh] flex-col items-center justify-center gap-3 text-center">
-              <span className={`${META} text-xs text-neutral-400`}>
+              <span className={`${META} text-xs text-neutral-500`}>
                 Assets arriving soon
               </span>
-              <p className="max-w-sm text-sm leading-relaxed text-neutral-400">
+              <p className="max-w-sm text-sm leading-relaxed text-neutral-500">
                 Files placed in this category&apos;s content folder appear here
                 automatically.
               </p>
@@ -172,7 +174,7 @@ export default async function CategoryPage({ params }: CategoryPageProps) {
                         className="group flex items-baseline justify-between gap-4 border-t border-neutral-200 py-4 outline-none transition-colors duration-300 hover:bg-neutral-50"
                       >
                         <span className="text-sm text-neutral-900">{file.name}</span>
-                        <span className={`${META} text-[0.55rem] text-neutral-400`}>
+                        <span className={`${META} text-[0.55rem] text-neutral-500`}>
                           {file.kind}
                         </span>
                       </a>
@@ -194,7 +196,7 @@ export default async function CategoryPage({ params }: CategoryPageProps) {
                 href={`/clients/${slug}/catalogue/${prev.id}`}
                 className="group text-left outline-none"
               >
-                <span className={`${META} block text-[0.55rem] text-neutral-400`}>
+                <span className={`${META} block text-[0.55rem] text-neutral-500`}>
                   ← Previous
                 </span>
                 <span className="mt-1.5 block text-sm text-neutral-500 transition-colors duration-300 group-hover:text-neutral-900 group-focus-visible:text-neutral-900">
@@ -209,7 +211,7 @@ export default async function CategoryPage({ params }: CategoryPageProps) {
                 href={`/clients/${slug}/catalogue/${next.id}`}
                 className="group text-right outline-none"
               >
-                <span className={`${META} block text-[0.55rem] text-neutral-400`}>
+                <span className={`${META} block text-[0.55rem] text-neutral-500`}>
                   Next →
                 </span>
                 <span className="mt-1.5 block text-sm text-neutral-500 transition-colors duration-300 group-hover:text-neutral-900 group-focus-visible:text-neutral-900">

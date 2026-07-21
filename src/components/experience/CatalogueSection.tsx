@@ -27,9 +27,11 @@ export function CatalogueSection({ clientSlug, categories }: CatalogueSectionPro
   }
 
   return (
-    <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 sm:gap-4 xl:grid-cols-3">
+    <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 sm:gap-4 xl:grid-cols-3 xl:gap-6">
       {categories.map((category, i) => (
-        <Reveal key={category.id} delay={(i % 3) * 0.06}>
+        // Capped linear stagger — breakpoint-agnostic, so it reads the same at
+        // 1/2/3 columns rather than assuming a fixed column count.
+        <Reveal key={category.id} delay={Math.min(i, 6) * 0.05}>
           <CatalogueCard
             clientSlug={clientSlug}
             category={category}

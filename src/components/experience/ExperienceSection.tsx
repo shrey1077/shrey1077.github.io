@@ -34,19 +34,27 @@ export function ExperienceSection({
       className="scroll-mt-10 border-t border-neutral-200 py-16 sm:py-20"
     >
       <div className="grid grid-cols-1 gap-10 lg:grid-cols-[minmax(0,17rem)_1fr] lg:gap-16">
-        <div>
+        <div className="relative">
+          {/* Oversized ghost index — an editorial anchor behind the label. */}
           <span
-            className={`${typeVoiceClass("logic", "meta")} text-xs text-neutral-400`}
+            aria-hidden
+            className="pointer-events-none absolute -left-1 -top-10 select-none text-[5.5rem] font-extralight leading-none text-neutral-900/[0.04] sm:-top-12 sm:text-[7rem]"
+          >
+            {index}
+          </span>
+          <span
+            className={`${typeVoiceClass("logic", "meta")} relative text-xs`}
+            style={{ color: "var(--brand-accent, #737373)" }}
           >
             {index}
           </span>
           <h2
-            className={`${typeVoiceClass("logic", "display")} mt-3 text-2xl font-medium text-neutral-900 sm:text-3xl`}
+            className={`${typeVoiceClass("logic", "display")} relative mt-3 text-2xl font-medium text-neutral-900 sm:text-3xl`}
           >
             {title}
           </h2>
           {description && (
-            <p className="mt-5 max-w-[16rem] text-sm leading-relaxed text-neutral-500">
+            <p className="relative mt-5 max-w-[16rem] text-sm leading-relaxed text-neutral-600">
               {description}
             </p>
           )}

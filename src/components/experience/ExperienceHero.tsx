@@ -1,11 +1,11 @@
 /**
  * ExperienceHero — the opening identity block of an experience page.
  *
- * Eyebrow (logic meta) · display title (creative serif — or the client's own
- * brand voice when the experience declares a `brandTheme`; the title reads
- * `--brand-font` and falls back to Fraunces) · tagline (plain) · optional
- * stats row (mono facts: "180+ artifacts · 13 categories…"), the case-study
- * convention of leading with the engagement's numbers.
+ * A brand-accent kicker · eyebrow (logic meta) · display title (the client's
+ * own brand voice via `--brand-font`, optionally UPPERCASE via
+ * `--brand-transform`, falling back to Fraunces) · tagline · optional stats
+ * row (mono facts led by bold accent numerals) — the case-study convention of
+ * opening on the engagement's numbers.
  */
 
 import { typeVoiceClass } from "@/constants/typography";
@@ -22,22 +22,29 @@ interface ExperienceHeroProps {
 export function ExperienceHero({ eyebrow, title, tagline, stats }: ExperienceHeroProps) {
   return (
     <header className="py-14 sm:py-16">
-      <span
-        className={`${typeVoiceClass("logic", "meta")} text-xs text-neutral-400`}
-      >
-        {eyebrow}
-      </span>
+      <div className="flex items-center gap-3">
+        {/* Brand-accent kicker — the one spot of the client's colour up top. */}
+        <span
+          aria-hidden
+          className="h-px w-8"
+          style={{ backgroundColor: "var(--brand-accent, #171717)" }}
+        />
+        <span className={`${typeVoiceClass("logic", "meta")} text-xs text-neutral-500`}>
+          {eyebrow}
+        </span>
+      </div>
       <h1
-        className="mt-4 text-5xl text-neutral-900 sm:text-7xl"
+        className="mt-5 text-5xl text-neutral-900 sm:text-7xl"
         style={{
           fontFamily: "var(--brand-font, var(--font-fraunces))",
           letterSpacing: "var(--brand-tracking, -0.025em)",
+          textTransform: "var(--brand-transform, none)" as React.CSSProperties["textTransform"],
         }}
       >
         {title}
       </h1>
       {tagline && (
-        <p className="mt-5 max-w-xl text-base font-light text-neutral-500">
+        <p className="mt-5 max-w-xl text-base font-light text-neutral-600">
           {tagline}
         </p>
       )}
@@ -47,12 +54,12 @@ export function ExperienceHero({ eyebrow, title, tagline, stats }: ExperienceHer
             // flex-col-reverse keeps valid dt→dd source order, value on top.
             <div key={stat.label} className="flex flex-col-reverse gap-1">
               <dt
-                className={`${typeVoiceClass("logic", "meta")} text-[0.6rem] text-neutral-400`}
+                className={`${typeVoiceClass("logic", "meta")} text-[0.6rem] text-neutral-500`}
               >
                 {stat.label}
               </dt>
               <dd
-                className="text-2xl font-light tabular-nums"
+                className="text-3xl font-medium tabular-nums sm:text-4xl"
                 style={{ color: "var(--brand-accent, #171717)" }}
               >
                 {stat.value}

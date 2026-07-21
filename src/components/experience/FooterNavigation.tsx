@@ -33,7 +33,7 @@ export function FooterNavigation({ currentSlug }: FooterNavigationProps) {
         href={`/clients/${prev.slug}`}
         className="group flex flex-col gap-2 outline-none"
       >
-        <span className={`${META} text-[0.6rem] text-neutral-400`}>
+        <span className={`${META} text-[0.6rem] text-neutral-500`}>
           <span
             aria-hidden
             className="mr-1.5 inline-block transition-transform duration-300 group-hover:-translate-x-1"
@@ -53,7 +53,7 @@ export function FooterNavigation({ currentSlug }: FooterNavigationProps) {
         href={`/clients/${next.slug}`}
         className="group flex flex-col items-end gap-2 text-right outline-none"
       >
-        <span className={`${META} text-[0.6rem] text-neutral-400`}>
+        <span className={`${META} text-[0.6rem] text-neutral-500`}>
           Next
           <span
             aria-hidden

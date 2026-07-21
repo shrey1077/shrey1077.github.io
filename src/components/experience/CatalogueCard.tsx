@@ -30,8 +30,8 @@ export function CatalogueCard({ clientSlug, category, position }: CatalogueCardP
         "group flex flex-col overflow-hidden",
         "border border-neutral-200 bg-white outline-none",
         "transition-all duration-500",
-        "hover:-translate-y-0.5 hover:border-neutral-400",
-        "focus-visible:-translate-y-0.5 focus-visible:border-neutral-900",
+        "hover:-translate-y-1 hover:border-neutral-400 hover:shadow-[0_24px_48px_-28px_rgba(0,0,0,0.22)]",
+        "focus-visible:-translate-y-1 focus-visible:border-neutral-900 focus-visible:ring-2 focus-visible:ring-neutral-900/40 focus-visible:ring-offset-2",
       ].join(" ")}
     >
       {category.coverUrl && (
@@ -48,7 +48,7 @@ export function CatalogueCard({ clientSlug, category, position }: CatalogueCardP
 
       <span className="flex flex-1 flex-col justify-between gap-4 p-5">
         <span className="block">
-          <span className={`${META} block text-[0.55rem] tabular-nums text-neutral-400`}>
+          <span className={`${META} block text-[0.55rem] tabular-nums text-neutral-500`}>
             {String(position).padStart(2, "0")}
           </span>
           <span className="mt-2 block text-base font-medium leading-snug text-neutral-900">
@@ -61,7 +61,7 @@ export function CatalogueCard({ clientSlug, category, position }: CatalogueCardP
           )}
         </span>
 
-        <span className={`${META} flex items-center justify-between text-[0.55rem] text-neutral-400`}>
+        <span className={`${META} flex items-center justify-between text-[0.55rem] text-neutral-500`}>
           {category.assetCount > 0
             ? `${category.assetCount} asset${category.assetCount === 1 ? "" : "s"}`
             : "Coming soon"}

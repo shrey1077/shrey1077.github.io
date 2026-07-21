@@ -2,11 +2,12 @@ import type { Metadata, Viewport } from "next";
 import {
   Anton,
   Caveat,
+  Cinzel,
   Fraunces,
   IBM_Plex_Mono,
-  Marcellus,
   Michroma,
   Orbitron,
+  Syne,
 } from "next/font/google";
 import { MemoryTransitionHost } from "@/components/transition/MemoryTransitionHost";
 import "./globals.css";
@@ -51,18 +52,26 @@ const plexMono = IBM_Plex_Mono({
  * (hero name, category titles) speak in a face evoking that brand's own
  * typography. Fonts are only fetched on pages whose text actually uses them.
  *
- *   • Marcellus → Tata IIS (the nub-serif engraved-caps spirit of Copperplate
- *                 — closer kin than Trajan-like faces, per design research)
+ *   • Cinzel    → Tata IIS (engraved inscriptional caps — set UPPERCASE with
+ *                 wide tracking to evoke the Copperplate Gothic wordmark)
  *   • Michroma  → Azoth Biotech (wide technical geometric sans)
  *   • Anton     → NewsMobile (condensed news headline — display sizes only)
  *   • Orbitron  → Zabraku Media (techno display; large, tracked-out use only)
- *   • Fraunces  → UID (the site's own creative voice — student work stays home)
+ *   • Syne      → UID (an expressive, characterful display grotesque — a design
+ *                 school deserves its own voice, not the site default serif)
  */
 
-const marcellus = Marcellus({
+const cinzel = Cinzel({
   subsets: ["latin"],
-  weight: "400",
-  variable: "--font-marcellus",
+  weight: ["400", "600"],
+  variable: "--font-cinzel",
+  display: "swap",
+});
+
+const syne = Syne({
+  subsets: ["latin"],
+  weight: ["600", "700", "800"],
+  variable: "--font-syne",
   display: "swap",
 });
 
@@ -109,7 +118,7 @@ export default function RootLayout({
   return (
     <html
       lang="en"
-      className={`${caveat.variable} ${fraunces.variable} ${plexMono.variable} ${marcellus.variable} ${michroma.variable} ${anton.variable} ${orbitron.variable}`}
+      className={`${caveat.variable} ${fraunces.variable} ${plexMono.variable} ${cinzel.variable} ${michroma.variable} ${anton.variable} ${orbitron.variable} ${syne.variable}`}
     >
       <body className="bg-gallery text-neutral-900 antialiased">
         {children}

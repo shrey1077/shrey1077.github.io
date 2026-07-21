@@ -12,7 +12,7 @@
  * Uses the viewer layer of the z-hierarchy (constants/design.ts).
  */
 
-import { useEffect } from "react";
+import { useEffect, useRef } from "react";
 import Image from "next/image";
 import { AnimatePresence, motion } from "framer-motion";
 import type { ContentAsset } from "@/content/catalogue";
@@ -27,14 +27,26 @@ interface MediaViewerProps {
 }
 
 export function MediaViewer({ asset, onClose }: MediaViewerProps) {
-  // Escape closes — bound only while open.
+  const closeRef = useRef<HTMLButtonElement>(null);
+
+  // While open: Escape closes, background scroll is locked, focus moves to the
+  // close control and is restored to the opener on dismiss.
   useEffect(() => {
     if (!asset) return;
+    const opener = document.activeElement as HTMLElement | null;
+    const prevOverflow = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+    closeRef.current?.focus();
+
     const onKey = (e: KeyboardEvent) => {
       if (e.key === "Escape") onClose();
     };
     window.addEventListener("keydown", onKey);
-    return () => window.removeEventListener("keydown", onKey);
+    return () => {
+      window.removeEventListener("keydown", onKey);
+      document.body.style.overflow = prevOverflow;
+      opener?.focus?.();
+    };
   }, [asset, onClose]);
 
   return (
@@ -54,10 +66,11 @@ export function MediaViewer({ asset, onClose }: MediaViewerProps) {
         >
           <div className="flex items-center justify-end px-6 pt-6 sm:px-10">
             <button
+              ref={closeRef}
               type="button"
               onClick={onClose}
               aria-label="Close viewer"
-              className={`${typeVoiceClass("logic", "meta")} text-xs text-neutral-400 outline-none transition-colors duration-300 hover:text-neutral-900 focus-visible:text-neutral-900`}
+              className={`${typeVoiceClass("logic", "meta")} rounded px-2 py-1 text-xs text-neutral-500 outline-none transition-colors duration-300 hover:text-neutral-900 focus-visible:text-neutral-900 focus-visible:ring-2 focus-visible:ring-neutral-900/40`}
             >
               Close ✕
             </button>
@@ -90,7 +103,7 @@ export function MediaViewer({ asset, onClose }: MediaViewerProps) {
           </div>
 
           <p
-            className={`${typeVoiceClass("logic", "meta")} pb-6 text-center text-[0.6rem] text-neutral-400`}
+            className={`${typeVoiceClass("logic", "meta")} pb-6 text-center text-[0.6rem] text-neutral-500`}
           >
             {asset.name}
           </p>

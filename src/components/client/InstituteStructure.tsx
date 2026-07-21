@@ -45,7 +45,7 @@ export function InstituteStructure({ institute }: { institute: Institute }) {
           {parentName}
         </span>
         <span
-          className={`${typeVoiceClass("logic", "meta")} mt-2 text-[0.6rem] text-neutral-400`}
+          className={`${typeVoiceClass("logic", "meta")} mt-2 text-[0.6rem] text-neutral-500`}
         >
           {parentNote}
         </span>
@@ -74,7 +74,7 @@ export function InstituteStructure({ institute }: { institute: Institute }) {
                   {branch.name}
                 </span>
                 <span
-                  className={`${typeVoiceClass("logic", "meta")} text-[0.55rem] text-neutral-400`}
+                  className={`${typeVoiceClass("logic", "meta")} text-[0.55rem] text-neutral-500`}
                 >
                   {branch.city}
                 </span>

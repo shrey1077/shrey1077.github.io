@@ -106,7 +106,7 @@ export function LogoSystem() {
       {/* 2 — the guideline plates. */}
       <div>
         <h3
-          className={`${typeVoiceClass("logic", "meta")} mb-4 text-[0.65rem] text-neutral-400`}
+          className={`${typeVoiceClass("logic", "meta")} mb-4 text-[0.65rem] text-neutral-500`}
         >
           The construction plates
         </h3>
@@ -116,7 +116,7 @@ export function LogoSystem() {
       {/* 3 — the two campus dialects. */}
       <div>
         <h3
-          className={`${typeVoiceClass("logic", "meta")} mb-4 text-[0.65rem] text-neutral-400`}
+          className={`${typeVoiceClass("logic", "meta")} mb-4 text-[0.65rem] text-neutral-500`}
         >
           Two campuses, two dialects
         </h3>
@@ -159,7 +159,7 @@ export function LogoSystem() {
       {/* 4 — the partner wall. */}
       <div>
         <h3
-          className={`${typeVoiceClass("logic", "meta")} mb-5 text-[0.65rem] text-neutral-400`}
+          className={`${typeVoiceClass("logic", "meta")} mb-5 text-[0.65rem] text-neutral-500`}
         >
           In the company of
         </h3>
