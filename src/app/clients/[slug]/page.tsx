@@ -15,6 +15,7 @@ import type { Metadata } from "next";
 import { CLIENTS, clientBySlug } from "@/constants/clients";
 import { clientExperienceBySlug } from "@/constants/clientExperiences";
 import { ClientExperience } from "@/components/client/ClientExperience";
+import { TataExperience } from "@/components/client/tata/TataExperience";
 import { ClientWip } from "@/components/client/ClientWip";
 
 interface ClientPageProps {
@@ -38,6 +39,13 @@ export default async function ClientPage({ params }: ClientPageProps) {
   const { slug } = await params;
   const client = clientBySlug(slug);
   if (!client) notFound();
+
+  // Tata IIS runs a bespoke, directed layout (hero film → guidelines →
+  // marquee → four work families → contact footer); every other configured
+  // client uses the generic ClientExperience.
+  if (slug === "tata-iis") {
+    return <TataExperience />;
+  }
 
   const experience = clientExperienceBySlug(slug);
   if (experience) {
