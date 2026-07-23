@@ -28,6 +28,7 @@ import Link from "next/link";
 import Image from "next/image";
 import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
 import { CLIENTS, clientBySlug } from "@/constants/clients";
+import { TATA_DESCRIPTION, TATA_CIRCLES } from "@/constants/tataExperience";
 import { navSectionIndex, navSectionsFor } from "@/constants/navigation";
 import { DURATION, EASE_OUT } from "@/constants/motion";
 import { typeVoiceClass } from "@/constants/typography";
@@ -367,6 +368,91 @@ function ClientDetail({
     const y = e.clientY || rect.top + rect.height / 2;
     setPendingMemory({ slug, x, y });
   };
+
+  // Tata IIS gets a bespoke detail panel: the official wordmark, the
+  // institute's own description (Helvetica), and the four work families as
+  // white circular sections — each a doorway into the full experience.
+  if (slug === "tata-iis") {
+    return (
+      <div className="grid h-full min-h-0 grid-cols-1 border-t border-neutral-200 lg:grid-cols-[minmax(0,5fr)_minmax(0,7fr)]">
+        {/* LEFT — logo + description. */}
+        <div className="flex min-h-0 flex-col gap-5 overflow-y-auto bg-gallery px-6 py-5 lg:px-[4vw]">
+          <motion.button
+            type="button"
+            onClick={onBack}
+            {...riseIn(!!reduceMotion, 0.05)}
+            className={`${typeVoiceClass("logic", "meta")} group self-start text-[0.6rem] text-neutral-500 outline-none transition-colors duration-300 hover:text-neutral-900 focus-visible:text-neutral-900`}
+          >
+            <span aria-hidden className="inline-block transition-transform duration-300 group-hover:-translate-x-1">←</span>{" "}
+            all clients
+          </motion.button>
+
+          <motion.div {...riseIn(!!reduceMotion, 0.15)} className="relative mt-2 h-16 w-[min(20rem,60%)] self-start sm:h-20">
+            <Image
+              src="/content/clients/tata-iis/brand/wordmark-black.png"
+              alt="Tata IIS — Tata Indian Institute of Skills"
+              fill
+              sizes="320px"
+              className="object-contain object-left"
+            />
+          </motion.div>
+
+          <motion.p
+            {...riseIn(!!reduceMotion, 0.3)}
+            className="max-w-md text-[0.92rem] leading-relaxed text-neutral-700"
+            style={{ fontFamily: 'Helvetica, "Helvetica Neue", Arial, sans-serif' }}
+          >
+            {TATA_DESCRIPTION}
+          </motion.p>
+
+          <motion.span {...riseIn(!!reduceMotion, 0.5)} className="mt-auto pt-3">
+            <Link
+              href={`/clients/${slug}`}
+              onClick={beginRetrieval}
+              className={`${typeVoiceClass("logic", "meta")} group inline-flex items-center gap-2 border-b border-neutral-300 pb-1 text-[0.65rem] text-neutral-600 outline-none transition-colors duration-500 hover:border-neutral-900 hover:text-neutral-900 focus-visible:border-neutral-900 focus-visible:text-neutral-900`}
+            >
+              Enter the full experience
+              <span aria-hidden className="inline-block transition-transform duration-500 group-hover:translate-x-1">→</span>
+            </Link>
+          </motion.span>
+        </div>
+
+        {/* RIGHT — the four families as white circular doorways. */}
+        <div className="relative flex min-h-0 flex-col overflow-y-auto bg-white px-6 py-6 lg:px-10">
+          <motion.span
+            {...riseIn(!!reduceMotion, 0.25)}
+            className={`${typeVoiceClass("logic", "meta")} text-[0.6rem] text-neutral-500`}
+          >
+            The work
+          </motion.span>
+          <div className="grid flex-1 grid-cols-2 place-items-center gap-4 py-4 sm:gap-6">
+            {TATA_CIRCLES.map((c, i) => (
+              <motion.div key={c.id} {...riseIn(!!reduceMotion, 0.32 + i * 0.08)} className="w-full">
+                <Link
+                  href={`/clients/${slug}`}
+                  onClick={beginRetrieval}
+                  aria-label={`${c.title} — enter the full experience`}
+                  className="group/circle mx-auto flex aspect-square w-full max-w-[13rem] flex-col items-center justify-center gap-2 rounded-full border border-neutral-200 bg-white p-6 text-center outline-none transition-all duration-500 hover:-translate-y-1 hover:border-neutral-300 hover:shadow-[0_28px_60px_-32px_rgba(0,0,0,0.25)] focus-visible:ring-2 focus-visible:ring-neutral-900/40 focus-visible:ring-offset-2"
+                >
+                  <span
+                    aria-hidden
+                    className="h-1 w-8 rounded-full transition-[width] duration-500 group-hover/circle:w-12"
+                    style={{ backgroundColor: c.accent }}
+                  />
+                  <span className="text-sm font-medium leading-tight text-neutral-900 sm:text-base">
+                    {c.title}
+                  </span>
+                  <span className={`${typeVoiceClass("logic", "meta")} text-[0.5rem] text-neutral-400`}>
+                    {String(i + 1).padStart(2, "0")}
+                  </span>
+                </Link>
+              </motion.div>
+            ))}
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="grid h-full min-h-0 grid-cols-1 border-t border-neutral-200 lg:grid-cols-[minmax(0,5fr)_minmax(0,7fr)]">
