@@ -7,17 +7,12 @@
 
 import { SITE } from "@/constants/site";
 import { TATA_FOOTER } from "@/constants/tataExperience";
-import { typeVoiceClass } from "@/constants/typography";
-
-const META = typeVoiceClass("logic", "meta");
 
 function Field({ label, children }: { label: string; children: React.ReactNode }) {
   return (
     <div>
-      <h3 className="text-lg text-neutral-900" style={{ fontFamily: "var(--brand-font, var(--font-fraunces))", textTransform: "var(--brand-transform, none)" as React.CSSProperties["textTransform"], letterSpacing: "var(--brand-tracking, 0)" }}>
-        {label}
-      </h3>
-      <div className="mt-3 space-y-1.5 text-sm leading-relaxed text-neutral-600">{children}</div>
+      <h3 className="tata-subhead text-lg text-neutral-900">{label}</h3>
+      <div className="tata-body mt-3 space-y-1.5 text-sm leading-relaxed text-neutral-600">{children}</div>
     </div>
   );
 }
@@ -49,14 +44,14 @@ export function TataFooter() {
 
         <Field label={mumbai.name}>
           <p className="max-w-[16rem]">{mumbai.address}</p>
-          <p className={`${META} pt-2 text-[0.6rem] text-neutral-500`}>CIN: {TATA_FOOTER.cin}</p>
+          <p className="tata-body pt-2 text-[0.6rem] text-neutral-500">CIN: {TATA_FOOTER.cin}</p>
         </Field>
 
         <div className="flex flex-col justify-between gap-8">
           <div>
-            <p className={`${typeVoiceClass("creative", "display")} text-lg text-neutral-900`}>{SITE.name}</p>
-            <p className="mt-1 text-sm text-neutral-600">{SITE.role}</p>
-            <a href={`mailto:${SITE.email}`} className={`${META} mt-3 inline-block text-[0.62rem] text-neutral-500 transition-colors hover:text-neutral-900`}>
+            <p className="tata-subhead text-lg text-neutral-900">{SITE.name}</p>
+            <p className="tata-body mt-1 text-sm text-neutral-600">{SITE.role}</p>
+            <a href={`mailto:${SITE.email}`} className="tata-body mt-3 inline-block text-[0.62rem] text-neutral-500 transition-colors hover:text-neutral-900">
               {SITE.email}
             </a>
           </div>
@@ -64,8 +59,8 @@ export function TataFooter() {
       </div>
 
       <div className="mt-14 flex flex-col gap-2 border-t border-neutral-100 pt-6 sm:flex-row sm:items-baseline sm:justify-between">
-        <p className={`${META} text-[0.6rem] text-neutral-500`}>© {range} {SITE.name}</p>
-        <p className={`${META} text-[0.6rem] text-neutral-500`}>
+        <p className="tata-body text-[0.6rem] text-neutral-500">© {range} {SITE.name}</p>
+        <p className="tata-body text-[0.6rem] text-neutral-500">
           Client work © Tata Indian Institute of Skills — shown as portfolio record
         </p>
       </div>

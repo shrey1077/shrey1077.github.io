@@ -17,7 +17,6 @@ import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
 import type { CollectionAsset } from "@/types/experience";
 import { PortraitSlider } from "@/components/client/tata/PortraitSlider";
 import { EASE_OUT } from "@/constants/motion";
-import { typeVoiceClass } from "@/constants/typography";
 
 export interface AccordionSubcat {
   id: string;
@@ -65,22 +64,13 @@ export function CategoryAccordion({ groups }: { groups: AccordionGroup[] }) {
               >
                 {String(gi + 1).padStart(2, "0")}
               </span>
-              <span
-                className="min-w-0 flex-1 text-2xl text-neutral-900 sm:text-4xl"
-                style={{
-                  fontFamily: "var(--brand-font, var(--font-fraunces))",
-                  textTransform: "var(--brand-transform, none)" as React.CSSProperties["textTransform"],
-                  letterSpacing: "var(--brand-tracking, -0.01em)",
-                }}
-              >
+              <span className="tata-heading min-w-0 flex-1 text-2xl text-neutral-900 sm:text-4xl">
                 {group.title}
               </span>
-              <span className="hidden max-w-xs flex-1 text-sm leading-relaxed text-neutral-500 lg:block">
+              <span className="tata-body hidden max-w-xs flex-1 text-sm leading-relaxed text-neutral-500 lg:block">
                 {group.blurb}
               </span>
-              <span
-                className={`${typeVoiceClass("logic", "meta")} shrink-0 text-[0.62rem] text-neutral-500`}
-              >
+              <span className="tata-body shrink-0 text-[0.62rem] uppercase tracking-[0.1em] text-neutral-500">
                 {total} pieces
               </span>
               <span
@@ -114,7 +104,7 @@ export function CategoryAccordion({ groups }: { groups: AccordionGroup[] }) {
                             onClick={() =>
                               setOpenSub((m) => ({ ...m, [group.id]: s.id }))
                             }
-                            className={`${typeVoiceClass("logic", "meta")} rounded-full border px-4 py-2 text-[0.62rem] outline-none transition-colors duration-300 focus-visible:ring-2 focus-visible:ring-neutral-900/40 ${
+                            className={`tata-subhead rounded-full border px-4 py-2 text-[0.62rem] uppercase tracking-[0.08em] outline-none transition-colors duration-300 focus-visible:ring-2 focus-visible:ring-neutral-900/40 ${
                               on
                                 ? "border-transparent text-white"
                                 : "border-neutral-300 text-neutral-600 hover:border-neutral-900 hover:text-neutral-900"

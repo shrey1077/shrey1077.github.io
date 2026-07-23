@@ -35,22 +35,20 @@ import {
   type AccordionGroup,
 } from "@/components/client/tata/CategoryAccordion";
 import { TataFooter } from "@/components/client/tata/TataFooter";
-import { typeVoiceClass } from "@/constants/typography";
 
 const SLUG = "tata-iis";
-const META = typeVoiceClass("logic", "meta");
-const HELVETICA = 'Helvetica, "Helvetica Neue", Arial, sans-serif';
+/** Eyebrow / section-kicker label — a subheading (Helvetica Bold), small. */
+const LABEL = "tata-subhead text-[0.62rem] uppercase tracking-[0.16em]";
 
 export function TataExperience() {
   const theme = clientExperienceBySlug(SLUG)?.brandTheme;
-  const themeVars = theme
-    ? ({
-        "--brand-font": `var(${theme.fontVar})`,
-        "--brand-accent": theme.accent,
-        ...(theme.tracking ? { "--brand-tracking": theme.tracking } : {}),
-        ...(theme.uppercase ? { "--brand-transform": "uppercase" } : {}),
-      } as React.CSSProperties)
-    : undefined;
+  // The page speaks in exactly two typefaces: Copperplate Gothic Bold for
+  // headings (.tata-heading) and Helvetica for everything else. The
+  // `tata-scope` class (see globals.css) collapses any shared component's
+  // voiced utilities to Helvetica so no third face leaks in.
+  const themeVars = {
+    "--brand-accent": theme?.accent ?? "#14279B",
+  } as React.CSSProperties;
 
   // Regroup the curated catalogue folders under the four work families.
   const groups: AccordionGroup[] = TATA_GROUPS.map((g) => ({
@@ -73,11 +71,11 @@ export function TataExperience() {
   })).filter((g) => g.subcategories.length > 0);
 
   return (
-    <main className="min-h-dvh w-full bg-gallery px-6 py-14 sm:px-10" style={themeVars}>
+    <main className="tata-scope tata-body min-h-dvh w-full bg-gallery px-6 py-14 sm:px-10" style={themeVars}>
       <div className="mx-auto w-full max-w-7xl">
         <Link
           href="/"
-          className={`${META} group inline-flex items-center gap-2 rounded text-[0.65rem] text-neutral-500 outline-none transition-colors duration-300 hover:text-neutral-900 focus-visible:text-neutral-900 focus-visible:ring-2 focus-visible:ring-neutral-900/40 focus-visible:ring-offset-2`}
+          className="tata-body group inline-flex items-center gap-2 rounded text-[0.7rem] text-neutral-500 outline-none transition-colors duration-300 hover:text-neutral-900 focus-visible:text-neutral-900 focus-visible:ring-2 focus-visible:ring-neutral-900/40 focus-visible:ring-offset-2"
         >
           <span aria-hidden className="inline-block transition-transform duration-300 group-hover:-translate-x-1">←</span>
           Back
@@ -92,15 +90,15 @@ export function TataExperience() {
           {/* 2 — description + endorsements. */}
           <section className="grid grid-cols-1 gap-10 border-t border-neutral-200 py-14 lg:grid-cols-[1.4fr_1fr] lg:gap-16 lg:py-16">
             <div>
-              <span className={`${META} text-xs`} style={{ color: "var(--brand-accent, #737373)" }}>
+              <span className={LABEL} style={{ color: "var(--brand-accent, #737373)" }}>
                 Client — Enterprise · Systems
               </span>
-              <p className="mt-5 max-w-2xl text-[1.05rem] leading-relaxed text-neutral-700" style={{ fontFamily: HELVETICA }}>
+              <p className="tata-body mt-5 max-w-2xl text-[1.05rem] leading-relaxed text-neutral-700">
                 {TATA_DESCRIPTION}
               </p>
             </div>
             <div className="lg:pl-8">
-              <span className={`${META} text-[0.62rem] text-neutral-500`}>Powered by</span>
+              <span className={`${LABEL} text-neutral-500`}>Powered by</span>
               <ul className="mt-5 flex flex-wrap items-center gap-x-9 gap-y-6">
                 {TATA_POWERED_BY.map((p) =>
                   p.src ? (
@@ -115,7 +113,7 @@ export function TataExperience() {
                     </li>
                   ) : (
                     <li key={p.name} className="max-w-[8.5rem] leading-tight">
-                      <span className="text-[0.72rem] font-medium text-neutral-700">{p.name}</span>
+                      <span className="tata-subhead text-[0.72rem] text-neutral-700">{p.name}</span>
                     </li>
                   ),
                 )}
@@ -128,13 +126,13 @@ export function TataExperience() {
 
           {/* 4 — the partner marquee. */}
           <section className="border-t border-neutral-200 py-6">
-            <span className={`${META} px-1 text-[0.62rem] text-neutral-500`}>In the company of</span>
+            <span className={`${LABEL} block px-1 text-neutral-500`}>In the company of</span>
             <PartnerMarquee logos={TATA_PARTNERS} />
           </section>
 
           {/* 5 — the four work families. */}
           <section className="pt-4">
-            <span className={`${META} px-1 text-[0.62rem]`} style={{ color: "var(--brand-accent, #737373)" }}>
+            <span className={`${LABEL} block px-1`} style={{ color: "var(--brand-accent, #737373)" }}>
               The work
             </span>
             <div className="mt-6">

@@ -12,7 +12,6 @@
 import Image from "next/image";
 import { GuidelinePlates } from "@/components/client/GuidelinePlates";
 import { TATA_GUIDELINES } from "@/constants/tataExperience";
-import { typeVoiceClass } from "@/constants/typography";
 
 const COLOUR_LAW = [
   { hex: "#262222", use: "Print", swatch: "bg-[#262222]" },
@@ -24,7 +23,8 @@ function Guide({ className }: { className: string }) {
   return <span aria-hidden className={`absolute bg-neutral-100 ${className}`} />;
 }
 
-const META = typeVoiceClass("logic", "meta");
+/** Section kicker — a subheading (Helvetica Bold), small and tracked. */
+const KICKER = "tata-subhead text-[0.62rem] uppercase tracking-[0.12em]";
 
 export function GuidelineSections() {
   const g = TATA_GUIDELINES;
@@ -43,7 +43,7 @@ export function GuidelineSections() {
     <section aria-label="Logo guidelines" className="border-t border-neutral-200">
       {/* Tata IIS — full width, ~half the viewport. */}
       <div className="flex min-h-[52vh] flex-col justify-center gap-2 py-14">
-        <span className={`${META} text-[0.62rem]`} style={{ color: "var(--brand-accent, #737373)" }}>
+        <span className={KICKER} style={{ color: "var(--brand-accent, #737373)" }}>
           The wordmark & its rulebook
         </span>
         <div className="mt-6 grid grid-cols-1 gap-10 lg:grid-cols-[1fr_1fr] lg:items-center lg:gap-16">
@@ -72,7 +72,7 @@ export function GuidelineSections() {
               {COLOUR_LAW.map((c) => (
                 <span key={c.hex} className="flex items-center gap-2.5">
                   <span aria-hidden className={`size-3 rounded-full ${c.swatch}`} />
-                  <span className={`${META} text-[0.6rem] text-neutral-600`}>
+                  <span className="tata-body text-[0.6rem] text-neutral-600">
                     {c.hex} — {c.use}
                   </span>
                 </span>
@@ -91,7 +91,7 @@ export function GuidelineSections() {
         <div className="relative flex flex-col justify-center overflow-hidden border-neutral-200 p-10 md:border-r">
           <Image src={g.iisa.texture} alt="" aria-hidden fill sizes="50vw" className="object-cover opacity-[0.07]" />
           <div className="relative">
-            <span className={`${META} text-[0.6rem] text-neutral-500`}>Campus dialect — Ahmedabad</span>
+            <span className={`${KICKER} text-neutral-500`}>Campus dialect — Ahmedabad</span>
             <div className="relative mt-5 h-24 w-full">
               <Image src={g.iisa.logo} alt="IIS Ahmedabad logo" fill sizes="280px" className="object-contain object-left" />
             </div>
@@ -102,7 +102,7 @@ export function GuidelineSections() {
         <div className="relative flex min-h-[46vh] flex-col justify-center overflow-hidden p-10">
           <Image src={g.iism.texture} alt="" aria-hidden fill sizes="50vw" className="object-cover opacity-[0.07]" />
           <div className="relative">
-            <span className={`${META} text-[0.6rem] text-neutral-500`}>Campus dialect — Mumbai</span>
+            <span className={`${KICKER} text-neutral-500`}>Campus dialect — Mumbai</span>
             <div className="relative mt-5 h-24 w-full">
               <Image src={g.iism.logo} alt="IIS Mumbai logo" fill sizes="280px" className="object-contain object-left" />
             </div>

@@ -68,6 +68,56 @@ canvas {
   font-family: Helvetica, "Helvetica Neue", Arial, ui-sans-serif, system-ui, sans-serif;
 }
 
+/*
+ * Tata IIS full-experience — a strict two-typeface system (client directive):
+ *   .tata-heading → Copperplate Gothic Bold  (the logo font)
+ *   .tata-subhead → Helvetica Bold
+ *   .tata-body    → Helvetica Roman
+ *
+ * Copperplate Gothic and Helvetica are licensed, non-Google faces. The stacks
+ * below use a locally-installed copy when the visitor has one, and degrade
+ * gracefully otherwise (Copperplate → Cinzel engraved caps; Helvetica →
+ * Arial). To guarantee them for EVERY visitor, drop web files into
+ * /public/fonts/ and uncomment the @font-face url() sources — no other change
+ * is needed; the family names already lead every stack.
+ */
+@font-face {
+  font-family: "Copperplate Gothic Bold";
+  src:
+    local("Copperplate Gothic Bold"),
+    local("CopperplateGothic-Bold"),
+    local("Copperplate Gothic Std Bold");
+  /* , url("/fonts/copperplate-gothic-bold.woff2") format("woff2"); */
+  font-weight: 700;
+  font-display: swap;
+}
+.tata-heading {
+  font-family: "Copperplate Gothic Bold", "Copperplate Gothic", "Copperplate",
+    var(--font-cinzel), ui-serif, serif;
+  font-weight: 700;
+  letter-spacing: 0.045em;
+  text-transform: uppercase;
+}
+.tata-subhead {
+  font-family: Helvetica, "Helvetica Neue", Arial, ui-sans-serif, sans-serif;
+  font-weight: 700;
+}
+.tata-body {
+  font-family: Helvetica, "Helvetica Neue", Arial, ui-sans-serif, sans-serif;
+  font-weight: 400;
+}
+
+/* Within the Tata experience the site's voiced utilities (mono/serif/script)
+ * collapse to Helvetica, so any shared component rendered here (plate strips,
+ * the media viewer, sliders) holds to the page's two typefaces. Two-class
+ * specificity outranks the single-class utility; `@theme inline` bakes the
+ * utility value, so a CSS-variable override alone would not reach it. */
+.tata-scope .font-mono-brand,
+.tata-scope .font-serif-brand,
+.tata-scope .font-hand-brand {
+  font-family: Helvetica, "Helvetica Neue", Arial, ui-sans-serif, sans-serif;
+}
+
 /* RIGHT nav — a slow painted gradient in the creative palette that never sits
  * still; hovering speeds the flow. Same colour language as the right hemisphere. */
 .brain-paint {
