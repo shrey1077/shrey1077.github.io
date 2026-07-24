@@ -43,11 +43,23 @@ export function CategoryAccordion({ groups }: { groups: AccordionGroup[] }) {
 
   return (
     <>
-      <ul className="border-t border-neutral-200">
+      <div className="grid grid-cols-1 border-t border-neutral-200 sm:grid-cols-2">
         {groups.map((group, gi) => {
           const total = group.subcategories.reduce((n, s) => n + s.count, 0);
+          // 2×2 on sm+: a thin cross between the cells (top row gets the
+          // horizontal line, left column the vertical line); on mobile the
+          // cells stack with a divider under all but the last.
+          const isTopRow = gi < 2;
+          const isLeftCol = gi % 2 === 0;
+          const isLastMobile = gi === groups.length - 1;
+          const cell = [
+            "relative border-neutral-200",
+            isLastMobile ? "" : "max-sm:border-b", // stacked divider on mobile
+            isTopRow ? "sm:border-b" : "", // horizontal cross line (top row)
+            isLeftCol ? "sm:border-r" : "", // vertical cross line (left column)
+          ].join(" ");
           return (
-            <li key={group.id} className="border-b border-neutral-200">
+            <div key={group.id} className={cell}>
               <button
                 type="button"
                 aria-haspopup="dialog"
@@ -55,11 +67,11 @@ export function CategoryAccordion({ groups }: { groups: AccordionGroup[] }) {
                   const r = e.currentTarget.getBoundingClientRect();
                   setOpen({ index: gi, rect: { top: r.top, height: r.height } });
                 }}
-                className="group relative flex w-full items-center gap-4 px-1 py-8 text-left outline-none transition-colors duration-500 hover:bg-neutral-50/80 focus-visible:bg-neutral-50 sm:gap-6 sm:py-9"
+                className="group relative flex h-full w-full items-center gap-4 px-1 py-8 text-left outline-none transition-colors duration-500 hover:bg-neutral-50/80 focus-visible:bg-neutral-50 sm:gap-5 sm:px-7 sm:py-10"
               >
                 <span
                   aria-hidden
-                  className="w-9 shrink-0 text-2xl font-extralight tabular-nums text-neutral-300 transition-colors duration-500 group-hover:text-neutral-400 sm:w-14 sm:text-3xl"
+                  className="w-9 shrink-0 text-2xl font-extralight tabular-nums text-neutral-300 transition-colors duration-500 group-hover:text-neutral-400 sm:w-12 sm:text-3xl"
                 >
                   {String(gi + 1).padStart(2, "0")}
                 </span>
@@ -77,15 +89,15 @@ export function CategoryAccordion({ groups }: { groups: AccordionGroup[] }) {
                 )}
 
                 <span className="flex min-w-0 flex-1 flex-col">
-                  <span className="tata-heading text-xl leading-[1.05] text-neutral-900 sm:text-3xl">
+                  <span className="tata-heading text-xl leading-[1.05] text-neutral-900 sm:text-2xl">
                     {group.title}
                   </span>
-                  <span className="tata-body mt-1.5 line-clamp-2 max-w-xl text-xs leading-relaxed text-neutral-500 sm:text-sm">
+                  <span className="tata-body mt-1.5 line-clamp-2 max-w-md text-xs leading-relaxed text-neutral-500 sm:text-sm">
                     {group.blurb}
                   </span>
                 </span>
 
-                <span className="tata-body hidden shrink-0 text-[0.62rem] uppercase tracking-[0.1em] text-neutral-500 sm:block">
+                <span className="tata-body hidden shrink-0 text-[0.6rem] uppercase tracking-[0.1em] text-neutral-500 lg:block">
                   {total} pieces
                 </span>
                 <span
@@ -95,10 +107,10 @@ export function CategoryAccordion({ groups }: { groups: AccordionGroup[] }) {
                   +
                 </span>
               </button>
-            </li>
+            </div>
           );
         })}
-      </ul>
+      </div>
 
       <FamilyOverlay
         group={open ? groups[open.index] : null}
