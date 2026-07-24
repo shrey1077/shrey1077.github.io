@@ -36,7 +36,7 @@ export function PartnerMarquee({ logos, durationSec = 42 }: PartnerMarqueeProps)
       aria-label="Partners"
     >
       <ul
-        className="flex w-max items-center gap-16"
+        className="flex w-max items-center gap-10 sm:gap-12"
         style={
           reducedMotion
             ? undefined
@@ -47,12 +47,14 @@ export function PartnerMarquee({ logos, durationSec = 42 }: PartnerMarqueeProps)
       >
         {loop.map((logo, i) => (
           <li key={`${logo}-${i}`} className="shrink-0">
+            {/* Logos are normalised to a uniform 266×119 canvas with equal ink
+                area (scripts/normalize-tata-partners.mjs); shown in full colour. */}
             <Image
               src={logo}
               alt=""
-              width={150}
-              height={48}
-              className="h-9 w-auto object-contain opacity-60 grayscale transition-all duration-500 hover:opacity-100 hover:grayscale-0 sm:h-11"
+              width={266}
+              height={119}
+              className="h-12 w-auto object-contain opacity-95 transition-opacity duration-500 hover:opacity-100 sm:h-14"
             />
           </li>
         ))}
