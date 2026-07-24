@@ -60,6 +60,10 @@ uid — CP6/CP7; abs, mycoveda, early-works are WIP, no source found).
      (accent-filled) and inactive chips. Wired in `TataExperience` with a
      server-side `fs` existence guard (missing PNG → plain row/chip).
    - `TataFooter` — Contact Us, both campus addresses, CIN, studio credit.
+     **CP15: the hero's blue & teal light ribbons loop along the footer bottom**
+     (`FooterRibbons`, an animated SVG; blue = 2× teal stroke width; flows
+     left→right, seamless via even-period 2-tile translate; clipped to a 150px
+     band, footer got extra bottom padding).
 
 **Typography (CP11) — the Tata page uses exactly two typefaces:**
 - `.tata-heading` → **Copperplate Gothic Bold** (family titles; the logo font)
@@ -127,4 +131,4 @@ CP5 catalogue rework · CP6 four other clients · CP7 Awwwards refinement · CP8
 5-agent recheck · CP9 bespoke Tata full experience · CP10 homepage panel ·
 CP11 two-typeface system · CP12 hero film · CP13 section mockup cutouts
 (`ca10cea`) · CP14 gridNEW body wash + IISA guideline plates + MSDE emblem
-(`808fbdb`). Tree clean at handoff.
+(`808fbdb`) · CP15 footer blue/teal ribbon loop (`b69c5c4`). Tree clean.
