@@ -12,9 +12,9 @@ const BRAND = "/content/clients/tata-iis/brand";
 
 export const TATA_HERO = {
   poster: `${BRAND}/hero-poster.jpg`,
-  /** Drop the real 16:9 film here (public path) — the hero plays it once and
-   *  freezes on the last frame. Left undefined → branded placeholder. */
-  src: undefined as string | undefined,
+  /** The 16:9 fly-through film — plays once on load and freezes on its last
+   *  frame (poster is that last frame). Replace this file to swap the hero. */
+  src: `${BRAND}/hero.mp4` as string | undefined,
 };
 
 export const TATA_DESCRIPTION =
