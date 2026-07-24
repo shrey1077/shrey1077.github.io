@@ -7,6 +7,7 @@
 
 import { SITE } from "@/constants/site";
 import { TATA_FOOTER } from "@/constants/tataExperience";
+import { FooterRibbons } from "@/components/client/tata/FooterRibbons";
 
 function Field({ label, children }: { label: string; children: React.ReactNode }) {
   return (
@@ -23,8 +24,10 @@ export function TataFooter() {
   const [ahmedabad, mumbai] = TATA_FOOTER.campuses;
 
   return (
-    <footer className="border-t border-neutral-200 py-16 sm:py-20">
-      <div className="grid grid-cols-1 gap-12 sm:grid-cols-2 lg:grid-cols-4">
+    <footer className="relative overflow-hidden border-t border-neutral-200 pt-16 pb-44 sm:pt-20 sm:pb-52">
+      {/* The hero's blue & teal light ribbons, looping along the very bottom. */}
+      <FooterRibbons />
+      <div className="relative z-10 grid grid-cols-1 gap-12 sm:grid-cols-2 lg:grid-cols-4">
         <Field label="Contact Us">
           <p>
             <a href={`mailto:${TATA_FOOTER.contact.email}`} className="transition-colors hover:text-neutral-900">
@@ -58,7 +61,7 @@ export function TataFooter() {
         </div>
       </div>
 
-      <div className="mt-14 flex flex-col gap-2 border-t border-neutral-100 pt-6 sm:flex-row sm:items-baseline sm:justify-between">
+      <div className="relative z-10 mt-14 flex flex-col gap-2 border-t border-neutral-100 pt-6 sm:flex-row sm:items-baseline sm:justify-between">
         <p className="tata-body text-[0.6rem] text-neutral-500">© {range} {SITE.name}</p>
         <p className="tata-body text-[0.6rem] text-neutral-500">
           Client work © Tata Indian Institute of Skills — shown as portfolio record
