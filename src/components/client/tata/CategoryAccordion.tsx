@@ -13,6 +13,7 @@
  */
 
 import { useState } from "react";
+import Image from "next/image";
 import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
 import type { CollectionAsset } from "@/types/experience";
 import { PortraitSlider } from "@/components/client/tata/PortraitSlider";
@@ -23,6 +24,8 @@ export interface AccordionSubcat {
   title: string;
   count: number;
   assets: CollectionAsset[];
+  /** Small product-mockup cutout badged onto the sub-category chip. */
+  mockup?: string;
 }
 export interface AccordionGroup {
   id: string;
@@ -30,6 +33,8 @@ export interface AccordionGroup {
   blurb: string;
   accent: string;
   subcategories: AccordionSubcat[];
+  /** Small product-mockup cutout floated in the family row. */
+  mockup?: string;
 }
 
 export function CategoryAccordion({ groups }: { groups: AccordionGroup[] }) {
@@ -55,17 +60,33 @@ export function CategoryAccordion({ groups }: { groups: AccordionGroup[] }) {
               type="button"
               onClick={() => setOpenGroup(isOpen ? null : group.id)}
               aria-expanded={isOpen}
-              className="group relative flex w-full items-center gap-6 px-1 py-9 text-left outline-none transition-colors duration-500 hover:bg-neutral-50/80 focus-visible:bg-neutral-50 sm:py-11"
+              className="group relative flex w-full items-center gap-4 px-1 py-9 text-left outline-none transition-colors duration-500 hover:bg-neutral-50/80 focus-visible:bg-neutral-50 sm:gap-6 sm:py-11"
             >
               <span
                 aria-hidden
-                className="w-12 shrink-0 text-2xl font-extralight tabular-nums sm:w-16 sm:text-3xl"
+                className="w-9 shrink-0 text-2xl font-extralight tabular-nums sm:w-14 sm:text-3xl"
                 style={{ color: isOpen ? group.accent : "#d4d4d4" }}
               >
                 {String(gi + 1).padStart(2, "0")}
               </span>
-              <span className="tata-heading min-w-0 flex-1 text-2xl text-neutral-900 sm:text-4xl">
-                {group.title}
+              <span className="flex min-w-0 flex-1 items-center gap-3 sm:gap-5">
+                {group.mockup && (
+                  <span
+                    aria-hidden
+                    className="relative h-11 w-11 shrink-0 sm:h-16 sm:w-16"
+                  >
+                    <Image
+                      src={group.mockup}
+                      alt=""
+                      fill
+                      sizes="64px"
+                      className="object-contain transition-transform duration-500 ease-out group-hover:scale-105"
+                    />
+                  </span>
+                )}
+                <span className="tata-heading min-w-0 text-2xl text-neutral-900 sm:text-4xl">
+                  {group.title}
+                </span>
               </span>
               <span className="tata-body hidden max-w-xs flex-1 text-sm leading-relaxed text-neutral-500 lg:block">
                 {group.blurb}
@@ -104,15 +125,33 @@ export function CategoryAccordion({ groups }: { groups: AccordionGroup[] }) {
                             onClick={() =>
                               setOpenSub((m) => ({ ...m, [group.id]: s.id }))
                             }
-                            className={`tata-subhead rounded-full border px-4 py-2 text-[0.62rem] uppercase tracking-[0.08em] outline-none transition-colors duration-300 focus-visible:ring-2 focus-visible:ring-neutral-900/40 ${
+                            className={`tata-subhead inline-flex items-center gap-2 rounded-full border py-1.5 pr-4 text-[0.62rem] uppercase tracking-[0.08em] outline-none transition-colors duration-300 focus-visible:ring-2 focus-visible:ring-neutral-900/40 ${
+                              s.mockup ? "pl-1.5" : "pl-4"
+                            } ${
                               on
                                 ? "border-transparent text-white"
                                 : "border-neutral-300 text-neutral-600 hover:border-neutral-900 hover:text-neutral-900"
                             }`}
                             style={on ? { backgroundColor: group.accent } : undefined}
                           >
+                            {s.mockup && (
+                              <span
+                                aria-hidden
+                                className="grid h-6 w-6 shrink-0 place-items-center rounded-full bg-white shadow-[0_1px_2px_rgba(0,0,0,0.12)]"
+                              >
+                                <span className="relative h-[18px] w-[18px]">
+                                  <Image
+                                    src={s.mockup}
+                                    alt=""
+                                    fill
+                                    sizes="24px"
+                                    className="object-contain"
+                                  />
+                                </span>
+                              </span>
+                            )}
                             {s.title}
-                            <span className="ml-2 opacity-60">{s.count}</span>
+                            <span className="opacity-60">{s.count}</span>
                           </button>
                         );
                       })}

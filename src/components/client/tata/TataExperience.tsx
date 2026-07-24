@@ -15,6 +15,8 @@
  * them under the four families; the interactive pieces are client children.
  */
 
+import fs from "node:fs";
+import path from "node:path";
 import Link from "next/link";
 import Image from "next/image";
 import { clientExperienceBySlug } from "@/constants/clientExperiences";
@@ -25,6 +27,8 @@ import {
   TATA_POWERED_BY,
   TATA_PARTNERS,
   TATA_GROUPS,
+  tataFamilyMockup,
+  tataSubcatMockup,
 } from "@/constants/tataExperience";
 import { ExperienceTransition } from "@/components/transition/ExperienceTransition";
 import { VideoHero } from "@/components/client/tata/VideoHero";
@@ -50,12 +54,21 @@ export function TataExperience() {
     "--brand-accent": theme?.accent ?? "#14279B",
   } as React.CSSProperties;
 
+  // A mockup cutout is used only when its file is actually on disk (the
+  // slice script may not have produced every one) — a missing PNG then just
+  // renders as a plain row/chip instead of a broken image.
+  const mockupIfPresent = (url: string): string | undefined =>
+    fs.existsSync(path.join(process.cwd(), "public", url.replace(/^\//, "")))
+      ? url
+      : undefined;
+
   // Regroup the curated catalogue folders under the four work families.
   const groups: AccordionGroup[] = TATA_GROUPS.map((g) => ({
     id: g.id,
     title: g.title,
     blurb: g.blurb,
     accent: g.accent,
+    mockup: mockupIfPresent(tataFamilyMockup(g.id)),
     subcategories: g.children
       .map((childId) => {
         const data = readCatalogueCategory(SLUG, childId);
@@ -65,6 +78,7 @@ export function TataExperience() {
           title: data.category.name,
           count: data.category.assetCount,
           assets: data.assets,
+          mockup: mockupIfPresent(tataSubcatMockup(data.category.id)),
         };
       })
       .filter((s): s is NonNullable<typeof s> => s !== null),

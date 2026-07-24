@@ -45,6 +45,15 @@ export const TATA_GUIDELINES = {
   },
 };
 
+/** Little product-mockup cutouts (transparent PNGs) that badge each work
+ *  family row and each sub-category chip. Generated from two OpenArt contact
+ *  sheets and sliced by `scripts/slice-tata-mockups.mjs`; keep those in sync. */
+export const TATA_MOCKUPS = `${BRAND}/mockups`;
+/** Cutout for a work family (accordion row) — `fam-<familyId>.png`. */
+export const tataFamilyMockup = (familyId: string) => `${TATA_MOCKUPS}/fam-${familyId}.png`;
+/** Cutout for a sub-category (accordion chip) — `sub-<subcatId>.png`. */
+export const tataSubcatMockup = (subcatId: string) => `${TATA_MOCKUPS}/sub-${subcatId}.png`;
+
 /** The four work families → the catalogue folder ids they gather.
  *  (Ids are folderToId of the catalogue folder names.) */
 export const TATA_GROUPS: {
