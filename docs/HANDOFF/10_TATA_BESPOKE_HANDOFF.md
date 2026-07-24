@@ -40,7 +40,13 @@ uid — CP6/CP7; abs, mycoveda, early-works are WIP, no source found).
    - description (Helvetica) + "Powered by" (Tata Trusts / Skill India / Govt
      Gujarat logos + **MSDE as a text lockup** — no emblem in archive).
    - `GuidelineSections` — Tata wordmark+rulebook+plate strip full-width
-     (~half viewport), then IISA / IISM two columns.
+     (~half viewport), then IISA / IISM two columns. **CP14: both columns now
+     carry a 6-plate guideline strip** (IISA rendered from its PDF via
+     `scripts/render-iisa-guidelines.mjs`); the old bespoke campus textures are
+     gone — both columns are transparent over the page-wide `gridNEW` wash.
+   - **Page body** wears a fixed, faint `gridNEW` circuit-grid wash
+     (`brand/gridNEW.webp`, `TATA_GRID`) behind everything (CP14). Tune via the
+     `opacity-70` on the fixed layer in `TataExperience`.
    - `PartnerMarquee` — continuous logo band, pauses on hover.
    - `CategoryAccordion` — **4 families** (Brand & Logo Guidelines · Print
      Media · Digital Graphics · Photography) = the 13 catalogue folders
@@ -79,9 +85,10 @@ uid — CP6/CP7; abs, mycoveda, early-works are WIP, no source found).
    is unused. Merchandise's folded-polo icon is the least legible at 24px
    (mostly navy) — fine, but a lighter re-gen could improve it.
 
-2. **MSDE logo** — currently a text lockup in `TATA_POWERED_BY`
-   (`tataExperience.ts`). Drop a real emblem into `brand/powered/msde.png`
-   and add `src` to that entry.
+2. **✅ DONE (CP14) — MSDE logo.** Official emblem fetched from Wikimedia
+   Commons (`File:Ministry_of_Skill_Development_and_Entrepreneurship.svg`,
+   direct upload URL derived from the filename md5), rasterised to
+   `brand/powered/msde.png`; `TATA_POWERED_BY`'s MSDE entry now has `src`.
 
 3. **Font files** — Copperplate Gothic Bold + Helvetica are licensed, not on
    the drives. `.tata-heading` falls back to Cinzel, Helvetica→Arial, until
@@ -107,6 +114,10 @@ uid — CP6/CP7; abs, mycoveda, early-works are WIP, no source found).
 - `scripts/slice-tata-mockups.mjs` — slices the two `brand/mockups/_sheets/`
   contact-sheet grids into the 17 accordion mockup cutouts (flood-fill white
   keying + trim + square-pad). Re-run after replacing either sheet.
+- `scripts/render-iisa-guidelines.mjs` — renders the curated IISA plate strip
+  from `IISA Logo Guidelines (1).pdf` via `pdf-to-img` (devDep; no system
+  poppler/ghostscript on this box, and sharp has no PDF input). pdfjs sees the
+  deck as 10 pages, not the 27 the file claims.
 - Hero film was encoded ad-hoc via ffmpeg (see CP12 commit); re-encode from
   `Intro/frames/…this_sh-0.mp4` → `public/…/brand/hero.mp4` if swapping.
 
@@ -115,4 +126,5 @@ uid — CP6/CP7; abs, mycoveda, early-works are WIP, no source found).
 CP5 catalogue rework · CP6 four other clients · CP7 Awwwards refinement · CP8
 5-agent recheck · CP9 bespoke Tata full experience · CP10 homepage panel ·
 CP11 two-typeface system · CP12 hero film · CP13 section mockup cutouts
-(`ca10cea`). Tree clean at handoff.
+(`ca10cea`) · CP14 gridNEW body wash + IISA guideline plates + MSDE emblem
+(`808fbdb`). Tree clean at handoff.
