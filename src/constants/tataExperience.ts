@@ -25,8 +25,12 @@ export const TATA_POWERED_BY: { name: string; src?: string }[] = [
   { name: "Tata Trusts", src: `${BRAND}/powered/tata-trusts.png` },
   { name: "Skill India", src: `${BRAND}/powered/skill-india.png` },
   { name: "Government of Gujarat", src: `${BRAND}/powered/govt-gujarat.png` },
-  { name: "Ministry of Skill Development & Entrepreneurship" }, // text lockup
+  { name: "Ministry of Skill Development & Entrepreneurship", src: `${BRAND}/powered/msde.png` },
 ];
+
+/** The circuit-grid texture (`gridNEW`) — the page body wash and the whisper
+ *  behind the IISA / IISM guideline columns. Source: user's `Grid-min.png`. */
+export const TATA_GRID = `${BRAND}/gridNEW.webp`;
 
 /** The logo-guideline system (dedicated sections above the work). */
 export const TATA_GUIDELINES = {
@@ -34,12 +38,11 @@ export const TATA_GUIDELINES = {
   tataPlates: Array.from({ length: 12 }, (_, i) => `${BRAND}/guidelines/plate-${String(i + 1).padStart(2, "0")}.webp`),
   iisa: {
     logo: `${BRAND}/iisa.png`,
-    texture: `${BRAND}/texture-iisa.webp`,
+    plates: Array.from({ length: 6 }, (_, i) => `${BRAND}/guidelines-iisa/plate-${String(i + 1).padStart(2, "0")}.webp`),
     line: "A canopy of growth in navy and orange, rising from machined stems.",
   },
   iism: {
     logo: `${BRAND}/iism.png`,
-    texture: `${BRAND}/texture-iism.webp`,
     plates: Array.from({ length: 6 }, (_, i) => `${BRAND}/guidelines-iism/plate-${String(i + 1).padStart(2, "0")}.webp`),
     line: "Teal and violet planes, angled like sheet metal in motion.",
   },

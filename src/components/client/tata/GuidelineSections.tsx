@@ -33,6 +33,11 @@ export function GuidelineSections() {
     url,
     kind: "image" as const,
   }));
+  const iisaPlates = g.iisa.plates.map((url, i) => ({
+    name: `IIS Ahmedabad guideline plate ${i + 1}`,
+    url,
+    kind: "image" as const,
+  }));
   const iismPlates = g.iism.plates.map((url, i) => ({
     name: `IIS Mumbai guideline plate ${i + 1}`,
     url,
@@ -88,19 +93,18 @@ export function GuidelineSections() {
       {/* IISA + IISM — two equal columns, the remaining half. */}
       <div className="grid grid-cols-1 border-t border-neutral-200 md:min-h-[48vh] md:grid-cols-2">
         {/* IIS Ahmedabad */}
-        <div className="relative flex flex-col justify-center overflow-hidden border-neutral-200 p-10 md:border-r">
-          <Image src={g.iisa.texture} alt="" aria-hidden fill sizes="50vw" className="object-cover opacity-[0.07]" />
+        <div className="relative flex min-h-[46vh] flex-col justify-center border-neutral-200 p-10 md:border-r">
           <div className="relative">
             <span className={`${KICKER} text-neutral-500`}>Campus dialect — Ahmedabad</span>
             <div className="relative mt-5 h-24 w-full">
               <Image src={g.iisa.logo} alt="IIS Ahmedabad logo" fill sizes="280px" className="object-contain object-left" />
             </div>
-            <p className="mt-5 max-w-sm text-sm leading-relaxed text-neutral-600">{g.iisa.line}</p>
+            <p className="mt-5 mb-7 max-w-sm text-sm leading-relaxed text-neutral-600">{g.iisa.line}</p>
+            <GuidelinePlates plates={iisaPlates} />
           </div>
         </div>
         {/* IIS Mumbai */}
-        <div className="relative flex min-h-[46vh] flex-col justify-center overflow-hidden p-10">
-          <Image src={g.iism.texture} alt="" aria-hidden fill sizes="50vw" className="object-cover opacity-[0.07]" />
+        <div className="relative flex min-h-[46vh] flex-col justify-center p-10">
           <div className="relative">
             <span className={`${KICKER} text-neutral-500`}>Campus dialect — Mumbai</span>
             <div className="relative mt-5 h-24 w-full">

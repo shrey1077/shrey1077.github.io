@@ -27,6 +27,7 @@ import {
   TATA_POWERED_BY,
   TATA_PARTNERS,
   TATA_GROUPS,
+  TATA_GRID,
   tataFamilyMockup,
   tataSubcatMockup,
 } from "@/constants/tataExperience";
@@ -85,8 +86,12 @@ export function TataExperience() {
   })).filter((g) => g.subcategories.length > 0);
 
   return (
-    <main className="tata-scope tata-body min-h-dvh w-full bg-gallery px-6 py-14 sm:px-10" style={themeVars}>
-      <div className="mx-auto w-full max-w-7xl">
+    <main className="tata-scope tata-body relative min-h-dvh w-full bg-gallery px-6 py-14 sm:px-10" style={themeVars}>
+      {/* Circuit-grid wash (gridNEW) — a fixed whisper behind the whole page. */}
+      <div aria-hidden className="pointer-events-none fixed inset-0 z-0">
+        <Image src={TATA_GRID} alt="" fill priority sizes="100vw" className="object-cover opacity-70" />
+      </div>
+      <div className="relative z-10 mx-auto w-full max-w-7xl">
         <Link
           href="/"
           className="tata-body group inline-flex items-center gap-2 rounded text-[0.7rem] text-neutral-500 outline-none transition-colors duration-300 hover:text-neutral-900 focus-visible:text-neutral-900 focus-visible:ring-2 focus-visible:ring-neutral-900/40 focus-visible:ring-offset-2"
