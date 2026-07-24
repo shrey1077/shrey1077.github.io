@@ -47,6 +47,12 @@ uid — CP6/CP7; abs, mycoveda, early-works are WIP, no source found).
      regrouped via `TATA_GROUPS` in `src/constants/tataExperience.ts`. Click a
      row → expands → sub-category chips → `PortraitSlider` (looped, ≤7 frames,
      auto-advance, pause on hover, click → `MediaViewer`).
+     **CP13: every family row + every sub-category chip now carries a little
+     device/product mockup cutout** (transparent PNG in `brand/mockups/`,
+     `fam-<id>.png` / `sub-<id>.png`). Row cutout floats between the index and
+     the title; chip cutout sits in a small white token that reads on active
+     (accent-filled) and inactive chips. Wired in `TataExperience` with a
+     server-side `fs` existence guard (missing PNG → plain row/chip).
    - `TataFooter` — Contact Us, both campus addresses, CIN, studio credit.
 
 **Typography (CP11) — the Tata page uses exactly two typefaces:**
@@ -62,17 +68,16 @@ uid — CP6/CP7; abs, mycoveda, early-works are WIP, no source found).
 
 ## OPEN ITEMS (do these in the new chat)
 
-1. **⭐ Section mockup cutouts (the main pending request).** The user asked:
-   *"i want little mockups cutouts for all sections and sub sections that you
-   need to create, use connectors if u want to."* → Create small mockup /
-   cutout visuals for each of the 4 families AND each sub-category (a little
-   representative object/device-frame/cutout per section), to enrich the
-   accordion rows and sub-category chips. Connectors are available and
-   sanctioned: **Adobe** (`image_remove_background`, crop, etc.) and
-   **OpenART** (generate) — both need the `adobe_mandatory_init` /
-   ToolSearch-loaded schemas. Decide placement (row thumbnail? chip icon?
-   hover preview?) with the user or best-judgment. Keep the two-typeface,
-   white-gallery aesthetic.
+1. **✅ DONE (CP13) — Section mockup cutouts (was the main pending request).**
+   User chose (AskUserQuestion) **generated** device mockups (not real-work
+   cutouts) placed on **family rows + chip icons**. Built via OpenART (only
+   ~30 credits on the account, so 2× Nano-Banana-2-Lite 3×3 contact sheets at
+   15 credits each, sliced by `scripts/slice-tata-mockups.mjs`). If ever
+   redoing: the two source grids are `brand/mockups/_sheets/sheet{A,B}.jpg`
+   (underscore-prefixed → ignored by the catalogue reader); re-run the slice
+   script to regenerate the 17 `fam-`/`sub-` PNGs. A spare `_spare-lanyard.png`
+   is unused. Merchandise's folded-polo icon is the least legible at 24px
+   (mostly navy) — fine, but a lighter re-gen could improve it.
 
 2. **MSDE logo** — currently a text lockup in `TATA_POWERED_BY`
    (`tataExperience.ts`). Drop a real emblem into `brand/powered/msde.png`
@@ -99,6 +104,9 @@ uid — CP6/CP7; abs, mycoveda, early-works are WIP, no source found).
 - `scripts/prepare-tata-iis.mjs` — the 13 catalogue folders (images+films).
 - `scripts/prepare-tata-experience.mjs` — powered-by logos, IISM guideline
   pages, hero poster.
+- `scripts/slice-tata-mockups.mjs` — slices the two `brand/mockups/_sheets/`
+  contact-sheet grids into the 17 accordion mockup cutouts (flood-fill white
+  keying + trim + square-pad). Re-run after replacing either sheet.
 - Hero film was encoded ad-hoc via ffmpeg (see CP12 commit); re-encode from
   `Intro/frames/…this_sh-0.mp4` → `public/…/brand/hero.mp4` if swapping.
 
@@ -106,4 +114,5 @@ uid — CP6/CP7; abs, mycoveda, early-works are WIP, no source found).
 
 CP5 catalogue rework · CP6 four other clients · CP7 Awwwards refinement · CP8
 5-agent recheck · CP9 bespoke Tata full experience · CP10 homepage panel ·
-CP11 two-typeface system · CP12 hero film. Tree clean at handoff.
+CP11 two-typeface system · CP12 hero film · CP13 section mockup cutouts
+(`ca10cea`). Tree clean at handoff.
