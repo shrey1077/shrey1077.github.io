@@ -1,15 +1,15 @@
 "use client";
 
 /**
- * FooterRibbons — the blue & teal light ribbons from the 16:9 hero film,
- * reprised as a looping horizontal flow along the bottom of the Tata IIS
- * footer. Two glowing trails weave left → right; the blue ribbon is twice the
- * stroke width of the teal one, per the brief.
+ * FooterRibbons — the two Tata IIS ribbons flowing like flags along the bottom
+ * of the footer. Blue is the IISA mark colour (#0d3857), teal the IISM mark
+ * colour (#00a2b4), painted as exact flat colours (no sheen or gradient); the
+ * blue ribbon is twice the teal's width, per the brief. They wave left → right
+ * in a seamless loop.
  *
- * Seamless loop: the artwork is drawn across two identical tiles (even wave
- * periods over 2×TILE), so translating the whole SVG by exactly one tile
- * (translateX -50% → 0) repeats with no visible seam. Decorative and
- * pointer-inert; the animation is disabled under prefers-reduced-motion.
+ * Seamless loop: the artwork spans two identical tiles (even wave periods over
+ * 2×TILE), so translating by exactly one tile (translateX -50% → 0) repeats
+ * with no seam. Decorative, pointer-inert, still under prefers-reduced-motion.
  */
 
 const TILE = 1600; // one seamless tile, in viewBox units
@@ -29,12 +29,12 @@ function wave({ periods, amp, base, phase }: { periods: number; amp: number; bas
   return pts.join(" ");
 }
 
-const BLUE = wave({ periods: 4, amp: 30, base: 138, phase: 0 });
-const TEAL = wave({ periods: 6, amp: 26, base: 116, phase: Math.PI * 0.65 });
+const BLUE = wave({ periods: 4, amp: 32, base: 140, phase: 0 });
+const TEAL = wave({ periods: 6, amp: 27, base: 116, phase: Math.PI * 0.6 });
 
 const CSS = `
 @keyframes tata-ribbon-flow { from { transform: translateX(-50%); } to { transform: translateX(0); } }
-.tata-ribbon-flow { animation: tata-ribbon-flow 24s linear infinite; will-change: transform; }
+.tata-ribbon-flow { animation: tata-ribbon-flow 26s linear infinite; will-change: transform; }
 @media (prefers-reduced-motion: reduce) { .tata-ribbon-flow { animation: none; } }
 `;
 
@@ -48,33 +48,10 @@ export function FooterRibbons() {
         preserveAspectRatio="xMinYMax meet"
         fill="none"
       >
-        <defs>
-          <linearGradient id="tata-ribbon-blue" x1="0" y1="0" x2="1" y2="0" gradientUnits="objectBoundingBox">
-            <stop offset="0" stopColor="#1e40af" />
-            <stop offset="0.5" stopColor="#3b82f6" />
-            <stop offset="1" stopColor="#1e40af" />
-          </linearGradient>
-          <linearGradient id="tata-ribbon-teal" x1="0" y1="0" x2="1" y2="0" gradientUnits="objectBoundingBox">
-            <stop offset="0" stopColor="#0d9488" />
-            <stop offset="0.5" stopColor="#2dd4bf" />
-            <stop offset="1" stopColor="#0d9488" />
-          </linearGradient>
-          <filter id="tata-ribbon-glow" x="-10%" y="-80%" width="120%" height="260%">
-            <feGaussianBlur stdDeviation="7" result="b" />
-            <feMerge>
-              <feMergeNode in="b" />
-              <feMergeNode in="SourceGraphic" />
-            </feMerge>
-          </filter>
-        </defs>
-
-        {/* Teal ribbon — the thinner trail (half the blue width). */}
-        <path d={TEAL} stroke="url(#tata-ribbon-teal)" strokeWidth="13" strokeLinecap="round" filter="url(#tata-ribbon-glow)" opacity="0.9" />
-        <path d={TEAL} stroke="#ccfbf1" strokeWidth="3" strokeLinecap="round" opacity="0.75" />
-
-        {/* Blue ribbon — double the teal width. */}
-        <path d={BLUE} stroke="url(#tata-ribbon-blue)" strokeWidth="26" strokeLinecap="round" filter="url(#tata-ribbon-glow)" opacity="0.92" />
-        <path d={BLUE} stroke="#dbeafe" strokeWidth="6" strokeLinecap="round" opacity="0.7" />
+        {/* Teal ribbon — IISM colour, the thinner one (half the blue width). */}
+        <path d={TEAL} stroke="#00a2b4" strokeWidth="15" fill="none" strokeLinecap="round" strokeLinejoin="round" />
+        {/* Blue ribbon — IISA colour, double the teal width. */}
+        <path d={BLUE} stroke="#0d3857" strokeWidth="30" fill="none" strokeLinecap="round" strokeLinejoin="round" />
       </svg>
     </div>
   );
