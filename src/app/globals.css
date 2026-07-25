@@ -18,6 +18,9 @@
  */
 @theme inline {
   --font-hand-brand: var(--font-caveat), "Segoe Script", cursive;
+  /* The painted voice — a brush face with true lowercase (the landing
+   * headline's creative half). */
+  --font-brush-brand: var(--font-brush), var(--font-caveat), cursive;
   --font-serif-brand: var(--font-fraunces), ui-serif, Georgia, serif;
   --font-mono-brand: var(--font-plex-mono), ui-monospace, "SFMono-Regular", monospace;
   /* The gallery wall — matched to the hero video's own background (#F9F9F9,

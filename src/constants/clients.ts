@@ -29,6 +29,14 @@ export interface Client {
    *  keep their `/clients/<slug>` route — this only changes where it's listed.
    *  Absent = "clients". */
   section?: "clients" | "projects";
+  /** Basic company facts for the section card (from the client's own
+   *  material / the 2024 resume). All optional — a card shows what it has. */
+  location?: string;
+  site?: string;
+  /** Public contact for the organisation, where one is on record. */
+  contact?: string;
+  /** Logo shown in the card's top band. */
+  cardLogo?: string;
 }
 
 export const CLIENTS: readonly Client[] = [
@@ -38,6 +46,10 @@ export const CLIENTS: readonly Client[] = [
     sector: "Enterprise · Systems",
     accent: "#14279B",
     essence: "An identity system for an institution that teaches systems.",
+    location: "Ahmedabad · Mumbai, India",
+    site: "tataiis.org",
+    contact: "admissions@tataiis.org",
+    cardLogo: "/content/career/tata-iis.png",
   },
   {
     slug: "azoth-biotech",
@@ -45,6 +57,9 @@ export const CLIENTS: readonly Client[] = [
     sector: "Biotechnology",
     accent: "#0E7C66",
     essence: "Identity for a lab rewriting its own formula.",
+    location: "Noida, Uttar Pradesh",
+    site: "azothbiotech.com",
+    cardLogo: "/content/career/azoth.png",
   },
   {
     slug: "abs",
@@ -52,6 +67,9 @@ export const CLIENTS: readonly Client[] = [
     sector: "Wholesale · Distribution",
     accent: "#C4690F",
     essence: "A brand built to move at warehouse scale.",
+    location: "Santa Fe Springs, California",
+    site: "abscali.com",
+    cardLogo: "/content/career/abs.png",
   },
   {
     slug: "zabraku-media",
@@ -59,6 +77,8 @@ export const CLIENTS: readonly Client[] = [
     sector: "Media · Content",
     accent: "#B3264A",
     essence: "A media house with a story-first spine.",
+    location: "Malviya Nagar, Delhi",
+    cardLogo: "/content/career/zabraku.png",
   },
   {
     slug: "uid",
@@ -67,6 +87,8 @@ export const CLIENTS: readonly Client[] = [
     accent: "#3B4CC0",
     essence: "Design education, given its own design language.",
     section: "projects",
+    location: "Ahmedabad, Gujarat",
+    cardLogo: "/content/career/uid.png",
   },
   {
     slug: "mycoveda",
@@ -75,6 +97,7 @@ export const CLIENTS: readonly Client[] = [
     accent: "#5C7C3A",
     essence: "Wellness rooted in quiet, potent nature.",
     section: "projects",
+    cardLogo: "/content/clients/azoth-biotech/brand/brands/mycoveda.png",
   },
   {
     slug: "newsmobile",
@@ -82,6 +105,9 @@ export const CLIENTS: readonly Client[] = [
     sector: "Digital News",
     accent: "#C0392B",
     essence: "A news identity moving at the speed of the feed.",
+    location: "Gurugram, Haryana",
+    site: "newsmobile.in",
+    cardLogo: "/content/career/newsmobile.png",
   },
   {
     slug: "early-works",

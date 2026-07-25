@@ -85,15 +85,15 @@ export function HeroHeadline() {
 
       {/* RIGHT — the creative voice; the second line is painted. */}
       <div aria-hidden className="text-center lg:pr-[4vw] lg:text-right">
-        <p
-          className={`${typeVoiceClass("creative", "label")} text-[clamp(2rem,4.4vw,4.6rem)] leading-[1.02] text-neutral-900`}
-        >
+        {/* The painted half speaks in the brush face (true lowercase), so the
+            word reads as painted rather than set. */}
+        <p className="font-brush-brand text-[clamp(2.2rem,5vw,5.2rem)] leading-[1.02] text-neutral-900">
           <MaskedLine delay={0.86} className="font-black">50%</MaskedLine>
           <MaskedLine
             delay={0.98}
-            className="brain-paint bg-clip-text pb-[0.08em] font-normal text-transparent"
+            className="brain-paint bg-clip-text pb-[0.12em] font-normal text-transparent"
           >
-            imagination
+            Imagination
           </MaskedLine>
         </p>
       </div>

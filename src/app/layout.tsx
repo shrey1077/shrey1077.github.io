@@ -2,6 +2,7 @@ import type { Metadata, Viewport } from "next";
 import {
   Anton,
   Caveat,
+  Caveat_Brush,
   Cinzel,
   Fraunces,
   IBM_Plex_Mono,
@@ -30,6 +31,15 @@ import "./globals.css";
 const caveat = Caveat({
   subsets: ["latin"],
   variable: "--font-caveat",
+  display: "swap",
+});
+
+/** The painted voice — a brush face with true lowercase, for the creative
+ *  half of the landing headline. */
+const caveatBrush = Caveat_Brush({
+  subsets: ["latin"],
+  weight: "400",
+  variable: "--font-brush",
   display: "swap",
 });
 
@@ -118,7 +128,7 @@ export default function RootLayout({
   return (
     <html
       lang="en"
-      className={`${caveat.variable} ${fraunces.variable} ${plexMono.variable} ${cinzel.variable} ${michroma.variable} ${anton.variable} ${orbitron.variable} ${syne.variable}`}
+      className={`${caveat.variable} ${caveatBrush.variable} ${fraunces.variable} ${plexMono.variable} ${cinzel.variable} ${michroma.variable} ${anton.variable} ${orbitron.variable} ${syne.variable}`}
     >
       <body className="bg-gallery text-neutral-900 antialiased">
         {children}

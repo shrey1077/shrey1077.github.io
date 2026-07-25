@@ -15,23 +15,27 @@
  *                     Generations), plus a 5% graphite strip on the left edge
  *                     leading back to logic.
  *
- * Rows are an accordion: clicking one expands it in place (siblings compress).
- * The Clients row drops down into the client index; choosing a client replaces
- * the whole panel area with an inline detail — company information on the
- * left, the work/artwork on the painted right — no navigation, everything on
- * this page. Every piece of text animates in (masked rises, letter settles,
- * staggered fades). Reduced motion renders everything in place.
+ * Clicking a row no longer compresses its siblings — the section GROWS from
+ * that row's own band to cover the whole stack, so Clients (the top row) opens
+ * downward while the rows beneath it also reach up over the rows above. The
+ * panel lands graphite (painted on the creative side) and holds the section's
+ * body: a portrait card slider, the Logofolio wall, or the career timeline.
+ * Choosing a card replaces the panel area with the inline client detail —
+ * company information on the left, the work on the painted right, no
+ * navigation, everything on this page. Every piece of text animates in (masked
+ * rises, letter settles, staggered fades). Reduced motion renders in place.
  */
 
 import { useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
-import { clientBySlug, clientsInSection } from "@/constants/clients";
+import { clientBySlug } from "@/constants/clients";
 import { TATA_DESCRIPTION, TATA_CIRCLES } from "@/constants/tataExperience";
 import { navSectionIndex, navSectionsFor } from "@/constants/navigation";
 import type { LogoMark } from "@/content/catalogue";
-import { LogofolioGrid } from "@/components/home/LogofolioGrid";
+import { SectionBody } from "@/components/home/SectionBody";
+import type { ArtPreview } from "@/components/home/SectionBody";
 import { DURATION, EASE_OUT } from "@/constants/motion";
 import { typeVoiceClass } from "@/constants/typography";
 import { TypeReveal } from "@/components/typography/TypeReveal";
@@ -55,19 +59,7 @@ export interface ClientWork {
 /** slug → work summary; only clients with a full experience appear here. */
 export type ClientWorkMap = Record<string, ClientWork>;
 
-/** An art piece for the Art panel's preview strip (from public/content/art). */
-export interface ArtPreview {
-  name: string;
-  url: string;
-}
-
-/** Typographic stand-ins shown while public/content/art is empty — they swap
- *  for real images automatically the moment files land in that folder. */
-const ART_PLACEHOLDER_PLATES = [
-  { title: "Study 01", medium: "graphite on paper" },
-  { title: "Bloom Series", medium: "acrylic & ink" },
-  { title: "Night Field", medium: "mixed media" },
-] as const;
+export type { ArtPreview };
 
 /* ── palette ──────────────────────────────────────────────────────────── */
 
@@ -100,47 +92,37 @@ const riseIn = (reduce: boolean, delay = 0) =>
         transition: { duration: DURATION.medium, ease: EASE_OUT, delay },
       };
 
-/* ── one accordion row ────────────────────────────────────────────────── */
+/* -- one section header row ------------------------------------------- */
 
+/** A section's header strip. Rows no longer expand in place — clicking one
+ *  hands its geometry up so the panel layer can grow a full-area overlay from
+ *  exactly that band. */
 function PanelRow({
   id,
   label,
   description,
   pose,
   order,
-  open,
-  onToggle,
-  onClientPick,
-  artPreviews,
-  logos,
+  onOpen,
 }: {
   id: NavSectionId;
   label: string;
   description: string;
   pose: PanelPose;
   order: number;
-  open: boolean;
-  onToggle: () => void;
-  onClientPick: (slug: string) => void;
-  artPreviews: ArtPreview[];
-  logos: LogoMark[];
+  onOpen: (geom: { top: number; height: number; containerH: number }) => void;
 }) {
   const reduceMotion = useReducedMotion();
   const logic = pose === "logic";
 
   return (
-    <motion.div
-      animate={{ flexGrow: open ? 4.4 : 1 }}
-      transition={
-        reduceMotion ? { duration: 0 } : { duration: DURATION.slow, ease: EASE_OUT }
-      }
+    <div
       style={{ flexGrow: 1, flexBasis: 0 }}
       className={[
         "relative flex min-h-0 flex-col overflow-hidden",
         logic ? "border-t border-neutral-200 bg-gallery" : "",
       ].join(" ")}
     >
-      {/* Painted surface (creative pose) — a living gradient per section. */}
       {!logic && (
         <span
           aria-hidden
@@ -149,15 +131,16 @@ function PanelRow({
         />
       )}
 
-      {/* Header — the whole strip is the toggle. */}
       <button
         type="button"
-        onClick={onToggle}
-        aria-expanded={open}
-        className="group relative z-10 flex w-full items-center gap-5 overflow-hidden px-6 py-3 text-left outline-none lg:gap-8 lg:px-[4vw]"
+        onClick={(e) => {
+          const row = e.currentTarget.parentElement as HTMLElement | null;
+          const stack = row?.parentElement as HTMLElement | null;
+          if (!row || !stack) return;
+          onOpen({ top: row.offsetTop, height: row.offsetHeight, containerH: stack.clientHeight });
+        }}
+        className="group relative z-10 flex h-full w-full items-center gap-5 overflow-hidden px-6 py-3 text-left outline-none lg:gap-8 lg:px-[4vw]"
       >
-        {/* Logic hover: a graphite sweep rises behind the row — a rounded
-            rectangle inset from the row edges, not a full-bleed bar. */}
         {logic && (
           <span
             aria-hidden
@@ -207,144 +190,17 @@ function PanelRow({
           {description}
         </motion.span>
 
-        {/* + / × indicator. */}
         <span
           aria-hidden
           className={[
-            "relative text-xl leading-none transition-transform duration-500",
-            open ? "rotate-45" : "",
-            logic
-              ? "text-neutral-400 group-hover:text-white"
-              : "text-white/90",
+            "relative text-xl leading-none transition-transform duration-500 group-hover:rotate-90",
+            logic ? "text-neutral-400 group-hover:text-white" : "text-white/90",
           ].join(" ")}
         >
           +
         </span>
       </button>
-
-      {/* Drop-down body. */}
-      <AnimatePresence initial={false}>
-        {open && (
-          <motion.div
-            key="body"
-            initial={reduceMotion ? false : { opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0, transition: { duration: 0.2 } }}
-            transition={{ duration: DURATION.medium, ease: EASE_OUT, delay: 0.15 }}
-            className="relative z-10 min-h-0 flex-1 overflow-y-auto px-6 pb-4 lg:px-[4vw]"
-          >
-            {id === "clients" || id === "projects" ? (
-              <div className="grid grid-cols-2 gap-px bg-transparent sm:grid-cols-4">
-                {clientsInSection(id).map((client, i) => (
-                  <motion.button
-                    key={client.slug}
-                    type="button"
-                    onClick={() => onClientPick(client.slug)}
-                    {...riseIn(!!reduceMotion, 0.15 + i * 0.05)}
-                    whileHover={reduceMotion ? undefined : { y: -3 }}
-                    className={[
-                      "group/card flex flex-col items-start gap-1 px-4 py-3 text-left outline-none",
-                      logic
-                        ? "border border-neutral-200 bg-white hover:border-neutral-900 focus-visible:border-neutral-900"
-                        : "border border-white/25 bg-black/10 backdrop-blur-[2px] hover:bg-black/25 focus-visible:bg-black/25",
-                    ].join(" ")}
-                  >
-                    <span
-                      className={[
-                        typeVoiceClass("creative", "display"),
-                        "text-[clamp(0.95rem,1.4vw,1.35rem)] leading-tight",
-                        logic ? "text-neutral-900" : "text-white",
-                      ].join(" ")}
-                    >
-                      {client.name}
-                    </span>
-                    <span
-                      className={[
-                        typeVoiceClass("logic", "meta"),
-                        "text-[0.5rem]",
-                        logic ? "text-neutral-400" : "text-white/70",
-                      ].join(" ")}
-                    >
-                      {client.sector}
-                    </span>
-                  </motion.button>
-                ))}
-              </div>
-            ) : id === "logofolio" ? (
-              <LogofolioGrid logos={logos} />
-            ) : id === "art" ? (
-              /* Art — a preview of a few works, and the door to the rooms. */
-              <div className="flex h-full min-h-0 items-stretch gap-3">
-                <div className="grid min-h-0 flex-1 grid-cols-3 gap-2">
-                  {artPreviews.length > 0
-                    ? artPreviews.slice(0, 3).map((piece, i) => (
-                        <motion.span
-                          key={piece.url}
-                          {...riseIn(!!reduceMotion, 0.15 + i * 0.07)}
-                          className="relative min-h-0 overflow-hidden border border-white/25 bg-black/10"
-                        >
-                          <Image
-                            src={piece.url}
-                            alt={piece.name}
-                            fill
-                            sizes="(min-width: 1024px) 20vw, 30vw"
-                            className="object-cover transition-transform duration-700 hover:scale-105"
-                          />
-                        </motion.span>
-                      ))
-                    : ART_PLACEHOLDER_PLATES.map((plate, i) => (
-                        <motion.span
-                          key={plate.title}
-                          {...riseIn(!!reduceMotion, 0.15 + i * 0.07)}
-                          className="flex min-h-0 flex-col justify-end gap-0.5 border border-white/25 bg-black/10 px-3 py-2 backdrop-blur-[2px]"
-                        >
-                          <span
-                            className={`${typeVoiceClass("creative", "display")} text-sm leading-tight text-white sm:text-base`}
-                          >
-                            {plate.title}
-                          </span>
-                          <span
-                            className={`${typeVoiceClass("logic", "meta")} text-[0.5rem] text-white/70`}
-                          >
-                            {plate.medium}
-                          </span>
-                        </motion.span>
-                      ))}
-                </div>
-                <motion.span
-                  {...riseIn(!!reduceMotion, 0.4)}
-                  className="flex shrink-0 items-center"
-                >
-                  <Link
-                    href="/clients"
-                    className={`${typeVoiceClass("creative", "label")} group/gal inline-flex items-center gap-2 rounded-full border border-white/70 px-5 py-2 text-sm text-white outline-none transition-colors duration-500 hover:bg-white hover:text-neutral-900 focus-visible:bg-white focus-visible:text-neutral-900`}
-                  >
-                    Enter the gallery
-                    <span
-                      aria-hidden
-                      className="inline-block transition-transform duration-500 group-hover/gal:translate-x-1"
-                    >
-                      →
-                    </span>
-                  </Link>
-                </motion.span>
-              </div>
-            ) : (
-              <motion.p
-                {...riseIn(!!reduceMotion, 0.2)}
-                className={[
-                  typeVoiceClass("creative", "meta"),
-                  "max-w-xl text-base",
-                  logic ? "text-neutral-500" : "text-white/90",
-                ].join(" ")}
-              >
-                Coming soon — this room is still being hung.
-              </motion.p>
-            )}
-          </motion.div>
-        )}
-      </AnimatePresence>
-    </motion.div>
+    </div>
   );
 }
 
@@ -657,15 +513,16 @@ function FlipStrip({ to }: { to: PanelPose }) {
   );
 }
 
-/* ── one hemisphere's panel layer ─────────────────────────────────────── */
+/* -- one hemisphere's panel layer -------------------------------------- */
 
-/** Owns the accordion + inline-detail state. Rendered with `key={pose}`, so
- *  flipping hemispheres REMOUNTS it — each side starts calm, no state to
- *  reset (and no setState-in-effect for the React compiler to reject).
+/** Owns the open-section state. Rendered with `key={pose}`, so flipping
+ *  hemispheres REMOUNTS it — each side starts calm.
  *
- *  Column order mirrors the footage's timeline (logic — middle — colour):
- *    logic pose:    [ rows | the middle 20% | colour strip 5% ]
- *    creative pose: [ logic strip 5% | the middle 20% | rows ]
+ *  A section no longer expands in place: clicking a row grows a panel from that
+ *  row's exact band to cover the whole stack — so Clients (the top row) opens
+ *  downward, while Projects and the rest also reach up over the rows above
+ *  them. The panel is graphite on the logic side (its slider's cards read as
+ *  lit plates against it) and painted on the creative side.
  */
 function PoseLayer({
   pose,
@@ -679,10 +536,14 @@ function PoseLayer({
   logos: LogoMark[];
 }) {
   const reduceMotion = useReducedMotion();
-  const [expanded, setExpanded] = useState<NavSectionId | null>(null);
+  const [open, setOpen] = useState<
+    { id: NavSectionId; top: number; height: number; containerH: number } | null
+  >(null);
   const [activeClient, setActiveClient] = useState<string | null>(null);
 
   const sections = navSectionsFor(pose === "logic" ? "left" : "right");
+  const openSection = open ? sections.find((s) => s.id === open.id) : undefined;
+  const logic = pose === "logic";
 
   return (
     <>
@@ -717,7 +578,7 @@ function PoseLayer({
               animate={{ opacity: 1 }}
               exit={{ opacity: 0, transition: { duration: 0.25 } }}
               transition={{ duration: DURATION.medium, ease: EASE_OUT }}
-              className="flex h-full flex-col"
+              className="relative flex h-full flex-col"
             >
               {sections.map((section, i) => (
                 <PanelRow
@@ -727,15 +588,85 @@ function PoseLayer({
                   description={section.description}
                   pose={pose}
                   order={i}
-                  open={expanded === section.id}
-                  onToggle={() =>
-                    setExpanded((cur) => (cur === section.id ? null : section.id))
-                  }
-                  onClientPick={(slug) => setActiveClient(slug)}
-                  artPreviews={artPreviews}
-                  logos={logos}
+                  onOpen={(geom) => setOpen({ id: section.id, ...geom })}
                 />
               ))}
+
+              <AnimatePresence>
+                {open && openSection && (
+                  <motion.section
+                    key={open.id}
+                    aria-label={openSection.label}
+                    initial={
+                      reduceMotion
+                        ? { opacity: 0, top: 0, height: open.containerH }
+                        : { top: open.top, height: open.height, opacity: 0.6 }
+                    }
+                    animate={{ top: 0, height: open.containerH, opacity: 1 }}
+                    exit={
+                      reduceMotion
+                        ? { opacity: 0 }
+                        : { top: open.top, height: open.height, opacity: 0 }
+                    }
+                    transition={{ duration: DURATION.slow, ease: EASE_OUT }}
+                    className={`absolute inset-x-0 z-30 flex flex-col overflow-hidden ${
+                      logic ? "bg-neutral-900" : "bg-neutral-950"
+                    }`}
+                  >
+                    {!logic && (
+                      <span
+                        aria-hidden
+                        className="brain-paint absolute inset-0 opacity-25"
+                        style={{ backgroundImage: PAINTED_ROWS[open.id] }}
+                      />
+                    )}
+
+                    <div className="relative z-10 flex shrink-0 items-center gap-5 px-6 pt-4 lg:gap-8 lg:px-[4vw]">
+                      <span className={`${typeVoiceClass("logic", "meta")} text-[0.6rem] text-white/45`}>
+                        {navSectionIndex(open.id)}
+                      </span>
+                      <span
+                        className={[
+                          logic
+                            ? `${typeVoiceClass("logic", "display")} font-medium`
+                            : `${typeVoiceClass("creative", "display")} italic`,
+                          "text-[clamp(1.15rem,2.2vw,2.1rem)] leading-none text-white",
+                        ].join(" ")}
+                      >
+                        {openSection.label}
+                      </span>
+                      <span className="flex-1" />
+                      <span className="hidden max-w-[24rem] text-xs leading-relaxed text-white/50 lg:block">
+                        {openSection.description}
+                      </span>
+                      <button
+                        type="button"
+                        onClick={() => setOpen(null)}
+                        aria-label={`Close ${openSection.label}`}
+                        className="text-xl leading-none text-white/60 outline-none transition-colors duration-300 hover:text-white focus-visible:text-white"
+                      >
+                        &times;
+                      </button>
+                    </div>
+
+                    <motion.div
+                      initial={reduceMotion ? false : { opacity: 0 }}
+                      animate={{ opacity: 1, transition: { delay: 0.28, duration: 0.4 } }}
+                      className="relative z-10 min-h-0 flex-1 px-6 pb-5 pt-4 lg:px-[4vw]"
+                    >
+                      <SectionBody
+                        id={open.id}
+                        onClientPick={(slug) => {
+                          setOpen(null);
+                          setActiveClient(slug);
+                        }}
+                        artPreviews={artPreviews}
+                        logos={logos}
+                      />
+                    </motion.div>
+                  </motion.section>
+                )}
+              </AnimatePresence>
             </motion.div>
           )}
         </AnimatePresence>
