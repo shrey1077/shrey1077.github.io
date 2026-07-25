@@ -8,7 +8,7 @@
 
 import Link from "next/link";
 import type { Metadata } from "next";
-import { CLIENTS } from "@/constants/clients";
+import { clientsInSection } from "@/constants/clients";
 import { navSectionById } from "@/constants/navigation";
 import { ClientCard } from "@/components/preview/ClientCard";
 import { typeVoiceClass } from "@/constants/typography";
@@ -48,7 +48,7 @@ export default function ClientsIndexPage() {
         </header>
 
         <div className="mt-14 grid grid-cols-2 gap-3 sm:grid-cols-3 sm:gap-4 xl:grid-cols-6">
-          {CLIENTS.map((client) => (
+          {clientsInSection("clients").map((client) => (
             <ClientCard key={client.slug} client={client} />
           ))}
         </div>

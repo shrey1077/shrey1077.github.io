@@ -40,6 +40,20 @@ const LOGIC_THOUGHTS = [
   "the grid holds the chaos",
 ] as const;
 
+/** The creative side's ink. White vanished against the light paint, so each
+ *  thought arrives in one of the hemisphere's own hues (the palette the painted
+ *  rows and card chips use), cycling with the thought. */
+const CREATIVE_INKS = [
+  "#ff2e8b",
+  "#ff5a3c",
+  "#ff8a00",
+  "#00a6a6",
+  "#7a3fb0",
+  "#3f6ad8",
+  "#e0119d",
+  "#7fbf2e",
+] as const;
+
 const CREATIVE_THOUGHTS = [
   "what if it breathed?",
   "colour remembers",
@@ -64,10 +78,13 @@ function Thought({
   text,
   side,
   delay,
+  ink,
 }: {
   text: string;
   side: "logic" | "creative";
   delay: number;
+  /** Creative side only — the hue this thought arrives in. */
+  ink?: string;
 }) {
   const logic = side === "logic";
   return (
@@ -76,13 +93,12 @@ function Thought({
       animate={{ opacity: 1, y: 0, x: logic ? -14 : 14 }}
       exit={{ opacity: 0, y: -12, transition: { duration: 0.5, ease: EASE_OUT } }}
       transition={{ duration: 1.1, ease: EASE_OUT, delay }}
+      style={logic ? undefined : { color: ink }}
       className={[
         "block max-w-[15ch] will-change-transform",
         logic
           ? `${typeVoiceClass("logic", "display")} text-[clamp(0.85rem,1.35vw,1.25rem)] leading-snug text-neutral-900`
-          : // White over the painted hemisphere — the same soft shadow the
-            // creative flip strip uses, so it stays legible on light paint.
-            `${typeVoiceClass("creative", "label")} text-[clamp(1.05rem,1.9vw,1.8rem)] italic leading-tight text-white [text-shadow:0_1px_10px_rgba(0,0,0,0.45)]`,
+          : `${typeVoiceClass("creative", "label")} text-[clamp(1.05rem,1.9vw,1.8rem)] italic leading-tight`,
       ].join(" ")}
     >
       {text}
@@ -131,7 +147,12 @@ export function BrainThoughts() {
             </div>
             {/* RIGHT — creative, upper flank. */}
             <div className="absolute right-[5vw] top-[22%] text-right sm:right-[6vw] lg:right-[4vw]">
-              <Thought text={pick(CREATIVE_THOUGHTS, tick, 3)} side="creative" delay={0.45} />
+              <Thought
+                text={pick(CREATIVE_THOUGHTS, tick, 3)}
+                side="creative"
+                delay={0.45}
+                ink={CREATIVE_INKS[(tick * 3 + 1) % CREATIVE_INKS.length]}
+              />
             </div>
           </motion.div>
         )}

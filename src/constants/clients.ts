@@ -24,6 +24,11 @@ export interface Client {
   /** Optional logo under /public (e.g. "/content/clients/<slug>/brand/logo.svg").
    *  Cards fall back to the typographic mark until real logo assets land. */
   logoSrc?: string;
+  /** Which homepage section lists this entry. Commissioned client work sits
+   *  under "clients"; self-directed and academic work under "projects". Both
+   *  keep their `/clients/<slug>` route — this only changes where it's listed.
+   *  Absent = "clients". */
+  section?: "clients" | "projects";
 }
 
 export const CLIENTS: readonly Client[] = [
@@ -61,6 +66,7 @@ export const CLIENTS: readonly Client[] = [
     sector: "Design · Education",
     accent: "#3B4CC0",
     essence: "Design education, given its own design language.",
+    section: "projects",
   },
   {
     slug: "mycoveda",
@@ -68,6 +74,7 @@ export const CLIENTS: readonly Client[] = [
     sector: "Wellness · Nutrition",
     accent: "#5C7C3A",
     essence: "Wellness rooted in quiet, potent nature.",
+    section: "projects",
   },
   {
     slug: "newsmobile",
@@ -82,10 +89,16 @@ export const CLIENTS: readonly Client[] = [
     sector: "Archive · Beginnings",
     accent: "#6B6B6B",
     essence: "Where the hand learned before the system did.",
+    section: "projects",
   },
 ] as const;
 
 /** Look up a client by slug (used by the detail route). */
 export function clientBySlug(slug: string): Client | undefined {
   return CLIENTS.find((c) => c.slug === slug);
+}
+
+/** The entries listed under one homepage section (see `Client.section`). */
+export function clientsInSection(section: "clients" | "projects"): Client[] {
+  return CLIENTS.filter((c) => (c.section ?? "clients") === section);
 }

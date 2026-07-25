@@ -27,8 +27,9 @@ export const NAV_SECTIONS: readonly NavSection[] = [
     label: "Projects",
     hemisphere: "left",
     order: 1,
-    kind: "coming-soon",
-    description: "Selected engineering and design projects, end to end.",
+    kind: "clients",
+    description:
+      "Self-directed and academic work — where the brief was my own, end to end.",
   },
   {
     id: "logofolio",

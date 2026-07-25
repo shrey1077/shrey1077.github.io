@@ -27,7 +27,7 @@ import { useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
-import { CLIENTS, clientBySlug } from "@/constants/clients";
+import { clientBySlug, clientsInSection } from "@/constants/clients";
 import { TATA_DESCRIPTION, TATA_CIRCLES } from "@/constants/tataExperience";
 import { navSectionIndex, navSectionsFor } from "@/constants/navigation";
 import { DURATION, EASE_OUT } from "@/constants/motion";
@@ -152,11 +152,12 @@ function PanelRow({
         aria-expanded={open}
         className="group relative z-10 flex w-full items-center gap-5 overflow-hidden px-6 py-3 text-left outline-none lg:gap-8 lg:px-[4vw]"
       >
-        {/* Logic hover: a graphite sweep rises behind the row. */}
+        {/* Logic hover: a graphite sweep rises behind the row — a rounded
+            rectangle inset from the row edges, not a full-bleed bar. */}
         {logic && (
           <span
             aria-hidden
-            className="absolute inset-0 translate-y-[101%] bg-neutral-900 transition-transform duration-500 ease-out group-hover:translate-y-0 group-focus-visible:translate-y-0"
+            className="absolute inset-x-3 inset-y-1 translate-y-[101%] rounded-2xl bg-neutral-900 transition-transform duration-500 ease-out group-hover:translate-y-0 group-focus-visible:translate-y-0 lg:inset-x-[3vw]"
           />
         )}
 
@@ -228,9 +229,9 @@ function PanelRow({
             transition={{ duration: DURATION.medium, ease: EASE_OUT, delay: 0.15 }}
             className="relative z-10 min-h-0 flex-1 overflow-y-auto px-6 pb-4 lg:px-[4vw]"
           >
-            {id === "clients" ? (
+            {id === "clients" || id === "projects" ? (
               <div className="grid grid-cols-2 gap-px bg-transparent sm:grid-cols-4">
-                {CLIENTS.map((client, i) => (
+                {clientsInSection(id).map((client, i) => (
                   <motion.button
                     key={client.slug}
                     type="button"

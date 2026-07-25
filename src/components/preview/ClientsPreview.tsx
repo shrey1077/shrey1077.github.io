@@ -9,7 +9,7 @@
  */
 
 import Link from "next/link";
-import { CLIENTS } from "@/constants/clients";
+import { clientsInSection } from "@/constants/clients";
 import { ClientCard } from "@/components/preview/ClientCard";
 import { typeVoiceClass } from "@/constants/typography";
 
@@ -17,7 +17,7 @@ export function ClientsPreview() {
   return (
     <div className="flex flex-col">
       <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 sm:gap-4 xl:grid-cols-6">
-        {CLIENTS.map((client) => (
+        {clientsInSection("clients").map((client) => (
           <ClientCard key={client.slug} client={client} />
         ))}
       </div>
