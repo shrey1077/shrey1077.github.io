@@ -69,7 +69,7 @@ console.log("Logos:");
 await logo(`${BR}/Asset 1@4x.png`, `${DEST}/brand/logo.png`, 560);            // Azoth monogram
 await logo(`${BR}/Asset 13@2x.png`, `${DEST}/brand/brands/mycoactive.png`, 720);
 await logo(`${BR}/kavaka 1@2x.png`, `${DEST}/brand/brands/kavaka.png`, 720);
-await cropLogo(`${BR}/mw_sheet-01-01.png`, `${DEST}/brand/brands/mushroomworks.png`, { x: 0, y: 0.354, w: 0.463, h: 0.3 });
+await cropLogo(`${BR}/mw_sheet-01-01.png`, `${DEST}/brand/brands/mushroomworks.png`, { x: 0, y: 0.354, w: 0.451, h: 0.3 });
 await cropLogo(`${BR}/LOGOS SHEETSMYCO-01.png`, `${DEST}/brand/brands/mycoveda.png`, { x: 0.08, y: 0.6, w: 0.84, h: 0.13 });
 
 console.log("Naturalist logo (PDF):");

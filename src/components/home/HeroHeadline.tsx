@@ -52,7 +52,7 @@ export function HeroHeadline() {
 
   return (
     <motion.div
-      aria-label="Thinks in systems, dreams in colour. Click a side to choose a hemisphere."
+      aria-label="50% logic, 50% imagination. Click a side to choose a hemisphere."
       exit={
         reduceMotion
           ? { opacity: 0 }
@@ -69,13 +69,14 @@ export function HeroHeadline() {
         "lg:grid lg:grid-cols-[1fr_minmax(0,42vw)_1fr] lg:items-center lg:justify-normal lg:gap-0 lg:p-0 lg:pb-0",
       ].join(" ")}
     >
-      {/* LEFT — the logic voice. */}
+      {/* LEFT — the logic voice. The share reads heavy; what it's made of
+          reads plain. */}
       <div aria-hidden className="text-center lg:pl-[4vw] lg:text-left">
         <h1
-          className={`${typeVoiceClass("logic", "display")} text-[clamp(1.6rem,3.4vw,3.4rem)] font-medium leading-[1.04] text-neutral-900`}
+          className={`${typeVoiceClass("logic", "display")} text-[clamp(1.6rem,3.4vw,3.4rem)] leading-[1.04] text-neutral-900`}
         >
-          <MaskedLine delay={0.5}>Thinks</MaskedLine>
-          <MaskedLine delay={0.62}>in systems.</MaskedLine>
+          <MaskedLine delay={0.5} className="font-black">50%</MaskedLine>
+          <MaskedLine delay={0.62} className="font-normal">logic</MaskedLine>
         </h1>
       </div>
 
@@ -87,12 +88,12 @@ export function HeroHeadline() {
         <p
           className={`${typeVoiceClass("creative", "label")} text-[clamp(2rem,4.4vw,4.6rem)] leading-[1.02] text-neutral-900`}
         >
-          <MaskedLine delay={0.86}>dreams</MaskedLine>
+          <MaskedLine delay={0.86} className="font-black">50%</MaskedLine>
           <MaskedLine
             delay={0.98}
-            className="brain-paint bg-clip-text pb-[0.08em] text-transparent"
+            className="brain-paint bg-clip-text pb-[0.08em] font-normal text-transparent"
           >
-            in colour.
+            imagination
           </MaskedLine>
         </p>
       </div>

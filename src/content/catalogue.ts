@@ -215,6 +215,35 @@ export function readArtPreviews(limit = 4): ContentAsset[] {
   return found;
 }
 
+export interface LogoMark {
+  slug: string;
+  name: string;
+  /** "light" marks are white artwork and need a dark ground behind them. */
+  tone: "light" | "dark";
+  url: string;
+}
+
+/** The Logofolio wall — every mark, normalised to one ink area by
+ *  `scripts/prepare-logofolio.mjs`. Empty until that script has run. */
+export function readLogofolio(): LogoMark[] {
+  const dir = path.join(process.cwd(), "public", "content", "logofolio");
+  try {
+    const raw = fs.readFileSync(path.join(dir, "_manifest.json"), "utf8");
+    const parsed: unknown = JSON.parse(raw);
+    if (!Array.isArray(parsed)) return [];
+    return (parsed as { slug: string; name: string; tone: string }[])
+      .filter((m) => fs.existsSync(path.join(dir, `${m.slug}.png`)))
+      .map((m) => ({
+        slug: m.slug,
+        name: m.name,
+        tone: m.tone === "light" ? "light" : "dark",
+        url: publicUrl("content", "logofolio", `${m.slug}.png`),
+      }));
+  } catch {
+    return []; // no manifest yet — the section simply shows nothing
+  }
+}
+
 /** One category (by route id) with its direct assets. Null if unknown. */
 export function readCatalogueCategory(
   slug: string,

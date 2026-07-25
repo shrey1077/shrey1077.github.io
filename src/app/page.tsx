@@ -17,7 +17,7 @@
 import { HeroStage } from "@/components/home/HeroStage";
 import { SiteFooter } from "@/components/footer/SiteFooter";
 import { CLIENT_EXPERIENCES } from "@/constants/clientExperiences";
-import { readArtPreviews, readCatalogue } from "@/content/catalogue";
+import { readArtPreviews, readCatalogue, readLogofolio } from "@/content/catalogue";
 import type { ClientWorkMap } from "@/components/home/SectionPanels";
 
 export default function Home() {
@@ -40,9 +40,12 @@ export default function Home() {
   // stand in while public/content/art is empty).
   const artPreviews = readArtPreviews(3).map(({ name, url }) => ({ name, url }));
 
+  // Every mark, for the Logofolio panel's five-column wall.
+  const logos = readLogofolio();
+
   return (
     <main className="w-full bg-gallery">
-      <HeroStage workMap={workMap} artPreviews={artPreviews} />
+      <HeroStage workMap={workMap} artPreviews={artPreviews} logos={logos} />
       <SiteFooter />
     </main>
   );

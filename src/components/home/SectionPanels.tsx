@@ -30,6 +30,8 @@ import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
 import { clientBySlug, clientsInSection } from "@/constants/clients";
 import { TATA_DESCRIPTION, TATA_CIRCLES } from "@/constants/tataExperience";
 import { navSectionIndex, navSectionsFor } from "@/constants/navigation";
+import type { LogoMark } from "@/content/catalogue";
+import { LogofolioGrid } from "@/components/home/LogofolioGrid";
 import { DURATION, EASE_OUT } from "@/constants/motion";
 import { typeVoiceClass } from "@/constants/typography";
 import { TypeReveal } from "@/components/typography/TypeReveal";
@@ -110,6 +112,7 @@ function PanelRow({
   onToggle,
   onClientPick,
   artPreviews,
+  logos,
 }: {
   id: NavSectionId;
   label: string;
@@ -120,6 +123,7 @@ function PanelRow({
   onToggle: () => void;
   onClientPick: (slug: string) => void;
   artPreviews: ArtPreview[];
+  logos: LogoMark[];
 }) {
   const reduceMotion = useReducedMotion();
   const logic = pose === "logic";
@@ -266,6 +270,8 @@ function PanelRow({
                   </motion.button>
                 ))}
               </div>
+            ) : id === "logofolio" ? (
+              <LogofolioGrid logos={logos} />
             ) : id === "art" ? (
               /* Art — a preview of a few works, and the door to the rooms. */
               <div className="flex h-full min-h-0 items-stretch gap-3">
@@ -665,10 +671,12 @@ function PoseLayer({
   pose,
   workMap,
   artPreviews,
+  logos,
 }: {
   pose: PanelPose;
   workMap: ClientWorkMap;
   artPreviews: ArtPreview[];
+  logos: LogoMark[];
 }) {
   const reduceMotion = useReducedMotion();
   const [expanded, setExpanded] = useState<NavSectionId | null>(null);
@@ -725,6 +733,7 @@ function PoseLayer({
                   }
                   onClientPick={(slug) => setActiveClient(slug)}
                   artPreviews={artPreviews}
+                  logos={logos}
                 />
               ))}
             </motion.div>
@@ -747,9 +756,11 @@ function PoseLayer({
 export function SectionPanels({
   workMap,
   artPreviews,
+  logos,
 }: {
   workMap: ClientWorkMap;
   artPreviews: ArtPreview[];
+  logos: LogoMark[];
 }) {
   const reduceMotion = useReducedMotion();
   const heroPose = useSceneStore((s) => s.heroPose);
@@ -773,7 +784,7 @@ export function SectionPanels({
           transition={{ duration: DURATION.medium, ease: EASE_OUT }}
           className="flex h-full w-full"
         >
-          <PoseLayer pose={pose} workMap={workMap} artPreviews={artPreviews} />
+          <PoseLayer pose={pose} workMap={workMap} artPreviews={artPreviews} logos={logos} />
         </motion.div>
       </AnimatePresence>
     </motion.div>

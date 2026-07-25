@@ -31,6 +31,7 @@ import {
   type ArtPreview,
   type ClientWorkMap,
 } from "@/components/home/SectionPanels";
+import type { LogoMark } from "@/content/catalogue";
 import { useInViewport } from "@/hooks/useInViewport";
 import { DURATION, EASE_IN_OUT, EASE_OUT } from "@/constants/motion";
 import { useSceneStore } from "@/state/useSceneStore";
@@ -54,9 +55,11 @@ const CENTER_SCALE = 0.75;
 export function HeroStage({
   workMap,
   artPreviews,
+  logos,
 }: {
   workMap: ClientWorkMap;
   artPreviews: ArtPreview[];
+  logos: LogoMark[];
 }) {
   // Keep the scrub loop running while the hero is near the viewport; idle it
   // once the visitor has scrolled well past.
@@ -147,7 +150,12 @@ export function HeroStage({
       {/* The section panels — rise once a hemisphere is committed. */}
       <AnimatePresence>
         {heroPose !== "center" && (
-          <SectionPanels key="panels" workMap={workMap} artPreviews={artPreviews} />
+          <SectionPanels
+            key="panels"
+            workMap={workMap}
+            artPreviews={artPreviews}
+            logos={logos}
+          />
         )}
       </AnimatePresence>
     </section>
