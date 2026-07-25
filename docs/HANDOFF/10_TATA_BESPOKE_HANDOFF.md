@@ -59,6 +59,20 @@ uid — CP6/CP7; abs, mycoveda, early-works are WIP, no source found).
      the title; chip cutout sits in a small white token that reads on active
      (accent-filled) and inactive chips. Wired in `TataExperience` with a
      server-side `fs` existence guard (missing PNG → plain row/chip).
+   - **The work** (`CategoryAccordion`) — CP17/18: the four families sit in a
+     **2×2 grid** with a hairline cross; each cell has a small headline + a
+     description. Clicking a cell opens **`FamilyOverlay`** — a black panel that
+     grows from the cell to full screen, white type, sub-category chips, and a
+     **`TripleSlider`** (3 items on desktop / 2 / 1, eased one card per step;
+     card → MediaViewer). The old inline PortraitSlider is gone.
+   - **Guidelines** (`GuidelineSections`) — CP20: each campus column shows big
+     colour swatch circles + hex, the typography slide, and a round **"See
+     more"** (`GuidelineSeeMore`) that opens a dark modal slider of the rest of
+     the plates. Colours from the brand sheet (IISA `#0d3857`/`#ed6f24`; IISM
+     `#502f7d`/`#00a2b4`/`#504596`).
+   - **Partners** (`PartnerMarquee`) — CP19: logos are colour (no grayscale),
+     area-normalised to a uniform 266×119 canvas via
+     `scripts/normalize-tata-partners.mjs` (originals in `partners/_orig`).
    - `TataFooter` — Contact Us, both campus addresses, CIN, studio credit.
      **CP15/16: two ribbons loop along the footer bottom** (`FooterRibbons`,
      an animated SVG). Flat brand colours — IISA blue `#0d3857`, IISM teal
@@ -134,4 +148,8 @@ CP5 catalogue rework · CP6 four other clients · CP7 Awwwards refinement · CP8
 CP11 two-typeface system · CP12 hero film · CP13 section mockup cutouts
 (`ca10cea`) · CP14 gridNEW body wash + IISA guideline plates + MSDE emblem
 (`808fbdb`) · CP15 footer ribbon loop (`b69c5c4`) · CP16 ribbons recoloured to flat
-brand colours (`116e3a7`). Tree clean.
+brand colours (`116e3a7`) · CP17 full-screen family takeover + three-up slider
+(`ddda421`) · CP18 work families as a 2×2 grid (`52e5984`) · CP19 Tata Trusts
+fix + colour/area-normalised partner logos (`8b20bea`) · CP20 IISA/IISM columns
+restructured — colour swatches, typography, "see more" slider (`90f08c2`).
+Tree clean.
