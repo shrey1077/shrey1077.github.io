@@ -12,9 +12,11 @@
 
 import { useEffect, useRef, useState } from "react";
 import Image from "next/image";
-import { motion } from "framer-motion";
+import { motion, useReducedMotion } from "framer-motion";
 import type { CollectionAsset } from "@/types/experience";
 import { EASE_OUT } from "@/constants/motion";
+
+const AUTO_MS = 4000;
 
 function perViewFor(width: number): number {
   if (width < 640) return 1;
@@ -30,7 +32,9 @@ export function TripleSlider({
   onOpen: (a: CollectionAsset) => void;
 }) {
   const frames = items.filter((a) => a.kind === "image");
+  const reducedMotion = useReducedMotion();
   const wrapRef = useRef<HTMLDivElement>(null);
+  const paused = useRef(false);
   const [perView, setPerView] = useState(3);
   const [wrapW, setWrapW] = useState(0);
   const [index, setIndex] = useState(0);
@@ -57,13 +61,29 @@ export function TripleSlider({
   const cardW = wrapW > 0 ? wrapW / perView : 0;
   const go = (dir: number) => setIndex(Math.max(0, Math.min(maxIndex, clamped + dir)));
 
+  // Auto-advance one card, wrapping at the end. Paused on hover/focus and
+  // disabled under reduced motion or when everything already fits.
+  useEffect(() => {
+    if (reducedMotion || frames.length <= perView) return;
+    const id = window.setInterval(() => {
+      if (!paused.current) setIndex((i) => (i >= maxIndex ? 0 : i + 1));
+    }, AUTO_MS);
+    return () => window.clearInterval(id);
+  }, [reducedMotion, frames.length, perView, maxIndex]);
+
   if (frames.length === 0) return null;
 
   const from = clamped + 1;
   const to = Math.min(clamped + perView, frames.length);
 
   return (
-    <div className="w-full">
+    <div
+      className="w-full"
+      onMouseEnter={() => (paused.current = true)}
+      onMouseLeave={() => (paused.current = false)}
+      onFocusCapture={() => (paused.current = true)}
+      onBlurCapture={() => (paused.current = false)}
+    >
       <div ref={wrapRef} className="overflow-hidden">
         <motion.div
           className="flex"
