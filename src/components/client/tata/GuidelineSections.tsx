@@ -1,16 +1,17 @@
 /**
  * GuidelineSections — the Tata IIS logo-guideline system.
  *
- * Layout per the brief: the Tata IIS guidelines run full-width across roughly
- * half the viewport height (wordmark on a construction frame + the plate
- * strip + the colour law); beneath, IIS Ahmedabad and IIS Mumbai sit as two
- * equal columns filling the remaining half, each on a whisper of its own
- * campus texture. Server Component; the interactive plate strips are the
- * client GuidelinePlates.
+ * The Tata IIS guidelines run full-width (wordmark on a construction frame +
+ * the colour law + the plate strip); beneath, IIS Ahmedabad and IIS Mumbai sit
+ * as two columns. Each campus column leads with its logo and a line, then shows
+ * its colour scheme (big swatches) and typography slide, and tucks the rest of
+ * its guideline plates behind a round "See more" that opens a modal slider.
+ * Server Component; the plate strips and the See-more modal are client.
  */
 
 import Image from "next/image";
 import { GuidelinePlates } from "@/components/client/GuidelinePlates";
+import { GuidelineSeeMore } from "@/components/client/tata/GuidelineSeeMore";
 import { TATA_GUIDELINES } from "@/constants/tataExperience";
 
 const COLOUR_LAW = [
@@ -26,20 +27,55 @@ function Guide({ className }: { className: string }) {
 /** Section kicker — a subheading (Helvetica Bold), small and tracked. */
 const KICKER = "tata-subhead text-[0.62rem] uppercase tracking-[0.12em]";
 
+type Campus = typeof TATA_GUIDELINES.iisa;
+
+/** One campus column: logo, line, colour scheme, typography, then See more. */
+function CampusColumn({ kicker, data, className }: { kicker: string; data: Campus; className: string }) {
+  return (
+    <div className={`relative flex flex-col justify-center gap-8 p-10 ${className}`}>
+      <div>
+        <span className={`${KICKER} text-neutral-500`}>{kicker}</span>
+        <div className="relative mt-5 h-24 w-full">
+          <Image src={data.logo} alt={`${kicker} logo`} fill sizes="280px" className="object-contain object-left" />
+        </div>
+        <p className="mt-5 max-w-sm text-sm leading-relaxed text-neutral-600">{data.line}</p>
+      </div>
+
+      {/* Colour scheme — big swatches. */}
+      <div>
+        <span className={`${KICKER} text-neutral-400`}>Colour</span>
+        <div className="mt-5 flex flex-wrap gap-7">
+          {data.colours.map((c) => (
+            <div key={c.hex} className="flex flex-col items-center gap-2.5">
+              <span
+                aria-hidden
+                className="size-16 rounded-full shadow-[inset_0_0_0_1px_rgba(0,0,0,0.08)]"
+                style={{ backgroundColor: c.hex }}
+              />
+              <span className="tata-body text-[0.68rem] uppercase tracking-[0.04em] text-neutral-500">{c.hex}</span>
+            </div>
+          ))}
+        </div>
+      </div>
+
+      {/* Typography slide. */}
+      <div>
+        <span className={`${KICKER} text-neutral-400`}>Typography</span>
+        <div className="relative mt-5 aspect-[3557/2528] w-full max-w-md overflow-hidden border border-neutral-200 bg-white">
+          <Image src={data.typography} alt={`${kicker} typography`} fill sizes="(max-width: 768px) 90vw, 40vw" className="object-contain" />
+        </div>
+      </div>
+
+      {/* The rest of the deck, behind a circle. */}
+      <GuidelineSeeMore plates={data.plates} accent={data.colours[0].hex} label="See more" />
+    </div>
+  );
+}
+
 export function GuidelineSections() {
   const g = TATA_GUIDELINES;
   const tataPlates = g.tataPlates.map((url, i) => ({
     name: `Tata IIS guideline plate ${i + 1}`,
-    url,
-    kind: "image" as const,
-  }));
-  const iisaPlates = g.iisa.plates.map((url, i) => ({
-    name: `IIS Ahmedabad guideline plate ${i + 1}`,
-    url,
-    kind: "image" as const,
-  }));
-  const iismPlates = g.iism.plates.map((url, i) => ({
-    name: `IIS Mumbai guideline plate ${i + 1}`,
     url,
     kind: "image" as const,
   }));
@@ -73,11 +109,11 @@ export function GuidelineSections() {
               8x construction grid. The subtitle line is structural, not
               decorative — it exists so the mark never reads as &ldquo;TIIS&rdquo;.
             </p>
-            <div className="mt-6 flex flex-wrap items-center gap-x-7 gap-y-3">
+            <div className="mt-8 flex flex-wrap items-center gap-x-9 gap-y-5">
               {COLOUR_LAW.map((c) => (
-                <span key={c.hex} className="flex items-center gap-2.5">
-                  <span aria-hidden className={`size-3 rounded-full ${c.swatch}`} />
-                  <span className="tata-body text-[0.6rem] text-neutral-600">
+                <span key={c.hex} className="flex items-center gap-3">
+                  <span aria-hidden className={`size-6 rounded-full ${c.swatch}`} />
+                  <span className="tata-body text-xs text-neutral-600">
                     {c.hex} — {c.use}
                   </span>
                 </span>
@@ -90,30 +126,10 @@ export function GuidelineSections() {
         </div>
       </div>
 
-      {/* IISA + IISM — two equal columns, the remaining half. */}
-      <div className="grid grid-cols-1 border-t border-neutral-200 md:min-h-[48vh] md:grid-cols-2">
-        {/* IIS Ahmedabad */}
-        <div className="relative flex min-h-[46vh] flex-col justify-center border-neutral-200 p-10 md:border-r">
-          <div className="relative">
-            <span className={`${KICKER} text-neutral-500`}>Campus dialect — Ahmedabad</span>
-            <div className="relative mt-5 h-24 w-full">
-              <Image src={g.iisa.logo} alt="IIS Ahmedabad logo" fill sizes="280px" className="object-contain object-left" />
-            </div>
-            <p className="mt-5 mb-7 max-w-sm text-sm leading-relaxed text-neutral-600">{g.iisa.line}</p>
-            <GuidelinePlates plates={iisaPlates} />
-          </div>
-        </div>
-        {/* IIS Mumbai */}
-        <div className="relative flex min-h-[46vh] flex-col justify-center p-10">
-          <div className="relative">
-            <span className={`${KICKER} text-neutral-500`}>Campus dialect — Mumbai</span>
-            <div className="relative mt-5 h-24 w-full">
-              <Image src={g.iism.logo} alt="IIS Mumbai logo" fill sizes="280px" className="object-contain object-left" />
-            </div>
-            <p className="mt-5 mb-7 max-w-sm text-sm leading-relaxed text-neutral-600">{g.iism.line}</p>
-            <GuidelinePlates plates={iismPlates} />
-          </div>
-        </div>
+      {/* IISA + IISM — two equal columns. */}
+      <div className="grid grid-cols-1 border-t border-neutral-200 md:grid-cols-2">
+        <CampusColumn kicker="Campus dialect — Ahmedabad" data={g.iisa} className="border-neutral-200 md:border-r" />
+        <CampusColumn kicker="Campus dialect — Mumbai" data={g.iism} className="" />
       </div>
     </section>
   );

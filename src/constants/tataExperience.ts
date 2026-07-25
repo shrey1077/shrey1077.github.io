@@ -40,11 +40,22 @@ export const TATA_GUIDELINES = {
     logo: `${BRAND}/iisa.png`,
     plates: Array.from({ length: 6 }, (_, i) => `${BRAND}/guidelines-iisa/plate-${String(i + 1).padStart(2, "0")}.webp`),
     line: "A canopy of growth in navy and orange, rising from machined stems.",
+    colours: [
+      { hex: "#0d3857", name: "Blue" },
+      { hex: "#ed6f24", name: "Orange" },
+    ],
+    typography: `${BRAND}/guidelines-iisa/typography.webp`,
   },
   iism: {
     logo: `${BRAND}/iism.png`,
     plates: Array.from({ length: 6 }, (_, i) => `${BRAND}/guidelines-iism/plate-${String(i + 1).padStart(2, "0")}.webp`),
     line: "Teal and violet planes, angled like sheet metal in motion.",
+    colours: [
+      { hex: "#502f7d", name: "Violet" },
+      { hex: "#00a2b4", name: "Teal" },
+      { hex: "#504596", name: "Indigo" },
+    ],
+    typography: `${BRAND}/guidelines-iism/typography.webp`,
   },
 };
 
