@@ -1,20 +1,32 @@
 /**
  * UID — bespoke page configuration.
  *
- * The Unitedworld Institute of Design, Ahmedabad: the M.Des in Visual
- * Communication (2018–2020). Copy and taxonomy live here; the plates come from
- * `scripts/prepare-uid-experience.mjs`.
+ * The Unitedworld Institute of Design: the M.Des in Visual Communication
+ * (2018–2020). Institute facts and the mark come from uid.edu.in; the plates
+ * come from `scripts/prepare-uid-experience.mjs`.
+ *
+ * The painting and craft that ran alongside the degree deliberately live in the
+ * homepage's Art room instead of here — this page is the design work.
  */
 
 const BASE = "/content/clients/uid";
 
 export const UID = {
   institute: "Unitedworld Institute of Design",
+  short: "UID",
   degree: "M.Des — Visual Communication",
   years: "2018–2020",
+  logo: `${BASE}/brand/uid-logo.png`,
+  /** From uid.edu.in. */
+  about:
+    "UID is one of India's most sought-after design institutes, teaching across communication, product, interior, fashion and mobility design from campuses in Ahmedabad, the NCR and Bengaluru.",
+  campuses: "Ahmedabad · NCR · Bengaluru",
+  site: "uid.edu.in",
+  email: "admissions@uid.edu.in",
+  phone: "+91 92666 63225",
   tagline: "Two years of briefs I set myself, and the craft they left behind.",
   intro:
-    "A master's in visual communication is really an argument about how much of design is thinking and how much is making. This is the case for both — identity systems and packaging worked through to production, a performance identity, posters, and the drawing, model-making and photography that fed all of it.",
+    "A master's in visual communication is really an argument about how much of design is thinking and how much is making. This is the case for both — identity and packaging worked through to production, a performance identity, print, and the fieldwork that fed all of it.",
 };
 
 export interface UidProject {
@@ -52,10 +64,10 @@ export const UID_PROJECTS: UidProject[] = [
   {
     id: "nirvaan",
     folder: "nirvaan",
-    title: "Nirvaan — Body & Space",
+    title: "Nirvaan",
     kind: "Performance identity",
     blurb:
-      "Identity and campaign for a movement performance — a poster system built on the warmth of the body against the geometry of the space it moves through.",
+      "Identity and campaign for a movement performance — built on the warmth of the body against the geometry of the space it moves through.",
     accent: "#d1642a",
     cols: 3,
     aspect: "3/4",
@@ -63,22 +75,12 @@ export const UID_PROJECTS: UidProject[] = [
   {
     id: "posters",
     folder: "posters",
-    title: "Posters & Illustration",
-    kind: "Print · Illustration",
+    title: "Posters",
+    kind: "Print campaign",
     blurb:
-      "Warli-form Himalaya posters, a public-health campaign, and a run of mandala and anatomy plates — the drawing practice that ran alongside the degree.",
+      "Warli-form Himalaya posters and a public-health campaign — folk vocabulary put to work on contemporary print.",
     accent: "#8b3fb0",
-  },
-  {
-    id: "sketches",
-    folder: "sketches",
-    title: "Making",
-    kind: "Models & process",
-    blurb:
-      "The stepped model and the studio table it was built on. Proof that the flat work was tested in three dimensions before it was called finished.",
-    accent: "#6b6b6b",
     cols: 3,
-    aspect: "4/3",
   },
   {
     id: "trip",

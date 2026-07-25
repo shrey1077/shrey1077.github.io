@@ -1,10 +1,11 @@
 /**
  * prepare-uid-experience.mjs — assets for the bespoke UID page.
  *
- * UID is the Unitedworld Institute of Design, Ahmedabad, where the M.Des in
- * Visual Communication happened (2018–2020). The page is the portfolio of that
- * degree: a branding system, packaging, a performance identity, a website, and
- * the drawing and photography underneath it all.
+ * UID is the Unitedworld Institute of Design, where the M.Des in Visual
+ * Communication happened (2018–2020). The page is the portfolio of that degree:
+ * a branding system, packaging, a performance identity, print and fieldwork.
+ * The painting and craft made alongside it go to public/content/art instead,
+ * which the homepage's Art room reads.
  *
  * Source: D:/Brain Website portfolio/UID
  * Output: public/content/clients/uid/{brand,work}/…
@@ -51,17 +52,8 @@ async function pdfPage(src, out, width = 1400) {
   } catch (e) { bad(path.basename(out), e); }
 }
 
-/** The institute's mark (white artwork — the page seats it on dark). */
-console.log("Brand:");
-try {
-  ensure(`${DEST}/brand`);
-  await sharp(`${SRC}/whitelogonew-01-01.png`, { limitInputPixels: false })
-    .trim({ threshold: 10 })
-    .resize({ width: 720, withoutEnlargement: true })
-    .png()
-    .toFile(`${DEST}/brand/logo-white.png`);
-  good("logo-white.png");
-} catch (e) { bad("logo-white.png", e); }
+/* The institute's mark is the official one from uid.edu.in, fetched once into
+ * brand/uid-logo.png — the archive holds no Unitedworld artwork. */
 
 /** Each project: a folder of stills. */
 const WORK = {
@@ -98,17 +90,6 @@ const WORK = {
     "Himalaya_Warli_Poster_Semthree-01.png",
     "Himalaya_Warli_Poster_sem3-01.png",
     "covid19advs-01.png",
-    "PINKM-01.png",
-    "bluemandlanew-01.png",
-    "greenmandala-01.png",
-    "orngmand-01.png",
-    "godsavememandalaBLUE-01.png",
-    "newmandalawhite-01.png",
-    "whitemanda-01.png",
-    "brain-01.png",
-    "hrt-01.png",
-    "immu-01.png",
-    "enrg-01.png",
   ],
   // The trip — a photo essay.
   trip: ["the trip/111.png", "the trip/222.png", "the trip/333.png", "the trip/444.png", "the trip/555.png", "the trip/666.png", "the trip/777.png"],
@@ -124,14 +105,32 @@ for (const [folder, files] of Object.entries(WORK)) {
   }
 }
 
-/** Sketches — the hand behind everything (a curated dozen). */
-console.log("sketches:");
+/* The painting and the craft belong to the ART room, not to the degree page —
+ * they go to public/content/art, which the homepage's Art panel reads. */
+const ART = "D:/Brain Folio/public/content/art";
+
+console.log("art — painting:");
+const PAINTING = [
+  "PINKM-01.png", "bluemandlanew-01.png", "greenmandala-01.png", "orngmand-01.png",
+  "godsavememandalaBLUE-01.png", "newmandalawhite-01.png", "whitemanda-01.png",
+  "brain-01.png", "hrt-01.png", "immu-01.png", "enrg-01.png",
+];
+{
+  let n = 0;
+  for (const f of PAINTING) {
+    const src = path.join(SRC, f);
+    if (!fs.existsSync(src)) { console.error(`  skip (missing) ${f}`); continue; }
+    await webp(src, `${ART}/Painting/${String(++n).padStart(2, "0")}.webp`, 1400);
+  }
+}
+
+console.log("art — craft:");
 try {
   const dir = path.join(SRC, "Sketches");
   const picks = fs.readdirSync(dir).filter((f) => /\.jpe?g$/i.test(f)).sort().slice(0, 12);
   let n = 0;
-  for (const f of picks) await webp(path.join(dir, f), `${DEST}/work/sketches/${String(++n).padStart(2, "0")}.webp`, 1200);
-} catch (e) { bad("sketches", e); }
+  for (const f of picks) await webp(path.join(dir, f), `${ART}/Craft/${String(++n).padStart(2, "0")}.webp`, 1200);
+} catch (e) { bad("craft", e); }
 
 /** Documentation covers — the books the degree produced. */
 console.log("documents:");
