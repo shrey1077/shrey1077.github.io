@@ -16,6 +16,7 @@ import { CLIENTS, clientBySlug } from "@/constants/clients";
 import { clientExperienceBySlug } from "@/constants/clientExperiences";
 import { ClientExperience } from "@/components/client/ClientExperience";
 import { TataExperience } from "@/components/client/tata/TataExperience";
+import { AzothExperience } from "@/components/client/azoth/AzothExperience";
 import { ClientWip } from "@/components/client/ClientWip";
 
 interface ClientPageProps {
@@ -45,6 +46,9 @@ export default async function ClientPage({ params }: ClientPageProps) {
   // client uses the generic ClientExperience.
   if (slug === "tata-iis") {
     return <TataExperience />;
+  }
+  if (slug === "azoth-biotech") {
+    return <AzothExperience />;
   }
 
   const experience = clientExperienceBySlug(slug);
