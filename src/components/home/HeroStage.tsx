@@ -25,6 +25,7 @@ import dynamic from "next/dynamic";
 import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
 import { IdentityHeader } from "@/components/home/IdentityHeader";
 import { HeroHeadline } from "@/components/home/HeroHeadline";
+import { BrainThoughts } from "@/components/home/BrainThoughts";
 import {
   SectionPanels,
   type ArtPreview,
@@ -45,6 +46,10 @@ const HeroVideo = dynamic(
 /** How far the footage "zooms out" once a hemisphere is chosen — scaled from
  *  the top edge so the brain settles into the upper half above the panels. */
 const POSE_SCALE = 0.55;
+/** The landing brain read too large at 1:1 — sit it back a quarter. The stage
+ *  paints itself the footage's OWN background colour (`--hero-bg`, sampled live
+ *  in HeroVideo), so the smaller frame dissolves into the page with no seam. */
+const CENTER_SCALE = 0.75;
 
 export function HeroStage({
   workMap,
@@ -79,20 +84,25 @@ export function HeroStage({
       aria-label="Interactive brain navigation"
       onClick={onStageClick}
       className={[
-        "relative h-[100svh] min-h-[640px] w-full overflow-hidden bg-gallery",
+        "relative h-[100svh] min-h-[640px] w-full overflow-hidden",
         heroPose === "center" ? "cursor-pointer" : "",
       ].join(" ")}
+      // Falls back to the gallery wall until the first frame is sampled.
+      style={{ backgroundColor: "var(--hero-bg, #f9f9f9)", transition: "background-color 120ms linear" }}
     >
       {/* Video background — settles in on mount; zooms out (scaled from the
           top edge) once a hemisphere is chosen. */}
       <motion.div
         className="absolute inset-0"
-        style={{ transformOrigin: "50% 0%" }}
         initial={reduceMotion ? false : { opacity: 0 }}
         animate={{
           opacity: 1,
-          scale: heroPose === "center" ? 1 : POSE_SCALE,
+          scale: heroPose === "center" ? CENTER_SCALE : POSE_SCALE,
           y: heroPose === "center" ? "0vh" : "2vh",
+          // Centre shrinks in place; the pose zoom scales from the top edge so
+          // the brain settles into the upper half above the panels.
+          originX: 0.5,
+          originY: heroPose === "center" ? 0.5 : 0,
         }}
         transition={{
           opacity: { duration: DURATION.verySlow, ease: EASE_OUT },
@@ -130,6 +140,9 @@ export function HeroStage({
       <AnimatePresence>
         {heroPose === "center" && <HeroHeadline key="headline" />}
       </AnimatePresence>
+
+      {/* Stand still and the hemispheres start thinking out loud. */}
+      <BrainThoughts />
 
       {/* The section panels — rise once a hemisphere is committed. */}
       <AnimatePresence>
