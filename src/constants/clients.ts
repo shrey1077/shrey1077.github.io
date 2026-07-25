@@ -88,7 +88,6 @@ export const CLIENTS: readonly Client[] = [
     essence: "Design education, given its own design language.",
     section: "projects",
     location: "Ahmedabad, Gujarat",
-    cardLogo: "/content/career/uid.png",
   },
   {
     slug: "mycoveda",

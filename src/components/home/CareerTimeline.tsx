@@ -35,7 +35,7 @@ const STOPS: Stop[] = [
   { org: "ABS Wholesale", role: "Web & Graphic Designer", from: "Nov 2020", to: "Feb 2024", logo: "/content/career/abs.png", kind: "work" },
   { org: "Zabraku Design", role: "Graphic Designer", from: "Nov 2020", to: "Feb 2024", logo: "/content/career/zabraku.png", kind: "work" },
   { org: "Azoth Biotech", role: "Web & Graphic Designer", from: "Nov 2020", to: "Dec 2023", logo: "/content/career/azoth.png", kind: "work" },
-  { org: "Unitedworld Institute of Design", role: "M.Des — Visual Communication", from: "2018", to: "2020", logo: "/content/career/uid.png", kind: "study" },
+  { org: "Unitedworld Institute of Design", role: "M.Des — Visual Communication", from: "2018", to: "2020", kind: "study" },
   { org: "NewsMobile", role: "Web & Graphic Designer / Content Writer", from: "Jan 2017", to: "Jul 2018", logo: "/content/career/newsmobile.png", kind: "work" },
   { org: "NDTV", role: "Intern — Graphic Designer", from: "Oct 2016", to: "Nov 2016", logo: "/content/career/ndtv.png", kind: "work", invert: true },
   { org: "Maxbox Creations", role: "Freelance Designer", from: "Jan 2014", to: "Jul 2016", kind: "work" },

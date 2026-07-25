@@ -17,6 +17,7 @@ import { clientExperienceBySlug } from "@/constants/clientExperiences";
 import { ClientExperience } from "@/components/client/ClientExperience";
 import { TataExperience } from "@/components/client/tata/TataExperience";
 import { AzothExperience } from "@/components/client/azoth/AzothExperience";
+import { UidExperience } from "@/components/client/uid/UidExperience";
 import { ClientWip } from "@/components/client/ClientWip";
 
 interface ClientPageProps {
@@ -49,6 +50,9 @@ export default async function ClientPage({ params }: ClientPageProps) {
   }
   if (slug === "azoth-biotech") {
     return <AzothExperience />;
+  }
+  if (slug === "uid") {
+    return <UidExperience />;
   }
 
   const experience = clientExperienceBySlug(slug);

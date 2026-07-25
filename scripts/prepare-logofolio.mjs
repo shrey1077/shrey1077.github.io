@@ -35,7 +35,7 @@ const LOGOS = [
   { slug: "naturalist", name: "Naturalist Nootropics", src: `${P}/logos/Naturalist Logo_ Resolution Free.pdf` },
   { slug: "newsmobile", name: "NewsMobile", src: `${P}/Extincts/newsmobile_logo.png` },
   { slug: "puran-studios", name: "Puran Studios", src: `${P}/UID/Branding/pnglogo-01.png` },
-  { slug: "uid", name: "UID", src: `${P}/UID/whitelogonew-01-01.png` },
+  { slug: "mycoveda-symbol", name: "Mycoveda — symbol", src: `${P}/UID/whitelogonew-01-01.png` },
   { slug: "betright365", name: "BetRight365", src: `${P}/Zabraku Media/black new logo@2x.png` },
   { slug: "first-divine", name: "First Divine", src: `${P}/Zabraku Media/Asset 7@2x.png` },
   { slug: "fabs", name: "FABS Distro", src: `${P}/vapes/Brands developed under ABS/FABS color@2x.png` },

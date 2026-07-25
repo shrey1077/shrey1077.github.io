@@ -5,7 +5,7 @@
  * brand architecture (Azoth → its family; Mycoveda apart) → the work, per
  * brand (Naturalist + its brand artwork, Mushroomworks) → the Azoth parent's
  * own collateral → rejected logos. Server Component; the post grids are the
- * client AzothWorkGallery.
+ * client WorkGallery.
  */
 
 import fs from "node:fs";
@@ -13,7 +13,7 @@ import path from "node:path";
 import Link from "next/link";
 import Image from "next/image";
 import { ExperienceTransition } from "@/components/transition/ExperienceTransition";
-import { AzothWorkGallery } from "@/components/client/azoth/AzothWorkGallery";
+import { WorkGallery } from "@/components/client/WorkGallery";
 import {
   AZOTH,
   AZOTH_FOUNDATIONS,
@@ -185,7 +185,7 @@ export function AzothExperience() {
             <div className="mt-10">
               <SectionKicker color={AZOTH_BRANDS[0].accent}>The social system</SectionKicker>
               <div className="mt-6">
-                <AzothWorkGallery posts={naturalistPosts} accent={AZOTH_BRANDS[0].accent} />
+                <WorkGallery posts={naturalistPosts} accent={AZOTH_BRANDS[0].accent} />
               </div>
             </div>
           </section>
@@ -203,7 +203,7 @@ export function AzothExperience() {
             <div className="mt-10">
               <SectionKicker color={AZOTH_BRANDS[1].accent}>The social system</SectionKicker>
               <div className="mt-6">
-                <AzothWorkGallery posts={mushroomworksPosts} accent={AZOTH_BRANDS[1].accent} />
+                <WorkGallery posts={mushroomworksPosts} accent={AZOTH_BRANDS[1].accent} />
               </div>
             </div>
           </section>

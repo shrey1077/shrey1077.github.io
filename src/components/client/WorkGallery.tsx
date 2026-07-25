@@ -1,7 +1,7 @@
 "use client";
 
 /**
- * AzothWorkGallery — a responsive grid of a brand's social posts. Posts are
+ * WorkGallery — a responsive grid of a brand's social posts. Posts are
  * portrait; choosing one opens it in the shared MediaViewer lightbox. Quiet
  * hairline frames, a soft lift on hover — the work does the talking.
  */
@@ -13,7 +13,19 @@ import type { ContentAsset } from "@/content/catalogue";
 import { MediaViewer } from "@/components/experience/MediaViewer";
 import { EASE_OUT } from "@/constants/motion";
 
-export function AzothWorkGallery({ posts, accent }: { posts: string[]; accent: string }) {
+export function WorkGallery({
+  posts,
+  accent,
+  cols = 4,
+  aspect = "4/5",
+}: {
+  posts: string[];
+  accent: string;
+  /** Widest column count on large screens. */
+  cols?: 3 | 4;
+  /** Tile aspect ratio — portrait posts vs. landscape plates. */
+  aspect?: string;
+}) {
   const reduced = useReducedMotion();
   const [viewing, setViewing] = useState<ContentAsset | null>(null);
 
@@ -21,7 +33,7 @@ export function AzothWorkGallery({ posts, accent }: { posts: string[]; accent: s
 
   return (
     <>
-      <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 sm:gap-4 lg:grid-cols-4">
+      <div className={`grid gap-3 sm:gap-4 ${cols === 3 ? "grid-cols-2 sm:grid-cols-3" : "grid-cols-2 sm:grid-cols-3 lg:grid-cols-4"}`}>
         {posts.map((url, i) => (
           <motion.button
             key={url}
@@ -31,8 +43,8 @@ export function AzothWorkGallery({ posts, accent }: { posts: string[]; accent: s
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true, margin: "-40px" }}
             transition={{ duration: 0.5, ease: EASE_OUT, delay: (i % 4) * 0.05 }}
-            className="group relative aspect-[4/5] overflow-hidden border border-neutral-200 bg-neutral-50 outline-none transition-colors duration-300 hover:border-neutral-400 focus-visible:ring-2 focus-visible:ring-offset-2"
-            style={{ ["--tw-ring-color" as string]: `${accent}66` }}
+            className="group relative overflow-hidden border border-neutral-200 bg-neutral-50 outline-none transition-colors duration-300 hover:border-neutral-400 focus-visible:ring-2 focus-visible:ring-offset-2"
+            style={{ ["--tw-ring-color" as string]: `${accent}66`, aspectRatio: aspect }}
           >
             <Image
               src={url}
