@@ -31,11 +31,7 @@ import { BrainThoughts } from "@/components/home/BrainThoughts";
 import { LandingLabels } from "@/components/home/LandingLabels";
 import { PoseSwitch } from "@/components/home/PoseSwitch";
 import { PoseEmergence } from "@/components/home/PoseEmergence";
-import {
-  SectionPanels,
-  type ArtPreview,
-  type ClientWorkMap,
-} from "@/components/home/SectionPanels";
+import { SectionPanels, type ArtPreview } from "@/components/home/SectionPanels";
 import type { LogoMark } from "@/content/catalogue";
 import { useInViewport } from "@/hooks/useInViewport";
 import { DURATION, EASE_IN_OUT, EASE_OUT } from "@/constants/motion";
@@ -58,11 +54,9 @@ const POSE_SCALE = 0.55;
 const CENTER_SCALE = 0.75;
 
 export function HeroStage({
-  workMap,
   artPreviews,
   logos,
 }: {
-  workMap: ClientWorkMap;
   artPreviews: ArtPreview[];
   logos: LogoMark[];
 }) {
@@ -166,12 +160,7 @@ export function HeroStage({
       {/* The section panels — rise once a hemisphere is committed. */}
       <AnimatePresence>
         {heroPose !== "center" && (
-          <SectionPanels
-            key="panels"
-            workMap={workMap}
-            artPreviews={artPreviews}
-            logos={logos}
-          />
+          <SectionPanels key="panels" artPreviews={artPreviews} logos={logos} />
         )}
       </AnimatePresence>
     </section>

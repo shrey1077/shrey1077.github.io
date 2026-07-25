@@ -43,19 +43,17 @@ const riseIn = (reduce: boolean, delay = 0) =>
 
 export function SectionBody({
   id,
-  onClientPick,
   artPreviews,
   logos,
 }: {
   id: NavSectionId;
-  onClientPick: (slug: string) => void;
   artPreviews: ArtPreview[];
   logos: LogoMark[];
 }) {
   const reduceMotion = useReducedMotion();
 
   if (id === "clients" || id === "projects") {
-    return <BrandCardSlider entries={clientsInSection(id)} onPick={onClientPick} />;
+    return <BrandCardSlider entries={clientsInSection(id)} />;
   }
 
   if (id === "logofolio") {

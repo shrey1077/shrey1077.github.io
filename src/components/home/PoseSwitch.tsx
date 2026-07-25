@@ -38,11 +38,13 @@ export function PoseSwitch() {
   return (
     <div
       className={[
-        "pointer-events-auto absolute right-[4vw] z-30 flex items-center gap-2.5",
+        "pointer-events-auto absolute z-30 flex items-center gap-2.5",
         // With panels up it rides just above their top edge (the Clients
-        // boundary); on the landing that band belongs to the headline, so it
-        // drops to sit just above the two doors instead.
-        heroPose === "center" ? "bottom-[calc(7%+0.9rem)]" : "bottom-[calc(50%+0.9rem)]",
+        // boundary); on the landing the headline owns that band, so it tucks
+        // into the very bottom-right corner instead.
+        heroPose === "center"
+          ? "bottom-[1.4%] right-[2vw]"
+          : "bottom-[calc(50%+0.9rem)] right-[4vw]",
       ].join(" ")}
       role="group"
       aria-label="Choose a hemisphere"

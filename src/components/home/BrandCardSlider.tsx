@@ -15,6 +15,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import Image from "next/image";
+import Link from "next/link";
 import { motion, useReducedMotion } from "framer-motion";
 import type { Client } from "@/constants/clients";
 import { EASE_IN_OUT } from "@/constants/motion";
@@ -24,13 +25,7 @@ const PER_VIEW_DESKTOP = 3;
 /** Beat between automatic steps. */
 const AUTO_MS = 2000;
 
-export function BrandCardSlider({
-  entries,
-  onPick,
-}: {
-  entries: readonly Client[];
-  onPick: (slug: string) => void;
-}) {
+export function BrandCardSlider({ entries }: { entries: readonly Client[] }) {
   const reduceMotion = useReducedMotion();
   const wrapRef = useRef<HTMLDivElement>(null);
   const paused = useRef(false);
@@ -86,66 +81,68 @@ export function BrandCardSlider({
               className="h-full flex-none px-2"
               style={{ width: cardW > 0 ? `${cardW}px` : `${100 / perView}%` }}
             >
-              <button
-                type="button"
-                onClick={() => onPick(c.slug)}
+              <Link
+                href={`/clients/${c.slug}`}
                 className="group flex h-full w-full flex-col overflow-hidden rounded-2xl bg-white text-left outline-none ring-1 ring-white/10 transition-transform duration-500 hover:-translate-y-1 focus-visible:-translate-y-1"
               >
-                {/* Top quarter — the brand's own mark. */}
-                <span
-                  className="relative flex h-1/4 min-h-[64px] w-full items-center justify-center border-b border-neutral-200 px-6"
-                  style={{ backgroundColor: `${c.accent}0f` }}
-                >
-                  {c.cardLogo ? (
-                    <Image
-                      src={c.cardLogo}
-                      alt={c.name}
-                      fill
-                      sizes="320px"
-                      className="object-contain p-4"
-                    />
-                  ) : (
-                    <span
-                      className={`${typeVoiceClass("creative", "display")} text-2xl`}
-                      style={{ color: c.accent }}
-                    >
+                {/* UPPER HALF — who they are on the left, their mark in the
+                    top-right quarter. */}
+                <span className="flex h-1/2 min-h-0 w-full border-b border-neutral-200">
+                  <span className="flex min-w-0 flex-1 flex-col justify-center gap-1.5 p-4">
+                    <span className={`${typeVoiceClass("creative", "display")} text-base leading-tight text-neutral-900`}>
                       {c.name}
                     </span>
-                  )}
-                </span>
-
-                {/* The facts. */}
-                <span className="flex min-h-0 flex-1 flex-col gap-1.5 p-4">
-                  <span className={`${typeVoiceClass("creative", "display")} text-base leading-tight text-neutral-900`}>
-                    {c.name}
-                  </span>
-                  <span className={`${typeVoiceClass("logic", "meta")} text-[0.5rem] uppercase tracking-[0.12em] text-neutral-400`}>
-                    {c.sector}
-                  </span>
-                  <span className="line-clamp-2 text-[0.68rem] leading-relaxed text-neutral-500">
-                    {c.essence}
-                  </span>
-
-                  <span className="mt-auto flex flex-col gap-0.5 border-t border-neutral-100 pt-2">
-                    {c.location && (
-                      <span className="text-[0.58rem] leading-snug text-neutral-500">{c.location}</span>
-                    )}
-                    {c.site && (
-                      <span className="text-[0.58rem] leading-snug text-neutral-500">{c.site}</span>
-                    )}
-                    {c.contact && (
-                      <span className="text-[0.58rem] leading-snug text-neutral-500">{c.contact}</span>
-                    )}
-                    <span
-                      className={`${typeVoiceClass("logic", "meta")} mt-1.5 inline-flex items-center gap-1.5 text-[0.55rem] uppercase tracking-[0.1em]`}
-                      style={{ color: c.accent }}
-                    >
-                      Open
-                      <span aria-hidden className="transition-transform duration-300 group-hover:translate-x-1">→</span>
+                    <span className={`${typeVoiceClass("logic", "meta")} text-[0.5rem] uppercase tracking-[0.12em] text-neutral-400`}>
+                      {c.sector}
+                    </span>
+                    <span className="line-clamp-3 text-[0.66rem] leading-relaxed text-neutral-500">
+                      {c.essence}
                     </span>
                   </span>
+
+                  <span
+                    className="relative w-1/2 shrink-0 border-l border-neutral-200"
+                    style={{ backgroundColor: `${c.accent}0f` }}
+                  >
+                    {c.cardLogo ? (
+                      <Image
+                        src={c.cardLogo}
+                        alt={c.name}
+                        fill
+                        sizes="200px"
+                        className="object-contain p-4"
+                      />
+                    ) : (
+                      <span
+                        className={`${typeVoiceClass("creative", "display")} flex h-full items-center justify-center px-2 text-center text-sm leading-tight`}
+                        style={{ color: c.accent }}
+                      >
+                        {c.name}
+                      </span>
+                    )}
+                  </span>
                 </span>
-              </button>
+
+                {/* LOWER HALF — where to find them. */}
+                <span className="flex h-1/2 min-h-0 flex-col justify-center gap-1 p-4">
+                  {c.location && (
+                    <span className="text-[0.6rem] leading-snug text-neutral-500">{c.location}</span>
+                  )}
+                  {c.site && (
+                    <span className="text-[0.6rem] leading-snug text-neutral-700">{c.site}</span>
+                  )}
+                  {c.contact && (
+                    <span className="text-[0.6rem] leading-snug text-neutral-500">{c.contact}</span>
+                  )}
+                  <span
+                    className={`${typeVoiceClass("logic", "meta")} mt-auto inline-flex items-center gap-1.5 text-[0.55rem] uppercase tracking-[0.1em]`}
+                    style={{ color: c.accent }}
+                  >
+                    Open
+                    <span aria-hidden className="transition-transform duration-300 group-hover:translate-x-1">→</span>
+                  </span>
+                </span>
+              </Link>
             </div>
           ))}
         </motion.div>
