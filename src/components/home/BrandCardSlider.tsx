@@ -5,8 +5,9 @@
  *
  * Each card is a portrait plate: the brand's own logo in the top quarter, then
  * the company's facts (sector, what the work was, where they are, site and
- * contact) beneath. Two cards are in view at a time (one on phones) and the
- * track eases sideways one card per step.
+ * contact) beneath. Three cards are in view at a time (two on tablets, one on
+ * phones) and the track eases sideways one card per step — on its own every
+ * couple of seconds, wrapping at the end, and pausing while you're touching it.
  *
  * The cards sit on white inside the section's dark panel, so the slider reads
  * as a lit shelf against the graphite.
@@ -14,12 +15,14 @@
 
 import { useEffect, useRef, useState } from "react";
 import Image from "next/image";
-import { motion } from "framer-motion";
+import { motion, useReducedMotion } from "framer-motion";
 import type { Client } from "@/constants/clients";
-import { EASE_OUT } from "@/constants/motion";
+import { EASE_IN_OUT } from "@/constants/motion";
 import { typeVoiceClass } from "@/constants/typography";
 
-const PER_VIEW_DESKTOP = 2;
+const PER_VIEW_DESKTOP = 3;
+/** Beat between automatic steps. */
+const AUTO_MS = 2000;
 
 export function BrandCardSlider({
   entries,
@@ -28,7 +31,9 @@ export function BrandCardSlider({
   entries: readonly Client[];
   onPick: (slug: string) => void;
 }) {
+  const reduceMotion = useReducedMotion();
   const wrapRef = useRef<HTMLDivElement>(null);
+  const paused = useRef(false);
   const [perView, setPerView] = useState(PER_VIEW_DESKTOP);
   const [wrapW, setWrapW] = useState(0);
   const [index, setIndex] = useState(0);
@@ -37,7 +42,8 @@ export function BrandCardSlider({
     const el = wrapRef.current;
     if (!el) return;
     const ro = new ResizeObserver(() => {
-      setPerView(window.innerWidth < 640 ? 1 : PER_VIEW_DESKTOP);
+      const w = window.innerWidth;
+      setPerView(w < 640 ? 1 : w < 1024 ? 2 : PER_VIEW_DESKTOP);
       setWrapW(el.clientWidth);
     });
     ro.observe(el);
@@ -49,15 +55,30 @@ export function BrandCardSlider({
   const cardW = wrapW > 0 ? wrapW / perView : 0;
   const go = (d: number) => setIndex(Math.max(0, Math.min(maxIndex, clamped + d)));
 
+  // Walk on its own, wrapping back to the start; hovering or focusing holds it.
+  useEffect(() => {
+    if (reduceMotion || maxIndex === 0) return;
+    const id = window.setInterval(() => {
+      if (!paused.current) setIndex((i) => (i >= maxIndex ? 0 : i + 1));
+    }, AUTO_MS);
+    return () => window.clearInterval(id);
+  }, [reduceMotion, maxIndex]);
+
   if (entries.length === 0) return null;
 
   return (
-    <div className="flex h-full min-h-0 flex-col">
+    <div
+      className="flex h-full min-h-0 flex-col"
+      onMouseEnter={() => (paused.current = true)}
+      onMouseLeave={() => (paused.current = false)}
+      onFocusCapture={() => (paused.current = true)}
+      onBlurCapture={() => (paused.current = false)}
+    >
       <div ref={wrapRef} className="min-h-0 flex-1 overflow-hidden">
         <motion.div
           className="flex h-full"
           animate={{ x: -clamped * cardW }}
-          transition={{ duration: 0.7, ease: EASE_OUT }}
+          transition={{ duration: 0.85, ease: EASE_IN_OUT }}
         >
           {entries.map((c) => (
             <div

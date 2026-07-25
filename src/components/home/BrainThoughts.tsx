@@ -6,10 +6,11 @@
  * The hero's footage is mouse-scrubbed: stop moving and the brain stops with
  * it. That stillness is the cue — after a beat of no pointer movement the two
  * hemispheres start surfacing thoughts, one at a time each, drifting outward
- * from the brain and dissolving:
+ * from the brain and dissolving. The two are a matched pair — the same
+ * question answered from opposite ends:
  *
  *   left  (logic)    black type, the headline's mono voice
- *   right (creative) white type, the headline's Fraunces italic
+ *   right (creative) painted ink, the headline's brush voice
  *
  * Only ever shown on the landing pose (`center`), and never under reduced
  * motion. The layer is pointer-events-none, so the stage's click zones and the
@@ -27,22 +28,24 @@ const IDLE_MS = 1400;
 /** How long each thought holds before the next surfaces. */
 const CYCLE_MS = 3200;
 
+/** The two sides think the same thought from opposite ends: index i on the
+ *  left is answered by index i on the right, so whatever surfaces, the pair
+ *  reads as one argument with two verdicts. */
 const LOGIC_THOUGHTS = [
+  "measure twice",
   "grids before decoration",
   "constraints are the brief",
-  "measure twice, ship once",
+  "consistency compounds",
+  "clarity is the feature",
+  "structure first, style after",
+  "every pixel earns its place",
   "hierarchy is kindness",
   "systems outlive campaigns",
-  "every pixel earns its place",
-  "consistency compounds",
-  "structure first, style after",
-  "clarity is a feature",
-  "the grid holds the chaos",
+  "plan the accident",
 ] as const;
 
 /** The creative side's ink. White vanished against the light paint, so each
- *  thought arrives in one of the hemisphere's own hues (the palette the painted
- *  rows and card chips use), cycling with the thought. */
+ *  thought arrives in one of the hemisphere's own hues, cycling with the pair. */
 const CREATIVE_INKS = [
   "#ff2e8b",
   "#ff5a3c",
@@ -55,16 +58,16 @@ const CREATIVE_INKS = [
 ] as const;
 
 const CREATIVE_THOUGHTS = [
-  "what if it breathed?",
-  "colour remembers",
-  "let the ink decide",
+  "just start cutting",
+  "decoration before grids",
+  "the brief is a suggestion",
+  "surprise compounds",
+  "mystery is the feature",
+  "style first, structure after",
+  "let the spill stay",
+  "chaos is honest",
+  "a moment is enough",
   "chase the accident",
-  "make it feel like monsoon",
-  "a mark that hums",
-  "texture over polish",
-  "beauty, then reason",
-  "paint outside the artboard",
-  "dream it louder",
 ] as const;
 
 /** Walk the list with a stride coprime to its length — every thought is seen,
@@ -98,7 +101,7 @@ function Thought({
         "block max-w-[15ch] will-change-transform",
         logic
           ? `${typeVoiceClass("logic", "display")} text-[clamp(0.85rem,1.35vw,1.25rem)] leading-snug text-neutral-900`
-          : `${typeVoiceClass("creative", "label")} text-[clamp(1.05rem,1.9vw,1.8rem)] italic leading-tight`,
+          : `font-brush-brand text-[clamp(1.15rem,2.1vw,2rem)] leading-tight`,
       ].join(" ")}
     >
       {text}
@@ -148,7 +151,7 @@ export function BrainThoughts() {
             {/* RIGHT — creative, upper flank. */}
             <div className="absolute right-[5vw] top-[22%] text-right sm:right-[6vw] lg:right-[4vw]">
               <Thought
-                text={pick(CREATIVE_THOUGHTS, tick, 3)}
+                text={pick(CREATIVE_THOUGHTS, tick, 0)}
                 side="creative"
                 delay={0.45}
                 ink={CREATIVE_INKS[(tick * 3 + 1) % CREATIVE_INKS.length]}

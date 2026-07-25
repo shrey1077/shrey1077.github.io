@@ -6,15 +6,17 @@
  * The stage runs a three-pose machine (store `heroPose`):
  *
  *   center   — landing. The brain rests on its calibrated middle frame,
- *              mouse-scrubbable; the split HEADLINE occupies the flanks
- *              (no navigation is shown on first load — deliberate).
- *   logic    — a LEFT-half click. The video plays back to its first frame
- *              (white brain) while the whole footage zooms out to the upper
- *              half; the four logic sections rise as B&W panels below, with
- *              the painted 5% strip on their right edge.
- *   creative — a RIGHT-half click (or the painted strip). The video plays to
- *              its last frame (painted brain); the creative sections rise as
- *              painted panels, graphite strip on the left leading back.
+ *              mouse-scrubbable; the split HEADLINE occupies the flanks and
+ *              two doors sit in the bottom band — "Designer" and "Artist".
+ *   logic    — the Designer door. The video plays back to its first frame
+ *              (white brain) while the footage zooms out to the upper half;
+ *              the four logic sections rise as B&W panels below, and black
+ *              circuit traces run out of the panel to the left.
+ *   creative — the Artist door. The video plays to its last frame (painted
+ *              brain); the creative sections rise as painted panels, and
+ *              paint splatter blooms out to the right.
+ *
+ * PoseSwitch (bottom-right, above the panels) moves between all three.
  *
  * Clicks on interactive elements or inside the panels never switch poses.
  * v4 removed BrainNavigation/PreviewPane from the homepage — the panels ARE
@@ -26,6 +28,9 @@ import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
 import { IdentityHeader } from "@/components/home/IdentityHeader";
 import { HeroHeadline } from "@/components/home/HeroHeadline";
 import { BrainThoughts } from "@/components/home/BrainThoughts";
+import { LandingLabels } from "@/components/home/LandingLabels";
+import { PoseSwitch } from "@/components/home/PoseSwitch";
+import { PoseEmergence } from "@/components/home/PoseEmergence";
 import {
   SectionPanels,
   type ArtPreview,
@@ -146,6 +151,17 @@ export function HeroStage({
 
       {/* Stand still and the hemispheres start thinking out loud. */}
       <BrainThoughts />
+
+      {/* The two doors, on the landing only. */}
+      <AnimatePresence>
+        {heroPose === "center" && <LandingLabels key="labels" />}
+      </AnimatePresence>
+
+      {/* What spills out of the chosen side. */}
+      <PoseEmergence pose={heroPose} />
+
+      {/* The three-state control — replaces the old centre column + strips. */}
+      <PoseSwitch />
 
       {/* The section panels — rise once a hemisphere is committed. */}
       <AnimatePresence>

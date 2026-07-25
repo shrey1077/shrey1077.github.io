@@ -5,8 +5,9 @@
  *
  * A horizontal rail with a marker per stop: the employer's own logo, the years,
  * the role. Study checkpoints sit on the same line in a quieter key, so the
- * degrees read as part of the route rather than a separate list. Scrolls
- * sideways; newest first.
+ * degrees read as part of the route rather than a separate list. The whole
+ * route fits one frame — stops share the width rather than scrolling away, so
+ * the shape of the career is legible at a glance. Newest first.
  *
  * Sourced from the 2024 resume; logos are the originals
  * (scripts/prepare-career.mjs).
@@ -31,8 +32,8 @@ interface Stop {
 /** Newest first. */
 const STOPS: Stop[] = [
   { org: "Tata IIS", role: "Visual Communication Designer", from: "Apr 2024", to: "Sep 2026", logo: "/content/career/tata-iis.png", kind: "work", invert: true },
-  { org: "ABS Wholesale", role: "Web & Graphic Designer", from: "Nov 2020", to: "Present", logo: "/content/career/abs.png", kind: "work" },
-  { org: "Zabraku Design", role: "Graphic Designer", from: "Nov 2020", to: "Present", logo: "/content/career/zabraku.png", kind: "work" },
+  { org: "ABS Wholesale", role: "Web & Graphic Designer", from: "Nov 2020", to: "Feb 2024", logo: "/content/career/abs.png", kind: "work" },
+  { org: "Zabraku Design", role: "Graphic Designer", from: "Nov 2020", to: "Feb 2024", logo: "/content/career/zabraku.png", kind: "work" },
   { org: "Azoth Biotech", role: "Web & Graphic Designer", from: "Nov 2020", to: "Dec 2023", logo: "/content/career/azoth.png", kind: "work" },
   { org: "Unitedworld Institute of Design", role: "M.Des — Visual Communication", from: "2018", to: "2020", logo: "/content/career/uid.png", kind: "study" },
   { org: "NewsMobile", role: "Web & Graphic Designer / Content Writer", from: "Jan 2017", to: "Jul 2018", logo: "/content/career/newsmobile.png", kind: "work" },
@@ -46,10 +47,10 @@ export function CareerTimeline() {
   const reduceMotion = useReducedMotion();
 
   return (
-    <div className="h-full min-h-0 overflow-x-auto overflow-y-hidden pb-3">
-      <div className="relative flex h-full min-w-max items-stretch gap-6 pt-8">
+    <div className="h-full min-h-0 overflow-hidden pb-2">
+      <div className="relative flex h-full items-stretch gap-1.5 pt-6">
         {/* The rail every checkpoint hangs from. */}
-        <span aria-hidden className="absolute left-0 right-0 top-[3.25rem] h-px bg-white/20" />
+        <span aria-hidden className="absolute left-0 right-0 top-[2.6rem] h-px bg-white/20" />
 
         {STOPS.map((s, i) => (
           <motion.div
@@ -57,24 +58,24 @@ export function CareerTimeline() {
             initial={reduceMotion ? false : { opacity: 0, y: 12 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.45, ease: EASE_OUT, delay: Math.min(i * 0.05, 0.5) }}
-            className="relative flex w-[13rem] shrink-0 flex-col"
+            className="relative flex min-w-0 flex-1 flex-col"
           >
             {/* Years above the rail. */}
-            <span className={`${typeVoiceClass("logic", "meta")} h-5 text-[0.55rem] uppercase tracking-[0.1em] text-white/60 tabular-nums`}>
+            <span className={`${typeVoiceClass("logic", "meta")} h-4 text-[0.46rem] uppercase tracking-[0.02em] text-white/60 tabular-nums`}>
               {s.from} — {s.to}
             </span>
 
             {/* The checkpoint marker, sitting on the rail. */}
             <span
               aria-hidden
-              className={`relative z-10 mt-2 size-2.5 rounded-full ring-4 ring-neutral-900 ${
+              className={`relative z-10 mt-1.5 size-1.5 rounded-full ring-[3px] ring-neutral-900 ${
                 s.kind === "study" ? "bg-white/40" : "bg-white"
               }`}
             />
 
             {/* The card. */}
-            <div className="mt-5 flex min-h-0 flex-1 flex-col gap-2 rounded-xl border border-white/12 bg-white/[0.04] p-3.5">
-              <span className="relative flex h-10 w-full items-center justify-start">
+            <div className="mt-3 flex min-h-0 flex-1 flex-col gap-1 rounded-lg border border-white/12 bg-white/[0.04] p-2">
+              <span className="relative flex h-7 w-full shrink-0 items-center justify-start">
                 {s.logo ? (
                   <Image
                     src={s.logo}
@@ -84,15 +85,15 @@ export function CareerTimeline() {
                     className={`object-contain object-left ${s.invert ? "brightness-0 invert" : ""}`}
                   />
                 ) : (
-                  <span className={`${typeVoiceClass("creative", "display")} text-sm text-white/70`}>
+                  <span className={`${typeVoiceClass("creative", "display")} text-[0.62rem] leading-tight text-white/70`}>
                     {s.org}
                   </span>
                 )}
               </span>
-              <span className="text-[0.72rem] font-medium leading-tight text-white">{s.org}</span>
-              <span className="text-[0.62rem] leading-snug text-white/55">{s.role}</span>
+              <span className="line-clamp-2 text-[0.58rem] font-medium leading-tight text-white">{s.org}</span>
+              <span className="line-clamp-2 text-[0.52rem] leading-snug text-white/55">{s.role}</span>
               {s.kind === "study" && (
-                <span className={`${typeVoiceClass("logic", "meta")} mt-auto text-[0.5rem] uppercase tracking-[0.14em] text-white/35`}>
+                <span className={`${typeVoiceClass("logic", "meta")} mt-auto text-[0.44rem] uppercase tracking-[0.1em] text-white/35`}>
                   Study
                 </span>
               )}

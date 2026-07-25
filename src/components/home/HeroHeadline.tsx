@@ -11,8 +11,7 @@
  *                     painted — the living gradient clipped to the glyphs.
  *
  * Lines enter with masked rises (translateY 110% → 0 behind overflow-hidden),
- * staggered left → right, then a handwritten "click a side" note settles under
- * the brain — the only instruction. The whole layer is pointer-events-none;
+ * staggered left → right. The whole layer is pointer-events-none;
  * clicks fall through to HeroStage's pose zones. Reduced motion renders
  * everything in place. Parent (HeroStage) unmounts it via AnimatePresence the
  * moment a side is chosen.
@@ -52,7 +51,7 @@ export function HeroHeadline() {
 
   return (
     <motion.div
-      aria-label="50% logic, 50% imagination. Click a side to choose a hemisphere."
+      aria-label="50% logic, 50% imagination."
       exit={
         reduceMotion
           ? { opacity: 0 }
@@ -98,18 +97,8 @@ export function HeroHeadline() {
         </p>
       </div>
 
-      {/* The one instruction — handwritten, arriving last. */}
-      <motion.span
-        aria-hidden
-        initial={reduceMotion ? false : { opacity: 0, y: 8 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: DURATION.settle, ease: EASE_OUT, delay: 1.7 }}
-        className={`${typeVoiceClass("thought", "meta")} mt-2 flex items-baseline gap-2 text-lg text-neutral-500 lg:absolute lg:bottom-[9vh] lg:left-1/2 lg:mt-0 lg:-translate-x-1/2`}
-      >
-        <span aria-hidden>←</span>
-        click a side
-        <span aria-hidden>→</span>
-      </motion.span>
+      {/* The instruction used to live here; the two labelled doors
+          (LandingLabels) now say it plainly.  */}
     </motion.div>
   );
 }

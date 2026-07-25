@@ -8,12 +8,13 @@
  *
  *   pose "logic"    → the LEFT hemisphere's four sections as horizontal
  *                     black-and-white rows (Clients / Projects / Logofolio /
- *                     Career Path), plus a 5%-wide PAINTED strip on the right
- *                     edge — the doorway to the creative side.
+ *                     Career Path).
  *   pose "creative" → the RIGHT hemisphere's four sections as painted rows
  *                     (Art / Publications / The Extincts Project / AI
- *                     Generations), plus a 5% graphite strip on the left edge
- *                     leading back to logic.
+ *                     Generations).
+ *
+ * Both use the FULL width — the old centre column and 5% flip strips were
+ * replaced by PoseSwitch, which floats above the panels' top edge.
  *
  * Clicking a row no longer compresses its siblings — the section GROWS from
  * that row's own band to cover the whole stack, so Clients (the top row) opens
@@ -433,86 +434,6 @@ function ClientDetail({
   );
 }
 
-/* ── the 20% way back to the middle ───────────────────────────────────── */
-
-/** A quiet gallery-wall column that returns the hero to its resting center —
- *  the split brain, the headline, the scrub. Sits BETWEEN the rows and the
- *  opposite hemisphere's strip, so each panel layer reads like the footage's
- *  own timeline: logic — middle — colour. */
-function CenterColumn() {
-  const setHeroPose = useSceneStore((s) => s.setHeroPose);
-
-  return (
-    <button
-      type="button"
-      onClick={() => setHeroPose("center")}
-      aria-label="Return to the middle — the resting brain and headline"
-      className="group relative h-full w-[20vw] min-w-[7rem] shrink-0 overflow-hidden border-x border-neutral-200 bg-gallery outline-none transition-colors duration-500 hover:bg-white focus-visible:bg-white"
-    >
-      <span className="flex h-full flex-col items-center justify-center gap-5">
-        {/* The split emblem — half graphite, half paint: the middle itself. */}
-        <span aria-hidden className="flex h-1 w-14 overflow-hidden rounded-full">
-          <span className="h-full w-1/2 bg-neutral-900" />
-          <span className="brain-paint h-full w-1/2" />
-        </span>
-        <span
-          aria-hidden
-          className={`${typeVoiceClass("logic", "meta")} text-[0.6rem] tracking-[0.3em] text-neutral-500 transition-colors duration-500 [writing-mode:vertical-rl] group-hover:text-neutral-900`}
-        >
-          the middle
-        </span>
-        <span
-          aria-hidden
-          className={`${typeVoiceClass("thought", "meta")} text-lg text-neutral-400 transition-colors duration-500 group-hover:text-neutral-700`}
-        >
-          go back
-        </span>
-      </span>
-    </button>
-  );
-}
-
-/* ── the 5% flip strips ───────────────────────────────────────────────── */
-
-function FlipStrip({ to }: { to: PanelPose }) {
-  const setHeroPose = useSceneStore((s) => s.setHeroPose);
-  const creative = to === "creative";
-
-  return (
-    <button
-      type="button"
-      onClick={() => setHeroPose(to)}
-      aria-label={creative ? "Switch to the creative side" : "Switch to the logic side"}
-      className={[
-        "group relative h-full w-[5vw] min-w-[3rem] shrink-0 overflow-hidden outline-none",
-        "transition-[width] duration-500 ease-out hover:w-[7vw] focus-visible:w-[7vw]",
-        creative ? "" : "bg-neutral-900",
-      ].join(" ")}
-    >
-      {creative ? (
-        <span aria-hidden className="brain-paint absolute inset-0" />
-      ) : (
-        <span
-          aria-hidden
-          className="brain-grain absolute inset-0 opacity-40 transition-opacity duration-500 group-hover:opacity-100"
-        />
-      )}
-      <span
-        aria-hidden
-        className={[
-          "absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 whitespace-nowrap",
-          "[writing-mode:vertical-rl] tracking-[0.2em]",
-          creative
-            ? `${typeVoiceClass("creative", "label")} text-lg text-white [text-shadow:0_1px_6px_rgba(0,0,0,0.4)]`
-            : `${typeVoiceClass("logic", "meta")} text-[0.6rem] text-white/80`,
-        ].join(" ")}
-      >
-        {creative ? "colour →" : "← logic"}
-      </span>
-    </button>
-  );
-}
-
 /* -- one hemisphere's panel layer -------------------------------------- */
 
 /** Owns the open-section state. Rendered with `key={pose}`, so flipping
@@ -547,13 +468,6 @@ function PoseLayer({
 
   return (
     <>
-      {pose === "creative" && (
-        <>
-          <FlipStrip to="logic" />
-          <CenterColumn />
-        </>
-      )}
-
       <div className="relative min-w-0 flex-1">
         <AnimatePresence mode="wait" initial={false}>
           {activeClient ? (
@@ -671,13 +585,6 @@ function PoseLayer({
           )}
         </AnimatePresence>
       </div>
-
-      {pose === "logic" && (
-        <>
-          <CenterColumn />
-          <FlipStrip to="creative" />
-        </>
-      )}
     </>
   );
 }
