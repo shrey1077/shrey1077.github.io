@@ -40,5 +40,5 @@ yarn-error.log*
 *.tsbuildinfo
 next-env.d.ts
 
-# scratch / session recordings
-*.webm
+# scratch / session recordings (root-level only, not public/videos/)
+/video-background-remover.webm

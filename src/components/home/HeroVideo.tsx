@@ -29,7 +29,7 @@ import { useReducedMotion } from "framer-motion";
 import { useSceneStore } from "@/state/useSceneStore";
 import type { HeroPose } from "@/types/scene";
 
-const VIDEO_SRC = "/videos/upscale.mp4";
+const VIDEO_SRC = "/videos/brain-alpha.webm";
 
 /** The user-calibrated resting frame (§3 of the v3 plan). */
 const CENTER_T = 2.92;
@@ -43,8 +43,7 @@ const DAMPING = 2 * Math.sqrt(STIFFNESS); // critical — eases in AND out
 const MIN_SEEK_DELTA = 0.02;
 /** Freeze on the LAST REAL FRAME, not t=duration (which can present blank). */
 const END_EPS = 1 / 24;
-/** Re-sample the footage's own background colour every N frames (see below). */
-const BG_SAMPLE_EVERY = 5;
+const BG_SAMPLE_EVERY = 0; // unused — video has alpha, no bg sampling needed
 
 type Mode = "scrub" | "play" | "frozen";
 
@@ -60,28 +59,7 @@ export function HeroVideo({ active = true }: { active?: boolean }) {
     const video = videoRef.current;
     if (!video) return;
 
-    /* The footage's background is NOT one flat white: it travels from a light
-     * grey on the logic profile through a warm grey at rest to a dusty tan on
-     * the painted profile. No fixed page colour can match all three, so we read
-     * the footage's OWN corner pixel each few frames and publish it as
-     * `--hero-bg`; the stage paints itself that colour, and the (now zoomed-out)
-     * video dissolves into the page with no visible frame edge. */
-    const probe = document.createElement("canvas");
-    probe.width = 1;
-    probe.height = 1;
-    const probeCtx = probe.getContext("2d", { willReadFrequently: true });
     let sampleTick = 0;
-    const sampleBg = () => {
-      if (!probeCtx || video.readyState < 2 || !video.videoWidth) return;
-      try {
-        // A patch of the top-left corner — always background, never brain.
-        probeCtx.drawImage(video, 0, 0, 24, 24, 0, 0, 1, 1);
-        const [r, g, b] = probeCtx.getImageData(0, 0, 1, 1).data;
-        document.documentElement.style.setProperty("--hero-bg", `rgb(${r} ${g} ${b})`);
-      } catch {
-        /* decoder not ready / tainted — keep the previous colour */
-      }
-    };
 
     let duration = 0;
     let lo = 0; // scrub window lower bound
@@ -149,10 +127,6 @@ export function HeroVideo({ active = true }: { active?: boolean }) {
     };
     if (video.readyState >= 1) onMeta();
     video.addEventListener("loadedmetadata", onMeta);
-    // First real colour as soon as a frame exists (and after every seek, which
-    // covers reduced motion and the frozen poses where the rAF loop is idle).
-    video.addEventListener("loadeddata", sampleBg);
-    video.addEventListener("seeked", sampleBg);
 
     // Pose changes arrive through the store — no click handling here.
     const unsubscribe = useSceneStore.subscribe((state, prev) => {
@@ -160,13 +134,9 @@ export function HeroVideo({ active = true }: { active?: boolean }) {
     });
 
     if (reduceMotion) {
-      // No scrub loop; pose changes snap via applyPose above (the `seeked`
-      // listener keeps --hero-bg in step).
       return () => {
         unsubscribe();
         video.removeEventListener("loadedmetadata", onMeta);
-        video.removeEventListener("loadeddata", sampleBg);
-        video.removeEventListener("seeked", sampleBg);
       };
     }
 
@@ -215,7 +185,7 @@ export function HeroVideo({ active = true }: { active?: boolean }) {
         }
       }
 
-      if (++sampleTick % BG_SAMPLE_EVERY === 0) sampleBg();
+      sampleTick++; // unused, kept for future instrumentation
     };
     raf = requestAnimationFrame(tick);
 
@@ -224,27 +194,8 @@ export function HeroVideo({ active = true }: { active?: boolean }) {
       window.removeEventListener("pointermove", onMove);
       unsubscribe();
       video.removeEventListener("loadedmetadata", onMeta);
-      video.removeEventListener("loadeddata", sampleBg);
-      video.removeEventListener("seeked", sampleBg);
     };
   }, [reduceMotion]);
-
-  /** Edge feather — the page already wears the footage's exact corner colour
-   *  (`--hero-bg`), but the frame carries a soft vignette, so a flat colour
-   *  alone still leaves a faint rectangle once the video is zoomed out. A wide
-   *  fade over the outer ~12% dissolves that gradient into the page instead of
-   *  ending it on a line — losslessly, no re-encode. The bands stop well clear
-   *  of the brain and its paint (which span ~27–83% of the frame). Two linear
-   *  gradients intersected = edges only, no corner over-darkening; browsers
-   *  without `mask-composite` simply keep the hard edge (graceful). */
-  const edgeFeather: React.CSSProperties = {
-    maskImage:
-      "linear-gradient(90deg, transparent 0%, black 12%, black 88%, transparent 100%), linear-gradient(180deg, transparent 0%, black 9%, black 91%, transparent 100%)",
-    maskComposite: "intersect",
-    WebkitMaskImage:
-      "linear-gradient(90deg, transparent 0%, black 12%, black 88%, transparent 100%), linear-gradient(180deg, transparent 0%, black 9%, black 91%, transparent 100%)",
-    WebkitMaskComposite: "source-in",
-  };
 
   return (
     <video
@@ -254,8 +205,7 @@ export function HeroVideo({ active = true }: { active?: boolean }) {
       playsInline
       preload="auto"
       disablePictureInPicture
-      className="pointer-events-none absolute inset-0 h-full w-full object-cover"
-      style={edgeFeather}
+      className="pointer-events-none absolute inset-0 h-full w-full object-contain"
       src={VIDEO_SRC}
     />
   );

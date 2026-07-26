@@ -90,8 +90,7 @@ export function HeroStage({
         "relative h-[100svh] min-h-[640px] w-full overflow-hidden",
         heroPose === "center" ? "cursor-pointer" : "",
       ].join(" ")}
-      // Falls back to the gallery wall until the first frame is sampled.
-      style={{ backgroundColor: "var(--hero-bg, #f9f9f9)", transition: "background-color 120ms linear" }}
+      style={{ backgroundColor: "transparent" }}
     >
       {/* Circuit board texture — sits above the section background, below the brain video. */}
       <CircuitBackdrop />
