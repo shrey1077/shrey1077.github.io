@@ -14,9 +14,9 @@ import { useReducedMotion } from "framer-motion";
 export function CircuitBackdrop() {
   const reduceMotion = useReducedMotion();
   return (
-    <div aria-hidden className="pointer-events-none fixed inset-0 -z-10 bg-gallery">
+    <div aria-hidden className="pointer-events-none absolute inset-0 z-0">
       <video
-        className="h-full w-full object-cover opacity-20"
+        className="h-full w-full object-cover opacity-30"
         autoPlay={!reduceMotion}
         muted
         loop

@@ -14,7 +14,6 @@
  */
 
 import { HeroStage } from "@/components/home/HeroStage";
-import { CircuitBackdrop } from "@/components/home/CircuitBackdrop";
 import { SiteFooter } from "@/components/footer/SiteFooter";
 import { readArtCollections, readLogofolio } from "@/content/catalogue";
 
@@ -27,7 +26,6 @@ export default function Home() {
 
   return (
     <main className="w-full bg-gallery">
-      <CircuitBackdrop />
       <HeroStage artCollections={artCollections} logos={logos} />
       <SiteFooter />
     </main>

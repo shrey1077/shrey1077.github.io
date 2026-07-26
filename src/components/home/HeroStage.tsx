@@ -37,6 +37,7 @@ import { useInViewport } from "@/hooks/useInViewport";
 import { DURATION, EASE_IN_OUT, EASE_OUT } from "@/constants/motion";
 import { useSceneStore } from "@/state/useSceneStore";
 import type { HeroPose } from "@/types/scene";
+import { CircuitBackdrop } from "@/components/home/CircuitBackdrop";
 
 /** Video background — client-only (its scrub loop drives a DOM <video>), and
  *  code-split so the hero's first paint is just the white gallery wall. */
@@ -92,6 +93,9 @@ export function HeroStage({
       // Falls back to the gallery wall until the first frame is sampled.
       style={{ backgroundColor: "var(--hero-bg, #f9f9f9)", transition: "background-color 120ms linear" }}
     >
+      {/* Circuit board texture — sits above the section background, below the brain video. */}
+      <CircuitBackdrop />
+
       {/* Video background — settles in on mount; zooms out (scaled from the
           top edge) once a hemisphere is chosen. */}
       <motion.div
