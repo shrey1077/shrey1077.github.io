@@ -15,19 +15,18 @@
 
 import { HeroStage } from "@/components/home/HeroStage";
 import { SiteFooter } from "@/components/footer/SiteFooter";
-import { readArtPreviews, readLogofolio } from "@/content/catalogue";
+import { readArtCollections, readLogofolio } from "@/content/catalogue";
 
 export default function Home() {
-  // A few art pieces for the Art panel's preview strip (typographic plates
-  // stand in while public/content/art is empty).
-  const artPreviews = readArtPreviews(3).map(({ name, url }) => ({ name, url }));
+  // The Art room's collections (Painting, Craft, …).
+  const artCollections = readArtCollections();
 
   // Every mark, for the Logofolio panel's five-column wall.
   const logos = readLogofolio();
 
   return (
     <main className="w-full bg-gallery">
-      <HeroStage artPreviews={artPreviews} logos={logos} />
+      <HeroStage artCollections={artCollections} logos={logos} />
       <SiteFooter />
     </main>
   );

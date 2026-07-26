@@ -31,7 +31,7 @@ import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
 import { navSectionIndex, navSectionsFor } from "@/constants/navigation";
 import type { LogoMark } from "@/content/catalogue";
 import { SectionBody } from "@/components/home/SectionBody";
-import type { ArtPreview } from "@/components/home/SectionBody";
+import type { ArtCollection } from "@/content/catalogue";
 import { DURATION, EASE_OUT } from "@/constants/motion";
 import { typeVoiceClass } from "@/constants/typography";
 import { TypeReveal } from "@/components/typography/TypeReveal";
@@ -40,7 +40,7 @@ import type { NavSectionId } from "@/types/navigation";
 
 /* ── data contract (filled by the server page from the content folders) ── */
 
-export type { ArtPreview };
+export type { ArtCollection };
 
 /* ── palette ──────────────────────────────────────────────────────────── */
 
@@ -190,11 +190,11 @@ function PanelRow({
  */
 function PoseLayer({
   pose,
-  artPreviews,
+  artCollections,
   logos,
 }: {
   pose: PanelPose;
-  artPreviews: ArtPreview[];
+  artCollections: ArtCollection[];
   logos: LogoMark[];
 }) {
   const reduceMotion = useReducedMotion();
@@ -283,7 +283,7 @@ function PoseLayer({
                       animate={{ opacity: 1, transition: { delay: 0.28, duration: 0.4 } }}
                       className="relative z-10 min-h-0 flex-1 px-6 pb-5 pt-4 lg:px-[4vw]"
                     >
-                      <SectionBody id={open.id} artPreviews={artPreviews} logos={logos} />
+                      <SectionBody id={open.id} artCollections={artCollections} logos={logos} />
                     </motion.div>
                   </motion.section>
                 )}
@@ -297,10 +297,10 @@ function PoseLayer({
 /* ── the panel system ─────────────────────────────────────────────────── */
 
 export function SectionPanels({
-  artPreviews,
+  artCollections,
   logos,
 }: {
-  artPreviews: ArtPreview[];
+  artCollections: ArtCollection[];
   logos: LogoMark[];
 }) {
   const reduceMotion = useReducedMotion();
@@ -325,7 +325,7 @@ export function SectionPanels({
           transition={{ duration: DURATION.medium, ease: EASE_OUT }}
           className="flex h-full w-full"
         >
-          <PoseLayer pose={pose} artPreviews={artPreviews} logos={logos} />
+          <PoseLayer pose={pose} artCollections={artCollections} logos={logos} />
         </motion.div>
       </AnimatePresence>
     </motion.div>

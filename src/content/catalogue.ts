@@ -215,6 +215,27 @@ export function readArtPreviews(limit = 4): ContentAsset[] {
   return found;
 }
 
+export interface ArtCollection {
+  /** Folder name, verbatim — the collection's title. */
+  name: string;
+  images: string[];
+}
+
+/** The Art room, one collection per folder under `public/content/art`
+ *  (Painting, Craft, …). Empty until those folders have images. */
+export function readArtCollections(): ArtCollection[] {
+  const root = path.join(process.cwd(), "public", "content", "art");
+  return listDirs(root)
+    .map((folder) => ({
+      name: folder,
+      images: listFiles(path.join(root, folder))
+        .filter((f) => assetKind(f) === "image")
+        .sort()
+        .map((f) => publicUrl("content", "art", folder, f)),
+    }))
+    .filter((c) => c.images.length > 0);
+}
+
 export interface LogoMark {
   slug: string;
   name: string;

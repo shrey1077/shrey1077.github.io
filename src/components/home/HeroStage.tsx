@@ -31,8 +31,8 @@ import { BrainThoughts } from "@/components/home/BrainThoughts";
 import { LandingLabels } from "@/components/home/LandingLabels";
 import { PoseSwitch } from "@/components/home/PoseSwitch";
 import { PoseEmergence } from "@/components/home/PoseEmergence";
-import { SectionPanels, type ArtPreview } from "@/components/home/SectionPanels";
-import type { LogoMark } from "@/content/catalogue";
+import { SectionPanels } from "@/components/home/SectionPanels";
+import type { ArtCollection, LogoMark } from "@/content/catalogue";
 import { useInViewport } from "@/hooks/useInViewport";
 import { DURATION, EASE_IN_OUT, EASE_OUT } from "@/constants/motion";
 import { useSceneStore } from "@/state/useSceneStore";
@@ -54,10 +54,10 @@ const POSE_SCALE = 0.55;
 const CENTER_SCALE = 0.75;
 
 export function HeroStage({
-  artPreviews,
+  artCollections,
   logos,
 }: {
-  artPreviews: ArtPreview[];
+  artCollections: ArtCollection[];
   logos: LogoMark[];
 }) {
   // Keep the scrub loop running while the hero is near the viewport; idle it
@@ -160,7 +160,7 @@ export function HeroStage({
       {/* The section panels — rise once a hemisphere is committed. */}
       <AnimatePresence>
         {heroPose !== "center" && (
-          <SectionPanels key="panels" artPreviews={artPreviews} logos={logos} />
+          <SectionPanels key="panels" artCollections={artCollections} logos={logos} />
         )}
       </AnimatePresence>
     </section>
