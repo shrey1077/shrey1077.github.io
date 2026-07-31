@@ -18,6 +18,9 @@ import { ClientExperience } from "@/components/client/ClientExperience";
 import { TataExperience } from "@/components/client/tata/TataExperience";
 import { AzothExperience } from "@/components/client/azoth/AzothExperience";
 import { UidExperience } from "@/components/client/uid/UidExperience";
+import { CaseStudyExperience } from "@/components/client/case/CaseStudyExperience";
+import { FREELANCE_EXPERIENCE } from "@/constants/freelanceExperience";
+import { NEWSMOBILE_EXPERIENCE } from "@/constants/newsmobileExperience";
 import { ClientWip } from "@/components/client/ClientWip";
 
 interface ClientPageProps {
@@ -53,6 +56,12 @@ export default async function ClientPage({ params }: ClientPageProps) {
   }
   if (slug === "uid") {
     return <UidExperience />;
+  }
+  if (slug === "freelance") {
+    return <CaseStudyExperience config={FREELANCE_EXPERIENCE} />;
+  }
+  if (slug === "newsmobile") {
+    return <CaseStudyExperience config={NEWSMOBILE_EXPERIENCE} />;
   }
 
   const experience = clientExperienceBySlug(slug);

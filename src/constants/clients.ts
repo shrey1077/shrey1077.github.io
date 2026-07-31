@@ -109,6 +109,14 @@ export const CLIENTS: readonly Client[] = [
     cardLogo: "/content/career/newsmobile.png",
   },
   {
+    slug: "freelance",
+    name: "Freelance",
+    sector: "Independent · Multi-brand",
+    accent: "#B5533B",
+    essence: "Small brands, each taken from problem to finished thing.",
+    location: "India · Remote",
+  },
+  {
     slug: "early-works",
     name: "Early Works",
     sector: "Archive · Beginnings",
