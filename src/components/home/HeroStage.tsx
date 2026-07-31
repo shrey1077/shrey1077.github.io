@@ -26,7 +26,7 @@
 import dynamic from "next/dynamic";
 import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
 import { IdentityHeader } from "@/components/home/IdentityHeader";
-import { HeroHeadline } from "@/components/home/HeroHeadline";
+import { HeroName } from "@/components/home/HeroName";
 import { BrainThoughts } from "@/components/home/BrainThoughts";
 import { LandingLabels } from "@/components/home/LandingLabels";
 import { PoseSwitch } from "@/components/home/PoseSwitch";
@@ -95,6 +95,13 @@ export function HeroStage({
       {/* Circuit board texture — sits above the section background, below the brain video. */}
       <CircuitBackdrop />
 
+      {/* The name — sits just above the brain and, crucially, BEFORE the footage
+          in the DOM (no positive z-index), so the brain's crown crosses in
+          FRONT of the letters. Leaves the moment a hemisphere is chosen. */}
+      <AnimatePresence>
+        {heroPose === "center" && <HeroName key="name" />}
+      </AnimatePresence>
+
       {/* Video background — settles in on mount; zooms out (scaled from the
           top edge) once a hemisphere is chosen. */}
       <motion.div
@@ -140,11 +147,6 @@ export function HeroStage({
           Return to the middle
         </button>
       </div>
-
-      {/* The landing headline — leaves the moment a side is chosen. */}
-      <AnimatePresence>
-        {heroPose === "center" && <HeroHeadline key="headline" />}
-      </AnimatePresence>
 
       {/* Stand still and the hemispheres start thinking out loud. */}
       <BrainThoughts />
