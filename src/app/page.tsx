@@ -14,6 +14,7 @@
  */
 
 import { HeroStage } from "@/components/home/HeroStage";
+import { SidesShowcase } from "@/components/home/SidesShowcase";
 import { SiteFooter } from "@/components/footer/SiteFooter";
 import { readArtCollections, readLogofolio } from "@/content/catalogue";
 
@@ -26,7 +27,8 @@ export default function Home() {
 
   return (
     <main className="w-full bg-gallery">
-      <HeroStage artCollections={artCollections} logos={logos} />
+      <HeroStage />
+      <SidesShowcase artCollections={artCollections} logos={logos} />
       <SiteFooter />
     </main>
   );

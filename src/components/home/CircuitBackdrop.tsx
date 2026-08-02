@@ -13,10 +13,19 @@ import { useReducedMotion } from "framer-motion";
 
 export function CircuitBackdrop() {
   const reduceMotion = useReducedMotion();
+
+  // The footage has a bright chip "patch" that pulses dead-centre — right where
+  // the brain sits. An inverted radial mask fades the centre out, so the patch
+  // and its soft boundary hide behind the brain while the circuit texture keeps
+  // to the edges.
+  const holeMask =
+    "radial-gradient(58% 52% at 50% 43%, transparent 0%, transparent 46%, #000 82%)";
+
   return (
     <div aria-hidden className="pointer-events-none absolute inset-0 z-0 bg-white">
       <video
-        className="h-full w-full object-cover opacity-[0.07]"
+        className="h-full w-full object-cover opacity-[0.08]"
+        style={{ maskImage: holeMask, WebkitMaskImage: holeMask }}
         autoPlay={!reduceMotion}
         muted
         loop
