@@ -33,7 +33,7 @@ export function GuidelinePlates({ plates }: GuidelinePlatesProps) {
               aria-label={`Open guideline plate ${i + 1}`}
               className="group block outline-none"
             >
-              <span className="relative block aspect-[1405/1000] w-56 overflow-hidden border border-neutral-200 bg-white transition-colors duration-300 group-hover:border-neutral-400 group-focus-visible:border-neutral-900 sm:w-64">
+              <span className="relative block aspect-[1405/1000] w-56 overflow-hidden rounded-xl border border-neutral-200 bg-white transition-colors duration-300 group-hover:border-neutral-400 group-focus-visible:border-neutral-900 sm:w-64">
                 <Image
                   src={plate.url}
                   alt={plate.name}

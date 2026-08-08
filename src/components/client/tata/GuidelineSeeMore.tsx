@@ -56,7 +56,7 @@ export function GuidelineSeeMore({
           setOpen(true);
         }}
         aria-label={`${label} — open the full guideline deck`}
-        className="group flex size-24 shrink-0 flex-col items-center justify-center gap-1 rounded-full border border-neutral-300 text-neutral-600 outline-none transition-colors duration-300 hover:border-neutral-900 hover:text-neutral-900 focus-visible:ring-2 focus-visible:ring-neutral-900/40"
+        className="group flex size-14 shrink-0 flex-col items-center justify-center gap-1 rounded-full border border-neutral-300 text-neutral-600 outline-none transition-colors duration-300 hover:border-neutral-900 hover:text-neutral-900 focus-visible:ring-2 focus-visible:ring-neutral-900/40"
       >
         <span className="tata-subhead text-[0.58rem] uppercase tracking-[0.12em]">{label}</span>
         <span aria-hidden className="text-lg transition-transform duration-300 group-hover:translate-x-0.5">→</span>
@@ -109,7 +109,7 @@ export function GuidelineSeeMore({
                   animate={{ opacity: 1, y: 0 }}
                   exit={{ opacity: 0, y: -12 }}
                   transition={{ duration: DURATION.fast, ease: EASE_OUT }}
-                  className="relative aspect-[3557/2528] w-full max-w-4xl overflow-hidden border border-white/10 bg-white"
+                  className="relative aspect-[3557/2528] w-full max-w-4xl overflow-hidden rounded-2xl border border-white/10 bg-white"
                 >
                   <Image src={plates[i]} alt={`Guideline plate ${i + 1}`} fill sizes="90vw" className="object-contain" />
                 </motion.div>

@@ -17,7 +17,9 @@ import { motion, useReducedMotion } from "framer-motion";
 import type { CollectionAsset } from "@/types/experience";
 import { EASE_OUT } from "@/constants/motion";
 
-const AUTO_MS = 4000;
+const AUTO_MS = 5000;
+/** House rule: no slider ever shows more than seven artworks. */
+const MAX_ITEMS = 7;
 
 function perViewFor(width: number): number {
   if (width < 640) return 1;
@@ -32,7 +34,7 @@ export function TripleSlider({
   items: CollectionAsset[];
   onOpen: (a: CollectionAsset) => void;
 }) {
-  const frames = items.filter((a) => a.kind === "image");
+  const frames = items.filter((a) => a.kind === "image").slice(0, MAX_ITEMS);
   const reducedMotion = useReducedMotion();
   const wrapRef = useRef<HTMLDivElement>(null);
   const paused = useRef(false);
@@ -103,7 +105,7 @@ export function TripleSlider({
                 aria-label={`View ${f.caption ?? f.name}`}
                 className="group block w-full px-2.5 text-left outline-none sm:px-4"
               >
-                <div className="relative h-[42vh] w-full overflow-hidden border border-white/10 bg-white/[0.03] outline-none transition-colors duration-300 group-hover:border-white/30 group-focus-visible:border-white/60 sm:h-[50vh]">
+                <div className="relative h-[42vh] w-full overflow-hidden rounded-2xl border border-white/10 bg-white/[0.03] outline-none transition-colors duration-300 group-hover:border-white/30 group-focus-visible:border-white/60 sm:h-[50vh]">
                   <Image
                     src={f.url}
                     alt={f.caption ?? f.name}

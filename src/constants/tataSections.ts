@@ -33,7 +33,53 @@ export interface TataSection {
   items: TataSubsection[];
 }
 
+/* ── brand lanes ──────────────────────────────────────────────────────────
+ * The grid reads as three vertical lanes: column 1 is the parent Tata IIS
+ * mark, column 2 IIS Ahmedabad, column 3 IIS Mumbai. A tile at rest previews
+ * only its own lane's artwork; opening it shows the whole subsection ordered
+ * Tata IIS → IISA → IISM, so the hierarchy holds inside the panel too.        */
+
+export type TataBrand = "tata" | "iisa" | "iism";
+
+/** Lane order, and the order assets are sorted into inside an open panel. */
+export const BRAND_LANES: TataBrand[] = ["tata", "iisa", "iism"];
+
+/** Which campus an asset belongs to, read off its filename. The pipeline
+ *  slugifies source names, so campus markers survive as words ("mumbai-back",
+ *  "collateral-iisa-notepad-cover"). A file carrying BOTH campuses is shared
+ *  artwork and belongs to the parent. */
+export function brandOf(assetName: string): TataBrand {
+  const s = `-${assetName.toLowerCase().replace(/[^a-z0-9]+/g, "-")}-`;
+  const iisa = ["iisa", "-ahmedabad-", "-ahm-", "-ahd-", "-amd-"].some((m) => s.includes(m));
+  const iism = ["iism", "-mumbai-", "-mum-"].some((m) => s.includes(m));
+  if (iisa && !iism) return "iisa";
+  if (iism && !iisa) return "iism";
+  return "tata";
+}
+
+/** The 150-word note that opens the work — what the role actually was. */
+export const TATA_WORK_INTRO =
+  "I joined Tata IIS as its first designer and left as Lead Manager, having built the institute's visual identity from the wordmark outward. Two campuses opened in that window — Ahmedabad and Mumbai — and each needed a dialect of its own without breaking from the parent mark. So the work ran in three voices at once: Tata IIS, IIS Ahmedabad, IIS Mumbai. I wrote the logo rulebooks, set the colour and typography law, and then applied it across everything the institute touches — visiting cards, trainee IDs, certificates, brochures, campus posters, fifteen-foot ceremony backdrops, lab boards, the social system, website banners and the films. Much of it was made alongside the people who would use it: instructors, admissions staff, the photography I shot on campus myself. What follows is that system in use, grouped by medium and read left to right in the order the brand is built.";
+
 export const TATA_SECTIONS: TataSection[] = [
+  {
+    id: "digital",
+    title: "Digital",
+    blurb: "The brand on screen — staged, posted, published and pitched.",
+    accent: "#0E7C66",
+    items: [
+      { label: "Mockups", folder: "mockups" },
+      { label: "Website Banners", folder: "website-banners" },
+      { label: "Socials", folder: "socials-and-screens" },
+      {
+        label: "YouTube Videos",
+        folder: "films",
+        pick: ["one-of-one-msde", "jio-hotstar-spot", "tata-iis-logo-render"],
+      },
+      { label: "Media Kit", note: "No source files supplied yet." },
+      { label: "Presentations", folder: "presentations" },
+    ],
+  },
   {
     id: "print",
     title: "Print",
@@ -60,32 +106,14 @@ export const TATA_SECTIONS: TataSection[] = [
     ],
   },
   {
-    id: "digital",
-    title: "Digital",
-    blurb: "The brand on screen — staged, posted, published and pitched.",
-    accent: "#0E7C66",
-    items: [
-      { label: "Mockups", folder: "mockups" },
-      { label: "Website Banners", note: "No source files supplied yet." },
-      { label: "Socials", folder: "socials-and-screens" },
-      // The films folder feeds two subsections — the published channel pieces
-      // here, the shot-on-campus footage under Photography & Videography.
-      {
-        label: "YouTube Videos",
-        folder: "films",
-        pick: ["one-of-one-msde", "jio-hotstar-spot", "tata-iis-logo-render"],
-      },
-      { label: "Media Kit", note: "No source files supplied yet." },
-      { label: "Presentations", folder: "presentations" },
-    ],
-  },
-  {
-    id: "photography-videography",
-    title: "Photography & Videography",
+    id: "photo-videography",
+    title: "Photo / Videography",
     blurb: "Real campus, real labs, the work photographed and filmed in place. No stock, ever.",
     accent: "#3F4756",
     items: [
       { label: "Photography", folder: "photography" },
+      // The films folder feeds two subsections — the published channel pieces
+      // sit under Digital, the shot-on-campus footage here.
       {
         label: "Videography",
         folder: "films",
@@ -94,17 +122,25 @@ export const TATA_SECTIONS: TataSection[] = [
     ],
   },
   {
-    id: "misc",
-    title: "Misc.",
-    blurb: "Tools, experiments and proposals — the work that ran ahead of the brief.",
+    id: "proposals",
+    title: "Proposals",
+    blurb: "Work that ran ahead of the brief — put forward, not yet commissioned.",
     accent: "#5B3F86",
+    items: [
+      { label: "Proposed Brand System", note: "No source files supplied yet." },
+      { label: "Proposed Website", note: "No source files supplied yet." },
+      { label: "Proposed Brochure — Trifold", note: "No source files supplied yet." },
+    ],
+  },
+  {
+    id: "ai-solutions",
+    title: "AI Solutions",
+    blurb: "Tools built to take the repetitive work off the studio's hands.",
+    accent: "#1F5FA8",
     items: [
       { label: "Cerci — Certificate Maker", note: "No source files supplied yet." },
       { label: "H3LEN — Hyper 3D Landscape Environment", note: "No source files supplied yet." },
       { label: "Screensaver", note: "No source files supplied yet." },
-      { label: "Proposed Brand System", note: "No source files supplied yet." },
-      { label: "Proposed Website", note: "No source files supplied yet." },
-      { label: "Proposed Brochure — Trifold", note: "No source files supplied yet." },
     ],
   },
 ];

@@ -29,7 +29,7 @@ import {
   TATA_GRID,
   tataSubcatMockup,
 } from "@/constants/tataExperience";
-import { TATA_SECTIONS } from "@/constants/tataSections";
+import { TATA_SECTIONS, TATA_WORK_INTRO } from "@/constants/tataSections";
 import { ExperienceTransition } from "@/components/transition/ExperienceTransition";
 import { VideoHero } from "@/components/client/tata/VideoHero";
 import { PartnerMarquee } from "@/components/client/tata/PartnerMarquee";
@@ -151,20 +151,28 @@ export function TataExperience() {
             <PartnerMarquee logos={TATA_PARTNERS} />
           </section>
 
-          {/* 5 — the work, as a wall of preview tiles. */}
+          {/* 5 — the work: one heading, the note, then the five headlines. */}
           <section id="work" className="scroll-mt-8 pt-10">
-            <span className={`${LABEL} block`} style={{ color: "var(--brand-accent, #737373)" }}>
-              The work
-            </span>
-            <h2 className="tata-heading mt-4 max-w-xl text-3xl leading-[1.05] text-neutral-900 sm:text-4xl">
-              See the highlights of this identity.
+            <h2 className="tata-heading text-3xl leading-[1.05] text-neutral-900 sm:text-4xl">
+              The Work
             </h2>
-            <div className="mt-10">
+            <p className="tata-body mt-6 max-w-3xl text-[0.95rem] leading-relaxed text-neutral-700">
+              {TATA_WORK_INTRO}
+            </p>
+            <div className="mt-12">
               <WorkSections sections={sections} />
             </div>
           </section>
 
-          {/* 6 — contact footer. */}
+          {/* 6 — authorship, then the contact footer. */}
+          <section className="mt-16 rounded-3xl border border-neutral-200 bg-white/70 px-7 py-6">
+            <span className={`${LABEL} block text-neutral-500`}>Created by</span>
+            <p className="tata-subhead mt-2 text-[0.95rem] text-neutral-900">
+              Shrey Singh
+              <span className="tata-body text-neutral-600"> — Lead Manager, Tata IIS (2024&ndash;2026)</span>
+            </p>
+          </section>
+
           <TataFooter />
         </ExperienceTransition>
       </div>

@@ -3,15 +3,17 @@
 /**
  * WorkSections — the Tata IIS work under four permanent headlines.
  *
- * Each headline (Print · Digital · Photography & Videography · Misc.) is fixed
- * furniture: it never collapses. Under it sit its subsections as rounded tiles,
- * three to a row. At rest a tile shows its first piece; on hover or focus it
- * runs a fly-through — pieces rush past the camera one after another.
+ * Each headline (Digital · Print · Photo/Videography · Proposals · AI Solutions)
+ * is fixed furniture: it never collapses. Under it sit its subsections as
+ * rounded tiles, three to a row, and the three columns are brand lanes —
+ * Tata IIS, then IIS Ahmedabad, then IIS Mumbai. At rest a tile previews only
+ * its own lane; on hover or focus it runs a fly-through of that lane.
  *
  * Choosing a tile opens it in place rather than taking over the screen: a panel
- * drops in directly beneath the tile's own row, two rows deep, and the tiles
- * after it flow on below. Tiles above the opened one stay where they are. Only
- * one subsection is ever open — opening another closes the first.
+ * drops in directly ABOVE the tile's own row, two rows deep, and that row plus
+ * everything after it flows on below. Whole rows above stay where they are. An
+ * open panel drops the lane filter and shows the entire subsection, ordered
+ * Tata IIS → IISA → IISM. Only one subsection is open at a time.
  */
 
 import { useEffect, useRef, useState } from "react";
@@ -22,6 +24,7 @@ import type { ContentAsset } from "@/content/catalogue";
 import { TripleSlider } from "@/components/client/tata/TripleSlider";
 import { MediaViewer } from "@/components/experience/MediaViewer";
 import { EASE_OUT } from "@/constants/motion";
+import { BRAND_LANES, brandOf, type TataBrand } from "@/constants/tataSections";
 
 export interface ResolvedItem {
   /** Unique across the page (a folder can back two subsections). */
@@ -42,10 +45,11 @@ export interface ResolvedSection {
   items: ResolvedItem[];
 }
 
-/** How long each piece holds before the next flies through. */
+/** Hold per piece in the hover fly-through. Deliberately quicker than the
+ *  5s slider cadence — nobody hovers a tile for half a minute. */
 const FLY_MS = 1500;
-/** Frames pulled into a tile's fly-through (the panel shows everything). */
-const MAX_FRAMES = 6;
+/** House rule: at most seven artworks on any surface, tile or slider. */
+const MAX_FRAMES = 7;
 
 const FLY = {
   enter: { opacity: 0, scale: 0.86, x: "18%" },
@@ -66,11 +70,13 @@ function colsFor(width: number): number {
 function Tile({
   item,
   accent,
+  lane,
   open,
   onToggle,
 }: {
   item: ResolvedItem;
   accent: string;
+  lane: TataBrand;
   open: boolean;
   onToggle: () => void;
 }) {
@@ -78,7 +84,11 @@ function Tile({
   const [live, setLive] = useState(false);
   const [step, setStep] = useState(0);
 
-  const frames = item.assets.filter((a) => a.kind === "image").slice(0, MAX_FRAMES);
+  // At rest a tile previews only its own lane. Subsections with nothing from
+  // that campus fall back to the whole set rather than showing an empty slot.
+  const images = item.assets.filter((a) => a.kind === "image");
+  const laneImages = images.filter((a) => brandOf(a.name) === lane);
+  const frames = (laneImages.length > 0 ? laneImages : images).slice(0, MAX_FRAMES);
   const still = frames[0];
 
   useEffect(() => {
@@ -215,6 +225,10 @@ function Panel({
   onClose: () => void;
   onOpenAsset: (a: CollectionAsset) => void;
 }) {
+  const ordered = [...item.assets].sort(
+    (a, b) => BRAND_LANES.indexOf(brandOf(a.name)) - BRAND_LANES.indexOf(brandOf(b.name)),
+  );
+
   return (
     <motion.div
       layout
@@ -246,7 +260,9 @@ function Panel({
         </div>
 
         <div className="mt-8">
-          <TripleSlider items={item.assets} onOpen={onOpenAsset} />
+          {/* Open panels always run the full subsection, ordered by hierarchy:
+              Tata IIS first, then Ahmedabad, then Mumbai. */}
+          <TripleSlider items={ordered} onOpen={onOpenAsset} />
         </div>
       </div>
     </motion.div>
@@ -281,19 +297,23 @@ function Section({
 
   const openIndex = section.items.findIndex((i) => i.key === openKey);
   const openItem = openIndex === -1 ? null : section.items[openIndex];
-  // End of the opened tile's row → everything above it keeps its place.
-  const splitAt = openItem ? (Math.floor(openIndex / cols) + 1) * cols : section.items.length;
+  // START of the opened tile's row → the panel sits ON TOP of that row of
+  // three, pushing it down; whole rows above it keep their place.
+  const splitAt = openItem ? Math.floor(openIndex / cols) * cols : section.items.length;
 
   const before = section.items.slice(0, splitAt);
   const after = section.items.slice(splitAt);
 
-  const grid = (items: ResolvedItem[]) => (
+  // Lane is fixed to the item's own index so a tile previews the same campus at
+  // every width, even where the grid folds to two columns or one.
+  const grid = (items: ResolvedItem[], offset: number) => (
     <div className="grid grid-cols-1 gap-x-6 gap-y-2 sm:grid-cols-2 lg:grid-cols-3">
-      {items.map((item) => (
+      {items.map((item, i) => (
         <Tile
           key={item.key}
           item={item}
           accent={section.accent}
+          lane={BRAND_LANES[(offset + i) % BRAND_LANES.length]}
           open={item.key === openKey}
           onToggle={() => onToggle(item.key)}
         />
@@ -317,7 +337,7 @@ function Section({
       </div>
 
       <div ref={gridRef}>
-        {grid(before)}
+        {before.length > 0 && grid(before, 0)}
         <AnimatePresence initial={false} mode="wait">
           {openItem && (
             <Panel
@@ -329,7 +349,7 @@ function Section({
             />
           )}
         </AnimatePresence>
-        {after.length > 0 && grid(after)}
+        {after.length > 0 && grid(after, splitAt)}
       </div>
     </section>
   );

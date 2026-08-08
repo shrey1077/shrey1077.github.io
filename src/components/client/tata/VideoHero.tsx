@@ -32,7 +32,7 @@ export function VideoHero({ src, poster }: VideoHeroProps) {
   }, [src]);
 
   return (
-    <div className="relative aspect-video w-full overflow-hidden bg-neutral-100">
+    <div className="relative aspect-video w-full overflow-hidden rounded-3xl bg-neutral-100">
       {src ? (
         <>
           <video
