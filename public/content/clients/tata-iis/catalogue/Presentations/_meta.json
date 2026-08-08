@@ -1,0 +1,10 @@
+{
+  "description": "Layout spreads from the placement deck. Slides naming or picturing trainees are deliberately excluded.",
+  "captions": {
+    "01-placement-brochure-cover.webp": "Placement brochure — cover.",
+    "02-training-pillars.webp": "The four training pillars, as a typographic grid.",
+    "03-our-courses.webp": "Six course tracks, numbered.",
+    "04-electric-vehicle-lab.webp": "The Electric Vehicle lab spread.",
+    "05-batch-profile.webp": "Batch profile — aggregate demographics only."
+  }
+}

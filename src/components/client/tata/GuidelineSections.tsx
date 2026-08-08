@@ -29,40 +29,44 @@ const KICKER = "tata-subhead text-[0.62rem] uppercase tracking-[0.12em]";
 
 type Campus = typeof TATA_GUIDELINES.iisa;
 
-/** One campus column: logo, line, colour scheme, typography, then See more. */
+/** One campus column: logo, line, colour scheme, typography, then See more.
+ *  Laid out so colour and typography sit side by side — the column reads at
+ *  about half the height of the old stacked version. */
 function CampusColumn({ kicker, data, className }: { kicker: string; data: Campus; className: string }) {
   return (
-    <div className={`relative flex flex-col justify-center gap-8 p-10 ${className}`}>
+    <div className={`relative flex flex-col justify-center gap-5 p-6 lg:p-7 ${className}`}>
       <div>
         <span className={`${KICKER} text-neutral-500`}>{kicker}</span>
-        <div className="relative mt-5 h-24 w-full">
-          <Image src={data.logo} alt={`${kicker} logo`} fill sizes="280px" className="object-contain object-left" />
+        <div className="relative mt-3 h-12 w-full">
+          <Image src={data.logo} alt={`${kicker} logo`} fill sizes="220px" className="object-contain object-left" />
         </div>
-        <p className="mt-5 max-w-sm text-sm leading-relaxed text-neutral-600">{data.line}</p>
+        <p className="mt-3 max-w-sm text-xs leading-relaxed text-neutral-600">{data.line}</p>
       </div>
 
-      {/* Colour scheme — big swatches. */}
-      <div>
-        <span className={`${KICKER} text-neutral-400`}>Colour</span>
-        <div className="mt-5 flex flex-wrap gap-7">
-          {data.colours.map((c) => (
-            <div key={c.hex} className="flex flex-col items-center gap-2.5">
-              <span
-                aria-hidden
-                className="size-16 rounded-full shadow-[inset_0_0_0_1px_rgba(0,0,0,0.08)]"
-                style={{ backgroundColor: c.hex }}
-              />
-              <span className="tata-body text-[0.68rem] uppercase tracking-[0.04em] text-neutral-500">{c.hex}</span>
-            </div>
-          ))}
+      <div className="flex flex-wrap items-start gap-x-8 gap-y-5">
+        {/* Colour scheme. */}
+        <div>
+          <span className={`${KICKER} text-neutral-400`}>Colour</span>
+          <div className="mt-3 flex flex-wrap gap-4">
+            {data.colours.map((c) => (
+              <div key={c.hex} className="flex flex-col items-center gap-1.5">
+                <span
+                  aria-hidden
+                  className="size-10 rounded-full shadow-[inset_0_0_0_1px_rgba(0,0,0,0.08)]"
+                  style={{ backgroundColor: c.hex }}
+                />
+                <span className="tata-body text-[0.58rem] uppercase tracking-[0.04em] text-neutral-500">{c.hex}</span>
+              </div>
+            ))}
+          </div>
         </div>
-      </div>
 
-      {/* Typography slide. */}
-      <div>
-        <span className={`${KICKER} text-neutral-400`}>Typography</span>
-        <div className="relative mt-5 aspect-[3557/2528] w-full max-w-md overflow-hidden border border-neutral-200 bg-white">
-          <Image src={data.typography} alt={`${kicker} typography`} fill sizes="(max-width: 768px) 90vw, 40vw" className="object-contain" />
+        {/* Typography slide. */}
+        <div className="min-w-0 flex-1">
+          <span className={`${KICKER} text-neutral-400`}>Typography</span>
+          <div className="relative mt-3 aspect-[3557/2528] w-full max-w-[15rem] overflow-hidden border border-neutral-200 bg-white">
+            <Image src={data.typography} alt={`${kicker} typography`} fill sizes="240px" className="object-contain" />
+          </div>
         </div>
       </div>
 

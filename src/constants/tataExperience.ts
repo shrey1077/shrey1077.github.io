@@ -60,60 +60,11 @@ export const TATA_GUIDELINES = {
 };
 
 /** Little product-mockup cutouts (transparent PNGs) that badge each work
- *  family row and each sub-category chip. Generated from two OpenArt contact
+ *  subsection tile. Generated from two OpenArt contact
  *  sheets and sliced by `scripts/slice-tata-mockups.mjs`; keep those in sync. */
 export const TATA_MOCKUPS = `${BRAND}/mockups`;
-/** Cutout for a work family (accordion row) — `fam-<familyId>.png`. */
-export const tataFamilyMockup = (familyId: string) => `${TATA_MOCKUPS}/fam-${familyId}.png`;
-/** Cutout for a sub-category (accordion chip) — `sub-<subcatId>.png`. */
+/** Cutout badged onto a subsection tile — `sub-<folderId>.png`. */
 export const tataSubcatMockup = (subcatId: string) => `${TATA_MOCKUPS}/sub-${subcatId}.png`;
-
-/** The four work families → the catalogue folder ids they gather.
- *  (Ids are folderToId of the catalogue folder names.) */
-export const TATA_GROUPS: {
-  id: string;
-  title: string;
-  blurb: string;
-  accent: string;
-  children: string[];
-}[] = [
-  {
-    id: "brand-logo-guidelines",
-    title: "Brand & Logo Guidelines",
-    blurb: "The identity as it's held, worn and awarded — the everyday proof a system works.",
-    accent: "#14279B",
-    children: ["certificates", "merchandise", "stationery"],
-  },
-  {
-    id: "print-media",
-    title: "Print Media",
-    blurb: "Ink on every surface the institute owns — from an A5 flyer to a fifteen-metre hoarding.",
-    accent: "#B5540F",
-    children: [
-      "billboards-and-signages",
-      "brochures",
-      "flyers-and-campaigns",
-      "campus-posters",
-      "banners",
-      "lab-standees",
-      "events",
-    ],
-  },
-  {
-    id: "digital-graphics",
-    title: "Digital Graphics",
-    blurb: "The brand in motion and on screen — films, a broadcast spot, the social system.",
-    accent: "#0E7C66",
-    children: ["films", "socials-and-screens"],
-  },
-  {
-    id: "photography",
-    title: "Photography",
-    blurb: "Real campus, real labs, the work photographed in place. No stock, ever.",
-    accent: "#3F4756",
-    children: ["photography"],
-  },
-];
 
 /** Partner marquee — the equipment & hiring partners the identity stands with. */
 export const TATA_PARTNERS = [
@@ -121,13 +72,6 @@ export const TATA_PARTNERS = [
   "makino", "markforged", "formlabs", "fronius", "hexagon", "tvs",
   "tata-motors", "taj-skyline",
 ].map((slug) => `${BRAND}/partners/${slug}.png`);
-
-/** The four categories, mirrored on the homepage detail panel (circular nav). */
-export const TATA_CIRCLES = TATA_GROUPS.map((g) => ({
-  id: g.id,
-  title: g.title,
-  accent: g.accent,
-}));
 
 export const TATA_FOOTER = {
   contact: {

@@ -8,7 +8,7 @@
  *   description (Helvetica) + "Powered by" endorsements
  *   the logo-guideline system (Tata full-width, IISA/IISM)    GuidelineSections
  *   a continuously moving partner marquee                     PartnerMarquee
- *   four expandable work families → sub-cats → portrait slider CategoryAccordion
+ *   the work under four fixed headlines, as tiles         WorkSections
  *   contact footer                                            TataFooter
  *
  * Server Component: reads the (already curated) catalogue folders and regroups
@@ -26,19 +26,18 @@ import {
   TATA_DESCRIPTION,
   TATA_POWERED_BY,
   TATA_PARTNERS,
-  TATA_GROUPS,
   TATA_GRID,
-  tataFamilyMockup,
   tataSubcatMockup,
 } from "@/constants/tataExperience";
+import { TATA_SECTIONS } from "@/constants/tataSections";
 import { ExperienceTransition } from "@/components/transition/ExperienceTransition";
 import { VideoHero } from "@/components/client/tata/VideoHero";
 import { PartnerMarquee } from "@/components/client/tata/PartnerMarquee";
 import { GuidelineSections } from "@/components/client/tata/GuidelineSections";
 import {
-  CategoryAccordion,
-  type AccordionGroup,
-} from "@/components/client/tata/CategoryAccordion";
+  WorkSections,
+  type ResolvedSection,
+} from "@/components/client/tata/WorkSections";
 import { TataFooter } from "@/components/client/tata/TataFooter";
 
 const SLUG = "tata-iis";
@@ -63,27 +62,30 @@ export function TataExperience() {
       ? url
       : undefined;
 
-  // Regroup the curated catalogue folders under the four work families.
-  const groups: AccordionGroup[] = TATA_GROUPS.map((g) => ({
-    id: g.id,
-    title: g.title,
-    blurb: g.blurb,
-    accent: g.accent,
-    mockup: mockupIfPresent(tataFamilyMockup(g.id)),
-    subcategories: g.children
-      .map((childId) => {
-        const data = readCatalogueCategory(SLUG, childId);
-        if (!data) return null;
-        return {
-          id: data.category.id,
-          title: data.category.name,
-          count: data.category.assetCount,
-          assets: data.assets,
-          mockup: mockupIfPresent(tataSubcatMockup(data.category.id)),
-        };
-      })
-      .filter((s): s is NonNullable<typeof s> => s !== null),
-  })).filter((g) => g.subcategories.length > 0);
+  // Resolve every subsection against the catalogue. A subsection with no
+  // folder — or a folder that has no assets yet — keeps its slot in the grid
+  // and renders as a pending tile, so the taxonomy always reads whole.
+  const sections: ResolvedSection[] = TATA_SECTIONS.map((s) => ({
+    id: s.id,
+    title: s.title,
+    blurb: s.blurb,
+    accent: s.accent,
+    items: s.items.map((item) => {
+      const data = item.folder ? readCatalogueCategory(SLUG, item.folder) : null;
+      // `pick` slices one folder across two subsections (the films split).
+      const assets = item.pick
+        ? (data?.assets ?? []).filter((a) => item.pick!.includes(a.name))
+        : (data?.assets ?? []);
+      return {
+        key: `${s.id}:${item.label}`,
+        label: item.label,
+        note: item.note,
+        count: item.pick ? assets.length : (data?.category.assetCount ?? 0),
+        assets,
+        mockup: item.folder ? mockupIfPresent(tataSubcatMockup(item.folder)) : undefined,
+      };
+    }),
+  }));
 
   return (
     <main className="tata-scope tata-body relative min-h-dvh w-full bg-gallery px-6 py-14 sm:px-10" style={themeVars}>
@@ -127,7 +129,7 @@ export function TataExperience() {
                         alt={p.name}
                         width={150}
                         height={52}
-                        className="h-10 w-auto object-contain sm:h-12"
+                        className="h-14 w-28 object-contain"
                       />
                     </li>
                   ) : (
@@ -149,13 +151,16 @@ export function TataExperience() {
             <PartnerMarquee logos={TATA_PARTNERS} />
           </section>
 
-          {/* 5 — the four work families. */}
-          <section className="pt-4">
-            <span className={`${LABEL} block px-1`} style={{ color: "var(--brand-accent, #737373)" }}>
+          {/* 5 — the work, as a wall of preview tiles. */}
+          <section id="work" className="scroll-mt-8 pt-10">
+            <span className={`${LABEL} block`} style={{ color: "var(--brand-accent, #737373)" }}>
               The work
             </span>
-            <div className="mt-6">
-              <CategoryAccordion groups={groups} />
+            <h2 className="tata-heading mt-4 max-w-xl text-3xl leading-[1.05] text-neutral-900 sm:text-4xl">
+              See the highlights of this identity.
+            </h2>
+            <div className="mt-10">
+              <WorkSections sections={sections} />
             </div>
           </section>
 

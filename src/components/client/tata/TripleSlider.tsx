@@ -2,8 +2,9 @@
 
 /**
  * TripleSlider — a horizontal slider that shows three items at a time and
- * eases sideways one card per step. Used inside the full-screen FamilyOverlay
- * (dark theme). Responsive: 1 card on phones, 2 on tablets, 3 on desktop.
+ * eases sideways one card per step. Used inside the opened subsection panel in
+ * WorkSections (dark theme). Responsive: 1 card on phones, 2 on tablets, 3 on
+ * desktop.
  *
  * The track translates in pixels (card width measured from the viewport), so
  * the three columns stay equal and the motion is a clean eased slide with no
