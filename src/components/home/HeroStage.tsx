@@ -11,7 +11,6 @@
  *   • bottom-left  — the about-me facts (logic).
  *   • bottom-right — the hobbies (creative).
  *   • the two left corners — faint 3D lattices.
- *   • all four corners — small aphorisms.
  *
  * There is no click-to-choose pose machine — the sections live below, in
  * SidesShowcase, revealed by scrolling. Desktop only for now.
@@ -22,23 +21,24 @@ import { BrainSequence } from "@/components/home/BrainSequence";
 import { HeroName } from "@/components/home/HeroName";
 import { CodeStream } from "@/components/home/CodeStream";
 import { AboutFacts } from "@/components/home/AboutFacts";
-import { ThoughtBox } from "@/components/home/ThoughtBox";
+import { SpeechBubbles } from "@/components/home/SpeechBubbles";
 import { HobbiesRotator } from "@/components/home/HobbiesRotator";
 import { Corner3DGrid } from "@/components/home/Corner3DGrid";
-import { CornerText } from "@/components/home/CornerText";
 import { useInViewport } from "@/hooks/useInViewport";
 import { DURATION, EASE_IN_OUT, EASE_OUT } from "@/constants/motion";
 import { CircuitBackdrop } from "@/components/home/CircuitBackdrop";
+import { PaintBurst } from "@/components/home/PaintBurst";
 import { BrainPins } from "@/components/home/BrainPins";
 import { useIsPhone } from "@/hooks/useMediaQuery";
 
-/** The landing brain read too large at 1:1 — sit it back a quarter.
+/** The landing brain read too large at 1:1 — sit it back a quarter, then a
+ *  further tenth (2026-08-10) to give the words and pins more room.
  *  On a phone the opposite is true: the footage is landscape and `object-contain`
  *  fits it to the WIDTH of a portrait viewport, so at 0.75 the brain shrinks to a
  *  thumbnail in a mostly-empty screen. Push it back up past 1 instead — the
  *  footage carries plenty of margin, so nothing important crops. */
-const CENTER_SCALE = 0.75;
-const CENTER_SCALE_PHONE = 1.45;
+const CENTER_SCALE = 0.675;
+const CENTER_SCALE_PHONE = 1.305;
 
 export function HeroStage() {
   // Keep the scrub loop running while the hero is near the viewport; idle it
@@ -57,6 +57,10 @@ export function HeroStage() {
     >
       {/* Circuit board texture — sits above the section background, below the brain video. */}
       <CircuitBackdrop />
+
+      {/* Paint explosion, right flank only — sits under the words and the
+          brain so the footage's own spray stays the subject. */}
+      <PaintBurst />
 
       {/* The name — BEFORE the footage in the DOM (no positive z-index), so the
           brain crosses in FRONT of the letters. */}
@@ -93,27 +97,27 @@ export function HeroStage() {
         <Corner3DGrid corner="tl" />
         <Corner3DGrid corner="bl" />
 
-        {/* Logic side (left) — code below the top-left profile card. */}
-        <div className="absolute left-10 top-[29%]">
+        {/* Logic side (left) — the code sits hard in the corner now that the
+            ECard no longer occupies it. */}
+        <div className="absolute left-5 top-5">
           <CodeStream />
         </div>
         <div className="absolute bottom-[9vh] left-10">
           <AboutFacts />
         </div>
 
-        {/* Creative side (right) — thought box up in the freed top-right. */}
-        <div className="absolute right-10 top-[13%] flex justify-end">
-          <ThoughtBox />
+        {/* Creative side (right) — hand-drawn bubbles in the freed top-right,
+            replacing the plain thought text that used to sit here. */}
+        <div className="absolute right-10 top-[5%] flex justify-end">
+          <SpeechBubbles />
         </div>
         <div className="absolute bottom-[9vh] right-10 flex justify-end">
           <HobbiesRotator />
         </div>
 
-        {/* Small aphorisms in the four corners, changing every 10s. */}
-        <CornerText corner="tl" />
-        <CornerText corner="tr" />
-        <CornerText corner="bl" />
-        <CornerText corner="br" />
+        {/* The four corner aphorisms ("measure twice" and friends) were removed
+            2026-08-10. The right-hand pair is to be replaced by the animated
+            speech bubbles; CornerText itself is kept for that. */}
       </motion.div>
     </section>
   );

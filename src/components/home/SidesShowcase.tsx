@@ -220,8 +220,7 @@ function ExpandedBody({
         >
           <h3
             className={[
-              "text-[clamp(1.3rem,2.4vw,2.2rem)] leading-none text-white",
-              logic ? `${typeVoiceClass("logic", "display")} font-medium` : `${typeVoiceClass("creative", "display")} italic`,
+              "font-digibra text-[clamp(1.3rem,2.4vw,2.2rem)] leading-none text-white",
             ].join(" ")}
           >
             {open?.label}
@@ -335,7 +334,13 @@ export function SidesShowcase({
   // A pin on the brain above can ask for a section by name.
   useEffect(() => {
     const onPin = (e: Event) => {
-      const id = (e as CustomEvent<NavSectionId>).detail;
+      // null is a deliberate signal: the pins closed, so the panel follows.
+      const id = (e as CustomEvent<NavSectionId | null>).detail;
+      if (id === null) {
+        setExpanded(null);
+        setOpenId(null);
+        return;
+      }
       const section = NAV_SECTIONS.find((s) => s.id === id);
       if (!section) return;
       setExpanded(section.hemisphere === "left" ? "logic" : "creative");

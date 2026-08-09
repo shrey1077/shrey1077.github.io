@@ -83,9 +83,9 @@ export function CodeStream() {
   return (
     <div
       aria-hidden
-      className="font-mono-brand w-[min(23vw,17rem)] select-none text-[0.58rem] leading-[1.55] text-neutral-400"
+      className="font-helv w-[min(23vw,17rem)] select-none text-[0.58rem] leading-[1.55] text-neutral-400"
     >
-      <div className="mb-1.5 flex items-center gap-1.5 text-[0.5rem] tracking-[0.15em] text-neutral-300">
+      <div className="font-digibra mb-1.5 flex items-center gap-1.5 text-[0.6rem] tracking-[0.15em] text-neutral-400">
         <span className="size-1.5 rounded-full bg-neutral-300" />
         <span>herofolio — heroName.tsx</span>
       </div>
