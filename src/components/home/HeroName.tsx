@@ -8,7 +8,10 @@
  * over it. Its final K is right-aligned to the brain's midline, so the word
  * ends exactly where the logic hemisphere does and the brain laps over its
  * last letter. IMAGINE answers it at the base in Graff Burner, starting from
- * that same midline and running right. Both are set at a fifth of black.
+ * that same midline and running right. THINK is a fifth of black; IMAGINE
+ * keeps the living paint gradient, taken to the same fifth by layer opacity —
+ * `text-black/20` would have thrown the gradient away, which is why it is set
+ * on the element rather than the colour.
  *
  * The two no longer slide sideways. They breathe on the Z axis instead:
  * centre-screen is the rest state, and moving the pointer left pushes THINK
@@ -167,7 +170,7 @@ export function HeroName() {
         className="absolute left-1/2 top-0 z-20"
       >
         <motion.span {...rise(0.5)} className="block">
-          <span className={`${WORD} ${SIZE} font-graff text-black/20`}>
+          <span className={`${WORD} ${SIZE} brain-paint bg-clip-text font-graff text-transparent opacity-20`}>
             IMAGINE
           </span>
         </motion.span>

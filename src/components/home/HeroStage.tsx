@@ -92,8 +92,9 @@ export function HeroStage() {
         <Corner3DGrid corner="tl" />
         <Corner3DGrid corner="bl" />
 
-        {/* Logic side (left) — code below the top-left profile card. */}
-        <div className="absolute left-10 top-[29%]">
+        {/* Logic side (left) — the code sits hard in the corner now that the
+            ECard no longer occupies it. */}
+        <div className="absolute left-5 top-5">
           <CodeStream />
         </div>
         <div className="absolute bottom-[9vh] left-10">
