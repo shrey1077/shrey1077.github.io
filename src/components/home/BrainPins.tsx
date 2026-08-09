@@ -12,8 +12,8 @@
  * Three states, and the open state deliberately inverts the resting one:
  *   rest    label filled, trailing circle stroked and empty
  *   hover   levitation stops, a small flat dot drops into the circle
- *   open    the label becomes a stroked circle with dark text and the trailing
- *           circle fills solid — the two swap roles
+ *   open    the label keeps its shape but flips to stroked with dark text,
+ *           while the trailing circle fills solid — the two swap treatments
  *
  * The logic side fills flat black; the creative side fills with the brain-paint
  * gradient. Choosing one opens its panel across the foot of the stage.
@@ -109,17 +109,31 @@ function PinRow({
         onBlur={() => setHover(false)}
         className={`pointer-events-auto flex items-center gap-2.5 outline-none focus-visible:ring-2 focus-visible:ring-neutral-900/40 ${COL[pin.side].align}`}
       >
-        {/* The label: a filled pill at rest, a stroked circle with dark text
-            once open, trading places with the trailing circle. */}
-        <span
-          className={`grid place-items-center whitespace-nowrap text-center leading-none transition-all duration-300 ${
-            open
-              ? "aspect-square rounded-full border-2 border-neutral-950 bg-transparent p-4 text-neutral-950"
-              : `rounded-full px-5 py-2.5 text-white ${fill}`
-          } ${logic ? "font-digibra" : "font-graff"} text-[1.6rem]`}
-        >
-          {pin.label}
-        </span>
+        {/* The label keeps its pill geometry throughout — only the treatment
+            flips. Filled with white type at rest; stroked with dark type once
+            open. (It used to go square-and-round on open, which ballooned into
+            a circle wide enough to collide with the pill below.)
+
+            The creative side's stroke is a gradient, which CSS borders cannot
+            do, so it is a 2px paint-filled wrapper around an inner pill in the
+            page colour — the classic gradient-border trick. */}
+        {open && !logic ? (
+          <span className="brain-paint grid place-items-center rounded-full p-[2px]">
+            <span className="brain-paint bg-clip-text font-graff grid place-items-center whitespace-nowrap rounded-full bg-gallery px-5 py-2.5 text-center text-[1.6rem] leading-none text-transparent">
+              {pin.label}
+            </span>
+          </span>
+        ) : (
+          <span
+            className={`grid place-items-center whitespace-nowrap rounded-full px-5 py-2.5 text-center text-[1.6rem] leading-none transition-colors duration-300 ${
+              open
+                ? "border-2 border-neutral-950 bg-transparent text-neutral-950"
+                : `text-white ${fill}`
+            } ${logic ? "font-digibra" : "font-graff"}`}
+          >
+            {pin.label}
+          </span>
+        )}
 
         {/* The stub, then the circle it runs to. */}
         <span aria-hidden className="h-px w-6 shrink-0 bg-neutral-900/45" />

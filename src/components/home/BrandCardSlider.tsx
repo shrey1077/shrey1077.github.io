@@ -89,7 +89,7 @@ export function BrandCardSlider({ entries }: { entries: readonly Client[] }) {
                     top-right quarter. */}
                 <span className="flex h-1/2 min-h-0 w-full border-b border-neutral-200">
                   <span className="flex min-w-0 flex-1 flex-col justify-center gap-1.5 p-4">
-                    <span className={`${typeVoiceClass("creative", "display")} text-base leading-tight text-neutral-900`}>
+                    <span className="font-digibra text-base leading-tight text-neutral-900">
                       {c.name}
                     </span>
                     <span className={`${typeVoiceClass("logic", "meta")} text-[0.5rem] uppercase tracking-[0.12em] text-neutral-400`}>
@@ -114,7 +114,7 @@ export function BrandCardSlider({ entries }: { entries: readonly Client[] }) {
                       />
                     ) : (
                       <span
-                        className={`${typeVoiceClass("creative", "display")} flex h-full items-center justify-center px-2 text-center text-sm leading-tight`}
+                        className="font-digibra flex h-full items-center justify-center px-2 text-center text-sm leading-tight"
                         style={{ color: c.accent }}
                       >
                         {c.name}

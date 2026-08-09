@@ -220,8 +220,7 @@ function ExpandedBody({
         >
           <h3
             className={[
-              "text-[clamp(1.3rem,2.4vw,2.2rem)] leading-none text-white",
-              logic ? `${typeVoiceClass("logic", "display")} font-medium` : `${typeVoiceClass("creative", "display")} italic`,
+              "font-digibra text-[clamp(1.3rem,2.4vw,2.2rem)] leading-none text-white",
             ].join(" ")}
           >
             {open?.label}
