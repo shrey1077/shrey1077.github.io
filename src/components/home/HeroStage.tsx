@@ -27,6 +27,7 @@ import { Corner3DGrid } from "@/components/home/Corner3DGrid";
 import { useInViewport } from "@/hooks/useInViewport";
 import { DURATION, EASE_IN_OUT, EASE_OUT } from "@/constants/motion";
 import { CircuitBackdrop } from "@/components/home/CircuitBackdrop";
+import { PaintBurst } from "@/components/home/PaintBurst";
 import { BrainPins } from "@/components/home/BrainPins";
 import { useIsPhone } from "@/hooks/useMediaQuery";
 
@@ -56,6 +57,10 @@ export function HeroStage() {
     >
       {/* Circuit board texture — sits above the section background, below the brain video. */}
       <CircuitBackdrop />
+
+      {/* Paint explosion, right flank only — sits under the words and the
+          brain so the footage's own spray stays the subject. */}
+      <PaintBurst />
 
       {/* The name — BEFORE the footage in the DOM (no positive z-index), so the
           brain crosses in FRONT of the letters. */}

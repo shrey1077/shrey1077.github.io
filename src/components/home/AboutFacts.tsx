@@ -4,7 +4,7 @@
  * AboutFacts — the lower-left "about me" rotator (Phase L1).
  *
  * Four facts, one at a time, each holding ~15s before the next fades in, looped:
- *   Chess     — highest Rapid rating.
+ *   Chess     — highest Rapid rating, as the number and nothing else.
  *   Tools     — the software I work in.
  *   Education — the degrees.
  *   Part-time — a small list whose words cycle one by one.
@@ -49,13 +49,29 @@ function PartTimeWords() {
 
 const BODY = "text-[19px] leading-[1.4] text-neutral-500";
 
+/** The pawn, drawn rather than lifted: the chess.com app icon is their mark,
+ *  and a silhouette in their green reads the same without shipping it. */
+function PawnMark() {
+  return (
+    <svg viewBox="0 0 24 24" aria-hidden className="size-9 shrink-0">
+      <path
+        fill="#81b64c"
+        d="M12 2.2a3.15 3.15 0 0 0-1.86 5.7c-1.2.62-2 1.8-2 3.16h7.72c0-1.36-.8-2.54-2-3.16A3.15 3.15 0 0 0 12 2.2Zm-3.1 10.1c0 2.1-.8 4.05-1.9 5.5h10c-1.1-1.45-1.9-3.4-1.9-5.5H8.9ZM6.1 19.3c-.5.8-.75 1.65-.75 2.5h13.3c0-.85-.25-1.7-.75-2.5H6.1Z"
+      />
+    </svg>
+  );
+}
+
 const FACTS: { key: string; heading: string; body: React.ReactNode }[] = [
   {
     key: "chess",
     heading: "Chess",
     body: (
-      <p className={BODY}>
-        <span className="font-semibold text-neutral-700">1563</span> Rapid — 98th percentile
+      <p className="flex items-center gap-2.5">
+        <PawnMark />
+        <span className="text-[34px] font-bold leading-none tracking-tight text-neutral-800">
+          1563
+        </span>
       </p>
     ),
   },
