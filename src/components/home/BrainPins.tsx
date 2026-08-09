@@ -5,13 +5,14 @@
  *
  * No leader lines back to the brain any more. Each section is a label pill with
  * a short stub running off its inner edge to a stroked circle, and the whole
- * assembly levitates on its own slow cycle. A second rule runs the other way,
- * from the pill's outer edge to the screen corner, so each section reads as
- * strung across the flank rather than floating free.
+ * A second rule runs the other way, from the pill's outer edge to the screen
+ * corner, so each section reads as strung across the flank. They hold still:
+ * the four used to levitate, but eight drifting labels around a brain that
+ * already answers the mouse was one moving thing too many.
  *
  * Three states, and the open state deliberately inverts the resting one:
  *   rest    label filled, trailing circle stroked and empty
- *   hover   levitation stops, a small flat dot drops into the circle
+ *   hover   a small flat dot drops into the circle
  *   open    the label keeps its shape but flips to stroked with dark text,
  *           while the trailing circle fills solid — the two swap treatments
  *
@@ -28,14 +29,14 @@ import { EASE_OUT } from "@/constants/motion";
 /** Fired when a section is chosen (or cleared); the panel follows it. */
 export const PIN_OPEN_EVENT = "brainpin:open";
 
-const CIRCLE = 26;
+const CIRCLE = 18;
 
 /** Where each column sits and the band it occupies. THINK is high on the crown
  *  so the left flank is clear from 40% down; IMAGINE runs along the base, so
  *  the right column has to sit above it. */
 const COL = {
-  logic: { x: "left-[3vw]", top: 0.4, step: 0.115, align: "flex-row" },
-  creative: { x: "right-[3vw]", top: 0.17, step: 0.105, align: "flex-row-reverse" },
+  logic: { x: "left-[3vw]", top: 0.46, step: 0.075, align: "flex-row" },
+  creative: { x: "right-[3vw]", top: 0.22, step: 0.07, align: "flex-row-reverse" },
 } as const;
 
 type Side = "logic" | "creative";
@@ -45,8 +46,6 @@ interface Pin {
   label: string;
   y: number;
   side: Side;
-  /** Each pin drifts on its own period so the four never bob in unison. */
-  drift: number;
 }
 
 function buildPins(): Pin[] {
@@ -58,7 +57,6 @@ function buildPins(): Pin[] {
         label: s.label,
         y: COL[side].top + i * COL[side].step,
         side,
-        drift: 3.6 + i * 0.55,
       }));
   return [...make("logic", "left"), ...make("creative", "right")];
 }
@@ -77,18 +75,11 @@ function PinRow({
   const [hover, setHover] = useState(false);
   const logic = pin.side === "logic";
   const fill = logic ? "bg-neutral-950" : "brain-paint";
-  const stopped = hover || open || reduceMotion;
 
   return (
-    <motion.div
+    <div
       className={`absolute ${COL[pin.side].x} flex items-center ${COL[pin.side].align}`}
       style={{ top: `${pin.y * 100}%` }}
-      animate={stopped ? { y: 0 } : { y: [0, -9, 0] }}
-      transition={
-        stopped
-          ? { duration: 0.5, ease: EASE_OUT }
-          : { duration: pin.drift, repeat: Infinity, ease: "easeInOut" }
-      }
     >
       {/* Outer rule — pill to the screen edge. Sits on the row (which is the
           positioned ancestor), so `right-full` lands it flush at x=0. */}
@@ -119,13 +110,13 @@ function PinRow({
             page colour — the classic gradient-border trick. */}
         {open && !logic ? (
           <span className="brain-paint grid place-items-center rounded-full p-[2px]">
-            <span className="brain-paint bg-clip-text font-graff grid place-items-center whitespace-nowrap rounded-full bg-gallery px-5 py-2.5 text-center text-[1.6rem] leading-none text-transparent">
+            <span className="brain-paint bg-clip-text font-graff grid place-items-center whitespace-nowrap rounded-full bg-gallery px-3.5 py-1.5 text-center text-[1.07rem] leading-none text-transparent">
               {pin.label}
             </span>
           </span>
         ) : (
           <span
-            className={`grid place-items-center whitespace-nowrap rounded-full px-5 py-2.5 text-center text-[1.6rem] leading-none transition-colors duration-300 ${
+            className={`grid place-items-center whitespace-nowrap rounded-full px-3.5 py-1.5 text-center text-[1.07rem] leading-none transition-colors duration-300 ${
               open
                 ? "border-2 border-neutral-950 bg-transparent text-neutral-950"
                 : `text-white ${fill}`
@@ -158,7 +149,7 @@ function PinRow({
           />
         </span>
       </button>
-    </motion.div>
+    </div>
   );
 }
 

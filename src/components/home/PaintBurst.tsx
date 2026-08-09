@@ -5,10 +5,10 @@
  *
  * Confined to the right HALF of the stage: the left flank is the logic side and
  * has its own circuit texture, so letting this bleed across would collapse the
- * distinction the whole layout rests on. Opacity is the whole balancing act:
- * at 50% it barely registered, at 85% it swallowed Imagine and the right-hand
- * pins whole and became the subject. 60% is where the film reads as its own
- * event while the brain's own thrown paint still sits in front of it.
+ * distinction the whole layout rests on. It runs at FULL opacity — the film is
+ * the creative flank's ground, not a wash over it. The gradient mask is what
+ * keeps that from becoming a hard-edged rectangle: it feathers the film out
+ * toward the midline so the two hemispheres still meet rather than butt.
  *
  * Fades out toward the midline so there is no hard vertical seam where the film
  * stops — the mask does the work a crop would do badly.
@@ -36,7 +36,7 @@ export function PaintBurst() {
         <img
           src="/videos/paint-burst-poster.jpg"
           alt=""
-          className="h-full w-full object-cover opacity-60"
+          className="h-full w-full object-cover"
         />
       ) : (
         <video
@@ -46,7 +46,7 @@ export function PaintBurst() {
           muted
           loop
           playsInline
-          className="h-full w-full object-cover opacity-60"
+          className="h-full w-full object-cover"
         />
       )}
     </div>
