@@ -2,7 +2,10 @@ name: Deploy to GitHub Pages
 
 on:
   push:
-    branches: [tata-iis-experience]
+    # main is the branch the site ships from. It used to be
+    # tata-iis-experience, which meant the feature branch deployed and the
+    # default branch did not — merging to main alone would not have gone live.
+    branches: [main]
   workflow_dispatch:
 
 permissions:
