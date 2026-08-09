@@ -25,6 +25,12 @@
   --font-mono-brand: var(--font-plex-mono), ui-monospace, "SFMono-Regular", monospace;
   /* Azoth's hero voice — italic display, used on that page only. */
   --font-azoth-display: var(--font-playfair), ui-serif, Georgia, serif;
+  /* The landing's two hemispheres speak in their own faces: Digibra, a retro
+     digital display, for the logic side; Graff Burner, a spray face, for the
+     creative side. Body copy on both stays Helvetica. */
+  --font-digibra: "Digibra", ui-sans-serif, system-ui, sans-serif;
+  --font-graff: "Graff Burner", ui-sans-serif, system-ui, sans-serif;
+  --font-helv: Helvetica, "Helvetica Neue", Arial, sans-serif;
   /* The gallery wall — matched to the hero video's own background (#F9F9F9,
    * sampled from its frames) so the footage dissolves into the page with no
    * visible seam. Pure #fff is reserved for cards, which now sit a breath
@@ -163,6 +169,27 @@ canvas {
   }
 }
 
+
+/* ── Landing hemisphere faces ───────────────────────────────────────────────
+ * Self-hosted so the landing never waits on a third party for its headline.
+ * Both are single-weight display faces — `font-weight` is declared to match
+ * so the browser never synthesises a fake bold and thickens the letterforms. */
+
+@font-face {
+  font-family: "Digibra";
+  src: url("/fonts/digibra.woff2") format("woff2");
+  font-weight: 400 700;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Graff Burner";
+  src: url("/fonts/graff-burner.woff2") format("woff2");
+  font-weight: 400 700;
+  font-style: normal;
+  font-display: swap;
+}
 
 /* ── Azoth hero ─────────────────────────────────────────────────────────────
  * Ported from the client's Bolt export. The entrance animations are theirs;

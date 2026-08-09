@@ -11,7 +11,6 @@
  *   • bottom-left  — the about-me facts (logic).
  *   • bottom-right — the hobbies (creative).
  *   • the two left corners — faint 3D lattices.
- *   • all four corners — small aphorisms.
  *
  * There is no click-to-choose pose machine — the sections live below, in
  * SidesShowcase, revealed by scrolling. Desktop only for now.
@@ -25,7 +24,6 @@ import { AboutFacts } from "@/components/home/AboutFacts";
 import { ThoughtBox } from "@/components/home/ThoughtBox";
 import { HobbiesRotator } from "@/components/home/HobbiesRotator";
 import { Corner3DGrid } from "@/components/home/Corner3DGrid";
-import { CornerText } from "@/components/home/CornerText";
 import { useInViewport } from "@/hooks/useInViewport";
 import { DURATION, EASE_IN_OUT, EASE_OUT } from "@/constants/motion";
 import { CircuitBackdrop } from "@/components/home/CircuitBackdrop";
@@ -109,11 +107,9 @@ export function HeroStage() {
           <HobbiesRotator />
         </div>
 
-        {/* Small aphorisms in the four corners, changing every 10s. */}
-        <CornerText corner="tl" />
-        <CornerText corner="tr" />
-        <CornerText corner="bl" />
-        <CornerText corner="br" />
+        {/* The four corner aphorisms ("measure twice" and friends) were removed
+            2026-08-10. The right-hand pair is to be replaced by the animated
+            speech bubbles; CornerText itself is kept for that. */}
       </motion.div>
     </section>
   );

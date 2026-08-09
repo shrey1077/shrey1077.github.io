@@ -251,9 +251,11 @@ export function BrainPins() {
               }}
             />
             <span
-              className={`whitespace-nowrap text-[0.72rem] font-medium tracking-tight text-neutral-600 transition-colors duration-300 group-hover:text-neutral-950 ${
-                p.side === "creative" ? "text-right" : ""
-              }`}
+              className={`whitespace-nowrap text-[1.6rem] leading-none tracking-tight transition-colors duration-300 ${
+                p.side === "logic"
+                  ? "font-digibra text-neutral-800 group-hover:text-black"
+                  : "font-graff text-neutral-700 group-hover:text-black"
+              } ${p.side === "creative" ? "text-right" : ""}`}
             >
               {p.label}
             </span>

@@ -1,45 +1,45 @@
 "use client";
 
 /**
- * HeroName — the landing words, stacked on the brain and above everything.
+ * HeroName — the landing's two words, set around the brain.
  *
- * "Think" rests on the brain's crown, "Imagine" at its base — the two halves of
- * the mind the page is about. Both are centred at rest; as the pointer moves
- * away from centre they draw apart, Think left and Imagine right.
+ * THINK sits on the crown at display scale, in Digibra, at a fifth of black —
+ * it reads as a watermark the brain sits IN FRONT OF rather than a headline
+ * over it. Its final K is right-aligned to the brain's midline, so the word
+ * ends exactly where the logic hemisphere does and the brain laps over its
+ * last letter. IMAGINE answers it at the base in Graff Burner, starting from
+ * that same midline and running right, in the living paint gradient.
  *
- * That travel is deliberately SMALL — capped at a tenth of the viewport each
- * way. The brain is the centrepiece and it already answers the mouse; if the
- * words swung as far as the margins they would compete with it. Ten percent
- * reads as the type breathing, not as the type performing.
+ * The two no longer slide sideways. They breathe on the Z axis instead:
+ * centre-screen is the rest state, and moving the pointer left pushes THINK
+ * five percent toward you while IMAGINE recedes by the same amount — moving
+ * right does the reverse. Five percent is small on purpose. The brain answers
+ * the mouse far more strongly, and the words are meant to be the room it sits
+ * in, not a second thing competing for the eye.
  *
- * The brain's top/bottom are measured live from the footage's alpha (its wide
- * main mass) so the words tuck against it with only a sliver of overlap.
- *
- * Rendered ABOVE the footage and the rest of the furniture (z-30), so the words
- * always read. Pointer-events-none. Reduced motion holds them centred and still.
+ * Sits at z-0, BEHIND the footage, which is what lets the brain overlap it.
+ * The brain's vertical extent is measured live from the footage's alpha so the
+ * words tuck against its real crown and base at any size.
  */
 
 import { useEffect, useRef } from "react";
-import {
-  motion,
-  useMotionValue,
-  useSpring,
-  useReducedMotion,
-} from "framer-motion";
+import { motion, useMotionValue, useSpring, useReducedMotion } from "framer-motion";
 import { DURATION, EASE_OUT } from "@/constants/motion";
-import { typeVoiceClass } from "@/constants/typography";
 
-const sideMargin = (vw: number) => Math.max(24, vw * 0.04);
-/** Each word travels at most this fraction of the viewport, either way. */
-const TRAVEL = 0.1;
+/** How far each word travels on Z, as a scale delta. */
+const ZOOM = 0.05;
 
-const WORD =
-  "block whitespace-nowrap will-change-transform " +
-  typeVoiceClass("logic", "display") +
-  " text-[clamp(2rem,7vw,7rem)] font-black tracking-[-0.01em] leading-[0.9]";
+/** Scenery scale, not headline scale — but capped so the word still fits.
+ *  Each word owns exactly half the viewport (its outer edge to the midline),
+ *  and at a true 4x THINK measured 1334px against 720px of room, so it lost
+ *  its T and H off-screen and read as "INK". 12vw is the largest that keeps
+ *  all five letters on screen WITH the 5% zoom applied — 13vw fits at rest but
+ *  clips once the pointer reaches the left edge. */
+const WORD = "block whitespace-nowrap will-change-transform leading-[0.82]";
+const SIZE = "text-[clamp(3rem,12vw,14rem)]";
 
 /** The brain's WIDE vertical extent (viewport px) — crown to base of the main
- *  mass, ignoring the narrow tips so the name doesn't sit too high or too low. */
+ *  mass, ignoring the narrow tips so the words don't sit too high or too low. */
 function measureBrainV(): { top: number; bottom: number } | null {
   try {
     const c = document.querySelector("canvas[data-brain]") as HTMLCanvasElement | null;
@@ -80,37 +80,28 @@ function measureBrainV(): { top: number; bottom: number } | null {
 export function HeroName() {
   const reduceMotion = useReducedMotion();
 
-  const shreyRef = useRef<HTMLSpanElement>(null);
-  const singhRef = useRef<HTMLSpanElement>(null);
-  const shreyMax = useRef(0);
-  const singhMax = useRef(0);
+  const thinkRef = useRef<HTMLSpanElement>(null);
 
-  // Horizontal spread (px): Shrey negative (left), Singh positive (right).
-  const shreyPx = useMotionValue(0);
-  const singhPx = useMotionValue(0);
-  const shreyX = useSpring(shreyPx, { stiffness: 60, damping: 18, mass: 0.5 });
-  const singhX = useSpring(singhPx, { stiffness: 60, damping: 18, mass: 0.5 });
-  // Vertical placement (px) of each word's top edge.
-  const shreyY = useMotionValue(0);
-  const singhY = useMotionValue(0);
+  // Z-breath. Springs are slow and soft so this never reads as a jump.
+  const thinkZ = useMotionValue(1);
+  const imagineZ = useMotionValue(1);
+  const thinkScale = useSpring(thinkZ, { stiffness: 50, damping: 20, mass: 0.6 });
+  const imagineScale = useSpring(imagineZ, { stiffness: 50, damping: 20, mass: 0.6 });
+
+  // Vertical placement of each word's top edge.
+  const thinkY = useMotionValue(0);
+  const imagineY = useMotionValue(0);
 
   useEffect(() => {
     const measure = () => {
-      const vw = window.innerWidth,
-        vh = window.innerHeight;
+      const vh = window.innerHeight;
       const b = measureBrainV() ?? { top: vh * 0.3, bottom: vh * 0.68 };
-      const shreyH = shreyRef.current?.offsetHeight ?? 0;
-      const overlap = vh * 0.02; // a sliver, top and bottom
-      shreyY.set(b.top - shreyH + overlap);
-      // The brain runs low; keep Singh from sitting at the very bottom.
-      singhY.set(Math.min(b.bottom - overlap, vh * 0.62));
-      // Ten percent of the viewport, but never so far that a word runs past
-      // the side margin on a narrow screen.
-      const margin = sideMargin(vw);
-      const shreyW = shreyRef.current?.offsetWidth ?? 0;
-      const singhW = singhRef.current?.offsetWidth ?? 0;
-      shreyMax.current = Math.max(0, Math.min(vw * TRAVEL, vw / 2 - margin - shreyW / 2));
-      singhMax.current = Math.max(0, Math.min(vw * TRAVEL, vw / 2 - margin - singhW / 2));
+      const thinkH = thinkRef.current?.offsetHeight ?? 0;
+      // A deeper bite than before: the brain is meant to lap OVER the word,
+      // not merely touch it.
+      const overlap = thinkH * 0.3;
+      thinkY.set(b.top - thinkH + overlap);
+      imagineY.set(Math.min(b.bottom - overlap * 0.8, vh * 0.66));
     };
 
     measure();
@@ -121,9 +112,11 @@ export function HeroName() {
     if (!reduceMotion) {
       onMove = (e) => {
         const half = window.innerWidth / 2;
-        const spread = Math.min(1, Math.abs(e.clientX - half) / half);
-        shreyPx.set(-spread * shreyMax.current);
-        singhPx.set(spread * singhMax.current);
+        // -1 at the left edge, 0 dead centre, +1 at the right edge.
+        const t = Math.max(-1, Math.min(1, (e.clientX - half) / half));
+        // Pointer left → THINK comes forward, IMAGINE recedes. Right inverts it.
+        thinkZ.set(1 - t * ZOOM);
+        imagineZ.set(1 + t * ZOOM);
       };
       window.addEventListener("pointermove", onMove, { passive: true });
     }
@@ -133,7 +126,7 @@ export function HeroName() {
       window.removeEventListener("resize", measure);
       if (onMove) window.removeEventListener("pointermove", onMove);
     };
-  }, [reduceMotion, shreyPx, singhPx, shreyY, singhY]);
+  }, [reduceMotion, thinkZ, imagineZ, thinkY, imagineY]);
 
   const rise = (delay: number) =>
     reduceMotion
@@ -145,21 +138,33 @@ export function HeroName() {
         };
 
   return (
-    <h1 aria-label="Think. Imagine." className="pointer-events-none absolute inset-0 z-30">
-      {/* Think — on the crown, drifting left. */}
-      <motion.div aria-hidden style={{ x: shreyX, y: shreyY }} className="absolute left-1/2 top-0">
-        <motion.span {...rise(0.35)} className="block -translate-x-1/2">
-          <span ref={shreyRef} className={`${WORD} text-neutral-900`}>
-            Think
+    <h1 aria-label="Think. Imagine." className="pointer-events-none absolute inset-0 z-0">
+      {/* THINK — right edge pinned to the midline, so the final K lands exactly
+          where the logic hemisphere ends. It scales about that same edge, which
+          keeps the K anchored while the word breathes. */}
+      <motion.div
+        aria-hidden
+        style={{ y: thinkY, scale: thinkScale, transformOrigin: "100% 50%" }}
+        className="absolute right-1/2 top-0"
+      >
+        <motion.span {...rise(0.35)} className="block">
+          <span ref={thinkRef} className={`${WORD} ${SIZE} font-digibra text-black/20`}>
+            THINK
           </span>
         </motion.span>
       </motion.div>
 
-      {/* Imagine — at the base, drifting right, painted with the living gradient. */}
-      <motion.div aria-hidden style={{ x: singhX, y: singhY }} className="absolute left-1/2 top-0">
-        <motion.span {...rise(0.5)} className="block -translate-x-1/2">
-          <span ref={singhRef} className={`${WORD} brain-paint bg-clip-text text-transparent`}>
-            Imagine
+      {/* IMAGINE — starts at that same midline and runs right, so at rest the
+          two words meet at the brain's division. Scales about its left edge for
+          the same reason. */}
+      <motion.div
+        aria-hidden
+        style={{ y: imagineY, scale: imagineScale, transformOrigin: "0% 50%" }}
+        className="absolute left-1/2 top-0"
+      >
+        <motion.span {...rise(0.5)} className="block">
+          <span className={`${WORD} ${SIZE} brain-paint bg-clip-text font-graff text-transparent`}>
+            IMAGINE
           </span>
         </motion.span>
       </motion.div>
