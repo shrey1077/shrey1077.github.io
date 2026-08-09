@@ -26,10 +26,12 @@
   /* Azoth's hero voice — italic display, used on that page only. */
   --font-azoth-display: var(--font-playfair), ui-serif, Georgia, serif;
   /* The landing's two hemispheres speak in their own faces: Digibra, a retro
-     digital display, for the logic side; Graff Burner, a spray face, for the
-     creative side. Body copy on both stays Helvetica. */
+     digital display, for the logic side; Kids Story, a handwritten face, for
+     the creative side. Body copy on both stays Helvetica.
+     The token keeps its `graff` name from the face it replaced, so every
+     `font-graff` in the tree still resolves — only the family moved. */
   --font-digibra: "Digibra", ui-sans-serif, system-ui, sans-serif;
-  --font-graff: "Graff Burner", ui-sans-serif, system-ui, sans-serif;
+  --font-graff: "Kids Story", ui-sans-serif, system-ui, sans-serif;
   --font-helv: Helvetica, "Helvetica Neue", Arial, sans-serif;
   /* The gallery wall — matched to the hero video's own background (#F9F9F9,
    * sampled from its frames) so the footage dissolves into the page with no
@@ -184,8 +186,8 @@ canvas {
 }
 
 @font-face {
-  font-family: "Graff Burner";
-  src: url("/fonts/graff-burner.woff2") format("woff2");
+  font-family: "Kids Story";
+  src: url("/fonts/kids-story.woff2") format("woff2");
   font-weight: 400 700;
   font-style: normal;
   font-display: swap;

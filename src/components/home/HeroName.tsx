@@ -7,23 +7,24 @@
  * it reads as a watermark the brain sits IN FRONT OF rather than a headline
  * over it. Its final K is right-aligned to the brain's midline, so the word
  * ends exactly where the logic hemisphere does and the brain laps over its
- * last letter. IMAGINE answers it at the base in Graff Burner, starting from
- * that same midline and running right. THINK is a fifth of black; IMAGINE
- * keeps the living paint gradient, taken to the same fifth by layer opacity —
- * `text-black/20` would have thrown the gradient away, which is why it is set
- * on the element rather than the colour.
+ * last letter. Imagine answers it at the base in Kids Story, starting from
+ * that same midline and running right. THINK is a fifth of black; Imagine
+ * keeps the living paint gradient at half, set by layer opacity because
+ * `text-black/20` would have thrown the gradient away entirely — bg-clip-text
+ * needs a real fill. The paint carries less weight than flat ink, which is why
+ * it sits higher.
  *
  * The two no longer slide sideways. They breathe on the Z axis instead:
  * centre-screen is the rest state, and moving the pointer left pushes THINK
- * five percent toward you while IMAGINE recedes by the same amount — moving
+ * five percent toward you while Imagine recedes by the same amount — moving
  * right does the reverse. Five percent is small on purpose. The brain answers
  * the mouse far more strongly, and the words are meant to be the room it sits
  * in, not a second thing competing for the eye.
  *
  * The two sit on OPPOSITE sides of the footage in z-order, which is the whole
  * trick: THINK at z-0 is behind it, so the brain laps over its final K, while
- * IMAGINE at z-20 lies on top of the paint. At a fifth of black the overlap
- * reads as ink soaking through rather than a label stuck on.
+ * Imagine at z-20 lies on top of the paint, so the overlap reads as ink
+ * soaking through rather than a label stuck on.
  *
  * The brain's vertical extent is measured live from the footage's alpha so the
  * words tuck against its real crown and base at any size.
@@ -121,7 +122,7 @@ export function HeroName() {
         const half = window.innerWidth / 2;
         // -1 at the left edge, 0 dead centre, +1 at the right edge.
         const t = Math.max(-1, Math.min(1, (e.clientX - half) / half));
-        // Pointer left → THINK comes forward, IMAGINE recedes. Right inverts it.
+        // Pointer left → THINK comes forward, Imagine recedes. Right inverts it.
         thinkZ.set(1 - t * ZOOM);
         imagineZ.set(1 + t * ZOOM);
       };
@@ -161,7 +162,7 @@ export function HeroName() {
         </motion.span>
       </motion.div>
 
-      {/* IMAGINE — starts at that same midline and runs right, so at rest the
+      {/* Imagine — starts at that same midline and runs right, so at rest the
           two words meet at the brain's division. Scales about its left edge for
           the same reason. */}
       <motion.div
@@ -170,8 +171,8 @@ export function HeroName() {
         className="absolute left-1/2 top-0 z-20"
       >
         <motion.span {...rise(0.5)} className="block">
-          <span className={`${WORD} ${SIZE} brain-paint bg-clip-text font-graff text-transparent opacity-20`}>
-            IMAGINE
+          <span className={`${WORD} ${SIZE} brain-paint bg-clip-text font-graff text-transparent opacity-50`}>
+            Imagine
           </span>
         </motion.span>
       </motion.div>
