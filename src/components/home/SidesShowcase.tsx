@@ -209,7 +209,15 @@ function ExpandedBody({
 
       {/* The section's body. */}
       <div className="relative z-10 min-h-0 flex-1 px-6 pb-8 pt-5 lg:px-[3vw]">
-        <div className="mb-3">
+        {/* The heading is the way back out: clicking anywhere along it contracts
+            the section. Full-width so the whole strip is the target, not just
+            the words. */}
+        <button
+          type="button"
+          onClick={onClose}
+          aria-label={`Close ${open?.label ?? "section"}`}
+          className="group mb-3 flex w-full items-center justify-between gap-4 rounded-lg text-left outline-none focus-visible:ring-2 focus-visible:ring-white/40"
+        >
           <h3
             className={[
               "text-[clamp(1.3rem,2.4vw,2.2rem)] leading-none text-white",
@@ -218,7 +226,10 @@ function ExpandedBody({
           >
             {open?.label}
           </h3>
-        </div>
+          <span className="shrink-0 rounded-full border border-white/25 px-3 py-1 text-[0.6rem] uppercase tracking-[0.14em] text-white/50 transition-colors duration-200 group-hover:border-white/70 group-hover:text-white/90">
+            Minimise
+          </span>
+        </button>
         <div className="min-h-0 flex-1">
           <SectionBody id={openId} artCollections={artCollections} logos={logos} extinctsSlides={extinctsSlides} />
         </div>

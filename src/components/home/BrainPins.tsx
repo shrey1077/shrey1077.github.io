@@ -22,13 +22,25 @@
  * `brainpin:open`, which SidesShowcase listens for, then scrolls there.
  */
 
-import { motion, useReducedMotion } from "framer-motion";
+import { useEffect, useRef, useState } from "react";
+import Image from "next/image";
+import Link from "next/link";
+import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
 import { NAV_SECTIONS } from "@/constants/navigation";
+import { clientsInSection } from "@/constants/clients";
 import type { NavSectionId } from "@/types/navigation";
 import { DURATION, EASE_OUT } from "@/constants/motion";
 
 /** Fired when a pin is chosen; SidesShowcase opens the matching section. */
 export const PIN_OPEN_EVENT = "brainpin:open";
+
+/** Sections whose items are real pages, so the pin lists them instead of
+ *  opening the panel below. Everything else has no per-item destination and
+ *  belongs in the showcase. */
+const LINKED_SECTIONS: Partial<Record<NavSectionId, "clients" | "projects">> = {
+  clients: "clients",
+  projects: "projects",
+};
 
 /** Pointer circle diameter — double the 6px dot the thought box uses. */
 const DOT = 12;
@@ -104,11 +116,74 @@ function leaderPath(p: Pin, i: number): string {
   return `M ${x1} ${y1} C ${cx1} ${cy1}, ${cx2} ${cy2}, ${x2} ${y2}`;
 }
 
+/** The list a linked pin drops: each client's mark and name, linking to its
+ *  page. Falls back to the name alone where no logo has landed yet. */
+function PinMenu({ pin, onPick }: { pin: Pin; onPick: () => void }) {
+  const section = LINKED_SECTIONS[pin.id];
+  const entries = section ? clientsInSection(section) : [];
+  if (entries.length === 0) return null;
+
+  return (
+    <motion.ul
+      initial={{ opacity: 0, y: -6 }}
+      animate={{ opacity: 1, y: 0 }}
+      exit={{ opacity: 0, y: -6 }}
+      transition={{ duration: 0.22, ease: EASE_OUT }}
+      className={`pointer-events-auto absolute top-[calc(50%+14px)] z-30 flex w-52 flex-col gap-0.5 rounded-2xl border border-neutral-200 bg-white/95 p-2 shadow-[0_18px_44px_-20px_rgba(0,0,0,0.35)] backdrop-blur-sm ${
+        pin.side === "logic" ? "left-0" : "right-0"
+      }`}
+    >
+      {entries.map((c) => (
+        <li key={c.slug}>
+          <Link
+            href={`/clients/${c.slug}`}
+            onClick={onPick}
+            className="flex items-center gap-2.5 rounded-xl px-2.5 py-2 text-[0.72rem] text-neutral-700 outline-none transition-colors duration-200 hover:bg-neutral-100 hover:text-neutral-950 focus-visible:bg-neutral-100"
+          >
+            {c.logoSrc ? (
+              <span className="relative h-5 w-7 shrink-0">
+                <Image src={c.logoSrc} alt="" fill sizes="28px" className="object-contain" />
+              </span>
+            ) : (
+              <span aria-hidden className="size-1.5 shrink-0 rounded-full bg-neutral-300" />
+            )}
+            <span className="truncate">{c.name}</span>
+          </Link>
+        </li>
+      ))}
+    </motion.ul>
+  );
+}
+
 export function BrainPins() {
   const reduceMotion = useReducedMotion();
   const pins = buildPins();
+  const [menu, setMenu] = useState<NavSectionId | null>(null);
+  const rootRef = useRef<HTMLDivElement>(null);
 
-  const open = (id: NavSectionId) => {
+  // A dropdown closes on outside click or Escape, like any menu should.
+  useEffect(() => {
+    if (!menu) return;
+    const onDown = (e: MouseEvent) => {
+      if (!rootRef.current?.contains(e.target as Node)) setMenu(null);
+    };
+    const onKey = (e: KeyboardEvent) => { if (e.key === "Escape") setMenu(null); };
+    window.addEventListener("mousedown", onDown);
+    window.addEventListener("keydown", onKey);
+    return () => {
+      window.removeEventListener("mousedown", onDown);
+      window.removeEventListener("keydown", onKey);
+    };
+  }, [menu]);
+
+  const choose = (id: NavSectionId) => {
+    // Clients and Projects list real pages, so the pin drops a menu. The rest
+    // have nothing to link to and open in the showcase below instead.
+    if (LINKED_SECTIONS[id]) {
+      setMenu((m) => (m === id ? null : id));
+      return;
+    }
+    setMenu(null);
     window.dispatchEvent(new CustomEvent(PIN_OPEN_EVENT, { detail: id }));
     document.getElementById("explore")?.scrollIntoView({
       behavior: reduceMotion ? "auto" : "smooth",
@@ -117,7 +192,7 @@ export function BrainPins() {
   };
 
   return (
-    <div className="pointer-events-none absolute inset-0 z-20 hidden lg:block">
+    <div ref={rootRef} className="pointer-events-none absolute inset-0 z-20 hidden lg:block">
       {/* Leaders. Non-scaling strokes so the hairlines stay hairlines whatever
           the aspect ratio does to the viewBox. */}
       <svg
@@ -159,7 +234,8 @@ export function BrainPins() {
         >
           <button
             type="button"
-            onClick={() => open(p.id)}
+            onClick={() => choose(p.id)}
+            aria-expanded={LINKED_SECTIONS[p.id] ? menu === p.id : undefined}
             className={`pointer-events-auto group flex -translate-y-1/2 items-center gap-2.5 rounded-full outline-none focus-visible:ring-2 focus-visible:ring-neutral-900/40 ${
               p.side === "logic" ? "-translate-x-0 flex-row" : "-translate-x-full flex-row-reverse"
             }`}
@@ -182,6 +258,10 @@ export function BrainPins() {
               {p.label}
             </span>
           </button>
+
+          <AnimatePresence>
+            {menu === p.id && <PinMenu pin={p} onPick={() => setMenu(null)} />}
+          </AnimatePresence>
         </motion.div>
       ))}
     </div>
