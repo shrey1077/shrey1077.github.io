@@ -1,3 +1,8 @@
+> ⚠ **SUPERSEDED (2026-08-10).** Read
+> [`11_SITE_HANDOFF.md`](./11_SITE_HANDOFF.md) first — it covers the whole
+> site and this file's homepage and work-section descriptions are now wrong.
+> Kept for the history of how the Tata page got here.
+
 # 10 — TATA IIS BESPOKE EXPERIENCE — HANDOFF
 
 Everything a fresh chat needs to continue the Tata IIS work without

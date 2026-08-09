@@ -1,3 +1,10 @@
+# START HERE
+
+**Current, whole-site handoff: [`11_SITE_HANDOFF.md`](./11_SITE_HANDOFF.md).**
+Read that first. Everything below is earlier-phase history.
+
+---
+
 # 00 — START HERE (new-session SOP)
 
 How to continue this project in a fresh Claude conversation with minimum context.
