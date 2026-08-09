@@ -1,3 +1,8 @@
+> ⚠ **SUPERSEDED (2026-08-10).** Read
+> [`11_SITE_HANDOFF.md`](./11_SITE_HANDOFF.md) first — it covers the whole
+> site and this file's homepage and work-section descriptions are now wrong.
+> Kept for the history of how the Tata page got here.
+
 # 09 — TATA IIS EXPERIENCE — HANDOFF PACKAGE
 
 Everything needed to continue the Tata IIS client-experience build in a fresh
