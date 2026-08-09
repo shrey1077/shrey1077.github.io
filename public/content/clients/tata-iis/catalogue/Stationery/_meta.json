@@ -1,0 +1,15 @@
+{
+  "order": 10,
+  "cover": "letterhead-header.webp",
+  "description": "Letterheads, notepads, bookmarks, stickers — the credible everyday proof of a working identity.",
+  "story": "The unglamorous surfaces are where identities quietly die — or quietly hold. Letterhead margins matched the guideline grid; the visitor namecard, bookmark and mirror sticker each got the same care as a billboard, because a student meets the sticker more often than the hoarding.",
+  "captions": {
+    "letterhead-header.webp": "Letterhead — the header rule.",
+    "letterhead-black.webp": "Letterhead — reversed.",
+    "notepad-cover-iisa.webp": "Notepad cover, IISA.",
+    "bookmark-front.webp": "The bookmark.",
+    "visitor-namecard.webp": "Visitor namecard.",
+    "stickers-mumbai.webp": "Sticker sheet, Mumbai.",
+    "mirror-sticker.webp": "The mirror sticker."
+  }
+}

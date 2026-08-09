@@ -1,0 +1,14 @@
+{
+  "order": 2,
+  "cover": "packaging-family.webp",
+  "description": "Packaging for a hydroponic urban farming brand — a sprouting-leaf mark on a pentagon pack, sized for a produce family grown, not shipped, from far away.",
+  "story": "Structure first: the pentagon carton was cut, folded and rebuilt until it stood on a shelf, then the graphics arrived — a sprouting mark, produce photography, a green that means fresh rather than eco-generic. The family shot is the proof: one system, four SKUs, no exceptions.",
+  "captions": {
+    "packaging-family.webp": "The family — one system, four SKUs.",
+    "pack-01.webp": "The pentagon carton, front face.",
+    "pack-02.webp": "Side elevation.",
+    "pack-03.webp": "The opening mechanism.",
+    "pack-04.webp": "Shelf stance.",
+    "brand-mark.webp": "Farmstacks — the sprouting mark."
+  }
+}

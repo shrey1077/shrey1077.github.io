@@ -1,0 +1,14 @@
+{
+  "order": 1,
+  "cover": "gst-launch.webp",
+  "description": "Daily-news graphics built to read in a feed scroll — the story, in three lines flat.",
+  "story": "News design is deadline design. Each card had hours, not days: a policy launch broken into numbers, road deaths made legible without being lurid, a quote staged like broadcast. The discipline that survived the pace — one condensed headline voice, one red, the masthead always in the same corner — is what made six graphics from five years look like one newsroom.",
+  "captions": {
+    "gst-launch.webp": "GST launch night — the quote, staged like broadcast.",
+    "killer-indian-roads.webp": "17 deaths an hour — data made legible, not lurid.",
+    "oil-prices-slashed.webp": "Fuel-price cut — one card, three timelines.",
+    "bond-drinks.webp": "Entertainment desk — Bond, ranked by glass.",
+    "worlds-richest-man.webp": "Bezos at $90.6B — the profile card.",
+    "highest-paid-actresses.webp": "Forbes list, in one scroll-stopping frame."
+  }
+}

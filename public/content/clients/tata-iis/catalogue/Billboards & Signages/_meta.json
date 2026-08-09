@@ -1,0 +1,20 @@
+{
+  "order": 1,
+  "cover": "ahmedabad-entrance-monolith.webp",
+  "description": "The identity at architectural scale — hoardings, monoliths, facades. Five mandated co-brands, two languages, one hierarchy that reads at 60 km/h.",
+  "story": "Every large surface carried the same constraint: Skill India, the state government, MSDE, Tata Trusts and Tata Sons all had a mandated place, in two scripts. The system's answer was a strict hierarchy — institutional name largest, Hindi first where the law asks, partners in a fixed footer band — so that a monolith in Ahmedabad and a flyover hoarding in Mumbai read as one institution at any speed.",
+  "captions": {
+    "ahmedabad-entrance-monolith.webp": "The Ahmedabad entrance monolith — bilingual naming, government and Tata marks in one hierarchy.",
+    "mumbai-site-hoarding.webp": "Site hoarding at the Mumbai campus perimeter.",
+    "highway-billboard.webp": "Launch billboard — the wordmark at highway distance.",
+    "building-wall-billboard.webp": "12×24 ft on a building wall.",
+    "city-billboard-mumbai.webp": "City billboard, Mumbai.",
+    "brushed-metal-facade-ahmedabad.webp": "Brushed-metal facade lettering, Ahmedabad.",
+    "brushed-metal-facade-mumbai.webp": "Brushed-metal facade lettering, Mumbai.",
+    "street-banner-mumbai.webp": "Street banner series, Mumbai.",
+    "street-banner-ahmedabad.webp": "Street banner series, Ahmedabad.",
+    "city-light-panel.webp": "City-light panel, Ahmedabad.",
+    "campus-signage-ahmedabad.webp": "Campus signage system, Ahmedabad.",
+    "campus-signage-mumbai.webp": "Campus signage system, Mumbai."
+  }
+}

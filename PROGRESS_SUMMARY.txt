@@ -1,0 +1,159 @@
+================================================================
+PORTFOLIO V2 — "MIND" — PROGRESS SUMMARY
+Project of: Shrey Singh (Visual Communication Designer)
+Location: D:\Brain Folio (Next.js app) + D:\Brain Website portfolio\Tata folio (client asset archive)
+Date: 5 July 2026
+Purpose of this file: self-contained briefing for an external AI/collaborator
+================================================================
+
+WHAT THIS PROJECT IS
+--------------------
+Not a conventional portfolio website. An interactive "Memory Palace":
+- The homepage represents the designer's mind.
+- A 3D anatomical brain (top view) is the centerpiece: LEFT hemisphere =
+  logic (monochrome ink sketch), RIGHT = creativity (color washed into the
+  same linework).
+- Every client is a "memory" stored in that mind; every collection is a room;
+  every asset is an artifact.
+- Design philosophy: white gallery minimalism (pure #FFFFFF), museum-quality
+  calm motion, storytelling over showcasing, curation over completeness.
+- Constitution document: CREATIVE_INTENT.md (in the asset archive).
+
+TECH STACK
+----------
+Next.js 16 (App Router, Turbopack) · TypeScript strict · Tailwind CSS v4 ·
+React Three Fiber v9 + drei (WebGL brain) · Zustand (state) · Framer Motion
+(UI motion) · Leva (dev-only debug panel) · GSAP (installed, reserved) ·
+Fonts via next/font: Caveat (handwritten), IBM Plex Mono (technical),
+Fraunces (serif display). All routes statically generated (SSG).
+
+PROGRESS BY PHASE (ALL COMPLETE UNLESS NOTED)
+---------------------------------------------
+PHASE 1 — Foundation (done 1 Jul 2026)
+- R3F scene: fixed top-down camera, studio 3-point lighting + HDRI preset,
+  contact shadow, ACES tone mapping, pure white background.
+- Procedural placeholder brain (two hemispheres), damped mouse rotation
+  (max +/-10 deg, frame-rate independent), 60fps hot-path contract:
+  NOTHING per-frame touches React state (refs + store snapshots only).
+- Zustand stores, constants-as-single-source-of-truth, docs system.
+
+PHASE 2 — Navigation hub (done 2 Jul)
+- Homepage = HeroStage (~90vh, brain + nav) -> PreviewPane (height 0 -> auto,
+  one reusable expanding sheet) -> SiteFooter (~10vh). One viewport when idle.
+- 8 nav sections around the brain (4 left: Clients, Projects, Logofolio,
+  Career Path; 4 right: Art, Publications, The Extincts Project, AI
+  Generations & Ideas). Hovering a nav item makes the brain LEAN toward that
+  hemisphere. Clicking opens the preview sheet (smooth scroll, cinematic).
+- Clients grid (6 clients: Tata IIS, ABS, Zabraku Media, Azoth Biotech,
+  Mycoveda, NewsMobile) -> /clients/[slug] routes (SSG).
+
+PHASE 2.5 — Installation refactor (done 2 Jul, per approved mockup)
+- Typography Constitution in code: pipeline "handwritten thought -> pause ->
+  letter-by-letter paper flip -> final typography". Voices: thought=Caveat,
+  logic=Plex Mono caps, creative=Fraunces, plain=system sans. One component
+  (TypeReveal) renders all voiced text with per-letter spans (ready for the
+  future flip animation).
+- Nav shows DUAL representation: handwritten label -> arrow -> final caps,
+  on hairline rules with dot terminals. Identity header (script "SS"
+  monogram + name/role + "Move to explore" note).
+- Preview = rounded light sheet (neutral-50, rounded-t-2rem), chevron close,
+  rail (index/title/description) + body. Footer: email | LinkedIn | Behance |
+  Resume.
+- Tata IIS became the reference client experience (4 numbered sections:
+  Brand, Structure, Catalogue, Photography).
+- FILESYSTEM-DRIVEN catalogue: folders under
+  public/content/clients/<slug>/catalogue/ auto-become cards + SSG routes
+  (verified live: new folder -> new card, zero code). _meta.json for
+  order/description. Docs restructured to exactly 8 files (user-specified).
+
+PHASE 2.6 — Framework consolidation (done 2 Jul)
+- Brain sculpted in 3D: real gyri/sulci grooves via domain-warped ridged
+  noise + "crevice ink" (groove depth -> vertex colors = drawn linework).
+  Verified numerically (couldn't verify visually — preview tooling died);
+  all fold tunables in one PLACEHOLDER block in BrainModel.ts.
+- Brain split into 6 subsystems: Model (GLB swap point) / Materials /
+  Interaction / Animation (reserved) / Lighting / Effects (reserved mount).
+- Reusable experience framework (components/experience/): ExperienceLayout /
+  Hero / Navigation / Section, CatalogueSection, PhotographySection,
+  GallerySection, ProcessSection, TimelineSection, AssetGrid, MediaViewer
+  (lightbox), FooterNavigation (prev/next memory).
+- Memory-transition architecture (components/transition/):
+  ExperienceTransition (settle now, dive orchestrator later), MemoryOverlay
+  (white veil), BrainConnection (brain->memory thread stub).
+- Design tokens (spacing/radius/shadows/z-index/breakpoints), motion tokens
+  (fast/medium/slow/settle/verySlow + 3 easings, never bounce), idea engine
+  seed data (leftIdeas.ts / rightIdeas.ts, 10 thoughts per hemisphere).
+
+PHASE 3A — IN PROGRESS (5 Jul): Tata IIS experience + refinement
+- DONE: full archive study of the real client assets
+  (D:\Brain Website portfolio\Tata folio: 25 folders, ~440 files, 5.2GB).
+- DONE: five curation documents written to /docs:
+  ASSET_REPORT.md (per-folder inventory, hero candidates, gaps)
+  CURATION_REPORT.md (museum-style star ratings + reasoning)
+  COMMUNICATION_ECOSYSTEM.md (6 systems replacing folder browsing)
+  STORYBOARD_TATA_IIS.md (9-scene film-style storyboard)
+  TATA_IIS_CONTENT_MAP.md (master blueprint + data contract)
+- REMAINING (next work): asset optimization pipeline into public/content,
+  homepage polish toward mockups, brain quality push (+ evaluate open-source
+  anatomical GLB models and recommend one), then the full Tata IIS
+  experience build.
+
+KEY ARCHIVE FINDINGS (TATA IIS)
+-------------------------------
+- Brand: black serif "TATA IIS" wordmark with DOCUMENTED construction math
+  (8x grid, 2x word gap, 24x width) + navy/orange dot-tree campus logos
+  (Ahmedabad/Mumbai) + orange concentric-ring motif + zebra guideline motif.
+- Logo guidelines folder contains real construction pages AND logo intro
+  videos (MP4) -> the Interactive Logo Construction experience uses real rules.
+- Big Boards/Tata Quotes contains designed portrait+quote boards for exactly
+  Jamsetji, JRD, and Ratan Tata -> the once-only Legacy sequence (localStorage
+  flag) is built from the client's own assets.
+- Pictures folder is EMPTY: no real photography exists (only 3 photos of
+  installed standees). Photography & Media system leads with film; gap is
+  admitted, never faked with stock.
+- Privacy exclusions (never displayed): CV folder (named documents),
+  New Joinee (named individuals), Presentations (business proposal).
+- Curation target: ~60-80 artifacts displayed out of ~440 (exhibition ratio).
+- Six communication systems: Brand Identity / Marketing & Communication /
+  Photography & Media / Digital Presence / Student Experience / Special
+  Projects — each collection gets its own presentation style (construction
+  experience, publication viewer, video wall, certificate showcase, story
+  carousel, stationery still-life, wide strip, grid).
+
+EXPERIENCE FLOW (PLANNED, PHASE 3A BUILD)
+------------------------------------------
+Homepage -> Clients -> Tata IIS -> memory transition (thread draws toward
+left hemisphere, white veil, no loading spinners) -> Legacy (3 cinematic
+moments, plays ONCE ever) -> logo arrival on construction grid -> Design DNA
+(4 editable principles: Industry 4.0, Precision, Human Potential, Scalable
+Brand System) -> Campus Network (animated connections to 2 campuses) ->
+Communication Ecosystem (6 systems) -> Collections -> artifact viewer ->
+return to brain.
+
+HARD RULES / INVARIANTS
+------------------------
+- Pure white background; no gradients/textures on the page itself.
+- No bounce/elastic easing, no loading spinners, no stock photography.
+- Nothing per-frame touches React state (refs + getState() snapshots).
+- All tunables in src/constants/; content on the filesystem, never hardcoded
+  in components. Dev tools (Leva) never ship to production.
+- Curation before completeness; storytelling before showcasing.
+
+KNOWN OPEN ITEMS / CAVEATS
+---------------------------
+- The sculpted brain has NOT yet been visually approved (preview tooling was
+  broken; verified mathematically). May need fold-parameter taste tuning.
+- A significantly better anatomical GLB model may replace the procedural
+  brain (swap point ready: src/components/brain/BrainModel.ts).
+- Placeholder URLs to replace: LinkedIn/Behance in src/constants/site.ts;
+  resume.pdf not yet added to /public.
+- Future milestones (NOT in current scope): paint flow, procedural circuits,
+  neuron sparks, live idea engine, handwriting/paper-flip animation,
+  full logo-construction animation, immersive gallery upgrade.
+
+DOCUMENTATION INDEX (all in D:\Brain Folio\docs)
+-------------------------------------------------
+PROJECT.md, DESIGN_SYSTEM.md, TYPOGRAPHY.md, MOTION.md, INTERACTIONS.md,
+CLIENT_ARCHITECTURE.md, BRAIN_SYSTEM.md, CONTENT_GUIDE.md, plus the five
+Phase 3A curation docs listed above. README.md is the repo entry point.
+================================================================
