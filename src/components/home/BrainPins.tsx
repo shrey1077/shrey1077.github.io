@@ -53,9 +53,15 @@ const RIGHT_X = 0.7;
 const PIN_LEFT_X = 0.085;
 const PIN_RIGHT_X = 0.915;
 
-/** Vertical band the callouts occupy — below the top-corner furniture. */
-const BAND_TOP = 0.42;
-const BAND_STEP = 0.115;
+/** Vertical band each side's callouts occupy.
+ *  The two differ because the words sit differently: THINK is up on the crown,
+ *  leaving the left flank clear from 42% down, but IMAGINE runs along the base
+ *  from roughly 55%, so the creative pins have to sit ABOVE it or the labels
+ *  land on the word. */
+const BAND = {
+  logic: { top: 0.42, step: 0.115 },
+  creative: { top: 0.2, step: 0.105 },
+} as const;
 
 /** Hues for the creative leaders, pulled off the brain-paint spectrum. */
 const CREATIVE_HUES = ["#f0603c", "#f2a93b", "#3fa86b", "#4a7fd4"];
@@ -79,7 +85,7 @@ function buildPins(): Pin[] {
 
   const make = (list: typeof logic, side: "logic" | "creative"): Pin[] =>
     list.map((s, i) => {
-      const y = BAND_TOP + i * BAND_STEP;
+      const y = BAND[side].top + i * BAND[side].step;
       return {
         id: s.id,
         label: s.label,

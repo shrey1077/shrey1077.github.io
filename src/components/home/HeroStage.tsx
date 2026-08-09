@@ -21,7 +21,7 @@ import { BrainSequence } from "@/components/home/BrainSequence";
 import { HeroName } from "@/components/home/HeroName";
 import { CodeStream } from "@/components/home/CodeStream";
 import { AboutFacts } from "@/components/home/AboutFacts";
-import { ThoughtBox } from "@/components/home/ThoughtBox";
+import { SpeechBubbles } from "@/components/home/SpeechBubbles";
 import { HobbiesRotator } from "@/components/home/HobbiesRotator";
 import { Corner3DGrid } from "@/components/home/Corner3DGrid";
 import { useInViewport } from "@/hooks/useInViewport";
@@ -30,13 +30,14 @@ import { CircuitBackdrop } from "@/components/home/CircuitBackdrop";
 import { BrainPins } from "@/components/home/BrainPins";
 import { useIsPhone } from "@/hooks/useMediaQuery";
 
-/** The landing brain read too large at 1:1 — sit it back a quarter.
+/** The landing brain read too large at 1:1 — sit it back a quarter, then a
+ *  further tenth (2026-08-10) to give the words and pins more room.
  *  On a phone the opposite is true: the footage is landscape and `object-contain`
  *  fits it to the WIDTH of a portrait viewport, so at 0.75 the brain shrinks to a
  *  thumbnail in a mostly-empty screen. Push it back up past 1 instead — the
  *  footage carries plenty of margin, so nothing important crops. */
-const CENTER_SCALE = 0.75;
-const CENTER_SCALE_PHONE = 1.45;
+const CENTER_SCALE = 0.675;
+const CENTER_SCALE_PHONE = 1.305;
 
 export function HeroStage() {
   // Keep the scrub loop running while the hero is near the viewport; idle it
@@ -99,9 +100,10 @@ export function HeroStage() {
           <AboutFacts />
         </div>
 
-        {/* Creative side (right) — thought box up in the freed top-right. */}
-        <div className="absolute right-10 top-[13%] flex justify-end">
-          <ThoughtBox />
+        {/* Creative side (right) — hand-drawn bubbles in the freed top-right,
+            replacing the plain thought text that used to sit here. */}
+        <div className="absolute right-10 top-[5%] flex justify-end">
+          <SpeechBubbles />
         </div>
         <div className="absolute bottom-[9vh] right-10 flex justify-end">
           <HobbiesRotator />
