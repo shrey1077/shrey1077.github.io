@@ -21,6 +21,11 @@ export const NEWSMOBILE_EXPERIENCE: CaseStudyConfig = {
     "Designing for a newsroom means designing for a thumb already lifting. Every card had to land its point before it left the screen — and still look like NewsMobile while doing it. Two years of that discipline: the numbers made shareable, the moment framed, the read that earns the follow.",
   metaLines: ["newsmobile.in · newsmobile.asia", "Gurugram, Haryana", "2016 — 2018"],
   logo: "/content/career/newsmobile.png",
+  // The newsroom's own colour-bars ident, run as a muted wash behind the room.
+  backdrop: {
+    src: "/content/clients/newsmobile/brand/backdrop.mp4",
+    poster: "/content/clients/newsmobile/brand/backdrop-poster.jpg",
+  },
   footerNote: "NewsMobile — digital news graphics, 2016–2018",
   categories: [
     {

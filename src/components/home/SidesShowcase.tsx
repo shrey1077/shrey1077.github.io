@@ -153,6 +153,7 @@ function ExpandedBody({
   onClose,
   artCollections,
   logos,
+  extinctsSlides,
 }: {
   side: Side;
   openId: NavSectionId;
@@ -160,6 +161,7 @@ function ExpandedBody({
   onClose: () => void;
   artCollections: ArtCollection[];
   logos: LogoMark[];
+  extinctsSlides: string[];
 }) {
   const logic = side === "logic";
   const sections = navSectionsFor(logic ? "left" : "right");
@@ -217,7 +219,7 @@ function ExpandedBody({
           </h3>
         </div>
         <div className="min-h-0 flex-1">
-          <SectionBody id={openId} artCollections={artCollections} logos={logos} />
+          <SectionBody id={openId} artCollections={artCollections} logos={logos} extinctsSlides={extinctsSlides} />
         </div>
       </div>
     </div>
@@ -235,6 +237,7 @@ function Column({
   onClose,
   artCollections,
   logos,
+  extinctsSlides,
   stacked,
 }: {
   side: Side;
@@ -245,6 +248,7 @@ function Column({
   onClose: () => void;
   artCollections: ArtCollection[];
   logos: LogoMark[];
+  extinctsSlides: string[];
   stacked: boolean;
 }) {
   const reduceMotion = useReducedMotion();
@@ -280,6 +284,7 @@ function Column({
               onClose={onClose}
               artCollections={artCollections}
               logos={logos}
+              extinctsSlides={extinctsSlides}
             />
           </motion.div>
         ) : (
@@ -304,9 +309,11 @@ function Column({
 export function SidesShowcase({
   artCollections,
   logos,
+  extinctsSlides,
 }: {
   artCollections: ArtCollection[];
   logos: LogoMark[];
+  extinctsSlides: string[];
 }) {
   const [expanded, setExpanded] = useState<Side | null>(null);
   const [openId, setOpenId] = useState<NavSectionId | null>(null);
@@ -337,6 +344,7 @@ export function SidesShowcase({
           onClose={close}
           artCollections={artCollections}
           logos={logos}
+          extinctsSlides={extinctsSlides}
           stacked={stacked}
         />
         <Column
@@ -348,6 +356,7 @@ export function SidesShowcase({
           onClose={close}
           artCollections={artCollections}
           logos={logos}
+          extinctsSlides={extinctsSlides}
           stacked={stacked}
         />
       </div>

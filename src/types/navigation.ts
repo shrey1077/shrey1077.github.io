@@ -29,7 +29,8 @@ export type NavSectionId =
  *   • "coming-soon" → an elegant placeholder (every other section, for now).
  * New kinds get added here as later phases implement real content.
  */
-export type PreviewKind = "clients" | "coming-soon";
+/** "gallery" = the section has real content of its own to show. */
+export type PreviewKind = "clients" | "gallery" | "coming-soon";
 
 /** One navigation section — placed around a hemisphere, opens the preview pane. */
 export interface NavSection {

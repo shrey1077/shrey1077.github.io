@@ -18,6 +18,7 @@ import fs from "node:fs";
 import path from "node:path";
 import Link from "next/link";
 import Image from "next/image";
+import { CaseBackdrop } from "@/components/client/case/CaseBackdrop";
 import { ExperienceTransition } from "@/components/transition/ExperienceTransition";
 import { CaseGallery } from "@/components/client/case/CaseGallery";
 import { typeVoiceClass } from "@/constants/typography";
@@ -69,8 +70,13 @@ export function CaseStudyExperience({ config }: { config: CaseStudyConfig }) {
     .filter((c) => c.plates.length > 0);
 
   return (
-    <main className="min-h-dvh w-full bg-[#fafafa] px-6 py-12 text-neutral-900 sm:px-10">
-      <div className="mx-auto w-full max-w-6xl">
+    <main className="relative min-h-dvh w-full bg-[#fafafa] px-6 py-12 text-neutral-900 sm:px-10">
+      {/* Optional house film, run as a wash behind the room. Fixed so it holds
+          still while the page scrolls, and muted enough that plates stay the
+          subject. `poster` carries reduced-motion viewers. */}
+      {config.backdrop && <CaseBackdrop {...config.backdrop} />}
+
+      <div className="relative z-10 mx-auto w-full max-w-6xl">
         <Link
           href="/"
           className="group inline-flex items-center gap-2 rounded text-[0.7rem] text-neutral-500 outline-none transition-colors duration-200 hover:text-neutral-900 focus-visible:text-neutral-900"

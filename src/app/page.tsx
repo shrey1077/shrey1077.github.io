@@ -16,7 +16,7 @@
 import { HeroStage } from "@/components/home/HeroStage";
 import { SidesShowcase } from "@/components/home/SidesShowcase";
 import { SiteFooter } from "@/components/footer/SiteFooter";
-import { readArtCollections, readLogofolio } from "@/content/catalogue";
+import { readArtCollections, readExtinctsSlides, readLogofolio } from "@/content/catalogue";
 
 export default function Home() {
   // The Art room's collections (Painting, Craft, …).
@@ -25,10 +25,13 @@ export default function Home() {
   // Every mark, for the Logofolio panel's five-column wall.
   const logos = readLogofolio();
 
+  // The Extincts jury deck, played as a fly-through in its section.
+  const extinctsSlides = readExtinctsSlides();
+
   return (
     <main className="w-full bg-gallery">
       <HeroStage />
-      <SidesShowcase artCollections={artCollections} logos={logos} />
+      <SidesShowcase artCollections={artCollections} logos={logos} extinctsSlides={extinctsSlides} />
       <SiteFooter />
     </main>
   );

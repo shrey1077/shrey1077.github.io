@@ -58,6 +58,9 @@ export interface CaseStudyConfig {
   metaLines: string[];
   /** Optional mark shown beside the header. */
   logo?: string;
+  /** Optional muted film behind the whole room, at low opacity. Supply a
+   *  poster too — reduced-motion viewers get the still instead. */
+  backdrop?: { src: string; poster: string };
   /** The quiet closing line. */
   footerNote: string;
   categories: CaseCategory[];

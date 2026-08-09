@@ -70,7 +70,7 @@ export const NAV_SECTIONS: readonly NavSection[] = [
     label: "The Extincts Project",
     hemisphere: "right",
     order: 2,
-    kind: "coming-soon",
+    kind: "gallery",
     description: "An ongoing personal series on what we've lost.",
   },
   {

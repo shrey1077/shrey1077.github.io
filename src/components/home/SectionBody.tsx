@@ -14,6 +14,7 @@ import { LogofolioGrid } from "@/components/home/LogofolioGrid";
 import { CareerTimeline } from "@/components/home/CareerTimeline";
 import type { ArtCollection, LogoMark } from "@/content/catalogue";
 import { ArtCollections } from "@/components/home/ArtCollections";
+import { ExtinctsDeck } from "@/components/home/ExtinctsDeck";
 import { DURATION, EASE_OUT } from "@/constants/motion";
 import { typeVoiceClass } from "@/constants/typography";
 import type { NavSectionId } from "@/types/navigation";
@@ -31,10 +32,12 @@ export function SectionBody({
   id,
   artCollections,
   logos,
+  extinctsSlides,
 }: {
   id: NavSectionId;
   artCollections: ArtCollection[];
   logos: LogoMark[];
+  extinctsSlides: string[];
 }) {
   const reduceMotion = useReducedMotion();
 
@@ -52,6 +55,11 @@ export function SectionBody({
 
   if (id === "career-path") {
     return <CareerTimeline />;
+  }
+
+  // The jury deck runs as a fly-through, the way the original presents it.
+  if (id === "the-extincts-project" && extinctsSlides.length > 0) {
+    return <ExtinctsDeck slides={extinctsSlides} />;
   }
 
   if (id === "art") {
