@@ -148,17 +148,9 @@ const IMAGES = [
   ["Print/Events/Skill connect/Pic_frame_iismSC.png", `${CAT}/Events/skill-connect-photo-frame.webp`, 1280],
   ["Print/Events/Skill connect/9434-01-folder-bi-fold-mockup.png", `${CAT}/Events/skill-connect-folder.webp`, 1280],
 
-  // ── Catalogue 09 · Merchandise ───────────────────────────────────────
-  ["Print/Events/Skill connect/Polo Shirt Main File_f.png", `${CAT}/Merchandise/skill-connect-polo.webp`, 1280],
-  ["Print/Events/Skill connect/Polo Shirt Main Fileteal.png", `${CAT}/Merchandise/skill-connect-polo-teal.webp`, 1280],
-  ["Print/Events/Skill connect/T-Shirt Mockup 1.png", `${CAT}/Merchandise/event-tee.webp`, 1280],
-  ["Digital/Mockups/Placement Front Tshirt1.png", `${CAT}/Merchandise/placement-polo-front.webp`, 1280],
-  ["Digital/Mockups/Placement Back Tshirt1.png", `${CAT}/Merchandise/placement-polo-back.webp`, 1280],
-  ["Digital/Mockups/Tshirt Jan2025 front.png", `${CAT}/Merchandise/batch-tee-front.webp`, 1280],
-  ["Digital/Mockups/Tshirt Jan2025 back.png", `${CAT}/Merchandise/batch-tee-back.webp`, 1280],
-  ["Digital/Mockups/PlannerMockupMUM.png", `${CAT}/Merchandise/planner-mumbai.webp`, 1280],
-  ["Digital/Mockups/Notebook_mu_SCL v1.png", `${CAT}/Merchandise/notebook-skill-connect.webp`, 1280],
-  ["Digital/Mockups/Picture_print_frame_IISA.png", `${CAT}/Merchandise/print-frame-iisa.webp`, 1280],
+  // Catalogue 09 (Merchandise) removed 2026-08-09 at the owner's request —
+  // the t-shirts, planners and frames are mockups of other people's products
+  // rather than the identity itself. The source files are untouched.
 
   // ── Catalogue 10 · Stationery ────────────────────────────────────────
   ["Print/Letterhead/Header.png", `${CAT}/Stationery/letterhead-header.webp`, 1600],
@@ -358,22 +350,6 @@ const METAS = {
       "amtech-pavilion-banner-ii.webp": "Amtech — banner, second wave.",
     },
   },
-  [`${CAT}/Merchandise`]: {
-    order: 9,
-    cover: "skill-connect-polo.webp",
-    description:
-      "Polos, tees, planners and notebooks — the identity worn and carried.",
-    story:
-      "The wearable system: navy polos with the orange-tipped collar for staff, placement-day tees for graduating batches, planners and notebooks for desks. Merchandise is the loyalty test of an identity — it only works if people would wear it unasked.",
-    captions: {
-      "skill-connect-polo.webp": "The staff polo — navy, orange-tipped.",
-      "placement-polo-front.webp": "Placement day — front.",
-      "placement-polo-back.webp": "Placement day — back.",
-      "batch-tee-front.webp": "Batch tee, January 2025.",
-      "planner-mumbai.webp": "The campus planner, Mumbai.",
-      "notebook-skill-connect.webp": "Skill Connect notebook.",
-      "event-tee.webp": "The event tee.",
-    },
   },
   [`${CAT}/Stationery`]: {
     order: 10,

@@ -21,7 +21,7 @@ work is not covered at all.
 
 | Status | Subsections |
 |---|---|
-| **Has mockups** | Billboards & Signages · Boards · Banners · Merchandise |
+| **Has mockups** | Billboards & Signages · Boards · Banners |
 | **Has real installation photos** (better than a mockup) | Boards — 14 shots now converted from NEF |
 | **No mockup at all** | Visiting Cards · ID Cards · Certificates · Brochures · Trifolds · Flyers · Handbook · Letterheads & Stationery · Stickers & Notepads · Campus Posters · Presentations · Website Banners · Backgrounds · Socials |
 

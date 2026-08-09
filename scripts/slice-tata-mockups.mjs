@@ -37,7 +37,8 @@ const MAP = {
     "fam-digital-graphics",      // monitor + phone
     "fam-photography",           // DSLR camera
     "sub-certificates",          // certificate scroll + ribbon
-    "sub-merchandise",           // folded polo
+    "_unused-polo",              // folded polo — Merchandise section removed 2026-08-09;
+                                 // slot kept so the grid mapping below does not shift
     "sub-stationery",            // letterhead + cards + envelope
     "sub-billboards-and-signages", // billboard on posts
     "sub-brochures",             // open tri-fold brochure
