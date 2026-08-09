@@ -82,6 +82,7 @@ export function TataExperience() {
         note: item.note,
         count: item.pick ? assets.length : (data?.category.assetCount ?? 0),
         assets,
+        curated: data?.curated ?? false,
         mockup: item.folder ? mockupIfPresent(tataSubcatMockup(item.folder)) : undefined,
       };
     }),

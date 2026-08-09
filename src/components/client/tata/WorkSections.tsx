@@ -35,6 +35,9 @@ export interface ResolvedItem {
   count: number;
   assets: CollectionAsset[];
   mockup?: string;
+  /** The folder's meta names a caption order, so that order is deliberate and
+   *  outranks the automatic brand grouping. */
+  curated?: boolean;
 }
 
 export interface ResolvedSection {
@@ -254,9 +257,17 @@ function Panel({
   onClose: () => void;
   onOpenAsset: (a: CollectionAsset) => void;
 }) {
-  const ordered = [...item.assets].sort(
-    (a, b) => BRAND_LANES.indexOf(brandOf(a.name)) - BRAND_LANES.indexOf(brandOf(b.name)),
-  );
+  // Staged images are the tile's resting face, not part of the work — they do
+  // not belong in the slider.
+  const pieces = item.assets.filter((a) => !/(^|-)(mockup|installed)-/.test(a.name));
+
+  // Brand grouping is the default, but a hand-written caption order beats it:
+  // ID Cards wants both fronts before both reverses, which cuts across lanes.
+  const ordered = item.curated
+    ? pieces
+    : [...pieces].sort(
+        (a, b) => BRAND_LANES.indexOf(brandOf(a.name)) - BRAND_LANES.indexOf(brandOf(b.name)),
+      );
 
   return (
     <motion.div

@@ -1,3 +1,9 @@
 {
-  "description": "Trainee identity cards for both campuses — front, reverse and the lanyard card."
+  "description": "Trainee identity cards for both campuses — every front, then every reverse.",
+  "captions": {
+    "ahmedabad-front.webp": "IIS Ahmedabad — front.",
+    "mumbai-front.webp": "IIS Mumbai — front.",
+    "ahmedabad-back.webp": "IIS Ahmedabad — reverse: contact, guardian, blood group.",
+    "mumbai-back.webp": "IIS Mumbai — reverse."
+  }
 }

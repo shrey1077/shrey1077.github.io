@@ -51,15 +51,18 @@ const FOLDERS = [
   },
   {
     name: "ID Cards",
-    description: "Trainee identity cards for both campuses — front, reverse and the lanyard card.",
+    description: "Trainee identity cards for both campuses — every front, then every reverse.",
     sources: [
       { img: "Print/ID cards/Front.png", as: "ahmedabad-front" },
       { img: "Print/ID cards/BACK.png", as: "ahmedabad-back" },
       { img: "Print/ID cards/Front_mum.png", as: "mumbai-front" },
       { img: "Print/ID cards/Back_mum.png", as: "mumbai-back" },
-      { img: "Print/ID cards/Artboard 1.png", as: "card-artwork-i" },
-      { img: "Print/ID cards/Artboard 1-1.png", as: "card-artwork-ii" },
-      { pdf: "Print/ID cards/Back_IG CARD.pdf", as: "lanyard-card" },
+      // The two Artboard exports are byte-identical to the Mumbai front and
+      // reverse above, and Back_IG CARD is a "Follow us" social card rather
+      // than an ID card at all — all three dropped 2026-08-10.
+      //   { img: "Print/ID cards/Artboard 1.png",     as: "card-artwork-i" },
+      //   { img: "Print/ID cards/Artboard 1-1.png",   as: "card-artwork-ii" },
+      //   { pdf: "Print/ID cards/Back_IG CARD.pdf",   as: "lanyard-card" },
     ],
   },
   {

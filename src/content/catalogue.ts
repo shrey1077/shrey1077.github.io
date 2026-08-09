@@ -279,7 +279,7 @@ export function readLogofolio(): LogoMark[] {
 export function readCatalogueCategory(
   slug: string,
   categoryId: string,
-): { category: CatalogueCategory; assets: CollectionAsset[] } | null {
+): { category: CatalogueCategory; assets: CollectionAsset[]; curated: boolean } | null {
   const root = clientDir(slug, "catalogue");
   const folder = listDirs(root).find((f) => folderToId(f) === categoryId);
   if (!folder) return null;
@@ -302,6 +302,9 @@ export function readCatalogueCategory(
     }));
 
   return {
+    /** True when the meta names a caption order — i.e. the sequence is a
+     *  deliberate choice rather than whatever the filesystem returned. */
+    curated: Object.keys(meta.captions ?? {}).length > 0,
     category: {
       id: categoryId,
       name: folder,
