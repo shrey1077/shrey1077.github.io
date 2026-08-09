@@ -30,21 +30,29 @@ import { CornerText } from "@/components/home/CornerText";
 import { useInViewport } from "@/hooks/useInViewport";
 import { DURATION, EASE_IN_OUT, EASE_OUT } from "@/constants/motion";
 import { CircuitBackdrop } from "@/components/home/CircuitBackdrop";
+import { useIsPhone } from "@/hooks/useMediaQuery";
 
-/** The landing brain read too large at 1:1 — sit it back a quarter. */
+/** The landing brain read too large at 1:1 — sit it back a quarter.
+ *  On a phone the opposite is true: the footage is landscape and `object-contain`
+ *  fits it to the WIDTH of a portrait viewport, so at 0.75 the brain shrinks to a
+ *  thumbnail in a mostly-empty screen. Push it back up past 1 instead — the
+ *  footage carries plenty of margin, so nothing important crops. */
 const CENTER_SCALE = 0.75;
+const CENTER_SCALE_PHONE = 1.45;
 
 export function HeroStage() {
   // Keep the scrub loop running while the hero is near the viewport; idle it
   // once the visitor has scrolled well past.
   const { ref, inView } = useInViewport<HTMLElement>({ rootMargin: "200px 0px" });
   const reduceMotion = useReducedMotion();
+  const isPhone = useIsPhone();
+  const centreScale = isPhone ? CENTER_SCALE_PHONE : CENTER_SCALE;
 
   return (
     <section
       ref={ref}
       aria-label="Landing"
-      className="relative h-[100svh] min-h-[640px] w-full overflow-hidden"
+      className="relative h-[100svh] min-h-[560px] w-full overflow-hidden sm:min-h-[640px]"
       style={{ backgroundColor: "transparent" }}
     >
       {/* Circuit board texture — sits above the section background, below the brain video. */}
@@ -58,7 +66,7 @@ export function HeroStage() {
       <motion.div
         className="absolute inset-0"
         initial={reduceMotion ? false : { opacity: 0 }}
-        animate={{ opacity: 1, scale: CENTER_SCALE, originX: 0.5, originY: 0.5 }}
+        animate={{ opacity: 1, scale: centreScale, originX: 0.5, originY: 0.5 }}
         transition={{
           opacity: { duration: DURATION.verySlow, ease: EASE_OUT },
           scale: { duration: reduceMotion ? 0 : DURATION.verySlow, ease: EASE_IN_OUT },

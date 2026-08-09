@@ -22,6 +22,7 @@ import { navSectionIndex, navSectionsFor } from "@/constants/navigation";
 import { SectionBody } from "@/components/home/SectionBody";
 import type { ArtCollection, LogoMark } from "@/content/catalogue";
 import { DURATION, EASE_OUT } from "@/constants/motion";
+import { useMediaQuery } from "@/hooks/useMediaQuery";
 import { typeVoiceClass } from "@/constants/typography";
 import type { NavSectionId } from "@/types/navigation";
 
@@ -54,7 +55,7 @@ function OptionList({
       whileInView={{ opacity: 1, y: 0 }}
       viewport={{ once: true, margin: "-15%" }}
       transition={{ duration: DURATION.slow, ease: EASE_OUT }}
-      className="flex h-full flex-col px-6 py-[8vh] lg:px-[3vw]"
+      className="flex h-full flex-col px-5 py-6 sm:px-6 sm:py-[8vh] lg:px-[3vw]"
     >
       <header className="mb-[5vh] shrink-0">
         {logic ? (
@@ -234,6 +235,7 @@ function Column({
   onClose,
   artCollections,
   logos,
+  stacked,
 }: {
   side: Side;
   state: "open" | "closed" | "neutral";
@@ -243,17 +245,23 @@ function Column({
   onClose: () => void;
   artCollections: ArtCollection[];
   logos: LogoMark[];
+  stacked: boolean;
 }) {
   const reduceMotion = useReducedMotion();
   const logic = side === "logic";
-  const width = state === "open" ? "100%" : state === "closed" ? "0%" : "50%";
+  // Side by side, the open/closed/neutral state drives WIDTH. Stacked on a
+  // phone it drives HEIGHT instead — same three states, same feel, but each
+  // side gets the full width rather than a 187px sliver.
+  const extent = state === "open" ? "100%" : state === "closed" ? "0%" : "50%";
 
   return (
     <motion.div
-      animate={{ width }}
+      animate={stacked ? { height: extent, width: "100%" } : { width: extent, height: "100%" }}
       initial={false}
       transition={{ duration: reduceMotion ? 0 : DURATION.slow, ease: EASE_OUT }}
-      className={`relative h-full min-w-0 overflow-hidden ${logic ? "bg-gallery" : "bg-neutral-950"} ${logic ? "border-r border-neutral-200" : ""}`}
+      className={`relative min-h-0 min-w-0 overflow-hidden ${logic ? "bg-gallery" : "bg-neutral-950"} ${
+        logic ? (stacked ? "border-b border-neutral-200" : "border-r border-neutral-200") : ""
+      }`}
     >
       <AnimatePresence mode="wait" initial={false}>
         {state === "open" && openId ? (
@@ -302,6 +310,8 @@ export function SidesShowcase({
 }) {
   const [expanded, setExpanded] = useState<Side | null>(null);
   const [openId, setOpenId] = useState<NavSectionId | null>(null);
+  // Below the md breakpoint the two sides stack instead of splitting.
+  const stacked = useMediaQuery("(max-width: 767px)");
 
   const stateFor = (side: Side): "open" | "closed" | "neutral" =>
     expanded === null ? "neutral" : expanded === side ? "open" : "closed";
@@ -317,7 +327,7 @@ export function SidesShowcase({
 
   return (
     <section id="explore" aria-label="Explore both sides" className="relative w-full">
-      <div className="flex h-[100svh] min-h-[560px] w-full overflow-hidden">
+      <div className={`flex w-full overflow-hidden ${stacked ? "h-[100svh] min-h-[620px] flex-col" : "h-[100svh] min-h-[560px]"}`}>
         <Column
           side="logic"
           state={stateFor("logic")}
@@ -327,6 +337,7 @@ export function SidesShowcase({
           onClose={close}
           artCollections={artCollections}
           logos={logos}
+          stacked={stacked}
         />
         <Column
           side="creative"
@@ -337,6 +348,7 @@ export function SidesShowcase({
           onClose={close}
           artCollections={artCollections}
           logos={logos}
+          stacked={stacked}
         />
       </div>
     </section>

@@ -29,8 +29,9 @@ const SOCIALS: { label: string; href: string; icon: SocialName }[] = [
   { label: "Chess.com", href: "#", icon: "chess" },
 ];
 
-function SocialIcon({ name, size = 34 }: { name: SocialName; size?: number }) {
-  const p = { width: size, height: size, viewBox: "0 0 24 24", "aria-hidden": true } as const;
+function SocialIcon({ name }: { name: SocialName }) {
+  // Sized in CSS, not attributes, so the row can shrink on a phone.
+  const p = { viewBox: "0 0 24 24", "aria-hidden": true, className: "size-6 sm:size-[34px]" } as const;
   switch (name) {
     case "github":
       return (
@@ -72,14 +73,14 @@ export function ProfileNav() {
   const [imgOk, setImgOk] = useState(true);
 
   return (
-    <div className="pointer-events-auto flex items-center gap-5 rounded-3xl bg-neutral-950 p-4 text-white ring-1 ring-white/10">
-      <div className="relative size-32 shrink-0 overflow-hidden rounded-full ring-1 ring-white/20">
+    <div className="pointer-events-auto flex max-w-full items-center gap-3 rounded-3xl bg-neutral-950 p-3 text-white ring-1 ring-white/10 sm:gap-5 sm:p-4">
+      <div className="relative size-20 shrink-0 overflow-hidden rounded-full ring-1 ring-white/20 sm:size-32">
         {imgOk ? (
           <Image
             src="/profile.jpg"
             alt={SITE.name}
             fill
-            sizes="128px"
+            sizes="(max-width: 640px) 80px, 128px"
             className="object-cover"
             onError={() => setImgOk(false)}
           />
@@ -92,12 +93,12 @@ export function ProfileNav() {
         )}
       </div>
 
-      <div className="flex flex-col gap-1 pr-3">
-        <span className="font-sans text-[30px] font-semibold leading-none tracking-tight">
+      <div className="flex min-w-0 flex-col gap-1 pr-1 sm:pr-3">
+        <span className="font-sans text-[20px] font-semibold leading-none tracking-tight sm:text-[30px]">
           {SITE.name}
         </span>
-        <span className="font-sans text-[16px] leading-tight text-white/45">{PHONE}</span>
-        <div className="mt-3 flex items-center gap-4">
+        <span className="font-sans text-[13px] leading-tight text-white/45 sm:text-[16px]">{PHONE}</span>
+        <div className="mt-2 flex flex-wrap items-center gap-3 sm:mt-3 sm:gap-4">
           {SOCIALS.map((s) => (
             <a
               key={s.label}

@@ -51,6 +51,13 @@ const FLY_MS = 1500;
 /** House rule: at most seven artworks on any surface, tile or slider. */
 const MAX_FRAMES = 7;
 
+/** Named only where the three columns collapse to one and stop saying it. */
+const LANE_LABEL: Record<TataBrand, string> = {
+  tata: "Tata IIS",
+  iisa: "IIS Ahmedabad",
+  iism: "IIS Mumbai",
+};
+
 const FLY = {
   enter: { opacity: 0, scale: 0.86, x: "18%" },
   center: { opacity: 1, scale: 1, x: "0%" },
@@ -205,6 +212,13 @@ function Tile({
         )}
         <span className="min-w-0 flex-1">
           <span className="tata-heading block text-base leading-[1.15] text-neutral-900">{item.label}</span>
+          {/* The three columns ARE the lane label on desktop. Stacked to one
+              column on a phone that reading is gone, so name it there. */}
+          {laneImages.length > 0 && (
+            <span className="tata-subhead mt-1 block text-[0.55rem] uppercase tracking-[0.14em] text-neutral-400 lg:hidden">
+              {LANE_LABEL[lane]}
+            </span>
+          )}
         </span>
         <span className="tata-body shrink-0 pt-1 text-[0.6rem] tabular-nums text-neutral-500">{item.count}</span>
       </div>
