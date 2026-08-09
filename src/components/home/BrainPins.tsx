@@ -5,8 +5,9 @@
  *
  * No leader lines back to the brain any more. Each section is a label pill with
  * a short stub running off its inner edge to a stroked circle, and the whole
- * assembly levitates on its own slow cycle so the four read as suspended rather
- * than pinned to anything.
+ * assembly levitates on its own slow cycle. A second rule runs the other way,
+ * from the pill's outer edge to the screen corner, so each section reads as
+ * strung across the flank rather than floating free.
  *
  * Three states, and the open state deliberately inverts the resting one:
  *   rest    label filled, trailing circle stroked and empty
@@ -89,6 +90,15 @@ function PinRow({
           : { duration: pin.drift, repeat: Infinity, ease: "easeInOut" }
       }
     >
+      {/* Outer rule — pill to the screen edge. Sits on the row (which is the
+          positioned ancestor), so `right-full` lands it flush at x=0. */}
+      <span
+        aria-hidden
+        className={`absolute top-1/2 h-px w-[3vw] bg-neutral-900/45 ${
+          logic ? "right-full" : "left-full"
+        }`}
+      />
+
       <button
         type="button"
         aria-expanded={open}
@@ -106,7 +116,7 @@ function PinRow({
             open
               ? "aspect-square rounded-full border-2 border-neutral-950 bg-transparent p-4 text-neutral-950"
               : `rounded-full px-5 py-2.5 text-white ${fill}`
-          } ${logic ? "font-digibra text-[1.6rem]" : "font-graff text-[3.2rem]"}`}
+          } ${logic ? "font-digibra" : "font-graff"} text-[1.6rem]`}
         >
           {pin.label}
         </span>
