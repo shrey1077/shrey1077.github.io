@@ -6,7 +6,7 @@
  * The brain rests on its calibrated middle frame, mouse-scrubbable. The name is
  * stacked on it ("Shrey" on the crown, "Singh" at the base). Around it:
  *   • top-left   — a code window (logic).
- *   • top-right  — the large profile card (IdentityHeader).
+ *   • top-right  — was the ECard; parked 2026-08-09, see below.
  *   • right      — the right brain's thought box.
  *   • bottom-left  — the about-me facts (logic).
  *   • bottom-right — the hobbies (creative).
@@ -19,7 +19,6 @@
 
 import { motion, useReducedMotion } from "framer-motion";
 import { BrainSequence } from "@/components/home/BrainSequence";
-import { IdentityHeader } from "@/components/home/IdentityHeader";
 import { HeroName } from "@/components/home/HeroName";
 import { CodeStream } from "@/components/home/CodeStream";
 import { AboutFacts } from "@/components/home/AboutFacts";
@@ -75,8 +74,8 @@ export function HeroStage() {
         <BrainSequence active={inView} />
       </motion.div>
 
-      {/* The large profile card, top-right. */}
-      <IdentityHeader />
+      {/* The ECard (IdentityHeader) sat here until 2026-08-09 — parked at the
+          owner's request. Re-mount with <IdentityHeader /> to bring it back. */}
 
       {/* The landing furniture — desktop only. */}
       <motion.div

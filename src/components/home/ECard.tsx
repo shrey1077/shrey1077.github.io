@@ -1,11 +1,15 @@
 "use client";
 
 /**
- * ProfileNav — the top-right profile card.
+ * ECard — the contact card: photo, name, phone, socials.
  *
- * A large black rounded rectangle: the circular profile picture, the name
- * (sans-serif), a phone number and a row of social icons. Navigation now lives
- * in the scroll-revealed showcase, so this is a photo-forward identity card.
+ * A large black rounded rectangle with the circular profile picture, the name,
+ * a phone number and a row of social icons.
+ *
+ * ⚠ PARKED, not dead. Taken off the landing page on 2026-08-09 at the owner's
+ * request ("keep it saved, but remove from here for now"), so it is currently
+ * rendered nowhere. Do NOT remove it in a dead-code sweep — re-mount it by
+ * putting <IdentityHeader /> back into HeroStage.
  *
  * The photo loads from /public/profile.jpg; until it's added, the circle falls
  * back to the monogram. PHONE and the non-Gmail social URLs are PLACEHOLDERS.
@@ -69,7 +73,7 @@ function SocialIcon({ name }: { name: SocialName }) {
   }
 }
 
-export function ProfileNav() {
+export function ECard() {
   const [imgOk, setImgOk] = useState(true);
 
   return (
