@@ -13,6 +13,7 @@ import path from "node:path";
 import Link from "next/link";
 import Image from "next/image";
 import { ExperienceTransition } from "@/components/transition/ExperienceTransition";
+import { AzothHero } from "@/components/client/azoth/AzothHero";
 import { WorkGallery } from "@/components/client/WorkGallery";
 import {
   AZOTH,
@@ -52,8 +53,12 @@ export function AzothExperience() {
   const mushroomworksPosts = readWork("mushroomworks");
 
   return (
-    <main className="min-h-dvh w-full bg-white px-6 py-14 text-neutral-900 sm:px-10">
-      <div className="mx-auto w-full max-w-6xl">
+    <main className="min-h-dvh w-full bg-white text-neutral-900">
+      {/* The client-supplied hero, full bleed. Everything below it is the
+          page as it already stood. */}
+      <AzothHero />
+
+      <div className="mx-auto w-full max-w-6xl px-6 py-14 sm:px-10">
         <Link
           href="/"
           className="group inline-flex items-center gap-2 rounded text-[0.7rem] text-neutral-500 outline-none transition-colors duration-300 hover:text-neutral-900 focus-visible:text-neutral-900"
@@ -68,12 +73,12 @@ export function AzothExperience() {
             <div className="relative h-24 w-56 sm:h-32 sm:w-72">
               <Image src={AZOTH.logo} alt="Azoth Biotech" fill sizes="288px" className="object-contain" priority />
             </div>
-            <h1 className="max-w-2xl text-2xl font-semibold leading-tight sm:text-4xl">{AZOTH.tagline}</h1>
+            <h2 className="max-w-2xl text-2xl font-semibold leading-tight sm:text-4xl">{AZOTH.tagline}</h2>
             <p className="max-w-2xl text-sm leading-relaxed text-neutral-500 sm:text-base">{AZOTH.scope}</p>
           </section>
 
-          {/* 2 — Design foundations. */}
-          <section className="border-t border-neutral-200 py-16">
+          {/* 2 — Design foundations. Also the hero CTA's landing point. */}
+          <section id="work" className="scroll-mt-8 border-t border-neutral-200 py-16">
             <SectionKicker color={AZOTH.accent}>The brief — design foundations</SectionKicker>
             <div className="mt-8 grid grid-cols-1 gap-10 lg:grid-cols-3">
               {/* Logo. */}

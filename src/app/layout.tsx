@@ -8,6 +8,7 @@ import {
   IBM_Plex_Mono,
   Michroma,
   Orbitron,
+  Playfair_Display,
   Syne,
 } from "next/font/google";
 import { MemoryTransitionHost } from "@/components/transition/MemoryTransitionHost";
@@ -106,6 +107,17 @@ const orbitron = Orbitron({
   display: "swap",
 });
 
+/** Azoth's hero voice — the italic display face the client's own hero comp
+ *  was built around ("Inspired by Nature"). Italic only; nothing else on the
+ *  site uses it. */
+const playfair = Playfair_Display({
+  subsets: ["latin"],
+  style: ["italic"],
+  weight: ["400", "500"],
+  variable: "--font-playfair",
+  display: "swap",
+});
+
 export const metadata: Metadata = {
   title: "Mind — Interactive Brain",
   description:
@@ -128,7 +140,7 @@ export default function RootLayout({
   return (
     <html
       lang="en"
-      className={`${caveat.variable} ${caveatBrush.variable} ${fraunces.variable} ${plexMono.variable} ${cinzel.variable} ${michroma.variable} ${anton.variable} ${orbitron.variable} ${syne.variable}`}
+      className={`${caveat.variable} ${caveatBrush.variable} ${fraunces.variable} ${plexMono.variable} ${cinzel.variable} ${michroma.variable} ${anton.variable} ${orbitron.variable} ${playfair.variable} ${syne.variable}`}
     >
       <body className="bg-gallery text-neutral-900 antialiased">
         {children}
