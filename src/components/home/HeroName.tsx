@@ -3,26 +3,26 @@
 /**
  * HeroName — the landing's two words, set around the brain.
  *
- * THINK sits on the crown at display scale, in Digibra, at a fifth of black —
+ * Think sits on the crown at display scale, in Digibra, at a fifth of black —
  * it reads as a watermark the brain sits IN FRONT OF rather than a headline
  * over it. Its final K is right-aligned to the brain's midline, so the word
  * ends exactly where the logic hemisphere does and the brain laps over its
  * last letter. Imagine answers it at the base in Kids Story, starting from
- * that same midline and running right. THINK is a fifth of black; Imagine
+ * that same midline and running right. Think is a fifth of black; Imagine
  * keeps the living paint gradient at half, set by layer opacity because
  * `text-black/20` would have thrown the gradient away entirely — bg-clip-text
  * needs a real fill. The paint carries less weight than flat ink, which is why
  * it sits higher.
  *
  * The two no longer slide sideways. They breathe on the Z axis instead:
- * centre-screen is the rest state, and moving the pointer left pushes THINK
+ * centre-screen is the rest state, and moving the pointer left pushes Think
  * five percent toward you while Imagine recedes by the same amount — moving
  * right does the reverse. Five percent is small on purpose. The brain answers
  * the mouse far more strongly, and the words are meant to be the room it sits
  * in, not a second thing competing for the eye.
  *
  * The two sit on OPPOSITE sides of the footage in z-order, which is the whole
- * trick: THINK at z-0 is behind it, so the brain laps over its final K, while
+ * trick: Think at z-0 is behind it, so the brain laps over its final K, while
  * Imagine at z-20 lies on top of the paint, so the overlap reads as ink
  * soaking through rather than a label stuck on.
  *
@@ -39,12 +39,23 @@ const ZOOM = 0.05;
 
 /** Scenery scale, not headline scale — but capped so the word still fits.
  *  Each word owns exactly half the viewport (its outer edge to the midline),
- *  and at a true 4x THINK measured 1334px against 720px of room, so it lost
+ *  and at a true 4x Think measured 1334px against 720px of room, so it lost
  *  its T and H off-screen and read as "INK". 12vw is the largest that keeps
  *  all five letters on screen WITH the 5% zoom applied — 13vw fits at rest but
  *  clips once the pointer reaches the left edge. */
 const WORD = "block whitespace-nowrap will-change-transform leading-[0.82]";
-const SIZE = "text-[clamp(3rem,12vw,14rem)]";
+const BASE_SIZE = "clamp(3rem, 12vw, 14rem)";
+
+/** The two faces are nothing alike, so one font-size does not give one height.
+ *  Measured on canvas at 200px: "Think" in Digibra inks 149px tall and has no
+ *  descender at all; "Imagine" in Kids Story inks 195px, but 58px of that is
+ *  the g hanging below the baseline.
+ *
+ *  Matching TOTAL ink would therefore shrink Imagine's letters to pay for its
+ *  descender and leave it looking smaller. What reads as equal size is equal
+ *  ASCENT — baseline to top — which is 149 against 137, so Imagine takes a
+ *  8.76% bump. The descender is then free to hang, as it should. */
+const IMAGINE_RATIO = 149 / 137;
 
 /** The brain's WIDE vertical extent (viewport px) — crown to base of the main
  *  mass, ignoring the narrow tips so the words don't sit too high or too low. */
@@ -122,7 +133,7 @@ export function HeroName() {
         const half = window.innerWidth / 2;
         // -1 at the left edge, 0 dead centre, +1 at the right edge.
         const t = Math.max(-1, Math.min(1, (e.clientX - half) / half));
-        // Pointer left → THINK comes forward, Imagine recedes. Right inverts it.
+        // Pointer left → Think comes forward, Imagine recedes. Right inverts it.
         thinkZ.set(1 - t * ZOOM);
         imagineZ.set(1 + t * ZOOM);
       };
@@ -147,7 +158,7 @@ export function HeroName() {
 
   return (
     <h1 aria-label="Think. Imagine." className="pointer-events-none absolute inset-0">
-      {/* THINK — right edge pinned to the midline, so the final K lands exactly
+      {/* Think — right edge pinned to the midline, so the final K lands exactly
           where the logic hemisphere ends. It scales about that same edge, which
           keeps the K anchored while the word breathes. */}
       <motion.div
@@ -156,8 +167,12 @@ export function HeroName() {
         className="absolute right-1/2 top-0 z-0"
       >
         <motion.span {...rise(0.35)} className="block">
-          <span ref={thinkRef} className={`${WORD} ${SIZE} font-digibra text-black/20`}>
-            THINK
+          <span
+            ref={thinkRef}
+            style={{ fontSize: BASE_SIZE }}
+            className={`${WORD} font-digibra text-black/20`}
+          >
+            Think
           </span>
         </motion.span>
       </motion.div>
@@ -171,7 +186,10 @@ export function HeroName() {
         className="absolute left-1/2 top-0 z-20"
       >
         <motion.span {...rise(0.5)} className="block">
-          <span className={`${WORD} ${SIZE} brain-paint bg-clip-text font-graff text-transparent opacity-50`}>
+          <span
+            style={{ fontSize: `calc(${BASE_SIZE} * ${IMAGINE_RATIO})` }}
+            className={`${WORD} brain-paint bg-clip-text font-graff text-transparent opacity-50`}
+          >
             Imagine
           </span>
         </motion.span>
