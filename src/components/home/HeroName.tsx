@@ -1,17 +1,22 @@
 "use client";
 
 /**
- * HeroName — the landing name, stacked on the brain and above everything.
+ * HeroName — the landing words, stacked on the brain and above everything.
  *
- * "Shrey" rests on the brain's crown, "Singh" at its base — both centred at
- * rest. As the pointer moves AWAY from centre (either direction), "Shrey" slides
- * left and "Singh" slides right; at the edge "Shrey" reaches the left margin and
- * "Singh" the right. The brain's top/bottom are measured live from the footage's
- * alpha (its wide main mass) so the words tuck against it with only a sliver of
- * overlap, top and bottom.
+ * "Think" rests on the brain's crown, "Imagine" at its base — the two halves of
+ * the mind the page is about. Both are centred at rest; as the pointer moves
+ * away from centre they draw apart, Think left and Imagine right.
  *
- * Rendered ABOVE the footage and the rest of the furniture (z-30), so the name
- * always reads. Pointer-events-none. Reduced motion holds it centred and still.
+ * That travel is deliberately SMALL — capped at a tenth of the viewport each
+ * way. The brain is the centrepiece and it already answers the mouse; if the
+ * words swung as far as the margins they would compete with it. Ten percent
+ * reads as the type breathing, not as the type performing.
+ *
+ * The brain's top/bottom are measured live from the footage's alpha (its wide
+ * main mass) so the words tuck against it with only a sliver of overlap.
+ *
+ * Rendered ABOVE the footage and the rest of the furniture (z-30), so the words
+ * always read. Pointer-events-none. Reduced motion holds them centred and still.
  */
 
 import { useEffect, useRef } from "react";
@@ -25,6 +30,8 @@ import { DURATION, EASE_OUT } from "@/constants/motion";
 import { typeVoiceClass } from "@/constants/typography";
 
 const sideMargin = (vw: number) => Math.max(24, vw * 0.04);
+/** Each word travels at most this fraction of the viewport, either way. */
+const TRAVEL = 0.1;
 
 const WORD =
   "block whitespace-nowrap will-change-transform " +
@@ -97,11 +104,13 @@ export function HeroName() {
       shreyY.set(b.top - shreyH + overlap);
       // The brain runs low; keep Singh from sitting at the very bottom.
       singhY.set(Math.min(b.bottom - overlap, vh * 0.62));
+      // Ten percent of the viewport, but never so far that a word runs past
+      // the side margin on a narrow screen.
       const margin = sideMargin(vw);
       const shreyW = shreyRef.current?.offsetWidth ?? 0;
       const singhW = singhRef.current?.offsetWidth ?? 0;
-      shreyMax.current = Math.max(0, vw / 2 - margin - shreyW / 2);
-      singhMax.current = Math.max(0, vw / 2 - margin - singhW / 2);
+      shreyMax.current = Math.max(0, Math.min(vw * TRAVEL, vw / 2 - margin - shreyW / 2));
+      singhMax.current = Math.max(0, Math.min(vw * TRAVEL, vw / 2 - margin - singhW / 2));
     };
 
     measure();
@@ -136,21 +145,21 @@ export function HeroName() {
         };
 
   return (
-    <h1 aria-label="Shrey Singh" className="pointer-events-none absolute inset-0 z-30">
-      {/* Shrey — on the crown, sliding left. */}
+    <h1 aria-label="Think. Imagine." className="pointer-events-none absolute inset-0 z-30">
+      {/* Think — on the crown, drifting left. */}
       <motion.div aria-hidden style={{ x: shreyX, y: shreyY }} className="absolute left-1/2 top-0">
         <motion.span {...rise(0.35)} className="block -translate-x-1/2">
           <span ref={shreyRef} className={`${WORD} text-neutral-900`}>
-            Shrey
+            Think
           </span>
         </motion.span>
       </motion.div>
 
-      {/* Singh — at the base, sliding right, painted with the living gradient. */}
+      {/* Imagine — at the base, drifting right, painted with the living gradient. */}
       <motion.div aria-hidden style={{ x: singhX, y: singhY }} className="absolute left-1/2 top-0">
         <motion.span {...rise(0.5)} className="block -translate-x-1/2">
           <span ref={singhRef} className={`${WORD} brain-paint bg-clip-text text-transparent`}>
-            Singh
+            Imagine
           </span>
         </motion.span>
       </motion.div>

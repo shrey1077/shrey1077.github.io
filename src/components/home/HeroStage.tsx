@@ -29,6 +29,7 @@ import { CornerText } from "@/components/home/CornerText";
 import { useInViewport } from "@/hooks/useInViewport";
 import { DURATION, EASE_IN_OUT, EASE_OUT } from "@/constants/motion";
 import { CircuitBackdrop } from "@/components/home/CircuitBackdrop";
+import { BrainPins } from "@/components/home/BrainPins";
 import { useIsPhone } from "@/hooks/useMediaQuery";
 
 /** The landing brain read too large at 1:1 — sit it back a quarter.
@@ -76,6 +77,10 @@ export function HeroStage() {
 
       {/* The ECard (IdentityHeader) sat here until 2026-08-09 — parked at the
           owner's request. Re-mount with <IdentityHeader /> to bring it back. */}
+
+      {/* The sections, annotated onto the brain. Real navigation, so it sits
+          outside the aria-hidden furniture block below. */}
+      <BrainPins />
 
       {/* The landing furniture — desktop only. */}
       <motion.div

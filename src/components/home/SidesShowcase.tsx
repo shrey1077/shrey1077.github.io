@@ -16,13 +16,14 @@
  * career timeline, the art rooms). Reduced motion snaps instead of sliding.
  */
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
-import { navSectionIndex, navSectionsFor } from "@/constants/navigation";
+import { NAV_SECTIONS, navSectionIndex, navSectionsFor } from "@/constants/navigation";
 import { SectionBody } from "@/components/home/SectionBody";
 import type { ArtCollection, LogoMark } from "@/content/catalogue";
 import { DURATION, EASE_OUT } from "@/constants/motion";
 import { useMediaQuery } from "@/hooks/useMediaQuery";
+import { PIN_OPEN_EVENT } from "@/components/home/BrainPins";
 import { typeVoiceClass } from "@/constants/typography";
 import type { NavSectionId } from "@/types/navigation";
 
@@ -319,6 +320,19 @@ export function SidesShowcase({
   const [openId, setOpenId] = useState<NavSectionId | null>(null);
   // Below the md breakpoint the two sides stack instead of splitting.
   const stacked = useMediaQuery("(max-width: 767px)");
+
+  // A pin on the brain above can ask for a section by name.
+  useEffect(() => {
+    const onPin = (e: Event) => {
+      const id = (e as CustomEvent<NavSectionId>).detail;
+      const section = NAV_SECTIONS.find((s) => s.id === id);
+      if (!section) return;
+      setExpanded(section.hemisphere === "left" ? "logic" : "creative");
+      setOpenId(id);
+    };
+    window.addEventListener(PIN_OPEN_EVENT, onPin);
+    return () => window.removeEventListener(PIN_OPEN_EVENT, onPin);
+  }, []);
 
   const stateFor = (side: Side): "open" | "closed" | "neutral" =>
     expanded === null ? "neutral" : expanded === side ? "open" : "closed";
