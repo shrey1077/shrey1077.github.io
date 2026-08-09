@@ -8,7 +8,7 @@
  * over it. Its final K is right-aligned to the brain's midline, so the word
  * ends exactly where the logic hemisphere does and the brain laps over its
  * last letter. IMAGINE answers it at the base in Graff Burner, starting from
- * that same midline and running right, in the living paint gradient.
+ * that same midline and running right. Both are set at a fifth of black.
  *
  * The two no longer slide sideways. They breathe on the Z axis instead:
  * centre-screen is the rest state, and moving the pointer left pushes THINK
@@ -17,7 +17,11 @@
  * the mouse far more strongly, and the words are meant to be the room it sits
  * in, not a second thing competing for the eye.
  *
- * Sits at z-0, BEHIND the footage, which is what lets the brain overlap it.
+ * The two sit on OPPOSITE sides of the footage in z-order, which is the whole
+ * trick: THINK at z-0 is behind it, so the brain laps over its final K, while
+ * IMAGINE at z-20 lies on top of the paint. At a fifth of black the overlap
+ * reads as ink soaking through rather than a label stuck on.
+ *
  * The brain's vertical extent is measured live from the footage's alpha so the
  * words tuck against its real crown and base at any size.
  */
@@ -138,14 +142,14 @@ export function HeroName() {
         };
 
   return (
-    <h1 aria-label="Think. Imagine." className="pointer-events-none absolute inset-0 z-0">
+    <h1 aria-label="Think. Imagine." className="pointer-events-none absolute inset-0">
       {/* THINK — right edge pinned to the midline, so the final K lands exactly
           where the logic hemisphere ends. It scales about that same edge, which
           keeps the K anchored while the word breathes. */}
       <motion.div
         aria-hidden
         style={{ y: thinkY, scale: thinkScale, transformOrigin: "100% 50%" }}
-        className="absolute right-1/2 top-0"
+        className="absolute right-1/2 top-0 z-0"
       >
         <motion.span {...rise(0.35)} className="block">
           <span ref={thinkRef} className={`${WORD} ${SIZE} font-digibra text-black/20`}>
@@ -160,10 +164,10 @@ export function HeroName() {
       <motion.div
         aria-hidden
         style={{ y: imagineY, scale: imagineScale, transformOrigin: "0% 50%" }}
-        className="absolute left-1/2 top-0"
+        className="absolute left-1/2 top-0 z-20"
       >
         <motion.span {...rise(0.5)} className="block">
-          <span className={`${WORD} ${SIZE} brain-paint bg-clip-text font-graff text-transparent`}>
+          <span className={`${WORD} ${SIZE} font-graff text-black/20`}>
             IMAGINE
           </span>
         </motion.span>
