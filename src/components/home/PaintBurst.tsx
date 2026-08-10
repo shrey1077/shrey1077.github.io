@@ -4,16 +4,14 @@
  * PaintBurst — the paint-explosion film, behind the right hemisphere's spray.
  *
  * Confined to the right 57% of the stage — its left boundary sits 7% past the
- * midline, reaching a little further under the brain. The left flank is the
- * logic side and
- * has its own circuit texture, so letting this bleed across would collapse the
- * distinction the whole layout rests on. It runs at FULL opacity — the film is
- * the creative flank's ground, not a wash over it. The gradient mask is what
- * keeps that from becoming a hard-edged rectangle: it feathers the film out
- * toward the midline so the two hemispheres still meet rather than butt.
+ * midline, so the film reaches a little way under the brain. It stops there:
+ * the left flank is the logic side with its own circuit texture, and letting
+ * this bleed across would collapse the distinction the layout rests on.
  *
- * Fades out toward the midline so there is no hard vertical seam where the film
- * stops — the mask does the work a crop would do badly.
+ * It runs at FULL opacity — the film is the creative flank's ground, not a wash
+ * over it. The gradient mask is what keeps that from reading as a hard-edged
+ * rectangle: it feathers the film out toward the midline, doing the job a crop
+ * would do badly, so the two hemispheres meet rather than butt.
  *
  * Reduced motion gets the poster frame instead of the loop.
  */

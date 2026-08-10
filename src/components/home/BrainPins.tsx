@@ -4,11 +4,12 @@
  * BrainPins — the sections, floating either side of the brain.
  *
  * No leader lines back to the brain any more. Each section is a label pill with
- * a short stub running off its inner edge to a stroked circle, and the whole
- * A second rule runs the other way, from the pill's outer edge to the screen
- * corner, so each section reads as strung across the flank. They hold still:
- * the four used to levitate, but eight drifting labels around a brain that
- * already answers the mouse was one moving thing too many.
+ * a short stub off its inner edge to a stroked circle, and a second rule off
+ * its outer edge to the screen corner — so it reads as strung across the flank.
+ *
+ * They hold still. The four used to levitate, but eight drifting labels around
+ * a brain that already answers the mouse, over a full-strength film, was two
+ * moving things too many.
  *
  * Three states, and the open state deliberately inverts the resting one:
  *   rest    label filled, trailing circle stroked and empty
@@ -103,13 +104,8 @@ function PinRow({
         className={`pointer-events-auto flex items-center gap-2.5 outline-none focus-visible:ring-2 focus-visible:ring-neutral-900/40 ${COL[pin.side].align}`}
       >
         {/* The label keeps its pill geometry throughout — only the treatment
-            flips. Filled with white type at rest; stroked with dark type once
-            open. (It used to go square-and-round on open, which ballooned into
-            a circle wide enough to collide with the pill below.)
-
-            The creative side's stroke is a gradient, which CSS borders cannot
-            do, so it is a 2px paint-filled wrapper around an inner pill in the
-            page colour — the classic gradient-border trick. */}
+            flips. (It used to go square-and-round on open, which ballooned it
+            into a circle wide enough to collide with the pill below.) */}
         {!logic ? (
           // Rainbow border, white pill. CSS borders cannot hold a gradient, so
           // the paint is a 2px wrapper and the white pill sits inside it. Open
