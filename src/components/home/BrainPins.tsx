@@ -16,8 +16,10 @@
  *   open    the label keeps its shape but flips to stroked with dark text,
  *           while the trailing circle fills solid — the two swap treatments
  *
- * The logic side fills flat black; the creative side fills with the brain-paint
- * gradient. Choosing one opens its panel across the foot of the stage.
+ * The logic side fills flat black. The creative side is a white pill inside a
+ * rainbow border, with its rules doubled and painted white so they read against
+ * the full-strength film behind them. Choosing one opens its panel across the
+ * foot of the stage.
  */
 
 import { useEffect, useRef, useState } from "react";
@@ -85,8 +87,8 @@ function PinRow({
           positioned ancestor), so `right-full` lands it flush at x=0. */}
       <span
         aria-hidden
-        className={`absolute top-1/2 h-px w-[3vw] bg-neutral-900/45 ${
-          logic ? "right-full" : "left-full"
+        className={`absolute top-1/2 h-0.5 w-[3vw] ${
+          logic ? "right-full bg-neutral-900/45" : "left-full bg-white"
         }`}
       />
 
@@ -108,26 +110,34 @@ function PinRow({
             The creative side's stroke is a gradient, which CSS borders cannot
             do, so it is a 2px paint-filled wrapper around an inner pill in the
             page colour — the classic gradient-border trick. */}
-        {open && !logic ? (
+        {!logic ? (
+          // Rainbow border, white pill. CSS borders cannot hold a gradient, so
+          // the paint is a 2px wrapper and the white pill sits inside it. Open
+          // flips the inner fill to the paint and the type to white.
           <span className="brain-paint grid place-items-center rounded-full p-[2px]">
-            <span className="brain-paint bg-clip-text font-graff grid place-items-center whitespace-nowrap rounded-full bg-gallery px-3.5 py-1.5 text-center text-[1.07rem] leading-none text-transparent">
+            <span
+              className={`font-graff grid place-items-center whitespace-nowrap rounded-full px-3.5 py-1.5 text-center text-[1.07rem] leading-none transition-colors duration-300 ${
+                open ? "brain-paint text-white" : "bg-white text-neutral-900"
+              }`}
+            >
               {pin.label}
             </span>
           </span>
         ) : (
           <span
-            className={`grid place-items-center whitespace-nowrap rounded-full px-3.5 py-1.5 text-center text-[1.07rem] leading-none transition-colors duration-300 ${
-              open
-                ? "border-2 border-neutral-950 bg-transparent text-neutral-950"
-                : `text-white ${fill}`
-            } ${logic ? "font-digibra" : "font-graff"}`}
+            className={`font-digibra grid place-items-center whitespace-nowrap rounded-full px-3.5 py-1.5 text-center text-[1.07rem] leading-none transition-colors duration-300 ${
+              open ? "border-2 border-neutral-950 bg-transparent text-neutral-950" : `text-white ${fill}`
+            }`}
           >
             {pin.label}
           </span>
         )}
 
         {/* The stub, then the circle it runs to. */}
-        <span aria-hidden className="h-px w-6 shrink-0 bg-neutral-900/45" />
+        <span
+          aria-hidden
+          className={`h-0.5 w-6 shrink-0 ${logic ? "bg-neutral-900/45" : "bg-white"}`}
+        />
         <span
           aria-hidden
           className={`grid shrink-0 place-items-center rounded-full border-2 transition-colors duration-300 ${
@@ -135,7 +145,9 @@ function PinRow({
               ? logic
                 ? "border-neutral-950 bg-neutral-950"
                 : "brain-paint border-transparent"
-              : "border-neutral-950 bg-transparent"
+              : logic
+                ? "border-neutral-950 bg-transparent"
+                : "border-white bg-transparent"
           }`}
           style={{ width: CIRCLE, height: CIRCLE }}
         >

@@ -7,12 +7,11 @@
  * it reads as a watermark the brain sits IN FRONT OF rather than a headline
  * over it. Its final K is right-aligned to the brain's midline, so the word
  * ends exactly where the logic hemisphere does and the brain laps over its
- * last letter. Imagine answers it at the base in Kids Story, starting from
- * that same midline and running right. Think is a fifth of black; Imagine
- * keeps the living paint gradient at half, set by layer opacity because
- * `text-black/20` would have thrown the gradient away entirely — bg-clip-text
- * needs a real fill. The paint carries less weight than flat ink, which is why
- * it sits higher.
+ * last letter. Imagine answers it at the base in Juturu, starting from
+ * that same midline and running right. Think is a fifth of black; Imagine is
+ * PURE white, no transparency. It used to carry the paint gradient, which
+ * simply vanished into the film once that ran at full strength — solid white
+ * is the only fill that holds against it.
  *
  * The two no longer slide sideways. They breathe on the Z axis instead:
  * centre-screen is the rest state, and moving the pointer left pushes Think
@@ -47,15 +46,17 @@ const WORD = "block whitespace-nowrap will-change-transform leading-[0.82]";
 const BASE_SIZE = "clamp(3rem, 12vw, 14rem)";
 
 /** The two faces are nothing alike, so one font-size does not give one height.
- *  Measured on canvas at 200px: "Think" in Digibra inks 149px tall and has no
- *  descender at all; "Imagine" in Kids Story inks 195px, but 58px of that is
- *  the g hanging below the baseline.
+ *  Measured on canvas at 200px: "Think" in Digibra rises 149px and has no
+ *  descender at all; "Imagine" in Juturu rises 140px with 42px hanging below.
  *
- *  Matching TOTAL ink would therefore shrink Imagine's letters to pay for its
- *  descender and leave it looking smaller. What reads as equal size is equal
- *  ASCENT — baseline to top — which is 149 against 137, so Imagine takes a
- *  8.76% bump. The descender is then free to hang, as it should. */
-const IMAGINE_RATIO = 149 / 137;
+ *  Matching TOTAL ink would shrink Imagine's letters to pay for its descender
+ *  and leave it looking smaller. What reads as equal size is equal ASCENT, so
+ *  Imagine takes a 6.4% bump and the descender is free to hang.
+ *
+ *  ⚠ RE-MEASURE THIS whenever the creative face changes — it was 149/137 for
+ *  the face before this one. The number is a property of the two fonts, not a
+ *  taste call. */
+const IMAGINE_RATIO = 149 / 140;
 
 /** The brain's WIDE vertical extent (viewport px) — crown to base of the main
  *  mass, ignoring the narrow tips so the words don't sit too high or too low. */
@@ -188,7 +189,7 @@ export function HeroName() {
         <motion.span {...rise(0.5)} className="block">
           <span
             style={{ fontSize: `calc(${BASE_SIZE} * ${IMAGINE_RATIO})` }}
-            className={`${WORD} brain-paint bg-clip-text font-graff text-transparent opacity-50`}
+            className={`${WORD} font-graff font-bold text-white`}
           >
             Imagine
           </span>
