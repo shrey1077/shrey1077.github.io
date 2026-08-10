@@ -3,7 +3,9 @@
 /**
  * PaintBurst — the paint-explosion film, behind the right hemisphere's spray.
  *
- * Confined to the right HALF of the stage: the left flank is the logic side and
+ * Confined to the right 57% of the stage — its left boundary sits 7% past the
+ * midline, reaching a little further under the brain. The left flank is the
+ * logic side and
  * has its own circuit texture, so letting this bleed across would collapse the
  * distinction the whole layout rests on. It runs at FULL opacity — the film is
  * the creative flank's ground, not a wash over it. The gradient mask is what
@@ -28,7 +30,7 @@ export function PaintBurst() {
   return (
     <div
       aria-hidden
-      className="pointer-events-none absolute inset-y-0 right-0 w-1/2 overflow-hidden"
+      className="pointer-events-none absolute inset-y-0 right-0 w-[57%] overflow-hidden"
       style={{ maskImage: FADE, WebkitMaskImage: FADE }}
     >
       {reduceMotion ? (

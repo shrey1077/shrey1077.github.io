@@ -8,7 +8,7 @@
  * over it. Its final K is right-aligned to the brain's midline, so the word
  * ends exactly where the logic hemisphere does and the brain laps over its
  * last letter. Imagine answers it at the base in Juturu, starting from
- * that same midline and running right. Think is a fifth of black; Imagine is
+ * a little past that midline (54%) and running right. Think is a fifth of black; Imagine is
  * PURE white, no transparency. It used to carry the paint gradient, which
  * simply vanished into the film once that ran at full strength — solid white
  * is the only fill that holds against it.
@@ -184,7 +184,7 @@ export function HeroName() {
       <motion.div
         aria-hidden
         style={{ y: imagineY, scale: imagineScale, transformOrigin: "0% 50%" }}
-        className="absolute left-1/2 top-0 z-20"
+        className="absolute left-[54%] top-0 z-20"
       >
         <motion.span {...rise(0.5)} className="block">
           <span

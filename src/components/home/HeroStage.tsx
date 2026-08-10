@@ -21,7 +21,6 @@ import { BrainSequence } from "@/components/home/BrainSequence";
 import { HeroName } from "@/components/home/HeroName";
 import { CodeStream } from "@/components/home/CodeStream";
 import { AboutFacts } from "@/components/home/AboutFacts";
-import { SpeechBubbles } from "@/components/home/SpeechBubbles";
 import { HobbiesRotator } from "@/components/home/HobbiesRotator";
 import { Corner3DGrid } from "@/components/home/Corner3DGrid";
 import { useInViewport } from "@/hooks/useInViewport";
@@ -106,11 +105,9 @@ export function HeroStage() {
           <AboutFacts />
         </div>
 
-        {/* Creative side (right) — hand-drawn bubbles in the freed top-right,
-            replacing the plain thought text that used to sit here. */}
-        <div className="absolute right-10 top-[5%] flex justify-end">
-          <SpeechBubbles />
-        </div>
+        {/* The hand-drawn bubbles sat here until 2026-08-10. Removed once the
+            film went full strength — the corner belongs to the artwork now.
+            SpeechBubbles is kept, unmounted, for if they come back. */}
         <div className="absolute bottom-[9vh] right-10 flex justify-end">
           <HobbiesRotator />
         </div>
