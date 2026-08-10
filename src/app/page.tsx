@@ -12,13 +12,17 @@
  * sections, and the pins have replaced it.
  *
  * Stays a Server Component so it can read the content folders (catalogue.ts is
- * node:fs-backed) for the Logofolio wall and the Extincts deck.
+ * node:fs-backed) for the Logofolio wall, the Extincts deck and the Art room.
  */
 
 import { HeroStage } from "@/components/home/HeroStage";
 import { SectionPanel } from "@/components/home/SectionPanel";
 import { SiteFooter } from "@/components/footer/SiteFooter";
-import { readExtinctsSlides, readLogofolio } from "@/content/catalogue";
+import {
+  readArtCollections,
+  readExtinctsSlides,
+  readLogofolio,
+} from "@/content/catalogue";
 
 export default function Home() {
   // Every mark, for the Logofolio board.
@@ -27,10 +31,17 @@ export default function Home() {
   // The Extincts jury deck.
   const extinctsSlides = readExtinctsSlides();
 
+  // The Art room's collections — Art draws its own body, not board cells.
+  const artCollections = readArtCollections();
+
   return (
     <main className="w-full bg-gallery">
       <HeroStage />
-      <SectionPanel logos={logos} extinctsSlides={extinctsSlides} />
+      <SectionPanel
+        logos={logos}
+        extinctsSlides={extinctsSlides}
+        artCollections={artCollections}
+      />
       <SiteFooter />
     </main>
   );

@@ -25,10 +25,12 @@ import Image from "next/image";
 import Link from "next/link";
 import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
 import { PIN_OPEN_EVENT } from "@/components/home/BrainPins";
+import { CAREER_STOP_COUNT, CareerTimeline } from "@/components/home/CareerTimeline";
+import { ArtCollections } from "@/components/home/ArtCollections";
 import { NAV_SECTIONS } from "@/constants/navigation";
 import { clientsInSection } from "@/constants/clients";
 import type { NavSectionId } from "@/types/navigation";
-import type { LogoMark } from "@/content/catalogue";
+import type { ArtCollection, LogoMark } from "@/content/catalogue";
 import { EASE_OUT } from "@/constants/motion";
 
 /** One cell of the board. */
@@ -65,12 +67,27 @@ function cellsFor(id: NavSectionId, logos: LogoMark[], extinctsSlides: string[])
   return [];
 }
 
+/**
+ * Two sections don't fit the board. Career Path is a sequence — 10 stops on one
+ * rail, newest first — and a 3-col grid both reflows that into rows and, at the
+ * 9-cell cap, would silently drop the oldest. Art's collections drill in to
+ * their plates, which a cell can only do with an `href`, and there is no /art
+ * route. Both already have renderers that were orphaned when SidesShowcase was
+ * retired; the panel hands over to them instead of flattening them into cells.
+ */
+const OWN_RENDERER: ReadonlySet<NavSectionId> = new Set([
+  "career-path",
+  "art",
+] satisfies NavSectionId[]);
+
 export function SectionPanel({
   logos,
   extinctsSlides,
+  artCollections,
 }: {
   logos: LogoMark[];
   extinctsSlides: string[];
+  artCollections: ArtCollection[];
 }) {
   const reduceMotion = useReducedMotion();
   const [openId, setOpenId] = useState<NavSectionId | null>(null);
@@ -86,6 +103,17 @@ export function SectionPanel({
   const cells = section ? cellsFor(section.id, logos, extinctsSlides) : [];
   // Nine to a screen — the rest stay a scroll away rather than shrinking.
   const board = cells.slice(0, 9);
+
+  // A section with its own renderer counts its own entries, and falls back to
+  // the empty note if its content folder turned out to be bare.
+  const ownCount =
+    section?.id === "career-path"
+      ? CAREER_STOP_COUNT
+      : section?.id === "art"
+        ? artCollections.length
+        : 0;
+  const ownRenderer = !!section && OWN_RENDERER.has(section.id) && ownCount > 0;
+  const entryCount = ownRenderer ? ownCount : cells.length;
 
   return (
     <AnimatePresence initial={false}>
@@ -124,7 +152,7 @@ export function SectionPanel({
           <div className="relative z-10 mx-auto w-full max-w-7xl px-8 py-12">
             <header className="mb-8">
               <span className="font-helv block text-[0.6rem] uppercase tracking-[0.18em] text-white/50">
-                {cells.length} {cells.length === 1 ? "entry" : "entries"}
+                {entryCount} {entryCount === 1 ? "entry" : "entries"}
               </span>
               <h2
                 className={`mt-2 text-[clamp(1.6rem,3vw,2.6rem)] leading-none text-white ${
@@ -138,7 +166,24 @@ export function SectionPanel({
               </p>
             </header>
 
-            {board.length > 0 ? (
+            {ownRenderer ? (
+              /* Both renderers size to their parent (`h-full min-h-0`), and the
+                 panel itself animates to `height: auto` — so they need a real
+                 height here or they collapse to nothing. */
+              <div className="h-[clamp(22rem,56svh,34rem)] min-h-0">
+                {section.id === "career-path" ? (
+                  // Ten stops sharing the width crush below ~832px; let the
+                  // rail scroll sideways rather than shrink past legibility.
+                  <div className="h-full min-h-0 overflow-x-auto">
+                    <div className="h-full min-w-[52rem]">
+                      <CareerTimeline />
+                    </div>
+                  </div>
+                ) : (
+                  <ArtCollections collections={artCollections} />
+                )}
+              </div>
+            ) : board.length > 0 ? (
               <ul className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3">
                 {board.map((c) => {
                   const inner = (

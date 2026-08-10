@@ -43,6 +43,9 @@ const STOPS: Stop[] = [
   { org: "Jaypee University of Information Technology", role: "B.Tech — Information Technology", from: "2007", to: "2011", kind: "study" },
 ];
 
+/** How many checkpoints the rail carries, for panels that count their entries. */
+export const CAREER_STOP_COUNT = STOPS.length;
+
 export function CareerTimeline() {
   const reduceMotion = useReducedMotion();
 
