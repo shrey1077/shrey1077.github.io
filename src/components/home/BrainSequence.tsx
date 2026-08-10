@@ -28,6 +28,9 @@ const H = 720;
 const STIFFNESS = 26;
 const DAMPING = 2 * Math.sqrt(STIFFNESS);
 
+/** Opaque until the far right, then a short fade — see the note on the canvas. */
+const FEATHER = "linear-gradient(to right, #000 0%, #000 88%, transparent 100%)";
+
 export function BrainSequence({ active = true }: { active?: boolean }) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const activeRef = useRef(active);
@@ -120,6 +123,14 @@ export function BrainSequence({ active = true }: { active?: boolean }) {
       height={H}
       aria-hidden
       className="pointer-events-none absolute inset-0 h-full w-full object-contain"
+      style={{
+        // The alpha matte leaves a pale fringe at the spray's outer edge. It
+        // never showed against the old near-white ground; against the paint
+        // film it reads as a white halo. Feathering only the last 12% lets the
+        // fringe dissolve without touching the brain or most of the spray.
+        maskImage: FEATHER,
+        WebkitMaskImage: FEATHER,
+      }}
     />
   );
 }

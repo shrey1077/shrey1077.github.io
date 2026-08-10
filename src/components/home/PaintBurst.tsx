@@ -3,15 +3,15 @@
 /**
  * PaintBurst — the paint-explosion film, behind the right hemisphere's spray.
  *
- * Confined to the right HALF of the stage: the left flank is the logic side and
- * has its own circuit texture, so letting this bleed across would collapse the
- * distinction the whole layout rests on. Opacity is the whole balancing act:
- * at 50% it barely registered, at 85% it swallowed Imagine and the right-hand
- * pins whole and became the subject. 60% is where the film reads as its own
- * event while the brain's own thrown paint still sits in front of it.
+ * Confined to the right 57% of the stage — its left boundary sits 7% past the
+ * midline, so the film reaches a little way under the brain. It stops there:
+ * the left flank is the logic side with its own circuit texture, and letting
+ * this bleed across would collapse the distinction the layout rests on.
  *
- * Fades out toward the midline so there is no hard vertical seam where the film
- * stops — the mask does the work a crop would do badly.
+ * It runs at FULL opacity — the film is the creative flank's ground, not a wash
+ * over it. The gradient mask is what keeps that from reading as a hard-edged
+ * rectangle: it feathers the film out toward the midline, doing the job a crop
+ * would do badly, so the two hemispheres meet rather than butt.
  *
  * Reduced motion gets the poster frame instead of the loop.
  */
@@ -28,7 +28,7 @@ export function PaintBurst() {
   return (
     <div
       aria-hidden
-      className="pointer-events-none absolute inset-y-0 right-0 w-1/2 overflow-hidden"
+      className="pointer-events-none absolute inset-y-0 right-0 w-[57%] overflow-hidden"
       style={{ maskImage: FADE, WebkitMaskImage: FADE }}
     >
       {reduceMotion ? (
@@ -36,7 +36,7 @@ export function PaintBurst() {
         <img
           src="/videos/paint-burst-poster.jpg"
           alt=""
-          className="h-full w-full object-cover opacity-60"
+          className="h-full w-full object-cover"
         />
       ) : (
         <video
@@ -46,7 +46,7 @@ export function PaintBurst() {
           muted
           loop
           playsInline
-          className="h-full w-full object-cover opacity-60"
+          className="h-full w-full object-cover"
         />
       )}
     </div>

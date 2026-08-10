@@ -4,19 +4,23 @@
  * BrainPins — the sections, floating either side of the brain.
  *
  * No leader lines back to the brain any more. Each section is a label pill with
- * a short stub running off its inner edge to a stroked circle, and the whole
- * assembly levitates on its own slow cycle. A second rule runs the other way,
- * from the pill's outer edge to the screen corner, so each section reads as
- * strung across the flank rather than floating free.
+ * a short stub off its inner edge to a stroked circle, and a second rule off
+ * its outer edge to the screen corner — so it reads as strung across the flank.
+ *
+ * They hold still. The four used to levitate, but eight drifting labels around
+ * a brain that already answers the mouse, over a full-strength film, was two
+ * moving things too many.
  *
  * Three states, and the open state deliberately inverts the resting one:
  *   rest    label filled, trailing circle stroked and empty
- *   hover   levitation stops, a small flat dot drops into the circle
+ *   hover   a small flat dot drops into the circle
  *   open    the label keeps its shape but flips to stroked with dark text,
  *           while the trailing circle fills solid — the two swap treatments
  *
- * The logic side fills flat black; the creative side fills with the brain-paint
- * gradient. Choosing one opens its panel across the foot of the stage.
+ * The logic side fills flat black. The creative side is a white pill inside a
+ * rainbow border, with its rules doubled and painted white so they read against
+ * the full-strength film behind them. Choosing one opens its panel across the
+ * foot of the stage.
  */
 
 import { useEffect, useRef, useState } from "react";
@@ -28,14 +32,14 @@ import { EASE_OUT } from "@/constants/motion";
 /** Fired when a section is chosen (or cleared); the panel follows it. */
 export const PIN_OPEN_EVENT = "brainpin:open";
 
-const CIRCLE = 26;
+const CIRCLE = 18;
 
 /** Where each column sits and the band it occupies. THINK is high on the crown
  *  so the left flank is clear from 40% down; IMAGINE runs along the base, so
  *  the right column has to sit above it. */
 const COL = {
-  logic: { x: "left-[3vw]", top: 0.4, step: 0.115, align: "flex-row" },
-  creative: { x: "right-[3vw]", top: 0.17, step: 0.105, align: "flex-row-reverse" },
+  logic: { x: "left-[3vw]", top: 0.46, step: 0.075, align: "flex-row" },
+  creative: { x: "right-[3vw]", top: 0.22, step: 0.07, align: "flex-row-reverse" },
 } as const;
 
 type Side = "logic" | "creative";
@@ -45,8 +49,6 @@ interface Pin {
   label: string;
   y: number;
   side: Side;
-  /** Each pin drifts on its own period so the four never bob in unison. */
-  drift: number;
 }
 
 function buildPins(): Pin[] {
@@ -58,7 +60,6 @@ function buildPins(): Pin[] {
         label: s.label,
         y: COL[side].top + i * COL[side].step,
         side,
-        drift: 3.6 + i * 0.55,
       }));
   return [...make("logic", "left"), ...make("creative", "right")];
 }
@@ -77,25 +78,18 @@ function PinRow({
   const [hover, setHover] = useState(false);
   const logic = pin.side === "logic";
   const fill = logic ? "bg-neutral-950" : "brain-paint";
-  const stopped = hover || open || reduceMotion;
 
   return (
-    <motion.div
+    <div
       className={`absolute ${COL[pin.side].x} flex items-center ${COL[pin.side].align}`}
       style={{ top: `${pin.y * 100}%` }}
-      animate={stopped ? { y: 0 } : { y: [0, -9, 0] }}
-      transition={
-        stopped
-          ? { duration: 0.5, ease: EASE_OUT }
-          : { duration: pin.drift, repeat: Infinity, ease: "easeInOut" }
-      }
     >
       {/* Outer rule — pill to the screen edge. Sits on the row (which is the
           positioned ancestor), so `right-full` lands it flush at x=0. */}
       <span
         aria-hidden
-        className={`absolute top-1/2 h-px w-[3vw] bg-neutral-900/45 ${
-          logic ? "right-full" : "left-full"
+        className={`absolute top-1/2 h-0.5 w-[3vw] ${
+          logic ? "right-full bg-neutral-900/45" : "left-full bg-white"
         }`}
       />
 
@@ -110,33 +104,36 @@ function PinRow({
         className={`pointer-events-auto flex items-center gap-2.5 outline-none focus-visible:ring-2 focus-visible:ring-neutral-900/40 ${COL[pin.side].align}`}
       >
         {/* The label keeps its pill geometry throughout — only the treatment
-            flips. Filled with white type at rest; stroked with dark type once
-            open. (It used to go square-and-round on open, which ballooned into
-            a circle wide enough to collide with the pill below.)
-
-            The creative side's stroke is a gradient, which CSS borders cannot
-            do, so it is a 2px paint-filled wrapper around an inner pill in the
-            page colour — the classic gradient-border trick. */}
-        {open && !logic ? (
+            flips. (It used to go square-and-round on open, which ballooned it
+            into a circle wide enough to collide with the pill below.) */}
+        {!logic ? (
+          // Rainbow border, white pill. CSS borders cannot hold a gradient, so
+          // the paint is a 2px wrapper and the white pill sits inside it. Open
+          // flips the inner fill to the paint and the type to white.
           <span className="brain-paint grid place-items-center rounded-full p-[2px]">
-            <span className="brain-paint bg-clip-text font-graff grid place-items-center whitespace-nowrap rounded-full bg-gallery px-5 py-2.5 text-center text-[1.6rem] leading-none text-transparent">
+            <span
+              className={`font-graff grid place-items-center whitespace-nowrap rounded-full px-3.5 py-1.5 text-center text-[1.07rem] leading-none transition-colors duration-300 ${
+                open ? "brain-paint text-white" : "bg-white text-neutral-900"
+              }`}
+            >
               {pin.label}
             </span>
           </span>
         ) : (
           <span
-            className={`grid place-items-center whitespace-nowrap rounded-full px-5 py-2.5 text-center text-[1.6rem] leading-none transition-colors duration-300 ${
-              open
-                ? "border-2 border-neutral-950 bg-transparent text-neutral-950"
-                : `text-white ${fill}`
-            } ${logic ? "font-digibra" : "font-graff"}`}
+            className={`font-digibra grid place-items-center whitespace-nowrap rounded-full px-3.5 py-1.5 text-center text-[1.07rem] leading-none transition-colors duration-300 ${
+              open ? "border-2 border-neutral-950 bg-transparent text-neutral-950" : `text-white ${fill}`
+            }`}
           >
             {pin.label}
           </span>
         )}
 
         {/* The stub, then the circle it runs to. */}
-        <span aria-hidden className="h-px w-6 shrink-0 bg-neutral-900/45" />
+        <span
+          aria-hidden
+          className={`h-0.5 w-6 shrink-0 ${logic ? "bg-neutral-900/45" : "bg-white"}`}
+        />
         <span
           aria-hidden
           className={`grid shrink-0 place-items-center rounded-full border-2 transition-colors duration-300 ${
@@ -144,7 +141,9 @@ function PinRow({
               ? logic
                 ? "border-neutral-950 bg-neutral-950"
                 : "brain-paint border-transparent"
-              : "border-neutral-950 bg-transparent"
+              : logic
+                ? "border-neutral-950 bg-transparent"
+                : "border-white bg-transparent"
           }`}
           style={{ width: CIRCLE, height: CIRCLE }}
         >
@@ -158,7 +157,7 @@ function PinRow({
           />
         </span>
       </button>
-    </motion.div>
+    </div>
   );
 }
 

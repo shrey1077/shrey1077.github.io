@@ -18,6 +18,11 @@
  * Wobble is deterministic, not random: the paths are authored with uneven
  * control points. Nothing here calls Math.random, so the server and client
  * render the same thing and hydration stays quiet.
+ *
+ * ⚠ PARKED, not dead. Unmounted from HeroStage on 2026-08-10 once the paint
+ * film went to full strength and the top-right corner became the artwork's.
+ * Kept intact — do NOT remove it in a dead-code sweep. Re-mount by putting
+ * <SpeechBubbles /> back in HeroStage's furniture block.
  */
 
 import { useEffect, useState } from "react";
