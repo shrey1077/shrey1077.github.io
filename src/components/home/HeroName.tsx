@@ -53,7 +53,7 @@ const ZOOM = 0.05;
  *  its T and H off-screen and read as "INK". 12vw is the largest that keeps
  *  all five letters on screen WITH the 5% zoom applied — 13vw fits at rest but
  *  clips once the pointer reaches the left edge. */
-const WORD = "block whitespace-nowrap will-change-transform leading-[0.82]";
+const WORD = "block whitespace-nowrap will-change-transform";
 const BASE_SIZE = "clamp(3rem, 12vw, 14rem)";
 
 /** The two faces are nothing alike, so one font-size does not give one height.
@@ -69,19 +69,30 @@ const BASE_SIZE = "clamp(3rem, 12vw, 14rem)";
  *  taste call. */
 const IMAGINE_RATIO = 149 / 140;
 
-/** The same canvas measurement, kept as its two parts: at 200px "Imagine" in
- *  Juturu rises 140px above the baseline and hangs 42px below it.
+/** How tall "Imagine" actually is, as a fraction of its font-size. Measured on
+ *  canvas at 200px in Juturu BOLD, which is what the word is set in:
+ *  actualBoundingBoxAscent 142, actualBoundingBoxDescent 42 — 184/200 of ink.
  *
- *  The descender is why this word needs a floor of its own. `leading-[0.82]`
- *  makes the line box SHORTER than the ink — the g and the dot on the i spill
- *  ~11px past the bottom of the element's own rect at display size — so
- *  clamping the rect is not the same as clamping what you can see, and the
- *  overflow is invisible to `getBoundingClientRect`.
+ *  Two separate things depend on this, and both broke without it:
  *
- *  ⚠ RE-MEASURE alongside IMAGINE_RATIO whenever the creative face changes. */
-const IMAGINE_ASCENT = 140;
-const IMAGINE_DESCENT = 42;
-const IMAGINE_EM = 200;
+ *  1. The line box must be TALLER than the ink. The fill is `bg-clip-text`, so
+ *     the paint comes from the element's background box — any ink outside that
+ *     box is painted with nothing and simply disappears. At `leading-[0.82]`
+ *     the ink overflowed 8px top and bottom, which sheared the flat off both
+ *     g descenders. Solid-white type never showed this, because a text colour
+ *     fills the glyph wherever it falls.
+ *  2. The floor clamp has to know where the lowest ink is, which is NOT the
+ *     bottom of `getBoundingClientRect`.
+ *
+ *  ⚠ RE-MEASURE alongside IMAGINE_RATIO whenever the creative face or its
+ *  weight changes. Note this bold measurement puts the ascent at 142, where
+ *  IMAGINE_RATIO's is 140 — leaving that ratio alone rather than resizing the
+ *  word by 1.4% off the back of a clipping fix. */
+const IMAGINE_INK = (142 + 42) / 200;
+
+/** Line box for Imagine — must exceed IMAGINE_INK or the fill clips. The slack
+ *  is the breathing room, split half above and half below the ink. */
+const IMAGINE_LEADING = 0.98;
 
 /** Clear air between Imagine's lowest ink and the furniture below it. */
 const FLOOR_GAP = 18;
@@ -162,7 +173,7 @@ export function HeroName() {
         const fs = parseFloat(getComputedStyle(el).fontSize) || 0;
         // Where the lowest ink sits, measured from the top of the element's
         // box: half-leading plus the full ascent-to-descender span.
-        const naturalH = (fs * (IMAGINE_ASCENT + IMAGINE_DESCENT)) / IMAGINE_EM;
+        const naturalH = fs * IMAGINE_INK;
         const inkBelowTop = (el.offsetHeight + naturalH) / 2;
 
         // Clear the furniture if it's mounted (desktop only), else the stage.
@@ -224,7 +235,7 @@ export function HeroName() {
         <motion.span {...rise(0.35)} className="block">
           <span
             ref={thinkRef}
-            style={{ fontSize: BASE_SIZE }}
+            style={{ fontSize: BASE_SIZE, lineHeight: 0.82 }}
             className={`${WORD} font-digibra text-black/20`}
           >
             Think
@@ -243,7 +254,10 @@ export function HeroName() {
         <motion.span {...rise(0.5)} className="block">
           <span
             ref={imagineRef}
-            style={{ fontSize: `calc(${BASE_SIZE} * ${IMAGINE_RATIO})` }}
+            style={{
+              fontSize: `calc(${BASE_SIZE} * ${IMAGINE_RATIO})`,
+              lineHeight: IMAGINE_LEADING,
+            }}
             className={`${WORD} brain-paint bg-clip-text font-graff font-bold text-transparent`}
           >
             Imagine

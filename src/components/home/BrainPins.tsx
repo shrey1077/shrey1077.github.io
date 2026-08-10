@@ -34,6 +34,13 @@ export const PIN_OPEN_EVENT = "brainpin:open";
 
 const CIRCLE = 18;
 
+/** Cuts a paint disc down to a 2px ring, leaving the centre fully transparent
+ *  so the stage still reads through it. `closest-side` pins the gradient's
+ *  radius to the element's own half-width, so this holds at any CIRCLE. */
+const RING_STROKE = 2;
+const RING = `radial-gradient(closest-side, transparent calc(100% - ${RING_STROKE}px), #000 calc(100% - ${RING_STROKE}px))`;
+const RING_MASK = { WebkitMaskImage: RING, maskImage: RING } as const;
+
 /** Where each column sits and the band it occupies. THINK is high on the crown
  *  so the left flank is clear from 40% down; IMAGINE runs along the base, so
  *  the right column has to sit above it. */
@@ -89,8 +96,12 @@ function PinRow({
       <span
         aria-hidden
         className={`absolute top-1/2 h-0.5 w-[3vw] ${
-          logic ? "right-full bg-neutral-900/45" : "left-full bg-white"
+          logic ? "right-full bg-neutral-900/45" : "left-full brain-paint"
         }`}
+        // This rule is a sibling of the button, not a child, so `.group:hover`
+        // never reaches it. Same 9s quickening, driven off the hover state the
+        // dot already uses, so the run to the screen edge keeps pace.
+        style={!logic && hover ? { animationDuration: "9s" } : undefined}
       />
 
       <button
@@ -101,7 +112,11 @@ function PinRow({
         onMouseLeave={() => setHover(false)}
         onFocus={() => setHover(true)}
         onBlur={() => setHover(false)}
-        className={`pointer-events-auto flex items-center gap-2.5 outline-none focus-visible:ring-2 focus-visible:ring-neutral-900/40 ${COL[pin.side].align}`}
+        // `group` so hovering the pin reaches every paint layer inside it —
+        // globals.css already drops `.brain-paint`'s drift from 24s to 9s under
+        // `.group:hover`, so the whole pin quickens together rather than the
+        // hover reading only as the dot appearing.
+        className={`group pointer-events-auto flex items-center gap-2.5 outline-none focus-visible:ring-2 focus-visible:ring-neutral-900/40 ${COL[pin.side].align}`}
       >
         {/* The label keeps its pill geometry throughout — only the treatment
             flips. (It used to go square-and-round on open, which ballooned it
@@ -112,7 +127,7 @@ function PinRow({
           // flips the inner fill to the paint and the type to white.
           <span className="brain-paint grid place-items-center rounded-full p-[2px]">
             <span
-              className={`font-graff grid place-items-center whitespace-nowrap rounded-full px-3.5 py-1.5 text-center text-[1.07rem] leading-none transition-colors duration-300 ${
+              className={`font-graff grid place-items-center whitespace-nowrap rounded-full px-3.5 py-1.5 text-center text-[1.07rem] font-bold leading-none transition-colors duration-300 ${
                 open ? "brain-paint text-white" : "bg-white text-neutral-900"
               }`}
             >
@@ -132,24 +147,38 @@ function PinRow({
         {/* The stub, then the circle it runs to. */}
         <span
           aria-hidden
-          className={`h-0.5 w-6 shrink-0 ${logic ? "bg-neutral-900/45" : "bg-white"}`}
+          className={`h-0.5 w-6 shrink-0 ${logic ? "bg-neutral-900/45" : "brain-paint"}`}
         />
         <span
           aria-hidden
-          className={`grid shrink-0 place-items-center rounded-full border-2 transition-colors duration-300 ${
-            open
-              ? logic
-                ? "border-neutral-950 bg-neutral-950"
-                : "brain-paint border-transparent"
-              : logic
-                ? "border-neutral-950 bg-transparent"
-                : "border-white bg-transparent"
+          className={`relative grid shrink-0 place-items-center rounded-full ${
+            logic
+              ? `border-2 transition-colors duration-300 ${
+                  open ? "border-neutral-950 bg-neutral-950" : "border-neutral-950 bg-transparent"
+                }`
+              : ""
           }`}
           style={{ width: CIRCLE, height: CIRCLE }}
         >
-          {/* Hover tell: a small flat dot drops into the empty circle. */}
+          {/* The creative circle's stroke is paint, and a CSS border cannot
+              hold a gradient any more than the pill's could. The pill solves it
+              with a 2px paint wrapper around an opaque inner, but that trick
+              needs a fill — this circle's centre has to stay genuinely
+              transparent so the stage reads through it. So the disc is paint
+              and a radial mask cuts everything but the outer 2px. Open drops
+              the mask and the whole disc fills, which is the same inversion the
+              pill does. */}
+          {!logic && (
+            <span
+              className="brain-paint absolute inset-0 rounded-full"
+              style={open ? undefined : RING_MASK}
+            />
+          )}
+
+          {/* Hover tell: a small flat dot drops into the empty circle. Sits
+              above the ring layer, so it needs its own stacking context. */}
           <motion.span
-            className={`block rounded-full ${logic ? "bg-neutral-950" : "brain-paint"}`}
+            className={`relative block rounded-full ${logic ? "bg-neutral-950" : "brain-paint"}`}
             initial={false}
             animate={{ scale: hover && !open ? 1 : 0 }}
             transition={{ duration: reduceMotion ? 0 : 0.22, ease: EASE_OUT }}
