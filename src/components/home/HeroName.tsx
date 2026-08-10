@@ -31,10 +31,17 @@
  * the mouse far more strongly, and the words are meant to be the room it sits
  * in, not a second thing competing for the eye.
  *
- * The two sit on OPPOSITE sides of the footage in z-order, which is the whole
- * trick: Think at z-0 is behind it, so the brain laps over its final K, while
- * Imagine at z-20 lies on top of the paint, so the overlap reads as ink
- * soaking through rather than a label stuck on.
+ * ⚠ Think used to sit BEHIND the footage at z-0, so the brain lapped over its
+ * final K. That was reversed on the owner's instruction 2026-08-10: Think is
+ * now z-30, above the pins and the furniture and everything else on the stage.
+ * Opacity went with it — a word in front of the brain cannot be 20% black, or
+ * the footage reads through the letters — so it carries THINK_GREY, the flat
+ * equivalent of what that 20% used to composite to. Imagine stays at z-20.
+ *
+ * Both words are held inside the stage by EDGE_MARGIN, measured against their
+ * INK rather than their boxes. The stage is `overflow-hidden`, and tucking each
+ * word against the brain will happily push it off an edge when the footage sits
+ * high or low.
  *
  * The brain's vertical extent is measured live from the footage's alpha so the
  * words tuck against its real crown and base at any size.
@@ -69,30 +76,64 @@ const BASE_SIZE = "clamp(3rem, 12vw, 14rem)";
  *  taste call. */
 const IMAGINE_RATIO = 149 / 140;
 
-/** How tall "Imagine" actually is, as a fraction of its font-size. Measured on
- *  canvas at 200px in Juturu BOLD, which is what the word is set in:
- *  actualBoundingBoxAscent 142, actualBoundingBoxDescent 42 — 184/200 of ink.
+/** Both faces' metrics, in em, measured on canvas at 200px at the weight each
+ *  word is actually set in. FONT_* are the face's DECLARED metrics, INK_* the
+ *  real extent of that specific word's glyphs.
  *
- *  Two separate things depend on this, and both broke without it:
+ *  The distinction is the whole bug. CSS does not centre a word's ink in its
+ *  line box — it centres the face's DECLARED box, then puts the baseline at
+ *  `half-leading + declared ascent`. Juturu declares a 1.17em ascent against a
+ *  0.21em descent, so its baseline sits far lower in the box than the ink
+ *  suggests, and at any leading below 1.38 the g's descender lands OUTSIDE the
+ *  box entirely — measured at 23px out. With `bg-clip-text` the paint comes
+ *  from that box, so the overflow was painted with nothing and both g's were
+ *  sheared flat. Two rounds of "make the box a bit taller" missed it because
+ *  they assumed centring; the box has to clear the DECLARED metrics, not the
+ *  ink.
  *
- *  1. The line box must be TALLER than the ink. The fill is `bg-clip-text`, so
- *     the paint comes from the element's background box — any ink outside that
- *     box is painted with nothing and simply disappears. At `leading-[0.82]`
- *     the ink overflowed 8px top and bottom, which sheared the flat off both
- *     g descenders. Solid-white type never showed this, because a text colour
- *     fills the glyph wherever it falls.
- *  2. The floor clamp has to know where the lowest ink is, which is NOT the
- *     bottom of `getBoundingClientRect`.
+ *  Digibra declares a plain 0.75/0.25 and "Think" has no descender at all, so
+ *  it needs only 0.5 and its 0.82 is comfortable. But its declared ascent is
+ *  0.75 against 0.745 of ink, so at 0.82 leading the ink starts ~15px ABOVE the
+ *  box — which is why Think ran off the top of the stage. Solid type doesn't
+ *  clip against its own box, so this only ever mattered for the edge clamp.
  *
- *  ⚠ RE-MEASURE alongside IMAGINE_RATIO whenever the creative face or its
- *  weight changes. Note this bold measurement puts the ascent at 142, where
- *  IMAGINE_RATIO's is 140 — leaving that ratio alone rather than resizing the
- *  word by 1.4% off the back of a clipping fix. */
-const IMAGINE_INK = (142 + 42) / 200;
+ *  ⚠ RE-MEASURE all six whenever either face, or its weight, changes. */
+const IMAGINE_FONT_ASCENT = 1.17;
+const IMAGINE_FONT_DESCENT = 0.21;
+const IMAGINE_INK_DESCENT = 0.21;
+const THINK_FONT_ASCENT = 0.75;
+const THINK_FONT_DESCENT = 0.25;
+const THINK_INK_ASCENT = 0.745;
 
-/** Line box for Imagine — must exceed IMAGINE_INK or the fill clips. The slack
- *  is the breathing room, split half above and half below the ink. */
-const IMAGINE_LEADING = 0.98;
+/** Line boxes. Imagine's MUST clear 1.38 or the fill shears; the remainder is
+ *  slack. Think's 0.82 is unchanged — it clears its 0.5 requirement already. */
+const IMAGINE_LEADING = 1.45;
+const THINK_LEADING = 0.82;
+
+/** Where a word's lowest / highest ink sits relative to the top of its box.
+ *  Both follow the same rule: half-leading is measured against the DECLARED
+ *  box, the baseline sits one declared ascent below that, and the ink hangs
+ *  off the baseline. */
+function inkBelowBoxTop(fs: number, boxH: number): number {
+  const halfLeading = (boxH - (IMAGINE_FONT_ASCENT + IMAGINE_FONT_DESCENT) * fs) / 2;
+  return halfLeading + (IMAGINE_FONT_ASCENT + IMAGINE_INK_DESCENT) * fs;
+}
+function inkAboveBoxTop(fs: number, boxH: number): number {
+  const halfLeading = (boxH - (THINK_FONT_ASCENT + THINK_FONT_DESCENT) * fs) / 2;
+  return halfLeading + (THINK_FONT_ASCENT - THINK_INK_ASCENT) * fs;
+}
+
+/** Clear air kept between either word's ink and the edge of the stage. The
+ *  stage is `overflow-hidden`, so ink that reaches an edge is ink that is gone. */
+const EDGE_MARGIN = 10;
+
+/** Think's grey, flattened. It used to be black at 20%, which let the circuit
+ *  film and the brain read straight through the letters; on top of everything
+ *  it has to be opaque instead. This is that same 20% black composited over the
+ *  page's own #f9f9f9 — 0.2x0 + 0.8x249 = 199 — so the word lands on the colour
+ *  it already appeared to be, now at full strength. Re-derive if `bg-gallery`
+ *  changes. */
+const THINK_GREY = "#c7c7c7";
 
 /** Clear air between Imagine's lowest ink and the furniture below it. */
 const FLOOR_GAP = 18;
@@ -160,7 +201,14 @@ export function HeroName() {
       // A deeper bite than before: the brain is meant to lap OVER the word,
       // not merely touch it.
       const overlap = thinkH * 0.3;
-      thinkY.set(b.top - thinkH + overlap);
+
+      // Think's ceiling. Tucking under the brain's crown puts the box above the
+      // top of the stage whenever the brain sits high, and the stage clips what
+      // leaves it. Its ink sits half-leading below the box top, so hold THAT,
+      // not the box, inside the edge.
+      const thinkFs = parseFloat(getComputedStyle(thinkRef.current!).fontSize) || 0;
+      const thinkInkOffset = inkAboveBoxTop(thinkFs, thinkH);
+      thinkY.set(Math.max(EDGE_MARGIN - thinkInkOffset, b.top - thinkH + overlap));
 
       // Imagine's floor. Two separate things can push it too low: the brain's
       // base (which moved down when the footage scaled up 5%) and the plain
@@ -171,19 +219,22 @@ export function HeroName() {
       let maxTop = vh * 0.66;
       if (el) {
         const fs = parseFloat(getComputedStyle(el).fontSize) || 0;
-        // Where the lowest ink sits, measured from the top of the element's
-        // box: half-leading plus the full ascent-to-descender span.
-        const naturalH = fs * IMAGINE_INK;
-        const inkBelowTop = (el.offsetHeight + naturalH) / 2;
+        const inkBelowTop = inkBelowBoxTop(fs, el.offsetHeight);
 
-        // Clear the furniture if it's mounted (desktop only), else the stage.
+        // Clear the furniture if it's mounted (desktop only) AND the bottom of
+        // the stage regardless — the furniture clamp alone left nothing
+        // defending the edge on a viewport short enough to put the rotator
+        // below it.
         const furniture = document
           .querySelector('[data-hero-furniture="right-bottom"]')
           ?.getBoundingClientRect();
+        const stageFloor = vh - EDGE_MARGIN;
         const floor =
-          furniture && furniture.height > 0 ? furniture.top : vh * 0.96;
+          furniture && furniture.height > 0
+            ? Math.min(furniture.top - FLOOR_GAP, stageFloor)
+            : stageFloor;
 
-        maxTop = Math.min(maxTop, floor - FLOOR_GAP - inkBelowTop);
+        maxTop = Math.min(maxTop, floor - inkBelowTop);
       }
 
       imagineY.set(Math.min(b.bottom - overlap * 0.8, maxTop));
@@ -230,13 +281,13 @@ export function HeroName() {
       <motion.div
         aria-hidden
         style={{ y: thinkY, scale: thinkScale, transformOrigin: "100% 50%" }}
-        className="absolute right-1/2 top-0 z-0"
+        className="absolute right-1/2 top-0 z-30"
       >
         <motion.span {...rise(0.35)} className="block">
           <span
             ref={thinkRef}
-            style={{ fontSize: BASE_SIZE, lineHeight: 0.82 }}
-            className={`${WORD} font-digibra text-black/20`}
+            style={{ fontSize: BASE_SIZE, lineHeight: THINK_LEADING, color: THINK_GREY }}
+            className={`${WORD} font-digibra`}
           >
             Think
           </span>
