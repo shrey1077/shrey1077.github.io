@@ -7,6 +7,12 @@
  * by its own first piece. Choosing one swaps the panel for that collection's
  * plates, with a way back. Everything sits on the painted panel, so the tiles
  * carry a hairline rather than a card.
+ *
+ * Collection names are set in Juturu bold — the creative hemisphere's face —
+ * rather than the `creative` typography voice, which resolves to Fraunces and
+ * belongs to the older three-voice constitution. This room hangs off the
+ * landing, so it follows the landing's faces. The counts and the back control
+ * still take their `logic` voice from there.
  */
 
 import { useState } from "react";
@@ -37,7 +43,7 @@ export function ArtCollections({ collections }: { collections: ArtCollection[] }
             <span aria-hidden className="inline-block transition-transform duration-200 group-hover:-translate-x-1">←</span>
             All collections
           </button>
-          <span className={`${typeVoiceClass("creative", "display")} text-lg text-white`}>
+          <span className="font-graff text-lg font-bold text-white">
             {current.name}
           </span>
           <span className={`${typeVoiceClass("logic", "meta")} text-[0.55rem] uppercase tracking-[0.14em] text-white/40`}>
@@ -76,7 +82,7 @@ export function ArtCollections({ collections }: { collections: ArtCollection[] }
           />
           <span aria-hidden className="absolute inset-0 bg-gradient-to-t from-black/75 via-black/10 to-transparent" />
           <span className="absolute inset-x-0 bottom-0 flex flex-col gap-0.5 p-3">
-            <span className={`${typeVoiceClass("creative", "display")} text-sm leading-tight text-white sm:text-base`}>
+            <span className="font-graff text-sm font-bold leading-tight text-white sm:text-base">
               {c.name}
             </span>
             <span className={`${typeVoiceClass("logic", "meta")} text-[0.5rem] uppercase tracking-[0.14em] text-white/70`}>

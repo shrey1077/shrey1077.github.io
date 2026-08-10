@@ -7,11 +7,22 @@
  * it reads as a watermark the brain sits IN FRONT OF rather than a headline
  * over it. Its final K is right-aligned to the brain's midline, so the word
  * ends exactly where the logic hemisphere does and the brain laps over its
- * last letter. Imagine answers it at the base in Juturu, starting from
- * a little past that midline (54%) and running right. Think is a fifth of black; Imagine is
- * PURE white, no transparency. It used to carry the paint gradient, which
- * simply vanished into the film once that ran at full strength — solid white
- * is the only fill that holds against it.
+ * last letter. Imagine answers it at the base in Juturu bold, starting from
+ * a little past that midline (54%) and running right. Think is a fifth of
+ * black; Imagine carries the paint gradient again as of 2026-08-10.
+ *
+ * That fill has been on and off twice, and the reason is what sits behind it.
+ * It went solid white when the paint film ran across the right flank at full
+ * strength — a gradient fill simply vanished into a gradient ground. The film
+ * has since moved to the Art section, which leaves this word pure white on a
+ * near-white circuit backdrop at a 1.05:1 contrast ratio, i.e. invisible. The
+ * paint is what makes it legible now. If a coloured layer ever returns to the
+ * right flank, this goes back to solid white.
+ *
+ * ⚠ The fill is `bg-clip-text`, so the word's opacity CANNOT come from an
+ * alpha on the text colour (a `text-black` with a slash-opacity suffix, the
+ * way Think is dimmed) — that destroys the clip and the word disappears.
+ * Dim the layer, not the type.
  *
  * The two no longer slide sideways. They breathe on the Z axis instead:
  * centre-screen is the rest state, and moving the pointer left pushes Think
@@ -189,7 +200,7 @@ export function HeroName() {
         <motion.span {...rise(0.5)} className="block">
           <span
             style={{ fontSize: `calc(${BASE_SIZE} * ${IMAGINE_RATIO})` }}
-            className={`${WORD} font-graff font-bold text-white`}
+            className={`${WORD} brain-paint bg-clip-text font-graff font-bold text-transparent`}
           >
             Imagine
           </span>

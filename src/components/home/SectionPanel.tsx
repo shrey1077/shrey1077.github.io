@@ -167,7 +167,7 @@ export function SectionPanel({
               </span>
               <h2
                 className={`mt-2 text-[clamp(1.6rem,3vw,2.6rem)] leading-none text-white ${
-                  logic ? "font-digibra" : "font-graff"
+                  logic ? "font-digibra" : "font-graff font-bold"
                 }`}
               >
                 {section.label}
@@ -209,7 +209,7 @@ export function SectionPanel({
                         ) : (
                           <span
                             className={`flex h-full items-center justify-center px-3 text-center text-lg text-neutral-800 ${
-                              logic ? "font-digibra" : "font-graff"
+                              logic ? "font-digibra" : "font-graff font-bold"
                             }`}
                           >
                             {c.label}
@@ -218,7 +218,7 @@ export function SectionPanel({
                       </span>
                       <span
                         className={`block text-base leading-tight text-white ${
-                          logic ? "font-digibra" : "font-graff"
+                          logic ? "font-digibra" : "font-graff font-bold"
                         }`}
                       >
                         {c.label}
