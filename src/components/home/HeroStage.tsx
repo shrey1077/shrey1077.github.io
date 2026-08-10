@@ -110,7 +110,13 @@ export function HeroStage() {
         {/* The hand-drawn bubbles sat here until 2026-08-10. Removed once the
             film went full strength — the corner belongs to the artwork now.
             SpeechBubbles is kept, unmounted, for if they come back. */}
-        <div className="absolute bottom-[9vh] right-10 flex justify-end">
+        {/* Tagged because HeroName clamps Imagine's descender above whatever
+            sits in this corner — it measures this box rather than assuming a
+            height, so moving the rotator moves the word's floor with it. */}
+        <div
+          data-hero-furniture="right-bottom"
+          className="absolute bottom-[9vh] right-10 flex justify-end"
+        >
           <HobbiesRotator />
         </div>
 

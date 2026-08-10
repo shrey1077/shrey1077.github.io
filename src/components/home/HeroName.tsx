@@ -69,6 +69,23 @@ const BASE_SIZE = "clamp(3rem, 12vw, 14rem)";
  *  taste call. */
 const IMAGINE_RATIO = 149 / 140;
 
+/** The same canvas measurement, kept as its two parts: at 200px "Imagine" in
+ *  Juturu rises 140px above the baseline and hangs 42px below it.
+ *
+ *  The descender is why this word needs a floor of its own. `leading-[0.82]`
+ *  makes the line box SHORTER than the ink — the g and the dot on the i spill
+ *  ~11px past the bottom of the element's own rect at display size — so
+ *  clamping the rect is not the same as clamping what you can see, and the
+ *  overflow is invisible to `getBoundingClientRect`.
+ *
+ *  ⚠ RE-MEASURE alongside IMAGINE_RATIO whenever the creative face changes. */
+const IMAGINE_ASCENT = 140;
+const IMAGINE_DESCENT = 42;
+const IMAGINE_EM = 200;
+
+/** Clear air between Imagine's lowest ink and the furniture below it. */
+const FLOOR_GAP = 18;
+
 /** The brain's WIDE vertical extent (viewport px) — crown to base of the main
  *  mass, ignoring the narrow tips so the words don't sit too high or too low. */
 function measureBrainV(): { top: number; bottom: number } | null {
@@ -112,6 +129,7 @@ export function HeroName() {
   const reduceMotion = useReducedMotion();
 
   const thinkRef = useRef<HTMLSpanElement>(null);
+  const imagineRef = useRef<HTMLSpanElement>(null);
 
   // Z-breath. Springs are slow and soft so this never reads as a jump.
   const thinkZ = useMotionValue(1);
@@ -132,7 +150,32 @@ export function HeroName() {
       // not merely touch it.
       const overlap = thinkH * 0.3;
       thinkY.set(b.top - thinkH + overlap);
-      imagineY.set(Math.min(b.bottom - overlap * 0.8, vh * 0.66));
+
+      // Imagine's floor. Two separate things can push it too low: the brain's
+      // base (which moved down when the footage scaled up 5%) and the plain
+      // 66% ceiling. Neither knew about the descender or about the furniture
+      // in the bottom-right corner, so the word ended up 38px into the Hobbies
+      // rotator with its g clipped by the stage's overflow.
+      const el = imagineRef.current;
+      let maxTop = vh * 0.66;
+      if (el) {
+        const fs = parseFloat(getComputedStyle(el).fontSize) || 0;
+        // Where the lowest ink sits, measured from the top of the element's
+        // box: half-leading plus the full ascent-to-descender span.
+        const naturalH = (fs * (IMAGINE_ASCENT + IMAGINE_DESCENT)) / IMAGINE_EM;
+        const inkBelowTop = (el.offsetHeight + naturalH) / 2;
+
+        // Clear the furniture if it's mounted (desktop only), else the stage.
+        const furniture = document
+          .querySelector('[data-hero-furniture="right-bottom"]')
+          ?.getBoundingClientRect();
+        const floor =
+          furniture && furniture.height > 0 ? furniture.top : vh * 0.96;
+
+        maxTop = Math.min(maxTop, floor - FLOOR_GAP - inkBelowTop);
+      }
+
+      imagineY.set(Math.min(b.bottom - overlap * 0.8, maxTop));
     };
 
     measure();
@@ -199,6 +242,7 @@ export function HeroName() {
       >
         <motion.span {...rise(0.5)} className="block">
           <span
+            ref={imagineRef}
             style={{ fontSize: `calc(${BASE_SIZE} * ${IMAGINE_RATIO})` }}
             className={`${WORD} brain-paint bg-clip-text font-graff font-bold text-transparent`}
           >
