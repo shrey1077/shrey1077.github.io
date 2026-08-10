@@ -183,13 +183,10 @@ export function SectionPanel({
                  height here or they collapse to nothing. */
               <div className="h-[clamp(22rem,56svh,34rem)] min-h-0">
                 {section.id === "career-path" ? (
-                  // Ten stops sharing the width crush below ~832px; let the
-                  // rail scroll sideways rather than shrink past legibility.
-                  <div className="h-full min-h-0 overflow-x-auto">
-                    <div className="h-full min-w-[52rem]">
-                      <CareerTimeline />
-                    </div>
-                  </div>
+                  // The rail wraps into rows now and carries its own vertical
+                  // scroll, so the sideways scroller it used to need — ten stops
+                  // crushed below ~832px — is gone.
+                  <CareerTimeline />
                 ) : (
                   <ArtCollections collections={artCollections} />
                 )}
