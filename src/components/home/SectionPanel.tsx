@@ -27,6 +27,7 @@ import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
 import { PIN_OPEN_EVENT } from "@/components/home/BrainPins";
 import { CAREER_STOP_COUNT, CareerTimeline } from "@/components/home/CareerTimeline";
 import { ArtCollections } from "@/components/home/ArtCollections";
+import { PaintBurst } from "@/components/home/PaintBurst";
 import { NAV_SECTIONS } from "@/constants/navigation";
 import { clientsInSection } from "@/constants/clients";
 import type { NavSectionId } from "@/types/navigation";
@@ -140,6 +141,16 @@ export function SectionPanel({
                   className="object-cover opacity-40 grayscale"
                 />
                 <div className="absolute inset-0 bg-neutral-950/55" />
+              </>
+            ) : section.id === "art" ? (
+              // Art is grounded in the paint film itself, which came off the
+              // hero's right flank on 2026-08-10. It runs brighter and busier
+              // than the gradient the other creative rooms sit on, so it takes
+              // a heavier scrim to keep white type and the tile captions
+              // readable over it.
+              <>
+                <PaintBurst />
+                <div className="absolute inset-0 bg-neutral-950/60" />
               </>
             ) : (
               <>

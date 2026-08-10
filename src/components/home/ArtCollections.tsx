@@ -61,7 +61,11 @@ export function ArtCollections({ collections }: { collections: ArtCollection[] }
           initial={reduceMotion ? false : { opacity: 0, y: 12 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.45, ease: EASE_OUT, delay: 0.1 + i * 0.07 }}
-          className="group relative min-h-0 cursor-pointer overflow-hidden border border-white/25 bg-black/20 text-left outline-none transition-colors duration-200 hover:border-white/70 focus-visible:border-white"
+          // Opaque plate, not a wash: the panel's ground is the paint film now,
+          // and a translucent tile let high-contrast footage read straight
+          // through the artwork. The gradient it used to sit on was smooth
+          // enough that bleed-through never showed.
+          className="group relative min-h-0 cursor-pointer overflow-hidden border border-white/25 bg-neutral-950 text-left outline-none transition-colors duration-200 hover:border-white/70 focus-visible:border-white"
         >
           <Image
             src={c.images[0]}
