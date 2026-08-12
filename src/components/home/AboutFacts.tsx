@@ -49,15 +49,48 @@ function PartTimeWords() {
 
 const BODY = "text-[19px] leading-[1.4] text-neutral-500";
 
-/** The pawn, drawn rather than lifted: the chess.com app icon is their mark,
- *  and a silhouette in their green reads the same without shipping it. */
-function PawnMark() {
+/** The knight's pixel dissolve. Chunky on purpose — the mark renders at 36px,
+ *  where a fine checker turns to mush. Denser against the mane, thinning out
+ *  and upward, so the piece reads as breaking up rather than as a border. */
+const DISSOLVE: [number, number][] = [
+  [41, 6], [46, 6], [51, 6],
+  [41, 11], [51, 11], [56, 11],
+  [41, 16], [46, 16], [56, 16],
+  [46, 21], [51, 21],
+  [41, 26], [51, 26],
+  [46, 31],
+];
+
+const KNIGHT_NAVY = "#1b4f7a";
+
+/** The knight, DRAWN rather than lifted — same call as the pawn it replaces.
+ *  The reference the owner supplied is a Shutterstock comp (id 2731423013,
+ *  watermarked, sold with "STRATEGY" lettering); shipping it would need a
+ *  licence, and the watermark is not something to edit out. This is an original
+ *  silhouette of the same idea — knight, pixel dissolve off the mane — so
+ *  nothing licensed ships. If the owner licenses that vector, drop the clean
+ *  file in `public/` and swap this whole component for an <Image>.
+ *
+ *  The eye is a hole rather than a light shape (`evenodd`), so the mark sits on
+ *  any ground without carrying a background colour with it. */
+function KnightMark() {
   return (
-    <svg viewBox="0 0 24 24" aria-hidden className="size-9 shrink-0">
+    <svg viewBox="0 0 64 64" aria-hidden className="size-9 shrink-0">
       <path
-        fill="#81b64c"
-        d="M12 2.2a3.15 3.15 0 0 0-1.86 5.7c-1.2.62-2 1.8-2 3.16h7.72c0-1.36-.8-2.54-2-3.16A3.15 3.15 0 0 0 12 2.2Zm-3.1 10.1c0 2.1-.8 4.05-1.9 5.5h10c-1.1-1.45-1.9-3.4-1.9-5.5H8.9ZM6.1 19.3c-.5.8-.75 1.65-.75 2.5h13.3c0-.85-.25-1.7-.75-2.5H6.1Z"
+        fill={KNIGHT_NAVY}
+        fillRule="evenodd"
+        d="M28.6 6.2 L31 12 L34.8 5.8 C38.8 9.6 41.2 15.4 41.6 21.6 L41.6 46 L25.2 46
+           C24.6 41.4 23 37.8 20.4 34.8 L16.2 30.8 C13.6 32.2 10.8 31.8 9.8 29.8
+           C9 28 10.4 25.8 12.6 24 L18.2 19.4 C21.4 16 24.4 12 26.4 8.8 Z
+           M21.6 17.2 L24.6 18.4 L22.4 20.9 L20.2 19.6 Z"
       />
+      {/* Collar, plinth, foot. */}
+      <path fill={KNIGHT_NAVY} d="M22.5 46.5 H42 L44 51.5 H20.5 Z" />
+      <rect fill={KNIGHT_NAVY} x="15" y="53" width="34" height="5" rx="1" />
+      <rect fill={KNIGHT_NAVY} x="12" y="59.5" width="40" height="3" rx="1.5" />
+      {DISSOLVE.map(([x, y]) => (
+        <rect key={`${x}-${y}`} fill={KNIGHT_NAVY} x={x} y={y} width="4.2" height="4.2" />
+      ))}
     </svg>
   );
 }
@@ -68,7 +101,7 @@ const FACTS: { key: string; heading: string; body: React.ReactNode }[] = [
     heading: "Chess",
     body: (
       <p className="flex items-center gap-2.5">
-        <PawnMark />
+        <KnightMark />
         <span className="text-[34px] font-bold leading-none tracking-tight text-neutral-800">
           1563
         </span>
