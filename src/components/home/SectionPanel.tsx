@@ -52,7 +52,10 @@ function cellsFor(id: NavSectionId, logos: LogoMark[], extinctsSlides: string[])
       label: c.name,
       sub: c.sector,
       href: `/clients/${c.slug}`,
-      image: c.logoSrc,
+      // `cardLogo` is where the real marks live; `logoSrc` is the older field
+      // and is set on no client, which is why every cell fell back to its name
+      // in type. Kept as the fallback so anything that does set it still works.
+      image: c.cardLogo ?? c.logoSrc,
     }));
   }
   if (id === "logofolio") {

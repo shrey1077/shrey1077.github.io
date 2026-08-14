@@ -88,6 +88,9 @@ export const CLIENTS: readonly Client[] = [
     essence: "Design education, given its own design language.",
     section: "projects",
     location: "Ahmedabad, Gujarat",
+    // The institute's own mark. NOT `/content/career/uid.png` — that one is
+    // white artwork on transparent, which vanishes on the card's white plate.
+    cardLogo: "/content/clients/uid/brand/uid-logo.png",
   },
   {
     slug: "mycoveda",
