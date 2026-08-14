@@ -43,7 +43,14 @@ interface Cell {
   image?: string;
   /** Light artwork needs a dark plate behind it. */
   tone?: "light" | "dark";
+  /** Linear multiplier on the centred logo box, for marks that read small at
+   *  the common size. */
+  scale?: number;
 }
+
+/** The centred box every mark is fitted into, as a percentage of the plate, and
+ *  the ceiling a scaled one may not pass so nothing touches the card's edge. */
+const LOGO_BOX = { w: 62, h: 31, max: 94 };
 
 function cellsFor(id: NavSectionId, logos: LogoMark[], extinctsSlides: string[]): Cell[] {
   if (id === "clients" || id === "projects") {
@@ -56,6 +63,8 @@ function cellsFor(id: NavSectionId, logos: LogoMark[], extinctsSlides: string[])
       // and is set on no client, which is why every cell fell back to its name
       // in type. Kept as the fallback so anything that does set it still works.
       image: c.cardLogo ?? c.logoSrc,
+      tone: c.logoTone,
+      scale: c.logoScale,
     }));
   }
   if (id === "logofolio") {
@@ -212,7 +221,13 @@ export function SectionPanel({
                           // both dimensions evens that out and drops them all
                           // well inside the card.
                           <span className="absolute inset-0 grid place-items-center">
-                            <span className="relative block h-[31%] w-[62%]">
+                            <span
+                              className="relative block"
+                              style={{
+                                width: `${Math.min(LOGO_BOX.w * (c.scale ?? 1), LOGO_BOX.max)}%`,
+                                height: `${Math.min(LOGO_BOX.h * (c.scale ?? 1), LOGO_BOX.max)}%`,
+                              }}
+                            >
                               <Image src={c.image} alt="" fill sizes="16vw" className="object-contain" />
                             </span>
                           </span>
