@@ -59,7 +59,9 @@ export const CLIENTS: readonly Client[] = [
     essence: "Identity for a lab rewriting its own formula.",
     location: "Noida, Uttar Pradesh",
     site: "azothbiotech.com",
-    cardLogo: "/content/career/azoth.png",
+    // The owner's own AVIF, converted to PNG with its alpha intact (512x256,
+    // pure black art on transparent). Replaces the resume-sourced mark.
+    cardLogo: "/content/clients/azoth-biotech/brand/logo-azoth.png",
   },
   {
     slug: "abs",

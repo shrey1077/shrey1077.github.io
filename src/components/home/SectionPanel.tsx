@@ -205,7 +205,17 @@ export function SectionPanel({
                         }`}
                       >
                         {c.image ? (
-                          <Image src={c.image} alt="" fill sizes="30vw" className="object-contain p-4" />
+                          // Marks sit in a fixed, centred box rather than filling
+                          // the plate. `object-contain` across the whole plate
+                          // sizes each logo by its own aspect, so a square mark
+                          // read roughly twice the ink of a wordmark; capping
+                          // both dimensions evens that out and drops them all
+                          // well inside the card.
+                          <span className="absolute inset-0 grid place-items-center">
+                            <span className="relative block h-[31%] w-[62%]">
+                              <Image src={c.image} alt="" fill sizes="16vw" className="object-contain" />
+                            </span>
+                          </span>
                         ) : (
                           <span
                             className={`flex h-full items-center justify-center px-3 text-center text-lg text-neutral-800 ${
