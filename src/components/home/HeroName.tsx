@@ -80,7 +80,13 @@ const BASE_SIZE = "clamp(1.3rem, 5.2vw, 6rem)";
  *  its gap at any size. Think's right edge lands at 43% of the width, Imagine's
  *  left at 46.5% — they no longer meet at the midline the way they used to. */
 const THINK_RIGHT = "57%";
-const IMAGINE_LEFT = "46.5%";
+/** Moved right on the owner's instruction 2026-08-10 so Imagine clears the
+ *  brain entirely and sits in the white. Measured, not guessed: at the leftmost
+ *  pointer position — where Imagine is at its smallest, 0.85 — its right edge
+ *  sat at 61.99%, and the word now BEGINS where it used to end. The left edge
+ *  is the anchor (transformOrigin 0% 50%), so the zoom never moves it; at full
+ *  1.15 the word still ends around 83%, clear of the right pins. */
+const IMAGINE_LEFT = "62%";
 
 /** Vertical anchors, as a fraction of the viewport, measured to each word's
  *  INK top rather than its box — the boxes sit well off the ink on both faces.
