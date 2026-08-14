@@ -51,17 +51,47 @@ import { useEffect, useRef } from "react";
 import { motion, useMotionValue, useSpring, useReducedMotion } from "framer-motion";
 import { DURATION, EASE_OUT } from "@/constants/motion";
 
-/** How far each word travels on Z, as a scale delta. */
-const ZOOM = 0.05;
+/** How far each word travels on Z, as a scale delta. Tripled from 0.05 on the
+ *  owner's instruction 2026-08-10 — the breath was deliberately small when the
+ *  words were scenery at 12vw, and now that they are half that size it reads as
+ *  nothing at 5%. */
+const ZOOM = 0.15;
 
-/** Scenery scale, not headline scale — but capped so the word still fits.
- *  Each word owns exactly half the viewport (its outer edge to the midline),
- *  and at a true 4x Think measured 1334px against 720px of room, so it lost
- *  its T and H off-screen and read as "INK". 12vw is the largest that keeps
- *  all five letters on screen WITH the 5% zoom applied — 13vw fits at rest but
- *  clips once the pointer reaches the left edge. */
+/** Size and placement both come from a mockup the owner overlaid on the stage
+ *  in black (2026-08-10). Derived rather than eyeballed: the mockup crop also
+ *  contained the live pins and the live Think, whose viewport positions are
+ *  known from the code, so those solved the crop's scale and offset, and the
+ *  black words were then read off in the same coordinates.
+ *
+ *  What that gave: Think spanning 22.6%–43.0% of the viewport width against
+ *  the 2.5%–50% it occupied before, i.e. 0.43 of the old size. The words used
+ *  to be scenery at 12vw, sized so each owned half the viewport out to the
+ *  midline; they are now nearer to headline scale and sit clear of both the
+ *  midline and each other.
+ *
+ *  ⚠ These are read off a crop, so treat them as good to about a percent, not
+ *  as exact. IMAGINE_RATIO is deliberately left to carry Imagine's size, so
+ *  the two keep their measured ascent match rather than drifting apart. */
 const WORD = "block whitespace-nowrap will-change-transform";
-const BASE_SIZE = "clamp(3rem, 12vw, 14rem)";
+const BASE_SIZE = "clamp(1.3rem, 5.2vw, 6rem)";
+
+/** Horizontal anchors, as CSS offsets. Think is pinned by its RIGHT edge and
+ *  Imagine by its LEFT, so each grows away from the middle and the pair keeps
+ *  its gap at any size. Think's right edge lands at 43% of the width, Imagine's
+ *  left at 46.5% — they no longer meet at the midline the way they used to. */
+const THINK_RIGHT = "57%";
+const IMAGINE_LEFT = "46.5%";
+
+/** Vertical anchors, as a fraction of the viewport, measured to each word's
+ *  INK top rather than its box — the boxes sit well off the ink on both faces.
+ *
+ *  ⚠ This replaces the live brain measurement. Placement used to be derived
+ *  from the footage's own alpha so the words tucked against its real crown and
+ *  base at any size; the mockup puts them at fixed heights instead, so that
+ *  measurement is gone. `measureBrainV` went with it — recover it from git if
+ *  the brain-relative behaviour is ever wanted back. */
+const THINK_INK_TOP = 0.168;
+const IMAGINE_INK_TOP = 0.716;
 
 /** The two faces are nothing alike, so one font-size does not give one height.
  *  Measured on canvas at 200px: "Think" in Digibra rises 149px and has no
@@ -101,6 +131,7 @@ const IMAGINE_RATIO = 149 / 140;
 const IMAGINE_FONT_ASCENT = 1.17;
 const IMAGINE_FONT_DESCENT = 0.21;
 const IMAGINE_INK_DESCENT = 0.21;
+const IMAGINE_INK_ASCENT = 0.71;
 const THINK_FONT_ASCENT = 0.75;
 const THINK_FONT_DESCENT = 0.25;
 const THINK_INK_ASCENT = 0.745;
@@ -122,6 +153,12 @@ function inkAboveBoxTop(fs: number, boxH: number): number {
   const halfLeading = (boxH - (THINK_FONT_ASCENT + THINK_FONT_DESCENT) * fs) / 2;
   return halfLeading + (THINK_FONT_ASCENT - THINK_INK_ASCENT) * fs;
 }
+/** Imagine's HIGHEST ink, same rule — needed now that the word is placed by
+ *  where its ink starts rather than by where the brain's base happens to be. */
+function imagineInkTop(fs: number, boxH: number): number {
+  const halfLeading = (boxH - (IMAGINE_FONT_ASCENT + IMAGINE_FONT_DESCENT) * fs) / 2;
+  return halfLeading + (IMAGINE_FONT_ASCENT - IMAGINE_INK_ASCENT) * fs;
+}
 
 /** Clear air kept between either word's ink and the edge of the stage. The
  *  stage is `overflow-hidden`, so ink that reaches an edge is ink that is gone. */
@@ -137,45 +174,6 @@ const THINK_GREY = "#c7c7c7";
 
 /** Clear air between Imagine's lowest ink and the furniture below it. */
 const FLOOR_GAP = 18;
-
-/** The brain's WIDE vertical extent (viewport px) — crown to base of the main
- *  mass, ignoring the narrow tips so the words don't sit too high or too low. */
-function measureBrainV(): { top: number; bottom: number } | null {
-  try {
-    const c = document.querySelector("canvas[data-brain]") as HTMLCanvasElement | null;
-    if (!c || !c.width) return null;
-    const ctx = c.getContext("2d");
-    if (!ctx) return null;
-    const rect = c.getBoundingClientRect();
-    const cw = c.width,
-      ch = c.height;
-    const scale = Math.min(rect.width / cw, rect.height / ch);
-    const offY = rect.top + (rect.height - ch * scale) / 2;
-    const d = ctx.getImageData(0, 0, cw, ch).data;
-    let top = -1,
-      bottom = -1;
-    for (let y = 0; y < ch; y++) {
-      let run = 0,
-        wide = false;
-      for (let x = Math.floor(cw * 0.3); x < cw * 0.7; x++) {
-        if (d[(y * cw + x) * 4 + 3] > 150) {
-          if (++run >= cw * 0.15) {
-            wide = true;
-            break;
-          }
-        } else run = 0;
-      }
-      if (wide) {
-        if (top < 0) top = y;
-        bottom = y;
-      }
-    }
-    if (top < 0) return null;
-    return { top: offY + top * scale, bottom: offY + bottom * scale };
-  } catch {
-    return null;
-  }
-}
 
 export function HeroName() {
   const reduceMotion = useReducedMotion();
@@ -196,35 +194,29 @@ export function HeroName() {
   useEffect(() => {
     const measure = () => {
       const vh = window.innerHeight;
-      const b = measureBrainV() ?? { top: vh * 0.3, bottom: vh * 0.68 };
-      const thinkH = thinkRef.current?.offsetHeight ?? 0;
-      // A deeper bite than before: the brain is meant to lap OVER the word,
-      // not merely touch it.
-      const overlap = thinkH * 0.3;
 
-      // Think's ceiling. Tucking under the brain's crown puts the box above the
-      // top of the stage whenever the brain sits high, and the stage clips what
-      // leaves it. Its ink sits half-leading below the box top, so hold THAT,
-      // not the box, inside the edge.
-      const thinkFs = parseFloat(getComputedStyle(thinkRef.current!).fontSize) || 0;
-      const thinkInkOffset = inkAboveBoxTop(thinkFs, thinkH);
-      thinkY.set(Math.max(EDGE_MARGIN - thinkInkOffset, b.top - thinkH + overlap));
+      // Think. Placed by where its INK starts, then held inside the top edge —
+      // the box sits ~15px above the ink on Digibra, so clamping the box would
+      // let the letters leave the stage.
+      const thinkEl = thinkRef.current;
+      if (thinkEl) {
+        const fs = parseFloat(getComputedStyle(thinkEl).fontSize) || 0;
+        const inkOffset = inkAboveBoxTop(fs, thinkEl.offsetHeight);
+        const wanted = vh * THINK_INK_TOP - inkOffset;
+        thinkY.set(Math.max(EDGE_MARGIN - inkOffset, wanted));
+      }
 
-      // Imagine's floor. Two separate things can push it too low: the brain's
-      // base (which moved down when the footage scaled up 5%) and the plain
-      // 66% ceiling. Neither knew about the descender or about the furniture
-      // in the bottom-right corner, so the word ended up 38px into the Hobbies
-      // rotator with its g clipped by the stage's overflow.
+      // Imagine. Same idea, plus the two floors it has always needed: the
+      // furniture in the bottom-right corner, and the bottom of the stage
+      // regardless — a viewport short enough to put the rotator below the word
+      // leaves the furniture clamp defending nothing.
       const el = imagineRef.current;
-      let maxTop = vh * 0.66;
       if (el) {
         const fs = parseFloat(getComputedStyle(el).fontSize) || 0;
-        const inkBelowTop = inkBelowBoxTop(fs, el.offsetHeight);
+        const boxH = el.offsetHeight;
+        const inkBelowTop = inkBelowBoxTop(fs, boxH);
+        const inkTopOffset = imagineInkTop(fs, boxH);
 
-        // Clear the furniture if it's mounted (desktop only) AND the bottom of
-        // the stage regardless — the furniture clamp alone left nothing
-        // defending the edge on a viewport short enough to put the rotator
-        // below it.
         const furniture = document
           .querySelector('[data-hero-furniture="right-bottom"]')
           ?.getBoundingClientRect();
@@ -234,10 +226,9 @@ export function HeroName() {
             ? Math.min(furniture.top - FLOOR_GAP, stageFloor)
             : stageFloor;
 
-        maxTop = Math.min(maxTop, floor - inkBelowTop);
+        const wanted = vh * IMAGINE_INK_TOP - inkTopOffset;
+        imagineY.set(Math.min(wanted, floor - inkBelowTop));
       }
-
-      imagineY.set(Math.min(b.bottom - overlap * 0.8, maxTop));
     };
 
     measure();
@@ -280,8 +271,8 @@ export function HeroName() {
           keeps the K anchored while the word breathes. */}
       <motion.div
         aria-hidden
-        style={{ y: thinkY, scale: thinkScale, transformOrigin: "100% 50%" }}
-        className="absolute right-1/2 top-0 z-30"
+        style={{ y: thinkY, scale: thinkScale, transformOrigin: "100% 50%", right: THINK_RIGHT }}
+        className="absolute top-0 z-30"
       >
         <motion.span {...rise(0.35)} className="block">
           <span
@@ -299,8 +290,8 @@ export function HeroName() {
           the same reason. */}
       <motion.div
         aria-hidden
-        style={{ y: imagineY, scale: imagineScale, transformOrigin: "0% 50%" }}
-        className="absolute left-[54%] top-0 z-20"
+        style={{ y: imagineY, scale: imagineScale, transformOrigin: "0% 50%", left: IMAGINE_LEFT }}
+        className="absolute top-0 z-20"
       >
         <motion.span {...rise(0.5)} className="block">
           <span
