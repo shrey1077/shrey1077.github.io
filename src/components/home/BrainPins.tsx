@@ -100,10 +100,10 @@ const CONNECTOR_DRAW = 0.75;
 /*  Mapping confirmed by the owner: handshake → Clients, briefcase → Projects,
  *  open book → Logofolio, summit-with-flags → Career Path. */
 const SECTION_ICONS: Partial<Record<NavSectionId, string>> = {
-  // clients: "/content/icons/clients.png",       // handshake
-  // projects: "/content/icons/projects.png",     // briefcase
-  // logofolio: "/content/icons/logofolio.png",   // open book
-  // "career-path": "/content/icons/career-path.png", // summit
+  clients: "/content/icons/clients.png", // handshake
+  projects: "/content/icons/projects.png", // briefcase
+  logofolio: "/content/icons/logofolio.png", // open book
+  "career-path": "/content/icons/career-path.png", // summit
 };
 
 function connectorPath(index: number, row: number, offset = 0): string {
@@ -112,6 +112,28 @@ function connectorPath(index: number, row: number, offset = 0): string {
   const r = CONNECTOR_R;
   // Start above the stage so the line reads as arriving from off-screen.
   return `M ${x} -2 V ${y - r} Q ${x} ${y} ${x + r} ${y} H ${CONNECTOR_END}`;
+}
+
+/** Where the outgoing runs turn down, and how far they fall. The topmost turns
+ *  furthest RIGHT so the four never cross — the mirror of the incoming rule.
+ *  `widest` is the right edge of the longest pin row, measured live, so every
+ *  turn is clear of every row whatever the labels say. */
+const OUT_CLEAR = 3;
+const OUT_GAP = 1.4;
+/** The floor: the top of the black band that closes the stage. */
+const OUT_BOTTOM = 93;
+
+function outgoingPath(
+  index: number,
+  row: number,
+  from: number,
+  widest: number,
+  offset = 0,
+): string {
+  const y = row * 100 + offset;
+  const turn = widest + OUT_CLEAR + (3 - index) * OUT_GAP + offset;
+  const r = CONNECTOR_R;
+  return `M ${from} ${y} H ${turn - r} Q ${turn} ${y} ${turn} ${y + r} V ${OUT_BOTTOM}`;
 }
 
 interface Pin {
@@ -142,11 +164,16 @@ function PinConnectors({
   pins,
   open,
   reduceMotion,
+  ends,
 }: {
   pins: Pin[];
   open: NavSectionId | null;
   reduceMotion: boolean;
+  /** Each row's right edge as a % of the stage — measured, because the rows are
+   *  as wide as their labels and the outgoing runs start at the circle. */
+  ends: Record<string, number>;
 }) {
+  const widest = Math.max(0, ...Object.values(ends));
   return (
     <svg
       aria-hidden
@@ -178,15 +205,48 @@ function PinConnectors({
                 pin.index * CONNECTOR_DRAW
               }s forwards`,
             };
+        // The run that leaves the section: out of the stroked circle, right,
+        // then down to the footing. It starts once its pin has landed, so the
+        // eye follows in → pin → out. Needs the measurement, so it waits.
+        const from = ends[pin.id];
+        const out =
+          from === undefined
+            ? undefined
+            : reduceMotion
+              ? {}
+              : {
+                  strokeDasharray: 100,
+                  strokeDashoffset: 100,
+                  animation: `brainpin-draw ${CONNECTOR_DRAW}s linear ${
+                    (pin.index + 1) * CONNECTOR_DRAW
+                  }s forwards`,
+                };
+
         return (
           <g key={pin.id}>
             <path d={connectorPath(pin.index, pin.y)} {...common} style={draw} />
-            {/* The second rail, on open only — the same L, stepped outward. */}
-            {isOpen && (
-              <path
-                d={connectorPath(pin.index, pin.y, CONNECTOR_DOUBLE)}
-                {...common}
-              />
+            {from !== undefined && (
+              <>
+                <path
+                  d={outgoingPath(pin.index, pin.y, from, widest)}
+                  {...common}
+                  style={out}
+                />
+                {/* The double stroke: a second rail beside the OUTGOING run —
+                    the line leaving the section, not the one arriving. */}
+                {isOpen && (
+                  <path
+                    d={outgoingPath(
+                      pin.index,
+                      pin.y,
+                      from,
+                      widest,
+                      CONNECTOR_DOUBLE,
+                    )}
+                    {...common}
+                  />
+                )}
+              </>
             )}
           </g>
         );
@@ -217,6 +277,7 @@ function PinRow({
 
   return (
     <motion.div
+      data-pin-row={logic ? pin.id : undefined}
       initial={wait ? { opacity: 0 } : false}
       animate={{ opacity: 1 }}
       transition={{ duration: 0.28, ease: EASE_OUT, delay: wait }}
@@ -347,6 +408,39 @@ export function BrainPins() {
   const [open, setOpen] = useState<NavSectionId | null>(null);
   const rootRef = useRef<HTMLDivElement>(null);
 
+  // Where each logic row ENDS, as a % of the stage. The rows are as wide as
+  // their labels, and the outgoing run has to start at the circle rather than
+  // at some guessed column, so this is measured rather than assumed.
+  //
+  // ⚠ Written only from the ResizeObserver's callback, never from the effect
+  // body — this repo lints `react-hooks/set-state-in-effect` as an error, and
+  // the observer fires once on `observe()` anyway, which is the first measure.
+  const [ends, setEnds] = useState<Record<string, number>>({});
+
+  useEffect(() => {
+    const root = rootRef.current;
+    if (!root) return;
+    const ro = new ResizeObserver(() => {
+      const box = root.getBoundingClientRect();
+      if (!box.width) return;
+      const next: Record<string, number> = {};
+      root.querySelectorAll<HTMLElement>("[data-pin-row]").forEach((el) => {
+        const id = el.dataset.pinRow;
+        if (!id) return;
+        next[id] = ((el.getBoundingClientRect().right - box.left) / box.width) * 100;
+      });
+      setEnds((prev) => {
+        const keys = Object.keys(next);
+        const same =
+          keys.length === Object.keys(prev).length &&
+          keys.every((k) => Math.abs((prev[k] ?? -999) - next[k]) < 0.05);
+        return same ? prev : next;
+      });
+    });
+    ro.observe(root);
+    return () => ro.disconnect();
+  }, []);
+
   // Tell the rest of the page which section is open, so the panel can follow.
   useEffect(() => {
     window.dispatchEvent(new CustomEvent(PIN_OPEN_EVENT, { detail: open }));
@@ -378,6 +472,7 @@ export function BrainPins() {
         pins={pins.filter((p) => p.side === "logic")}
         open={open}
         reduceMotion={reduceMotion}
+        ends={ends}
       />
       {pins.map((p) => (
         <PinRow
