@@ -75,15 +75,20 @@ type Side = "logic" | "creative";
  * actually is — the alternative is measuring each with getTotalLength().
  */
 
-/** Where a line meets its row: the pin column's own left edge (left-[3vw]). */
+/** Fallback only. Every line actually lands on a MEASURED anchor — the centre
+ *  of the icon going in, the centre of the stroked circle coming out — so it
+ *  touches the thing it connects to rather than the edge of a box near it.
+ *  This is used only before the first measurement arrives. */
 const CONNECTOR_END = 6;
 /** Innermost vertical (the topmost pin's), and the step further out per pin. */
 const CONNECTOR_X0 = 4.2;
 const CONNECTOR_GAP = 0.9;
 /** Corner radius, in viewBox units. */
 const CONNECTOR_R = 0.6;
-/** The parallel line added when a section is open — the "double stroke". */
-const CONNECTOR_DOUBLE = 0.42;
+/** Stroke weights. Open thickens the line rather than adding a second one
+ *  beside it — a parallel rail read as a mistake, not as emphasis. */
+const STROKE_REST = 1;
+const STROKE_OPEN = 2;
 
 /** The reveal clock. Four lines draw back to back, and a pin lands the moment
  *  its own line completes its turn — so the last pin arrives at exactly
@@ -106,12 +111,11 @@ const SECTION_ICONS: Partial<Record<NavSectionId, string>> = {
   "career-path": "/content/icons/career-path.png", // summit
 };
 
-function connectorPath(index: number, row: number, offset = 0): string {
-  const x = CONNECTOR_X0 - index * CONNECTOR_GAP - offset;
-  const y = row * 100 + offset;
+function connectorPath(index: number, y: number, end: number): string {
+  const x = CONNECTOR_X0 - index * CONNECTOR_GAP;
   const r = CONNECTOR_R;
   // Start above the stage so the line reads as arriving from off-screen.
-  return `M ${x} -2 V ${y - r} Q ${x} ${y} ${x + r} ${y} H ${CONNECTOR_END}`;
+  return `M ${x} -2 V ${y - r} Q ${x} ${y} ${x + r} ${y} H ${end}`;
 }
 
 /** Where the outgoing runs turn down, and how far they fall. The topmost turns
@@ -125,15 +129,21 @@ const OUT_BOTTOM = 93;
 
 function outgoingPath(
   index: number,
-  row: number,
+  y: number,
   from: number,
   widest: number,
-  offset = 0,
 ): string {
-  const y = row * 100 + offset;
-  const turn = widest + OUT_CLEAR + (3 - index) * OUT_GAP + offset;
+  const turn = widest + OUT_CLEAR + (3 - index) * OUT_GAP;
   const r = CONNECTOR_R;
   return `M ${from} ${y} H ${turn - r} Q ${turn} ${y} ${turn} ${y + r} V ${OUT_BOTTOM}`;
+}
+
+/** The two points a pin's lines touch, as percentages of the stage. */
+interface Anchor {
+  iconX: number;
+  iconY: number;
+  dotX: number;
+  dotY: number;
 }
 
 interface Pin {
@@ -164,16 +174,20 @@ function PinConnectors({
   pins,
   open,
   reduceMotion,
-  ends,
+  anchors,
 }: {
   pins: Pin[];
   open: NavSectionId | null;
   reduceMotion: boolean;
-  /** Each row's right edge as a % of the stage — measured, because the rows are
-   *  as wide as their labels and the outgoing runs start at the circle. */
-  ends: Record<string, number>;
+  /** Measured centres, as % of the stage: where the incoming line lands (the
+   *  icon) and where the outgoing one leaves (the stroked circle). */
+  anchors: Record<string, Anchor>;
 }) {
-  const widest = Math.max(0, ...Object.values(ends));
+  const widest = Math.max(
+    0,
+    ...Object.values(anchors).map((a) => a.dotX),
+  );
+
   return (
     <svg
       aria-hidden
@@ -183,70 +197,44 @@ function PinConnectors({
     >
       {pins.map((pin) => {
         const isOpen = open === pin.id;
+        const a = anchors[pin.id];
         const common = {
           fill: "none" as const,
           stroke: "currentColor",
-          strokeWidth: 1,
+          // Open thickens BOTH runs of this pin. No second line: a parallel
+          // rail read as a duplicate rather than as emphasis.
+          strokeWidth: isOpen ? STROKE_OPEN : STROKE_REST,
           vectorEffect: "non-scaling-stroke" as const,
           pathLength: 100,
           className: "text-neutral-900/45",
         };
-        // Draw, then hold: `fill-mode: forwards` on a one-shot animation, so
-        // the line stays where it landed rather than snapping back. The
-        // keyframes drop the dash pattern on the last frame — a resting line
-        // must be an unbroken stroke, not a dash tiled along a path the
-        // viewBox stretches unevenly.
-        const draw = reduceMotion
-          ? undefined
-          : {
-              strokeDasharray: 100,
-              strokeDashoffset: 100,
-              animation: `brainpin-draw ${CONNECTOR_DRAW}s linear ${
-                pin.index * CONNECTOR_DRAW
-              }s forwards`,
-            };
-        // The run that leaves the section: out of the stroked circle, right,
-        // then down to the footing. It starts once its pin has landed, so the
-        // eye follows in → pin → out. Needs the measurement, so it waits.
-        const from = ends[pin.id];
-        const out =
-          from === undefined
+        const drawAt = (delay: number) =>
+          reduceMotion
             ? undefined
-            : reduceMotion
-              ? {}
-              : {
-                  strokeDasharray: 100,
-                  strokeDashoffset: 100,
-                  animation: `brainpin-draw ${CONNECTOR_DRAW}s linear ${
-                    (pin.index + 1) * CONNECTOR_DRAW
-                  }s forwards`,
-                };
+            : {
+                strokeDasharray: 100,
+                strokeDashoffset: 100,
+                animation: `brainpin-draw ${CONNECTOR_DRAW}s linear ${delay}s forwards`,
+              };
+
+        // Both runs land on the icon / circle centre. Until the first
+        // measurement arrives the incoming line stops at the column edge.
+        const inY = a ? a.iconY : pin.y * 100;
+        const inEnd = a ? a.iconX : CONNECTOR_END;
 
         return (
           <g key={pin.id}>
-            <path d={connectorPath(pin.index, pin.y)} {...common} style={draw} />
-            {from !== undefined && (
-              <>
-                <path
-                  d={outgoingPath(pin.index, pin.y, from, widest)}
-                  {...common}
-                  style={out}
-                />
-                {/* The double stroke: a second rail beside the OUTGOING run —
-                    the line leaving the section, not the one arriving. */}
-                {isOpen && (
-                  <path
-                    d={outgoingPath(
-                      pin.index,
-                      pin.y,
-                      from,
-                      widest,
-                      CONNECTOR_DOUBLE,
-                    )}
-                    {...common}
-                  />
-                )}
-              </>
+            <path
+              d={connectorPath(pin.index, inY, inEnd)}
+              {...common}
+              style={drawAt(pin.index * CONNECTOR_DRAW)}
+            />
+            {a && (
+              <path
+                d={outgoingPath(pin.index, a.dotY, a.dotX, widest)}
+                {...common}
+                style={drawAt((pin.index + 1) * CONNECTOR_DRAW)}
+              />
             )}
           </g>
         );
@@ -277,7 +265,6 @@ function PinRow({
 
   return (
     <motion.div
-      data-pin-row={logic ? pin.id : undefined}
       initial={wait ? { opacity: 0 } : false}
       animate={{ opacity: 1 }}
       transition={{ duration: 0.28, ease: EASE_OUT, delay: wait }}
@@ -318,6 +305,7 @@ function PinRow({
         {logic && SECTION_ICONS[pin.id] && (
           <span
             aria-hidden
+            data-pin-icon={pin.id}
             className="relative mr-1 grid size-7 shrink-0 place-items-center overflow-hidden rounded-full"
           >
             <Image
@@ -363,11 +351,12 @@ function PinRow({
         />
         <span
           aria-hidden
+          data-pin-dot={logic ? pin.id : undefined}
           className={`relative grid shrink-0 place-items-center rounded-full ${
             logic
-              ? `border-2 transition-colors duration-300 ${
-                  open ? "border-neutral-950 bg-neutral-950" : "border-neutral-950 bg-transparent"
-                }`
+              // Open no longer FILLS the circle — the ring stays and a flat
+              // black disc drops inside it, which is the hover tell held.
+              ? "border-2 border-neutral-950 bg-transparent"
               : ""
           }`}
           style={{ width: CIRCLE, height: CIRCLE }}
@@ -392,7 +381,7 @@ function PinRow({
           <motion.span
             className={`relative block rounded-full ${logic ? "bg-neutral-950" : "brain-paint"}`}
             initial={false}
-            animate={{ scale: hover && !open ? 1 : 0 }}
+            animate={{ scale: hover || open ? 1 : 0 }}
             transition={{ duration: reduceMotion ? 0 : 0.22, ease: EASE_OUT }}
             style={{ width: CIRCLE * 0.42, height: CIRCLE * 0.42 }}
           />
@@ -408,32 +397,54 @@ export function BrainPins() {
   const [open, setOpen] = useState<NavSectionId | null>(null);
   const rootRef = useRef<HTMLDivElement>(null);
 
-  // Where each logic row ENDS, as a % of the stage. The rows are as wide as
-  // their labels, and the outgoing run has to start at the circle rather than
-  // at some guessed column, so this is measured rather than assumed.
+  // The two points each logic line has to touch: the centre of the icon it
+  // arrives at, and the centre of the stroked circle it leaves. Measured, not
+  // assumed — the rows are as wide as their labels, so any fixed column would
+  // leave lines ending near the thing rather than on it.
   //
   // ⚠ Written only from the ResizeObserver's callback, never from the effect
   // body — this repo lints `react-hooks/set-state-in-effect` as an error, and
-  // the observer fires once on `observe()` anyway, which is the first measure.
-  const [ends, setEnds] = useState<Record<string, number>>({});
+  // observing fires once immediately, which is the first measure.
+  const [anchors, setAnchors] = useState<Record<string, Anchor>>({});
 
   useEffect(() => {
     const root = rootRef.current;
     if (!root) return;
+    const centre = (el: Element, box: DOMRect) => {
+      const r = el.getBoundingClientRect();
+      return {
+        x: ((r.left + r.width / 2 - box.left) / box.width) * 100,
+        y: ((r.top + r.height / 2 - box.top) / box.height) * 100,
+      };
+    };
     const ro = new ResizeObserver(() => {
       const box = root.getBoundingClientRect();
-      if (!box.width) return;
-      const next: Record<string, number> = {};
-      root.querySelectorAll<HTMLElement>("[data-pin-row]").forEach((el) => {
-        const id = el.dataset.pinRow;
+      if (!box.width || !box.height) return;
+      const next: Record<string, Anchor> = {};
+      root.querySelectorAll<HTMLElement>("[data-pin-dot]").forEach((dot) => {
+        const id = dot.dataset.pinDot;
         if (!id) return;
-        next[id] = ((el.getBoundingClientRect().right - box.left) / box.width) * 100;
+        const icon = root.querySelector(`[data-pin-icon="${id}"]`);
+        if (!icon) return;
+        const i = centre(icon, box);
+        const d = centre(dot, box);
+        next[id] = { iconX: i.x, iconY: i.y, dotX: d.x, dotY: d.y };
       });
-      setEnds((prev) => {
+      setAnchors((prev) => {
         const keys = Object.keys(next);
         const same =
           keys.length === Object.keys(prev).length &&
-          keys.every((k) => Math.abs((prev[k] ?? -999) - next[k]) < 0.05);
+          keys.every((k) => {
+            const a = prev[k];
+            const b = next[k];
+            return (
+              a &&
+              Math.abs(a.iconX - b.iconX) < 0.05 &&
+              Math.abs(a.iconY - b.iconY) < 0.05 &&
+              Math.abs(a.dotX - b.dotX) < 0.05 &&
+              Math.abs(a.dotY - b.dotY) < 0.05
+            );
+          });
         return same ? prev : next;
       });
     });
@@ -472,7 +483,7 @@ export function BrainPins() {
         pins={pins.filter((p) => p.side === "logic")}
         open={open}
         reduceMotion={reduceMotion}
-        ends={ends}
+        anchors={anchors}
       />
       {pins.map((p) => (
         <PinRow
