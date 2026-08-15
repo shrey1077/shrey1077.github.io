@@ -1,14 +1,10 @@
 # 12 — WHOLE-SITE HANDOFF
 
-Written 2026-08-16.
+Written 2026-08-16, superseding 11 (and 09/10 before it). Read this one only.
 
-> ⚠ **11 and 12 were written in parallel by two different sessions and BOTH
-> describe the current state.** 11 was revised the same night and carries the
-> Tata mockup/photography work in depth; 12 carries the homepage connectors,
-> the hero words, and the Zabraku portfolio in depth. Neither supersedes the
-> other yet. **Read 11 first for Tata, 12 first for the homepage and Zabraku** —
-> and fold them into one before the next cycle, because two "current" handoffs
-> is exactly the confusion these documents exist to prevent.
+11 and 12 were drafted the same night by two sessions working in parallel;
+11 has since been marked superseded and `00_START_HERE` points here. Its Tata
+tile rules are folded into §3 below, so nothing was lost in the handover.
 
 ---
 
@@ -62,13 +58,18 @@ Traps, in the order they will bite:
 
 ### ⚠ Another session is working in this repo
 
-At the time of writing, a second chat is editing the Tata mockup pipeline. Its
-commit `831a19c` ("Lead Mockups with the two signage shots, and anchor the
-staged matcher") rode along with the last push. It currently has **staged and
-unstaged work in progress**: `docs/HANDOFF/11_SITE_HANDOFF.md` (staged),
-`scripts/make_studio_mockups.py`, `Photography/_meta.json`, and a deleted
-`Photography/mockup-studio.webp`. **Leave all of that alone.** `.claude/launch.json`
-is separately modified and deliberately uncommitted.
+A second chat worked the Tata mockup and photography pipeline through the same
+night — commits `831a19c`, `f99a3ba`, `5f64107`. Its work is committed and
+pushed; both sessions' commits are interleaved on the branch, and one of this
+session's files was swept into `f99a3ba` by its commit. Nothing is outstanding
+from it.
+
+The lesson worth keeping: **check `git status` before staging.** A `git add` of
+your own file can be picked up by the other session's `commit` moments later,
+and two sessions each writing "the" handoff produced two documents that each
+claimed to supersede the other before it was reconciled.
+
+`.claude/launch.json` is separately modified and deliberately uncommitted.
 
 ---
 
