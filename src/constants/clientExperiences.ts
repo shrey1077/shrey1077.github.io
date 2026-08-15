@@ -139,9 +139,30 @@ export const CLIENT_EXPERIENCES: readonly ClientExperienceConfig[] = [
       markText: "Zabraku",
       note: "The wordmark cut into a radial line field — a media identity built to move.",
     },
+    catalogueLabel: "Company Portfolio",
+    // Both of these appear inside the deck as work: ABS Wholesale has its own
+    // client room, and the RK Entertainment identity is the case study in
+    // Zabraku's own Brand Identity room. ABS's mark comes on a white ground so
+    // it takes a light disc; RKB's is gold cut onto transparency.
+    relatedLinks: [
+      {
+        href: "/clients/abs",
+        label: "ABS Wholesale",
+        logo: "/content/career/abs.png",
+        plate: "light",
+        scale: 66,
+      },
+      {
+        href: "/clients/zabraku-media/catalogue/brand-identity",
+        label: "RKB Entertainment",
+        logo: "/content/clients/zabraku-media/rkb-logo.png",
+        plate: "dark",
+        scale: 52,
+      },
+    ],
     sectionDescriptions: {
       catalogue:
-        "A logo case study for RK Entertainment, then a year of the event marketing that followed it.",
+        "The 2021 company portfolio in full, page by page, with the identity and event work from the same desk alongside it.",
     },
     footer: {
       clientName: "Zabraku Media",

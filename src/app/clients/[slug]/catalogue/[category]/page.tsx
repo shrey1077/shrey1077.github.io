@@ -16,6 +16,7 @@ import { CLIENTS, clientBySlug } from "@/constants/clients";
 import { clientExperienceBySlug } from "@/constants/clientExperiences";
 import { readCatalogue, readCatalogueCategory } from "@/content/catalogue";
 import { CatalogueGallery } from "@/components/experience/CatalogueGallery";
+import { RelatedLinks } from "@/components/experience/RelatedLinks";
 import { Reveal } from "@/components/experience/Reveal";
 import { VideoWall } from "@/components/experience/VideoWall";
 import { typeVoiceClass } from "@/constants/typography";
@@ -74,8 +75,11 @@ export default async function CategoryPage({ params }: CategoryPageProps) {
   const prev = at > 0 ? catalogue[at - 1] : undefined;
   const next = at >= 0 && at < catalogue.length - 1 ? catalogue[at + 1] : undefined;
 
-  // The client's brand voice carries into its catalogue rooms.
-  const theme = clientExperienceBySlug(slug)?.brandTheme;
+  // The client's brand voice carries into its catalogue rooms — and so do the
+  // marks that close its page, so a room ends the same way the page does.
+  const experience = clientExperienceBySlug(slug);
+  const related = experience?.relatedLinks;
+  const theme = experience?.brandTheme;
   const themeVars = theme
     ? ({
         "--brand-font": `var(${theme.fontVar})`,
@@ -109,7 +113,8 @@ export default async function CategoryPage({ params }: CategoryPageProps) {
             className={`${META} text-sm`}
             style={{ color: "var(--brand-accent, #525252)" }}
           >
-            Catalogue{at >= 0 ? ` · ${String(at + 1).padStart(2, "0")} / ${String(catalogue.length).padStart(2, "0")}` : ""}
+            {clientExperienceBySlug(slug)?.catalogueLabel ?? "Catalogue"}
+            {at >= 0 ? ` · ${String(at + 1).padStart(2, "0")} / ${String(catalogue.length).padStart(2, "0")}` : ""}
           </span>
           <h1
             className="mt-3 text-4xl text-neutral-900 sm:text-5xl"
@@ -134,9 +139,11 @@ export default async function CategoryPage({ params }: CategoryPageProps) {
             </p>
           )}
           <span className={`${META} mt-5 block text-[0.6rem] text-neutral-500`}>
-            {data.category.assetCount > 0
-              ? `${data.category.assetCount} asset${data.category.assetCount === 1 ? "" : "s"} in the archive · showing the selected few`
-              : "Awaiting assets"}
+            {data.category.assetCount === 0
+              ? "Awaiting assets"
+              : galleryImages.length >= data.category.assetCount
+                ? `${data.category.assetCount} page${data.category.assetCount === 1 ? "" : "s"} · shown in full`
+                : `${data.category.assetCount} asset${data.category.assetCount === 1 ? "" : "s"} in the archive · showing the selected few`}
           </span>
         </header>
 
@@ -160,7 +167,11 @@ export default async function CategoryPage({ params }: CategoryPageProps) {
               )}
               {galleryImages.length > 0 && (
                 <Reveal delay={0.05}>
-                  <CatalogueGallery assets={galleryImages} />
+                  <CatalogueGallery
+                    assets={galleryImages}
+                    maxVisible={data.maxVisible}
+                    showCaptions={data.showCaptions}
+                  />
                 </Reveal>
               )}
               {files.length > 0 && (
@@ -221,6 +232,8 @@ export default async function CategoryPage({ params }: CategoryPageProps) {
             )}
           </nav>
         )}
+
+        {related && related.length > 0 && <RelatedLinks links={related} />}
       </div>
     </main>
   );

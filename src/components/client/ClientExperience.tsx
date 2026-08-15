@@ -33,6 +33,7 @@ import { CatalogueSection } from "@/components/experience/CatalogueSection";
 import { CollectionsSection } from "@/components/experience/CollectionsSection";
 import { PhotographySection } from "@/components/experience/PhotographySection";
 import { ExperienceFooter } from "@/components/experience/ExperienceFooter";
+import { RelatedLinks } from "@/components/experience/RelatedLinks";
 import { BrandOpening } from "@/components/client/BrandOpening";
 import { InstituteStructure } from "@/components/client/InstituteStructure";
 import { LegacyIntro } from "@/components/client/LegacyIntro";
@@ -123,7 +124,7 @@ export function ClientExperience({ client, config }: ClientExperienceProps) {
   } else if (catalogue.length > 0) {
     sections.push({
       index: nextIndex(),
-      title: "Catalogue",
+      title: config.catalogueLabel ?? "Catalogue",
       anchor: "catalogue",
       description: describe("catalogue"),
       render: () => (
@@ -187,6 +188,10 @@ export function ClientExperience({ client, config }: ClientExperienceProps) {
           {section.render()}
         </ExperienceSection>
       ))}
+
+      {config.relatedLinks && config.relatedLinks.length > 0 && (
+        <RelatedLinks links={config.relatedLinks} />
+      )}
 
       {config.footer && (
         <ExperienceFooter

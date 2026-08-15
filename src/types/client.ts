@@ -37,6 +37,20 @@ export interface ClientExperienceConfig {
   logoSystem?: boolean;
   /** Optional per-anchor rail-description overrides ("logos", "photography"…). */
   sectionDescriptions?: Record<string, string>;
+  /** What the catalogue section is called for this client. "Catalogue" is the
+   *  generic word and fits an archive of loose work; a client whose material is
+   *  one bound document wants its own name for it. Used by both the client
+   *  page's section rail and the category page's breadcrumb, so they agree. */
+  catalogueLabel?: string;
+  /** Circular marks closing the page, each linking to a room elsewhere on the
+   *  site that this client's work touches. Rendered by RelatedLinks. */
+  relatedLinks?: {
+    href: string;
+    label: string;
+    logo: string;
+    scale?: number;
+    plate?: "light" | "dark";
+  }[];
   /** Closing company-info block (ExperienceFooter). */
   footer?: {
     /** The client's formal name for the record line. */

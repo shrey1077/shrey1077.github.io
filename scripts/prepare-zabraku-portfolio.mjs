@@ -16,10 +16,8 @@
  *   • p38 is blank — measured, not assumed: mean luma 253 at stdev 20.6, which
  *     is the page furniture and nothing else.
  *
- * That leaves 37 of 39. The captions below ARE the curation: `readSections`
- * orders a folder by caption order first and filename second, so a partial
- * caption list would silently reorder the deck. Every exported page is
- * captioned, in page order, for that reason.
+ * Two more are dropped as filler: p37 "Fin" and p39, the back cover. That
+ * leaves 35 of 39, in four rooms of nine.
  *
  * Note the deck is the agency's own company profile, not solely the owner's
  * work — it speaks as "we", lists Zabraku's services and client roster, and
@@ -43,105 +41,44 @@ const CATALOGUE =
 const MAX_EDGE = 1800;
 const QUALITY = 82;
 
-/** ⚠ WHY THIS IS FIVE FOLDERS AND NOT ONE.
+/** ⚠ WHY THIS IS FOUR FOLDERS AND NOT ONE.
  *
- *  `CatalogueGallery` caps a section at seven artifacts on purpose — the
- *  curation discipline the whole site is built on. A 37-page deck dropped into
- *  one folder therefore renders SEVEN pages and silently swallows the other
- *  thirty; the first pass here did exactly that. So the deck is split along its
- *  own section breaks into five rooms of seven, which is the shape the rest of
- *  the catalogue already uses.
+ *  `CatalogueGallery` caps a section at seven artifacts by default — the
+ *  curation discipline the rest of the site runs on — and a 35-page deck in one
+ *  folder renders seven and silently swallows the rest. These rooms opt out via
+ *  `maxVisible` in their meta and show a 3x3 grid instead, so they hold nine
+ *  each and the deck reads in four.
  *
- *  That leaves two more pages out, both pure filler: p37 "Fin" and p39, the
- *  back cover. If the cap ever changes, they are one line each to restore. */
+ *  No captions. The pages explain themselves and the owner asked for the deck
+ *  unannotated, so ordering falls to the filenames — which is why they are
+ *  zero-padded `pNN`, and why nothing here may be renamed to a non-sortable
+ *  form without also restoring a caption list to carry the order.
+ *
+ *  Four pages of the 39 never ship: p35 (contact details — see above), p38
+ *  (blank), and p37/p39, the "Fin" and back-cover filler. */
 
-/** Folder → its seven pages, each `[pdfPage, caption]`. Page numbers are
- *  1-based as the PDF counts them; 35 and 38 are absent on purpose (header). */
+/** Folder → its pages, as the PDF numbers them (1-based). Nine to a room, which
+ *  is the 3x3 grid; 35 and 38 are absent on purpose (header). */
 const ROOMS = [
   {
-    folder: "Portfolio — The Studio",
+    folder: "Portfolio 01",
     order: 3,
-    description:
-      "How Zabraku introduces itself: the cover, the premise, and the pages that set up everything after them.",
-    story:
-      "A media house selling 'art meets technology' has to promise both halves before it shows either, and the front of this deck is that promise — a wordmark, a Steve Jobs quote about how design works rather than how it looks, and an index that puts the installations first.",
-    pages: [
-      [1, "Cover — the Zabraku wordmark."],
-      [2, "Opening spread — design is how it works."],
-      [3, "Title spread — Portfolio 2021."],
-      [4, "The premise — where art meets technology."],
-      [5, "Index."],
-      [6, "Intro — who we are."],
-      [7, "Vision."],
-    ],
+    pages: [1, 2, 3, 4, 5, 6, 7, 8, 9],
   },
   {
-    folder: "Portfolio — Experiential",
+    folder: "Portfolio 02",
     order: 4,
-    description:
-      "The services page, then the first run of experiential builds — Google, a mirror that answers back, a robot that keeps goal.",
-    story:
-      "The deck leads with the hardest thing to fake. Before any logo appears there is a robot goalkeeper that stopped Lionel Messi from the spot, an RFID maze that counts your level, and thought bubbles built for Google — work that only exists if the studio can actually build it.",
-    pages: [
-      [8, "Our services — experiential, brand, digital, content."],
-      [9, "Experiential Marketing — section opener."],
-      [10, "Thought Bubbles, for Google."],
-      [11, "Interactive Mirror."],
-      [12, "AI robot goalkeeper — Tecno Mobile."],
-      [13, "RFID-based registration and maze level counter."],
-      [14, "adidas Space Station — the installation set."],
-    ],
+    pages: [10, 11, 12, 13, 14, 15, 16, 17, 18],
   },
   {
-    folder: "Portfolio — Installations",
+    folder: "Portfolio 03",
     order: 5,
-    description:
-      "The rest of the built work: treadmills that programme their own LEDs, a touch map, a glass car wired for current.",
-    story:
-      "Where the first room proves the studio can build, this one proves it can build at scale and on a brand's terms — adidas across three pieces, an electric-vehicle energy flow rendered in LED, and a projection room you stand inside.",
-    pages: [
-      [15, "Programmed LED treadmill."],
-      [16, "Hashtag photo print."],
-      [17, "Interactive touch map."],
-      [18, "The VII Sense."],
-      [19, "Electric-vehicle energy-flow glass car, as an LED installation."],
-      [20, "Immersive projection room."],
-      [21, "Virtual events platform, for Apollo Tyres."],
-    ],
+    pages: [19, 20, 21, 22, 23, 24, 25, 26, 27],
   },
   {
-    folder: "Portfolio — Identity",
+    folder: "Portfolio 04",
     order: 6,
-    description:
-      "The brand identity half — marks, packs and the case study that explains one of them properly.",
-    story:
-      "The identity work sits behind the installations, which is the right way round for this studio: by the time a logo appears you already believe the hands. The RK Entertainment page does the persuading — a monogram derived on a bounding grid, with the typeface argued for in writing.",
-    pages: [
-      [22, "Brand Identity — section opener."],
-      [23, "curestick 1.0."],
-      [24, "AVAIL — campaign identity."],
-      [25, "Superfast charger — pack and campaign."],
-      [26, "KOSHA."],
-      [27, "Logo designs — Ayush Vaid and Gautam Heights."],
-      [28, "RK Entertainment — identity system."],
-    ],
-  },
-  {
-    folder: "Portfolio — Campaigns",
-    order: 7,
-    description:
-      "Product ranges, the digital and poster output, the client roster, and the studio's own brand rules.",
-    story:
-      "The back half is the working evidence: packs and ranges, a wall of posters and social sets, the roster the studio had earned by 2021, and finally its own colour and typeface rules — the guidelines page being the one place a media house has to take its own advice.",
-    pages: [
-      [29, "ABS Wholesale — identity."],
-      [30, "tcboo — product range."],
-      [31, "Digital Marketing & Advertising — section opener."],
-      [32, "Digital campaigns."],
-      [33, "Poster design and social posts."],
-      [34, "Client roster."],
-      [36, "Brand guidelines — colour scheme and typeface."],
-    ],
+    pages: [28, 29, 30, 31, 32, 33, 34, 36],
   },
 ];
 
@@ -166,7 +103,7 @@ for (const room of ROOMS) {
   const out = path.join(CATALOGUE, room.folder);
   if (!dry) fs.mkdirSync(out, { recursive: true });
 
-  for (const [n] of room.pages) {
+  for (const n of room.pages) {
     const file = path.join(out, `p${String(n).padStart(2, "0")}.webp`);
     if (force || !fs.existsSync(file)) jobs.push([n, file]);
   }
@@ -194,17 +131,11 @@ if (!dry) {
   for (const room of ROOMS) {
     const meta = {
       order: room.order,
-      cover: `p${String(room.pages[0][0]).padStart(2, "0")}.webp`,
-      description: room.description,
-      story: room.story,
-      // The caption list IS the order: readCatalogueCategory sorts by it, and
-      // a page missing from here would fall to the back of the room.
-      captions: Object.fromEntries(
-        room.pages.map(([n, caption]) => [
-          `p${String(n).padStart(2, "0")}.webp`,
-          caption,
-        ]),
-      ),
+      cover: `p${String(room.pages[0]).padStart(2, "0")}.webp`,
+      // No description, no story, no captions — the deck is shown unannotated.
+      // Order therefore comes from the zero-padded filenames alone.
+      maxVisible: 9,
+      showCaptions: false,
     };
     fs.writeFileSync(
       path.join(CATALOGUE, room.folder, "_meta.json"),

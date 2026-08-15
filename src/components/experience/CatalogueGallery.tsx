@@ -30,24 +30,36 @@ const EAGER = 3;
 
 interface CatalogueGalleryProps {
   assets: CollectionAsset[];
+  /** Overrides MAX_VISIBLE — see the `maxVisible` note in catalogue.ts. */
+  maxVisible?: number;
+  /** false drops the caption line under each plate. */
+  showCaptions?: boolean;
 }
 
-export function CatalogueGallery({ assets }: CatalogueGalleryProps) {
-  const [viewing, setViewing] = useState<ContentAsset | null>(null);
+export function CatalogueGallery({
+  assets,
+  maxVisible = MAX_VISIBLE,
+  showCaptions = true,
+}: CatalogueGalleryProps) {
+  // Index rather than the asset itself, so the viewer can walk the set.
+  const [at, setAt] = useState<number | null>(null);
 
-  const images = assets
-    .filter((a) => a.kind === "image")
-    .slice(0, MAX_VISIBLE);
+  const images = assets.filter((a) => a.kind === "image").slice(0, maxVisible);
   if (images.length === 0) return null;
+
+  const viewing = at === null ? null : (images[at] as ContentAsset);
+  const step = (d: number) =>
+    setAt((i) => (i === null ? i : (i + d + images.length) % images.length));
 
   return (
     <div>
-      <ul className="grid grid-cols-2 gap-3 sm:grid-cols-3 sm:gap-4">
+      {/* Three across from `sm` up — the deck rooms are built as 3x3. */}
+      <ul className="grid grid-cols-2 gap-3 sm:grid-cols-3 sm:gap-4 lg:gap-5">
         {images.map((image, i) => (
           <li key={image.url}>
             <button
               type="button"
-              onClick={() => setViewing(image)}
+              onClick={() => setAt(i)}
               aria-label={`View ${image.caption ?? image.name}`}
               className="group block w-full rounded-sm outline-none focus-visible:ring-2 focus-visible:ring-neutral-900/50 focus-visible:ring-offset-2"
             >
@@ -62,7 +74,7 @@ export function CatalogueGallery({ assets }: CatalogueGalleryProps) {
                   className="object-contain p-3 transition-transform duration-700 group-hover:scale-[1.02]"
                 />
               </span>
-              {image.caption && (
+              {showCaptions && image.caption && (
                 <span
                   className={`${typeVoiceClass("logic", "meta")} mt-2 block text-left text-[0.6rem] leading-relaxed text-neutral-500 transition-colors duration-300 group-hover:text-neutral-800`}
                 >
@@ -74,7 +86,14 @@ export function CatalogueGallery({ assets }: CatalogueGalleryProps) {
         ))}
       </ul>
 
-      <MediaViewer asset={viewing} onClose={() => setViewing(null)} />
+      <MediaViewer
+        asset={viewing}
+        onClose={() => setAt(null)}
+        // Only a set worth walking gets arrows; a single plate stays a lightbox.
+        onPrev={images.length > 1 ? () => step(-1) : undefined}
+        onNext={images.length > 1 ? () => step(1) : undefined}
+        position={at === null ? undefined : { at: at + 1, of: images.length }}
+      />
     </div>
   );
 }
