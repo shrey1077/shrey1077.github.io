@@ -1,7 +1,10 @@
 # 11 — WHOLE-SITE HANDOFF
 
-Everything a fresh chat needs. Written 2026-08-10, **revised 2026-08-15**,
-superseding handoffs 09 and 10 (Tata-only, and long out of date).
+> ⚠ **SUPERSEDED (2026-08-16).** Read
+> [`12_SITE_HANDOFF.md`](./12_SITE_HANDOFF.md) instead — it is newer and
+> covers the same ground. Kept only for history.
+
+Written 2026-08-10, revised 2026-08-15.
 
 > ⚠ **The live site is behind local.** `main` is at `910b894` (Aug 10) and
 > 21 commits sit unmerged on `tata-iis-experience`, 7 of them unpushed. So
