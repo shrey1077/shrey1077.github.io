@@ -295,7 +295,14 @@ All idempotent, all reading from `D:\Assets\Clients\…`. `pdf-to-images.mjs`,
    System / Website / Brochure.
 8. **Fonts**: Tata's Copperplate Gothic / Helvetica are licensed and not on the
    drives — `.tata-heading` falls back to Cinzel.
-9. **Accessibility**: `layout.tsx` sets `maximumScale: 1`, blocking pinch-zoom.
+9. ~~Accessibility: `layout.tsx` sets `maximumScale: 1`, blocking pinch-zoom.~~
+   **Resolved 2026-08-16** — removed; all 46 built routes now emit
+   `width=device-width, initial-scale=1`. ⚠ **Do not put it back.** The "fixed
+   canvas" rationale it carried does not hold: pinch-zoom moves the VISUAL
+   viewport, while `100svh`, the `useIsPhone`/`useIsCompact` media queries,
+   `BrainPins`' ResizeObserver anchors and `HeroName`'s vw fractions are all
+   measured off the LAYOUT viewport and do not move when a visitor zooms. The
+   reasoning is written out above the `viewport` export.
 10. `ECard`/`IdentityHeader`, `SidesShowcase`→`SectionBody`, `SpeechBubbles` are
     **parked, not dead** — do not remove in a dead-code sweep. `ThoughtBox` and
     `CornerText` are genuinely unreferenced.
