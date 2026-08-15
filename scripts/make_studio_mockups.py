@@ -45,7 +45,10 @@ PLAN = {
     "Website Banners":     ("screen_wide", 5),
     "Socials & Screens":   ("phone", 8),
     "Presentations":       ("screen", 6),
-    "Photography":         ("print", 7),
+    # Photography is not staged. A studio composite of a photograph is a
+    # photo of a photo; the section leads on a real frame instead — the
+    # bus run-in, named as the cover in its _meta.json.
+    # "Photography":       ("print", 7),
 }
 
 # Kept for reference only — the artwork now keeps its own aspect (see studio()).

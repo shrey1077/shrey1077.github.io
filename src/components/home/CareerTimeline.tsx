@@ -1,13 +1,25 @@
 "use client";
 
 /**
- * CareerTimeline — the route so far, as checkpoints on one line.
+ * CareerTimeline — the route so far, as checkpoints on a rail that wraps.
  *
- * A horizontal rail with a marker per stop: the employer's own logo, the years,
- * the role. Study checkpoints sit on the same line in a quieter key, so the
- * degrees read as part of the route rather than a separate list. The whole
- * route fits one frame — stops share the width rather than scrolling away, so
- * the shape of the career is legible at a glance. Newest first.
+ * Ten stops on one unbroken line needed 832px before the cards started to
+ * crush, so the rail now runs in rows and continues onto the next: five to a
+ * row on a wide screen, which lands the route in the two rows it reads best in,
+ * three then two as the panel narrows. Newest first, left to right, top to
+ * bottom.
+ *
+ * The rail is not drawn once per row. Each stop draws its OWN segment across
+ * the full width of its cell at a fixed height, and neighbours meet edge to
+ * edge — so the line is continuous across whatever row the grid happens to
+ * build, at any column count, with nothing measuring or counting. The last
+ * segment of a row and the first of the next are the same line, continued.
+ *
+ * Each checkpoint is a pin on that line with the employer's mark below it in a
+ * circle, and the years, name and role under that. Stops with no logo on disc
+ * take their initials instead, so every checkpoint keeps the same silhouette.
+ * Study stops sit on the same rail in a quieter key — a hollow pin — so the
+ * degrees read as part of the route rather than a separate list.
  *
  * Sourced from the 2024 resume; logos are the originals
  * (scripts/prepare-career.mjs).
@@ -43,64 +55,103 @@ const STOPS: Stop[] = [
   { org: "Jaypee University of Information Technology", role: "B.Tech — Information Technology", from: "2007", to: "2011", kind: "study" },
 ];
 
+/** How many checkpoints the rail carries, for panels that count their entries. */
+export const CAREER_STOP_COUNT = STOPS.length;
+
+/** Where the rail sits inside every cell. One number, because the segments only
+ *  join into a line if each is drawn at the same height as its neighbours. */
+const RAIL_TOP = "top-[1.35rem]";
+
+/** Initials for the stops with no logo on disc, so a checkpoint without artwork
+ *  keeps the same circular silhouette as one with it. Joining words are
+ *  dropped — "Academy of Animation & Gaming" reads AAG, not AOAG. */
+const JOINERS = new Set(["of", "and", "&", "the", "for"]);
+function initialsOf(org: string): string {
+  return org
+    .split(/\s+/)
+    .filter((w) => w && !JOINERS.has(w.toLowerCase()))
+    .map((w) => w[0]?.toUpperCase() ?? "")
+    .join("")
+    .slice(0, 4);
+}
+
 export function CareerTimeline() {
   const reduceMotion = useReducedMotion();
 
   return (
-    <div className="h-full min-h-0 overflow-hidden pb-2">
-      <div className="relative flex h-full items-stretch gap-1.5 pt-6">
-        {/* The rail every checkpoint hangs from. */}
-        <span aria-hidden className="absolute left-0 right-0 top-[2.6rem] h-px bg-white/20" />
-
+    <div className="h-full min-h-0 overflow-y-auto overflow-x-hidden pb-2">
+      {/* No column gap: a gap is a break in the rail, and the segments have to
+          abut for the row to read as one line. The cells carry their own `px`
+          instead, so the content still breathes. */}
+      <ul className="grid grid-cols-2 gap-x-0 gap-y-7 sm:grid-cols-3 lg:grid-cols-5">
         {STOPS.map((s, i) => (
-          <motion.div
+          <motion.li
             key={`${s.org}-${s.from}`}
             initial={reduceMotion ? false : { opacity: 0, y: 12 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.45, ease: EASE_OUT, delay: Math.min(i * 0.05, 0.5) }}
-            className="relative flex min-w-0 flex-1 flex-col"
+            className="relative flex min-w-0 flex-col items-center px-1 pt-6 text-center"
           >
-            {/* Years above the rail. */}
-            <span className={`${typeVoiceClass("logic", "meta")} h-4 text-[0.46rem] uppercase tracking-[0.02em] text-white/60 tabular-nums`}>
-              {s.from} — {s.to}
-            </span>
-
-            {/* The checkpoint marker, sitting on the rail. */}
+            {/* This cell's slice of the rail. Full-bleed to both edges so it
+                meets its neighbours' slices and the row reads as one line. */}
             <span
               aria-hidden
-              className={`relative z-10 mt-1.5 size-1.5 rounded-full ring-[3px] ring-neutral-900 ${
+              className={`absolute inset-x-0 ${RAIL_TOP} h-px bg-white/20`}
+            />
+
+            {/* The checkpoint pin, sitting on that line. The ring is the panel's
+                own ground, which punches the rail out from under the pin so the
+                marker reads as ON the line rather than crossed by it. */}
+            <span
+              aria-hidden
+              className={`absolute ${RAIL_TOP} z-10 size-1.5 -translate-y-[calc(50%-0.5px)] rounded-full ring-[3px] ring-neutral-900 ${
                 s.kind === "study" ? "bg-white/40" : "bg-white"
               }`}
             />
 
-            {/* The card. */}
-            <div className="mt-3 flex min-h-0 flex-1 flex-col gap-1 rounded-lg border border-white/12 bg-white/[0.04] p-2">
-              <span className="relative flex h-7 w-full shrink-0 items-center justify-start">
-                {s.logo ? (
-                  <Image
-                    src={s.logo}
-                    alt={s.org}
-                    fill
-                    sizes="200px"
-                    className={`object-contain object-left ${s.invert ? "brightness-0 invert" : ""}`}
-                  />
-                ) : (
-                  <span className={`${typeVoiceClass("creative", "display")} text-[0.62rem] leading-tight text-white/70`}>
-                    {s.org}
-                  </span>
-                )}
-              </span>
-              <span className="line-clamp-2 text-[0.58rem] font-medium leading-tight text-white">{s.org}</span>
-              <span className="line-clamp-2 text-[0.52rem] leading-snug text-white/55">{s.role}</span>
-              {s.kind === "study" && (
-                <span className={`${typeVoiceClass("logic", "meta")} mt-auto text-[0.44rem] uppercase tracking-[0.1em] text-white/35`}>
-                  Study
+            {/* The mark, on disc. Kept dark rather than white: the logos that
+                carry no `invert` are light or coloured artwork chosen to read
+                against this panel, and a white plate would swallow them. */}
+            <span className="relative mt-4 grid size-14 shrink-0 place-items-center overflow-hidden rounded-full border border-white/15 bg-white/[0.06] sm:size-16">
+              {s.logo ? (
+                <Image
+                  src={s.logo}
+                  alt={s.org}
+                  fill
+                  sizes="80px"
+                  className={`object-contain p-3 ${s.invert ? "brightness-0 invert" : ""}`}
+                />
+              ) : (
+                <span
+                  className={`${typeVoiceClass("logic", "meta")} text-[0.7rem] text-white/70`}
+                >
+                  {initialsOf(s.org)}
                 </span>
               )}
-            </div>
-          </motion.div>
+            </span>
+
+            {/* Everything the checkpoint says, under it. */}
+            <span
+              className={`${typeVoiceClass("logic", "meta")} mt-2.5 text-[0.46rem] tracking-[0.02em] text-white/60 tabular-nums`}
+            >
+              {s.from} — {s.to}
+            </span>
+            <span className="mt-1 line-clamp-2 text-[0.62rem] font-medium leading-tight text-white">
+              {s.org}
+            </span>
+            <span className="mt-0.5 line-clamp-2 text-[0.55rem] leading-snug text-white/55">
+              {s.role}
+            </span>
+            {s.kind === "study" && (
+              <span
+                className={`${typeVoiceClass("logic", "meta")} mt-1 text-[0.44rem] tracking-[0.1em] text-white/35`}
+              >
+                Study
+              </span>
+            )}
+          </motion.li>
         ))}
-      </div>
+      </ul>
     </div>
   );
 }

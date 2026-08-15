@@ -99,13 +99,26 @@ function Tile({
   // a photograph of the thing actually mounted on a campus wall beats a
   // composite. Subsections with neither rest on their first piece.
   const images = item.assets.filter((a) => a.kind === "image");
-  // Matches anywhere after an optional theme prefix, so `iisa-mockup-gate`
-  // counts as staged just as `mockup-gate` does.
-  const STAGED = /(^|-)(mockup|installed)-/;
+  // The marker is the FIRST segment, after an optional theme prefix, so
+  // `mockup-studio`, `iisa-mockup-gate` and `installed-dsc-2609` all count.
+  // It is anchored on purpose: an unanchored /(^|-)(mockup|installed)-/ also
+  // matched real artwork whose own filename happens to contain the word —
+  // `iisa-billboards-and-signages-iisa-exterior-mockup-2` — which pulled a
+  // dozen genuine pieces out of every fly-through and made one of them the
+  // resting image.
+  const STAGED = /^(?:(?:tata|iisa|iism)-)?(?:mockup|installed)-/;
   const isStaged = (n: string) => STAGED.test(n);
-  const stagedInLane = (kind: string) =>
-    images.find((a) => a.name.includes(`${kind}-`) && brandOf(a.name) === lane) ??
-    images.find((a) => a.name.includes(`${kind}-`));
+  // Same anchoring as STAGED — a bare `.includes()` here matched
+  // `...exterior-mockup-2` too, which is why real artwork kept turning up as
+  // the resting image.
+  const marker = (kind: string) => new RegExp(`^(?:(?:tata|iisa|iism)-)?${kind}-`);
+  const stagedInLane = (kind: string) => {
+    const re = marker(kind);
+    return (
+      images.find((a) => re.test(a.name) && brandOf(a.name) === lane) ??
+      images.find((a) => re.test(a.name))
+    );
+  };
   const staged = stagedInLane("installed") ?? stagedInLane("mockup");
 
   // The fly-through is the real work, so mockups are kept out of it. At rest a
@@ -113,7 +126,13 @@ function Tile({
   // fall back to the whole set rather than showing an empty slot.
   const artwork = images.filter((a) => !isStaged(a.name));
   const laneArtwork = artwork.filter((a) => brandOf(a.name) === lane);
-  const frames = (laneArtwork.length > 0 ? laneArtwork : artwork).slice(0, MAX_FRAMES);
+  // A hand-written caption order outranks the lane filter, exactly as it does
+  // in the open panel. Without this a curated lead frame could be filtered
+  // straight back out — Mockups sits in the Tata lane, so the two signage shots
+  // chosen to lead it (both IISA) would never have surfaced.
+  const frames = (
+    item.curated ? artwork : laneArtwork.length > 0 ? laneArtwork : artwork
+  ).slice(0, MAX_FRAMES);
   const still = staged ?? frames[0];
 
   useEffect(() => {
@@ -232,7 +251,7 @@ function Tile({
           <span className="tata-heading block text-base leading-[1.15] text-neutral-900">{item.label}</span>
           {/* The three columns ARE the lane label on desktop. Stacked to one
               column on a phone that reading is gone, so name it there. */}
-          {laneArtwork.length > 0 && (
+          {!item.curated && laneArtwork.length > 0 && (
             <span className="tata-subhead mt-1 block text-[0.55rem] uppercase tracking-[0.14em] text-neutral-400 lg:hidden">
               {LANE_LABEL[lane]}
             </span>

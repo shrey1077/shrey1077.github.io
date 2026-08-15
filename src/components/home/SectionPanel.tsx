@@ -25,10 +25,13 @@ import Image from "next/image";
 import Link from "next/link";
 import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
 import { PIN_OPEN_EVENT } from "@/components/home/BrainPins";
+import { CAREER_STOP_COUNT, CareerTimeline } from "@/components/home/CareerTimeline";
+import { ArtCollections } from "@/components/home/ArtCollections";
+import { PaintBurst } from "@/components/home/PaintBurst";
 import { NAV_SECTIONS } from "@/constants/navigation";
 import { clientsInSection } from "@/constants/clients";
 import type { NavSectionId } from "@/types/navigation";
-import type { LogoMark } from "@/content/catalogue";
+import type { ArtCollection, LogoMark } from "@/content/catalogue";
 import { EASE_OUT } from "@/constants/motion";
 
 /** One cell of the board. */
@@ -40,7 +43,14 @@ interface Cell {
   image?: string;
   /** Light artwork needs a dark plate behind it. */
   tone?: "light" | "dark";
+  /** Linear multiplier on the centred logo box, for marks that read small at
+   *  the common size. */
+  scale?: number;
 }
+
+/** The centred box every mark is fitted into, as a percentage of the plate, and
+ *  the ceiling a scaled one may not pass so nothing touches the card's edge. */
+const LOGO_BOX = { w: 62, h: 31, max: 94 };
 
 function cellsFor(id: NavSectionId, logos: LogoMark[], extinctsSlides: string[]): Cell[] {
   if (id === "clients" || id === "projects") {
@@ -49,7 +59,12 @@ function cellsFor(id: NavSectionId, logos: LogoMark[], extinctsSlides: string[])
       label: c.name,
       sub: c.sector,
       href: `/clients/${c.slug}`,
-      image: c.logoSrc,
+      // `cardLogo` is where the real marks live; `logoSrc` is the older field
+      // and is set on no client, which is why every cell fell back to its name
+      // in type. Kept as the fallback so anything that does set it still works.
+      image: c.cardLogo ?? c.logoSrc,
+      tone: c.logoTone,
+      scale: c.logoScale,
     }));
   }
   if (id === "logofolio") {
@@ -65,12 +80,27 @@ function cellsFor(id: NavSectionId, logos: LogoMark[], extinctsSlides: string[])
   return [];
 }
 
+/**
+ * Two sections don't fit the board. Career Path is a sequence — 10 stops on one
+ * rail, newest first — and a 3-col grid both reflows that into rows and, at the
+ * 9-cell cap, would silently drop the oldest. Art's collections drill in to
+ * their plates, which a cell can only do with an `href`, and there is no /art
+ * route. Both already have renderers that were orphaned when SidesShowcase was
+ * retired; the panel hands over to them instead of flattening them into cells.
+ */
+const OWN_RENDERER: ReadonlySet<NavSectionId> = new Set([
+  "career-path",
+  "art",
+] satisfies NavSectionId[]);
+
 export function SectionPanel({
   logos,
   extinctsSlides,
+  artCollections,
 }: {
   logos: LogoMark[];
   extinctsSlides: string[];
+  artCollections: ArtCollection[];
 }) {
   const reduceMotion = useReducedMotion();
   const [openId, setOpenId] = useState<NavSectionId | null>(null);
@@ -86,6 +116,17 @@ export function SectionPanel({
   const cells = section ? cellsFor(section.id, logos, extinctsSlides) : [];
   // Nine to a screen — the rest stay a scroll away rather than shrinking.
   const board = cells.slice(0, 9);
+
+  // A section with its own renderer counts its own entries, and falls back to
+  // the empty note if its content folder turned out to be bare.
+  const ownCount =
+    section?.id === "career-path"
+      ? CAREER_STOP_COUNT
+      : section?.id === "art"
+        ? artCollections.length
+        : 0;
+  const ownRenderer = !!section && OWN_RENDERER.has(section.id) && ownCount > 0;
+  const entryCount = ownRenderer ? ownCount : cells.length;
 
   return (
     <AnimatePresence initial={false}>
@@ -113,6 +154,16 @@ export function SectionPanel({
                 />
                 <div className="absolute inset-0 bg-neutral-950/55" />
               </>
+            ) : section.id === "art" ? (
+              // Art is grounded in the paint film itself, which came off the
+              // hero's right flank on 2026-08-10. It runs brighter and busier
+              // than the gradient the other creative rooms sit on, so it takes
+              // a heavier scrim to keep white type and the tile captions
+              // readable over it.
+              <>
+                <PaintBurst />
+                <div className="absolute inset-0 bg-neutral-950/60" />
+              </>
             ) : (
               <>
                 <div className="brain-paint absolute inset-0 opacity-70" />
@@ -124,11 +175,11 @@ export function SectionPanel({
           <div className="relative z-10 mx-auto w-full max-w-7xl px-8 py-12">
             <header className="mb-8">
               <span className="font-helv block text-[0.6rem] uppercase tracking-[0.18em] text-white/50">
-                {cells.length} {cells.length === 1 ? "entry" : "entries"}
+                {entryCount} {entryCount === 1 ? "entry" : "entries"}
               </span>
               <h2
                 className={`mt-2 text-[clamp(1.6rem,3vw,2.6rem)] leading-none text-white ${
-                  logic ? "font-digibra" : "font-graff"
+                  logic ? "font-digibra" : "font-graff font-bold"
                 }`}
               >
                 {section.label}
@@ -138,7 +189,21 @@ export function SectionPanel({
               </p>
             </header>
 
-            {board.length > 0 ? (
+            {ownRenderer ? (
+              /* Both renderers size to their parent (`h-full min-h-0`), and the
+                 panel itself animates to `height: auto` — so they need a real
+                 height here or they collapse to nothing. */
+              <div className="h-[clamp(22rem,56svh,34rem)] min-h-0">
+                {section.id === "career-path" ? (
+                  // The rail wraps into rows now and carries its own vertical
+                  // scroll, so the sideways scroller it used to need — ten stops
+                  // crushed below ~832px — is gone.
+                  <CareerTimeline />
+                ) : (
+                  <ArtCollections collections={artCollections} />
+                )}
+              </div>
+            ) : board.length > 0 ? (
               <ul className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3">
                 {board.map((c) => {
                   const inner = (
@@ -149,11 +214,27 @@ export function SectionPanel({
                         }`}
                       >
                         {c.image ? (
-                          <Image src={c.image} alt="" fill sizes="30vw" className="object-contain p-4" />
+                          // Marks sit in a fixed, centred box rather than filling
+                          // the plate. `object-contain` across the whole plate
+                          // sizes each logo by its own aspect, so a square mark
+                          // read roughly twice the ink of a wordmark; capping
+                          // both dimensions evens that out and drops them all
+                          // well inside the card.
+                          <span className="absolute inset-0 grid place-items-center">
+                            <span
+                              className="relative block"
+                              style={{
+                                width: `${Math.min(LOGO_BOX.w * (c.scale ?? 1), LOGO_BOX.max)}%`,
+                                height: `${Math.min(LOGO_BOX.h * (c.scale ?? 1), LOGO_BOX.max)}%`,
+                              }}
+                            >
+                              <Image src={c.image} alt="" fill sizes="16vw" className="object-contain" />
+                            </span>
+                          </span>
                         ) : (
                           <span
                             className={`flex h-full items-center justify-center px-3 text-center text-lg text-neutral-800 ${
-                              logic ? "font-digibra" : "font-graff"
+                              logic ? "font-digibra" : "font-graff font-bold"
                             }`}
                           >
                             {c.label}
@@ -162,7 +243,7 @@ export function SectionPanel({
                       </span>
                       <span
                         className={`block text-base leading-tight text-white ${
-                          logic ? "font-digibra" : "font-graff"
+                          logic ? "font-digibra" : "font-graff font-bold"
                         }`}
                       >
                         {c.label}

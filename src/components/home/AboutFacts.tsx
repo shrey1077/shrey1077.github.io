@@ -15,6 +15,7 @@
  */
 
 import { useEffect, useState } from "react";
+import Image from "next/image";
 import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
 import { EASE_OUT } from "@/constants/motion";
 
@@ -47,18 +48,28 @@ function PartTimeWords() {
   );
 }
 
-const BODY = "text-[19px] leading-[1.4] text-neutral-500";
+/** Juturu carries this corner now — extra-bold for the heading, regular for
+ *  everything under it. The face is a variable 100–900, so 800 and 400 both
+ *  come off the one file. The education entry runs long, so the body steps down
+ *  from 19px to keep two full lines inside the column. */
+const BODY = "font-graff text-[15px] font-normal leading-[1.45] text-neutral-500";
 
-/** The pawn, drawn rather than lifted: the chess.com app icon is their mark,
- *  and a silhouette in their green reads the same without shipping it. */
-function PawnMark() {
+/** The chess mark — the owner's own board icon, replacing the knight that was
+ *  drawn inline here. That knight existed only because the reference supplied
+ *  at the time was a watermarked stock comp; with real artwork on disk there is
+ *  nothing left to work around. Black art on transparency, so it reads on this
+ *  corner's light ground without a plate. */
+function ChessMark() {
   return (
-    <svg viewBox="0 0 24 24" aria-hidden className="size-9 shrink-0">
-      <path
-        fill="#81b64c"
-        d="M12 2.2a3.15 3.15 0 0 0-1.86 5.7c-1.2.62-2 1.8-2 3.16h7.72c0-1.36-.8-2.54-2-3.16A3.15 3.15 0 0 0 12 2.2Zm-3.1 10.1c0 2.1-.8 4.05-1.9 5.5h10c-1.1-1.45-1.9-3.4-1.9-5.5H8.9ZM6.1 19.3c-.5.8-.75 1.65-.75 2.5h13.3c0-.85-.25-1.7-.75-2.5H6.1Z"
+    <span className="relative block size-9 shrink-0">
+      <Image
+        src="/content/icons/chess.png"
+        alt=""
+        fill
+        sizes="36px"
+        className="object-contain"
       />
-    </svg>
+    </span>
   );
 }
 
@@ -68,7 +79,7 @@ const FACTS: { key: string; heading: string; body: React.ReactNode }[] = [
     heading: "Chess",
     body: (
       <p className="flex items-center gap-2.5">
-        <PawnMark />
+        <ChessMark />
         <span className="text-[34px] font-bold leading-none tracking-tight text-neutral-800">
           1563
         </span>
@@ -88,10 +99,18 @@ const FACTS: { key: string; heading: string; body: React.ReactNode }[] = [
   {
     key: "education",
     heading: "Education",
+    // Both degrees in full, as the owner writes them. Two lines, not one run —
+    // "B.Tech · M.Des" said nothing about where or in what.
     body: (
-      <p className={BODY}>
-        B.Tech · M.Des
-      </p>
+      <div className={BODY}>
+        <p>
+          B.Tech. (IT) — Jaypee University of Information Technology (JUIT),
+          Waknaghat, Solan, H.P.
+        </p>
+        <p className="mt-1.5">
+          M.Des. (Visual Comm.) — UID, Karnavati University, Ahmedabad, Gujarat
+        </p>
+      </div>
     ),
   },
   {
@@ -123,7 +142,7 @@ export function AboutFacts() {
           exit={reduceMotion ? { opacity: 0 } : { opacity: 0, y: -8 }}
           transition={{ duration: 0.5, ease: EASE_OUT }}
         >
-          <h3 className="text-[34px] font-semibold leading-tight tracking-[-0.01em] text-neutral-800">
+          <h3 className="font-graff text-[34px] font-extrabold leading-tight tracking-[-0.01em] text-neutral-800">
             {fact.heading}
           </h3>
           <div className="mt-1">{fact.body}</div>

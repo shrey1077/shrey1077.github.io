@@ -1,7 +1,15 @@
 # 11 — WHOLE-SITE HANDOFF
 
-Everything a fresh chat needs. Written 2026-08-10, superseding handoffs 09 and
-10 (Tata-only, and now out of date on the homepage entirely).
+> ⚠ **SUPERSEDED (2026-08-16).** Read
+> [`12_SITE_HANDOFF.md`](./12_SITE_HANDOFF.md) instead — it is newer and
+> covers the same ground. Kept only for history.
+
+Written 2026-08-10, revised 2026-08-15.
+
+> ⚠ **The live site is behind local.** `main` is at `910b894` (Aug 10) and
+> 21 commits sit unmerged on `tata-iis-experience`, 7 of them unpushed. So
+> everything in §1 below is true of the CODE and not yet of
+> shrey1077.github.io. Merging to `main` is what deploys — ask before doing it.
 
 ---
 
@@ -88,20 +96,44 @@ paint wrapper around an inner pill. Pins own the open state and broadcast it on
 for creative, white type. Carries `data-section-panel`, which the pins'
 outside-click handler honours. **Follows the event; never sets it.**
 
-### ⚠ Known gap on the homepage
+### Since this doc was first written (Aug 10 → 15)
 
-`SectionPanel` only builds cells for **Clients, Projects, Logofolio, The
-Extincts Project**. **Career Path, Art, Publications, AI Generations show
-"Nothing to show here yet."** Career Path and Art *have* content — it was drawn
-by `CareerTimeline` and `ArtCollections`, reachable only from the retired
-`SidesShowcase`. **Nothing was deleted**; those renderers are orphaned but
-intact. Either give those sections cell shapes, or fall back to the old
-renderer for the two.
+The homepage moved on a long way. What the earlier text got wrong:
 
-**Parked, not dead — do not remove in a dead-code sweep:** `ECard` (+
-`IdentityHeader`), and the `SidesShowcase` → `SectionBody` subtree
-(`ArtCollections`, `BrandCardSlider`, `CareerTimeline`, `LogofolioGrid`,
-`ExtinctsDeck`). `ThoughtBox` and `CornerText` are genuinely unreferenced.
+- **Career Path and Art are reachable now** — that gap is CLOSED. `SectionPanel`
+  keeps an `OWN_RENDERER` set for the two sections a 3-col board can't hold:
+  Career Path is a 10-stop sequence a grid would reflow and the 9-cell cap would
+  truncate, and Art's collections drill into plates a cell can't reach without
+  an `href`. The panel hands over to `CareerTimeline` / `ArtCollections`
+  instead of flattening them.
+- **The paint film moved off the hero** and now grounds the **Art** section.
+  `PaintBurst` fills its container — the right-hand offset and feather mask are
+  gone, because those only existed to stop a half-width layer reading as a
+  rectangle across the stage. Callers position it.
+- **The left pins are drawn in on connector lines** — four hairlines out of the
+  top-left corner, each turning into a pin, then carrying on out of the section.
+  One SVG over the whole stage in a 0–100 viewBox with
+  `preserveAspectRatio="none"`, so the geometry needs no measurement; every path
+  carries `vector-effect="non-scaling-stroke"` or the stroke smears.
+  ⚠ The verticals are ordered OUTSIDE-IN — reverse that and the top line crosses
+  the three below it and the bracket becomes a grid.
+- **Section icons** sit ahead of each logic pill, from `public/content/icons/`.
+  Four are present (clients, projects, logofolio, career-path) plus chess.
+- **Zabraku** is populated from its 2021 deck — a whole room, revealed nine at a
+  time on a slider.
+- The board shows **real client marks** (`cardLogo`, with per-logo `logoTone`
+  and `logoScale` on `Client`, since some marks read tiny at a common size).
+- `RelatedLinks` is new under `components/experience/`.
+- Hero words were resized and repositioned to the owner's mockup; Imagine moved
+  clear of the brain into the white. ⚠ `bg-clip-text` was shearing the `g` —
+  fixed, don't reintroduce a gradient fill there casually.
+- Chess shows a **knight**, drawn inline, not the chess.com mark.
+
+### Parked, not dead — do not remove in a dead-code sweep
+
+`ECard` (+ `IdentityHeader`), `SpeechBubbles` (unmounted when the film went
+full strength), and the `SidesShowcase` → `SectionBody` subtree. `ThoughtBox`
+and `CornerText` are genuinely unreferenced.
 
 ---
 
@@ -147,12 +179,19 @@ and **the three columns are brand lanes: Tata IIS → IISA → IISM**.
   folds the source theme folder into the output name (`iisa-foo.webp`). Adding
   artwork to a theme folder is the whole job — no code edit.
 - A tile **rests on a mockup** and shows flat artwork only on hover.
-  `installed-` (a real photograph) beats `mockup-` (a composite). The matcher
-  is `/(^|-)(mockup|installed)-/`, so themed names count.
+  `installed-` (a real photograph) beats `mockup-` (a composite).
+  ⚠ The matcher is **anchored**: `/^(?:(?:tata|iisa|iism)-)?(?:mockup|installed)-/`.
+  It was unanchored once and matched real artwork whose own filename contains
+  the word (`iisa-...-exterior-mockup-2`), which pulled a dozen genuine pieces
+  out of the fly-throughs and made one of them a resting image. Keep it anchored
+  to the first segment.
 - Clicking opens a panel **above** the tile's row. Sliders auto-advance at 5s,
   **max 7 artworks** anywhere.
 - **A folder's `_meta.json` caption order outranks the brand grouping**
-  (`curated`), and staged images never appear in the slider.
+  (`curated`) — on the tile's fly-through as well as in the open panel, so a
+  hand-picked lead frame can't be filtered back out by its lane. Staged images
+  never appear in the slider. Caption keys must be real filenames; a typo is
+  silent.
 
 ### ⚠ Privacy — read before touching Tata content
 
@@ -200,22 +239,27 @@ transparent artwork onto **black** — flatten onto white first.
 
 ## 5. Open items
 
-1. **Career Path and Art are unreachable** (§1). Highest priority — real
-   content, currently invisible.
-2. **Mockups**: 14 subsections still have none. Full plan, tiers and costings
+1. ~~Career Path and Art unreachable~~ — **DONE**, see §1.
+2. **The live site is 21 commits behind.** Nothing since Aug 10 is deployed.
+3. **Mockups**: 14 subsections still have none. Full plan, tiers and costings
    in `docs/TATA_MOCKUP_PLAN.md`, including the full-screen mockup view (speced,
    not built) and two unused PSD templates already on disk.
-3. **5 ceremony backdrops** won't rasterise — `Create skia surface failed` at
+4. **5 ceremony backdrops** won't rasterise — `Create skia surface failed` at
    every scale down to 0.01. Needs poppler/Ghostscript/Acrobat.
-4. **Still assetless**: Website Banners has art; Media Kit, Cerci, H3LEN,
+5. **Still assetless**: Website Banners has art; Media Kit, Cerci, H3LEN,
    Screensaver, Proposed Brand System, Proposed Website, Proposed Brochure.
-5. **Fonts**: Tata's Copperplate Gothic / Helvetica are licensed and not on the
+6. **Fonts**: Tata's Copperplate Gothic / Helvetica are licensed and not on the
    drives — `.tata-heading` falls back to Cinzel.
-6. **Accessibility**: `layout.tsx` sets `maximumScale: 1`, which blocks
+7. **Accessibility**: `layout.tsx` sets `maximumScale: 1`, which blocks
    pinch-zoom on mobile. Worth reversing.
-7. `.claude/launch.json` is modified and deliberately uncommitted.
-8. Chess pawn is drawn inline in chess.com green rather than their app icon
-   (trademark). Swap if a real asset lands in `public/`.
+8. `.claude/launch.json` is modified and deliberately uncommitted.
+9. Chess shows a knight, drawn inline rather than lifted (trademark).
+10. **Branch naming**: `tata-iis-experience` holds the WHOLE site, not just the
+    Tata page — a leftover from when Tata was all there was. Worth renaming to
+    `dev`. The Tata page is already independent in code (own components, own
+    route) and connected via the homepage's Clients pin; it does NOT need a
+    branch of its own, and having one would risk deploying a homepage that
+    links to a Tata page the live site lacks.
 
 ---
 

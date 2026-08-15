@@ -76,6 +76,17 @@ interface FolderMeta {
   captions?: Record<string, string>;
   /** Filenames that are portrait-oriented (video-wall tiles). */
   portrait?: string[];
+  /** Raises the seven-artifact ceiling for this category. Set it only where a
+   *  body of work is a DOCUMENT rather than a curated selection — a deck's
+   *  pages are a sequence, and keeping seven of them loses the thing itself. */
+  maxVisible?: number;
+  /** Lifts the ceiling entirely AND paginates on scroll: the category keeps
+   *  every asset, this many are on screen, and the next batch arrives as the
+   *  reader reaches the end. For documents that are long as well as whole. */
+  revealStep?: number;
+  /** false hides the per-image caption line, for collections shown as plain
+   *  plates rather than annotated ones. Defaults to true. */
+  showCaptions?: boolean;
 }
 
 /* ── Filesystem helpers ───────────────────────────────────────────────── */
@@ -279,7 +290,14 @@ export function readLogofolio(): LogoMark[] {
 export function readCatalogueCategory(
   slug: string,
   categoryId: string,
-): { category: CatalogueCategory; assets: CollectionAsset[]; curated: boolean } | null {
+): {
+  category: CatalogueCategory;
+  assets: CollectionAsset[];
+  curated: boolean;
+  maxVisible?: number;
+  revealStep?: number;
+  showCaptions?: boolean;
+} | null {
   const root = clientDir(slug, "catalogue");
   const folder = listDirs(root).find((f) => folderToId(f) === categoryId);
   if (!folder) return null;
@@ -302,6 +320,9 @@ export function readCatalogueCategory(
     }));
 
   return {
+    maxVisible: meta.maxVisible,
+    revealStep: meta.revealStep,
+    showCaptions: meta.showCaptions,
     /** True when the meta names a caption order — i.e. the sequence is a
      *  deliberate choice rather than whatever the filesystem returned. */
     curated: Object.keys(meta.captions ?? {}).length > 0,

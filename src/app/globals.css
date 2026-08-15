@@ -239,3 +239,21 @@ canvas {
     opacity: 1;
   }
 }
+
+/* ── The left pins' connector lines ──────────────────────────────────────────
+ * One-shot draw on first load: each hairline runs from the top-left corner down
+ * to its pin and turns right. `forwards` holds the finished state — the brief
+ * is "animate on first load and then stay like that", so this must NOT loop.
+ * Every path is normalised with pathLength="100", so one offset fits all four.
+ */
+@keyframes brainpin-draw {
+  from { stroke-dashoffset: 100; stroke-dasharray: 100; }
+  99%  { stroke-dashoffset: 0;   stroke-dasharray: 100; }
+  /* Clear the pattern at the very end. A dash array is how the line DRAWS, but
+   * leaving one on the resting line means the browser is still tiling a dash
+   * pattern along a path that `preserveAspectRatio="none"` stretches ~14x
+   * horizontally and ~9x vertically — the two runs tile at different rates and
+   * the finished line reads as dotted. `none` makes the resting state a plain
+   * unbroken stroke. */
+  to   { stroke-dashoffset: 0;   stroke-dasharray: none; }
+}

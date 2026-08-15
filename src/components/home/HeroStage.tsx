@@ -26,18 +26,20 @@ import { Corner3DGrid } from "@/components/home/Corner3DGrid";
 import { useInViewport } from "@/hooks/useInViewport";
 import { DURATION, EASE_IN_OUT, EASE_OUT } from "@/constants/motion";
 import { CircuitBackdrop } from "@/components/home/CircuitBackdrop";
-import { PaintBurst } from "@/components/home/PaintBurst";
 import { BrainPins } from "@/components/home/BrainPins";
 import { useIsPhone } from "@/hooks/useMediaQuery";
 
 /** The landing brain read too large at 1:1 — sit it back a quarter, then a
- *  further tenth (2026-08-10) to give the words and pins more room.
+ *  further tenth (2026-08-10) to give the words and pins more room, then 5%
+ *  back up (2026-08-10, after the paint film came off the right flank and left
+ *  the stage emptier).
  *  On a phone the opposite is true: the footage is landscape and `object-contain`
  *  fits it to the WIDTH of a portrait viewport, so at 0.75 the brain shrinks to a
  *  thumbnail in a mostly-empty screen. Push it back up past 1 instead — the
- *  footage carries plenty of margin, so nothing important crops. */
-const CENTER_SCALE = 0.675;
-const CENTER_SCALE_PHONE = 1.305;
+ *  footage carries plenty of margin, so nothing important crops.
+ *  Both are the same 5% up, so each keeps the ratio it was tuned to. */
+const CENTER_SCALE = 0.70875; // 0.675 × 1.05
+const CENTER_SCALE_PHONE = 1.37025; // 1.305 × 1.05
 
 export function HeroStage() {
   // Keep the scrub loop running while the hero is near the viewport; idle it
@@ -57,9 +59,19 @@ export function HeroStage() {
       {/* Circuit board texture — sits above the section background, below the brain video. */}
       <CircuitBackdrop />
 
-      {/* Paint explosion, right flank only — sits under the words and the
-          brain so the footage's own spray stays the subject. */}
-      <PaintBurst />
+      {/* The paint-explosion film sat here as the right flank's ground until
+          2026-08-10 — pulled off the landing and reused behind the Art
+          section's previews (SectionPanel). */}
+
+      {/* The black footing. Runs the FULL width — it started as a mask under
+          the brain artwork on the left and carries across the right flank so
+          the stage closes on one band rather than half of one. It sits above
+          the circuit backdrop and below everything else, so the words, the
+          pins and the corner furniture all read on top of it. */}
+      <div
+        aria-hidden
+        className="pointer-events-none absolute inset-x-0 bottom-0 z-0 h-[7%] bg-neutral-950"
+      />
 
       {/* The name — BEFORE the footage in the DOM (no positive z-index), so the
           brain crosses in FRONT of the letters. */}
@@ -96,19 +108,27 @@ export function HeroStage() {
         <Corner3DGrid corner="tl" />
         <Corner3DGrid corner="bl" />
 
-        {/* Logic side (left) — the code sits hard in the corner now that the
-            ECard no longer occupies it. */}
-        <div className="absolute left-5 top-5">
+        {/* Logic side (left). Both of these clear the pins' connector band,
+            which owns 0–6vw down the whole left flank: at left-5 the code ran
+            straight through the four hairlines, and the facts sat under their
+            tails. */}
+        <div className="absolute left-[8vw] top-5">
           <CodeStream />
         </div>
-        <div className="absolute bottom-[9vh] left-10">
+        <div className="absolute bottom-[9vh] left-[8vw]">
           <AboutFacts />
         </div>
 
         {/* The hand-drawn bubbles sat here until 2026-08-10. Removed once the
             film went full strength — the corner belongs to the artwork now.
             SpeechBubbles is kept, unmounted, for if they come back. */}
-        <div className="absolute bottom-[9vh] right-10 flex justify-end">
+        {/* Tagged because HeroName clamps Imagine's descender above whatever
+            sits in this corner — it measures this box rather than assuming a
+            height, so moving the rotator moves the word's floor with it. */}
+        <div
+          data-hero-furniture="right-bottom"
+          className="absolute bottom-[9vh] right-10 flex justify-end"
+        >
           <HobbiesRotator />
         </div>
 
