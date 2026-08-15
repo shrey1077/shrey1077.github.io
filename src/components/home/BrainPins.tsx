@@ -24,6 +24,7 @@
  */
 
 import { useEffect, useRef, useState } from "react";
+import Image from "next/image";
 import { motion, useReducedMotion } from "framer-motion";
 import { NAV_SECTIONS } from "@/constants/navigation";
 import type { NavSectionId } from "@/types/navigation";
@@ -45,17 +46,79 @@ const RING_MASK = { WebkitMaskImage: RING, maskImage: RING } as const;
  *  so the left flank is clear from 40% down; IMAGINE runs along the base, so
  *  the right column has to sit above it. */
 const COL = {
-  logic: { x: "left-[3vw]", top: 0.46, step: 0.075, align: "flex-row" },
+  // 6vw, not 3: the connectors need a gutter to turn in. At 3vw the four
+  // verticals and their corners ate the whole margin and the horizontal run
+  // came out under a pixel — the turn the design asks for was invisible.
+  // CONNECTOR_END must stay equal to this number.
+  logic: { x: "left-[6vw]", top: 0.46, step: 0.075, align: "flex-row" },
   creative: { x: "right-[3vw]", top: 0.22, step: 0.07, align: "flex-row-reverse" },
 } as const;
 
 type Side = "logic" | "creative";
+
+/* ── The left column's connectors ──────────────────────────────────────────
+ *
+ * Four hairlines drop out of the top-left corner, each turning right into one
+ * logic pin. They are drawn as ONE svg over the whole stage in a 0–100 viewBox
+ * with `preserveAspectRatio="none"`, so every coordinate below is a percentage
+ * of the stage and the geometry needs no measurement at any size. The stroke
+ * would smear under that non-uniform scale, so every path carries
+ * `vector-effect="non-scaling-stroke"` and stays a true hairline.
+ *
+ * ⚠ The verticals are ordered OUTSIDE-IN: the line that travels furthest down
+ * sits furthest left. Reverse that and the top line's horizontal run crosses
+ * the verticals of the three below it, which turns a nested bracket into a
+ * grid. `CONNECTOR_X` subtracts, and that is why.
+ *
+ * `pathLength="100"` normalises every path to the same nominal length, so one
+ * dash offset animates all four identically regardless of how long each
+ * actually is — the alternative is measuring each with getTotalLength().
+ */
+
+/** Where a line meets its row: the pin column's own left edge (left-[3vw]). */
+const CONNECTOR_END = 6;
+/** Innermost vertical (the topmost pin's), and the step further out per pin. */
+const CONNECTOR_X0 = 4.2;
+const CONNECTOR_GAP = 0.9;
+/** Corner radius, in viewBox units. */
+const CONNECTOR_R = 0.6;
+/** The parallel line added when a section is open — the "double stroke". */
+const CONNECTOR_DOUBLE = 0.42;
+
+/** The reveal clock. Four lines draw back to back, and a pin lands the moment
+ *  its own line completes its turn — so the last pin arrives at exactly
+ *  4 × DRAW = 3s, which is the brief. */
+const CONNECTOR_DRAW = 0.75;
+
+/** The mark that sits ahead of each logic pill, by section id.
+ *
+ *  ⚠ EMPTY UNTIL THE ARTWORK LANDS. The owner's four icons — handshake,
+ *  briefcase, open book, summit — were supplied as chat attachments, which
+ *  cannot be written to disk from here. Drop the four files under
+ *  `public/content/icons/` and fill this in; the pin renders no mark at all
+ *  for an id that is absent, so the page is correct either way. */
+const SECTION_ICONS: Partial<Record<NavSectionId, string>> = {
+  // clients: "/content/icons/clients.png",
+  // projects: "/content/icons/projects.png",
+  // logofolio: "/content/icons/logofolio.png",
+  // "career-path": "/content/icons/career-path.png",
+};
+
+function connectorPath(index: number, row: number, offset = 0): string {
+  const x = CONNECTOR_X0 - index * CONNECTOR_GAP - offset;
+  const y = row * 100 + offset;
+  const r = CONNECTOR_R;
+  // Start above the stage so the line reads as arriving from off-screen.
+  return `M ${x} -2 V ${y - r} Q ${x} ${y} ${x + r} ${y} H ${CONNECTOR_END}`;
+}
 
 interface Pin {
   id: NavSectionId;
   label: string;
   y: number;
   side: Side;
+  /** Position within its own column — drives the connector and its delay. */
+  index: number;
 }
 
 function buildPins(): Pin[] {
@@ -67,8 +130,64 @@ function buildPins(): Pin[] {
         label: s.label,
         y: COL[side].top + i * COL[side].step,
         side,
+        index: i,
       }));
   return [...make("logic", "left"), ...make("creative", "right")];
+}
+
+/** The four hairlines, drawn once over the whole stage. */
+function PinConnectors({
+  pins,
+  open,
+  reduceMotion,
+}: {
+  pins: Pin[];
+  open: NavSectionId | null;
+  reduceMotion: boolean;
+}) {
+  return (
+    <svg
+      aria-hidden
+      viewBox="0 0 100 100"
+      preserveAspectRatio="none"
+      className="pointer-events-none absolute inset-0 h-full w-full"
+    >
+      {pins.map((pin) => {
+        const isOpen = open === pin.id;
+        const common = {
+          fill: "none" as const,
+          stroke: "currentColor",
+          strokeWidth: 1,
+          vectorEffect: "non-scaling-stroke" as const,
+          pathLength: 100,
+          className: "text-neutral-900/45",
+        };
+        // Draw, then hold: `fill-mode: forwards` on a one-shot animation, so
+        // the line stays where it landed rather than snapping back.
+        const draw = reduceMotion
+          ? undefined
+          : {
+              strokeDasharray: 100,
+              strokeDashoffset: 100,
+              animation: `brainpin-draw ${CONNECTOR_DRAW}s linear ${
+                pin.index * CONNECTOR_DRAW
+              }s forwards`,
+            };
+        return (
+          <g key={pin.id}>
+            <path d={connectorPath(pin.index, pin.y)} {...common} style={draw} />
+            {/* The second rail, on open only — the same L, stepped outward. */}
+            {isOpen && (
+              <path
+                d={connectorPath(pin.index, pin.y, CONNECTOR_DOUBLE)}
+                {...common}
+              />
+            )}
+          </g>
+        );
+      })}
+    </svg>
+  );
 }
 
 function PinRow({
@@ -86,23 +205,32 @@ function PinRow({
   const logic = pin.side === "logic";
   const fill = logic ? "bg-neutral-950" : "brain-paint";
 
+  // The logic pins wait for their own connector to arrive; a pin lands the
+  // moment its line finishes the turn. The creative side is not on this clock
+  // and appears with the stage.
+  const wait = logic && !reduceMotion ? (pin.index + 1) * CONNECTOR_DRAW : 0;
+
   return (
-    <div
+    <motion.div
+      initial={wait ? { opacity: 0 } : false}
+      animate={{ opacity: 1 }}
+      transition={{ duration: 0.28, ease: EASE_OUT, delay: wait }}
       className={`absolute ${COL[pin.side].x} flex items-center ${COL[pin.side].align}`}
       style={{ top: `${pin.y * 100}%` }}
     >
-      {/* Outer rule — pill to the screen edge. Sits on the row (which is the
-          positioned ancestor), so `right-full` lands it flush at x=0. */}
-      <span
-        aria-hidden
-        className={`absolute top-1/2 h-0.5 w-[3vw] ${
-          logic ? "right-full bg-neutral-900/45" : "left-full brain-paint"
-        }`}
-        // This rule is a sibling of the button, not a child, so `.group:hover`
-        // never reaches it. Same 9s quickening, driven off the hover state the
-        // dot already uses, so the run to the screen edge keeps pace.
-        style={!logic && hover ? { animationDuration: "9s" } : undefined}
-      />
+      {/* Outer rule — only the creative side keeps one. The logic side's run to
+          the edge is now the drawn connector (PinConnectors), which arrives
+          from the top-left corner rather than straight out sideways.
+          This rule is a sibling of the button, not a child, so `.group:hover`
+          never reaches it. Same 9s quickening, driven off the hover state the
+          dot already uses, so the run to the screen edge keeps pace. */}
+      {!logic && (
+        <span
+          aria-hidden
+          className="brain-paint absolute left-full top-1/2 h-0.5 w-[3vw]"
+          style={hover ? { animationDuration: "9s" } : undefined}
+        />
+      )}
 
       <button
         type="button"
@@ -118,6 +246,24 @@ function PinRow({
         // hover reading only as the dot appearing.
         className={`group pointer-events-auto flex items-center gap-2.5 outline-none focus-visible:ring-2 focus-visible:ring-neutral-900/40 ${COL[pin.side].align}`}
       >
+        {/* The section's own mark, ahead of the pill on the logic side. The
+            connector lands on it. Renders only where SECTION_ICONS has a file
+            for the id — nothing is drawn for a section without artwork. */}
+        {logic && SECTION_ICONS[pin.id] && (
+          <span
+            aria-hidden
+            className="relative mr-1 grid size-7 shrink-0 place-items-center overflow-hidden rounded-full"
+          >
+            <Image
+              src={SECTION_ICONS[pin.id]!}
+              alt=""
+              fill
+              sizes="28px"
+              className="object-contain"
+            />
+          </span>
+        )}
+
         {/* The label keeps its pill geometry throughout — only the treatment
             flips. (It used to go square-and-round on open, which ballooned it
             into a circle wide enough to collide with the pill below.) */}
@@ -186,7 +332,7 @@ function PinRow({
           />
         </span>
       </button>
-    </div>
+    </motion.div>
   );
 }
 
@@ -223,6 +369,11 @@ export function BrainPins() {
 
   return (
     <div ref={rootRef} className="pointer-events-none absolute inset-0 z-20 hidden lg:block">
+      <PinConnectors
+        pins={pins.filter((p) => p.side === "logic")}
+        open={open}
+        reduceMotion={reduceMotion}
+      />
       {pins.map((p) => (
         <PinRow
           key={p.id}

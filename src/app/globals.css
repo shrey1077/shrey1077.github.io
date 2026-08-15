@@ -239,3 +239,14 @@ canvas {
     opacity: 1;
   }
 }
+
+/* ── The left pins' connector lines ──────────────────────────────────────────
+ * One-shot draw on first load: each hairline runs from the top-left corner down
+ * to its pin and turns right. `forwards` holds the finished state — the brief
+ * is "animate on first load and then stay like that", so this must NOT loop.
+ * Every path is normalised with pathLength="100", so one offset fits all four.
+ */
+@keyframes brainpin-draw {
+  from { stroke-dashoffset: 100; }
+  to   { stroke-dashoffset: 0; }
+}

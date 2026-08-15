@@ -47,7 +47,11 @@ function PartTimeWords() {
   );
 }
 
-const BODY = "text-[19px] leading-[1.4] text-neutral-500";
+/** Juturu carries this corner now — extra-bold for the heading, regular for
+ *  everything under it. The face is a variable 100–900, so 800 and 400 both
+ *  come off the one file. The education entry runs long, so the body steps down
+ *  from 19px to keep two full lines inside the column. */
+const BODY = "font-graff text-[15px] font-normal leading-[1.45] text-neutral-500";
 
 /** The knight's pixel dissolve. Chunky on purpose — the mark renders at 36px,
  *  where a fine checker turns to mush. Denser against the mane, thinning out
@@ -121,10 +125,18 @@ const FACTS: { key: string; heading: string; body: React.ReactNode }[] = [
   {
     key: "education",
     heading: "Education",
+    // Both degrees in full, as the owner writes them. Two lines, not one run —
+    // "B.Tech · M.Des" said nothing about where or in what.
     body: (
-      <p className={BODY}>
-        B.Tech · M.Des
-      </p>
+      <div className={BODY}>
+        <p>
+          B.Tech. (IT) — Jaypee University of Information Technology (JUIT),
+          Waknaghat, Solan, H.P.
+        </p>
+        <p className="mt-1.5">
+          M.Des. (Visual Comm.) — UID, Karnavati University, Ahmedabad, Gujarat
+        </p>
+      </div>
     ),
   },
   {
@@ -156,7 +168,7 @@ export function AboutFacts() {
           exit={reduceMotion ? { opacity: 0 } : { opacity: 0, y: -8 }}
           transition={{ duration: 0.5, ease: EASE_OUT }}
         >
-          <h3 className="text-[34px] font-semibold leading-tight tracking-[-0.01em] text-neutral-800">
+          <h3 className="font-graff text-[34px] font-extrabold leading-tight tracking-[-0.01em] text-neutral-800">
             {fact.heading}
           </h3>
           <div className="mt-1">{fact.body}</div>
