@@ -63,6 +63,16 @@ export function HeroStage() {
           2026-08-10 — pulled off the landing and reused behind the Art
           section's previews (SectionPanel). */}
 
+      {/* The black footing. Runs the FULL width — it started as a mask under
+          the brain artwork on the left and carries across the right flank so
+          the stage closes on one band rather than half of one. It sits above
+          the circuit backdrop and below everything else, so the words, the
+          pins and the corner furniture all read on top of it. */}
+      <div
+        aria-hidden
+        className="pointer-events-none absolute inset-x-0 bottom-0 z-0 h-[7%] bg-neutral-950"
+      />
+
       {/* The name — BEFORE the footage in the DOM (no positive z-index), so the
           brain crosses in FRONT of the letters. */}
       <HeroName />
@@ -98,12 +108,14 @@ export function HeroStage() {
         <Corner3DGrid corner="tl" />
         <Corner3DGrid corner="bl" />
 
-        {/* Logic side (left) — the code sits hard in the corner now that the
-            ECard no longer occupies it. */}
-        <div className="absolute left-5 top-5">
+        {/* Logic side (left). Both of these clear the pins' connector band,
+            which owns 0–6vw down the whole left flank: at left-5 the code ran
+            straight through the four hairlines, and the facts sat under their
+            tails. */}
+        <div className="absolute left-[8vw] top-5">
           <CodeStream />
         </div>
-        <div className="absolute bottom-[9vh] left-10">
+        <div className="absolute bottom-[9vh] left-[8vw]">
           <AboutFacts />
         </div>
 

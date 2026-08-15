@@ -97,11 +97,13 @@ const CONNECTOR_DRAW = 0.75;
  *  cannot be written to disk from here. Drop the four files under
  *  `public/content/icons/` and fill this in; the pin renders no mark at all
  *  for an id that is absent, so the page is correct either way. */
+/*  Mapping confirmed by the owner: handshake → Clients, briefcase → Projects,
+ *  open book → Logofolio, summit-with-flags → Career Path. */
 const SECTION_ICONS: Partial<Record<NavSectionId, string>> = {
-  // clients: "/content/icons/clients.png",
-  // projects: "/content/icons/projects.png",
-  // logofolio: "/content/icons/logofolio.png",
-  // "career-path": "/content/icons/career-path.png",
+  // clients: "/content/icons/clients.png",       // handshake
+  // projects: "/content/icons/projects.png",     // briefcase
+  // logofolio: "/content/icons/logofolio.png",   // open book
+  // "career-path": "/content/icons/career-path.png", // summit
 };
 
 function connectorPath(index: number, row: number, offset = 0): string {
@@ -163,7 +165,10 @@ function PinConnectors({
           className: "text-neutral-900/45",
         };
         // Draw, then hold: `fill-mode: forwards` on a one-shot animation, so
-        // the line stays where it landed rather than snapping back.
+        // the line stays where it landed rather than snapping back. The
+        // keyframes drop the dash pattern on the last frame — a resting line
+        // must be an unbroken stroke, not a dash tiled along a path the
+        // viewBox stretches unevenly.
         const draw = reduceMotion
           ? undefined
           : {
