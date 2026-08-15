@@ -41,13 +41,18 @@ const CATALOGUE =
 const MAX_EDGE = 1800;
 const QUALITY = 82;
 
-/** ⚠ WHY THIS IS FOUR FOLDERS AND NOT ONE.
+/** ⚠ ONE ROOM, ALL 35 PAGES, REVEALED NINE AT A TIME.
  *
  *  `CatalogueGallery` caps a section at seven artifacts by default — the
- *  curation discipline the rest of the site runs on — and a 35-page deck in one
- *  folder renders seven and silently swallows the rest. These rooms opt out via
- *  `maxVisible` in their meta and show a 3x3 grid instead, so they hold nine
- *  each and the deck reads in four.
+ *  curation discipline the rest of the site runs on — and a deck dropped in
+ *  whole would render seven and silently swallow the rest. This folder opts out
+ *  via `revealStep` in its meta: the deck is a document, so every page is in one
+ *  room in page order, three across, with nine on screen and the next nine
+ *  arriving as the reader scrolls.
+ *
+ *  It went through two wrong shapes first — one folder that showed seven of
+ *  thirty-seven, then five rooms of seven that broke the deck into chapters it
+ *  does not have. Neither is worth restoring.
  *
  *  No captions. The pages explain themselves and the owner asked for the deck
  *  unannotated, so ordering falls to the filenames — which is why they are
@@ -61,24 +66,13 @@ const QUALITY = 82;
  *  is the 3x3 grid; 35 and 38 are absent on purpose (header). */
 const ROOMS = [
   {
-    folder: "Portfolio 01",
+    folder: "Portfolio 2021",
     order: 3,
-    pages: [1, 2, 3, 4, 5, 6, 7, 8, 9],
-  },
-  {
-    folder: "Portfolio 02",
-    order: 4,
-    pages: [10, 11, 12, 13, 14, 15, 16, 17, 18],
-  },
-  {
-    folder: "Portfolio 03",
-    order: 5,
-    pages: [19, 20, 21, 22, 23, 24, 25, 26, 27],
-  },
-  {
-    folder: "Portfolio 04",
-    order: 6,
-    pages: [28, 29, 30, 31, 32, 33, 34, 36],
+    // Every page the deck ships, in the order it reads. 35 and 38 absent.
+    pages: [
+      ...Array.from({ length: 34 }, (_, i) => i + 1), // 1–34
+      36,
+    ],
   },
 ];
 
@@ -134,7 +128,9 @@ if (!dry) {
       cover: `p${String(room.pages[0]).padStart(2, "0")}.webp`,
       // No description, no story, no captions — the deck is shown unannotated.
       // Order therefore comes from the zero-padded filenames alone.
-      maxVisible: 9,
+      // revealStep lifts the seven cap AND sets the scroll window: all pages
+      // are in the room, nine are on screen, the next nine arrive on scroll.
+      revealStep: 9,
       showCaptions: false,
     };
     fs.writeFileSync(

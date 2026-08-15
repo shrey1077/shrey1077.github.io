@@ -141,7 +141,7 @@ export default async function CategoryPage({ params }: CategoryPageProps) {
           <span className={`${META} mt-5 block text-[0.6rem] text-neutral-500`}>
             {data.category.assetCount === 0
               ? "Awaiting assets"
-              : galleryImages.length >= data.category.assetCount
+              : data.revealStep || galleryImages.length >= data.category.assetCount
                 ? `${data.category.assetCount} page${data.category.assetCount === 1 ? "" : "s"} · shown in full`
                 : `${data.category.assetCount} asset${data.category.assetCount === 1 ? "" : "s"} in the archive · showing the selected few`}
           </span>
@@ -170,6 +170,7 @@ export default async function CategoryPage({ params }: CategoryPageProps) {
                   <CatalogueGallery
                     assets={galleryImages}
                     maxVisible={data.maxVisible}
+                    revealStep={data.revealStep}
                     showCaptions={data.showCaptions}
                   />
                 </Reveal>

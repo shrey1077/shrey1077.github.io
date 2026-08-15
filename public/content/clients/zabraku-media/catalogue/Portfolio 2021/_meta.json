@@ -1,6 +1,6 @@
 {
   "order": 3,
   "cover": "p01.webp",
-  "maxVisible": 9,
+  "revealStep": 9,
   "showCaptions": false
 }
