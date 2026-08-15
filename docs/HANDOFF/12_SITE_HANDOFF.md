@@ -1,6 +1,14 @@
 # 12 — WHOLE-SITE HANDOFF
 
-Written 2026-08-16, superseding 11 (and 09/10 before it). Read this one only.
+Written 2026-08-16.
+
+> ⚠ **11 and 12 were written in parallel by two different sessions and BOTH
+> describe the current state.** 11 was revised the same night and carries the
+> Tata mockup/photography work in depth; 12 carries the homepage connectors,
+> the hero words, and the Zabraku portfolio in depth. Neither supersedes the
+> other yet. **Read 11 first for Tata, 12 first for the homepage and Zabraku** —
+> and fold them into one before the next cycle, because two "current" handoffs
+> is exactly the confusion these documents exist to prevent.
 
 ---
 
@@ -184,11 +192,31 @@ given a conscious yes to any of that going public.**
 
 ## 3. The Tata IIS page
 
-Unchanged this cycle except by the other session (see §0). `TataExperience`:
-hero film → description → `GuidelineSections` → `PartnerMarquee` → The Work →
-credit → `TataFooter`. Theme lives in the filename (`brandOf()`); a tile rests
-on a mockup and shows flat artwork on hover; `_meta.json` caption order outranks
-brand grouping; max 7 artworks anywhere.
+`TataExperience`: hero film → description → `GuidelineSections` →
+`PartnerMarquee` → The Work → credit → `TataFooter`. Theme lives in the
+filename (`brandOf()`); a tile rests on a mockup and shows flat artwork on
+hover; max 7 artworks anywhere.
+
+Three rules about what a tile shows, all easy to break again:
+
+- ⚠ **The staged-image matcher must stay anchored**:
+  `/^(?:(?:tata|iisa|iism)-)?(?:mockup|installed)-/`. Unanchored it also matched
+  real artwork whose own filename contains the word — e.g.
+  `iisa-billboards-and-signages-iisa-exterior-mockup-2` — which pulled a dozen
+  genuine pieces out of the fly-throughs and made one of them a resting image.
+  There are TWO matchers (`STAGED` and the one inside `stagedInLane`); anchor
+  both or the bug half-returns.
+- **A `_meta.json` caption order outranks the brand grouping** — on the tile's
+  fly-through as well as in the open panel, so a hand-picked lead frame can't be
+  filtered back out by its lane. Caption keys must be real filenames; a typo is
+  silent.
+- ⚠ **Do NOT make the meta's `cover` field outrank the staged image.** It looks
+  like the natural way to set a tile's default face, and it is wrong: ten
+  folders already name a `cover` for the catalogue card, so the change quietly
+  undoes "tiles rest on a mockup" on nine tiles. To change one section's default,
+  remove that folder's staged image instead — which is how **Photography** now
+  leads on `campus-frame-iv` (the bus run-in) rather than a studio composite of
+  a photograph. `make_studio_mockups.py` no longer stages Photography.
 
 ### ⚠ Privacy — read before touching Tata content
 
