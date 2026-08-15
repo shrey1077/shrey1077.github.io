@@ -16,8 +16,9 @@ tile rules are folded into §3 below, so nothing was lost in the handover.
   it, and loose artwork the owner drops in (`D:\Assets\3x\`) lives there.
 - **Branches:** work on `tata-iis-experience`; **`main` is what deploys.**
   Flow: commit on the branch → merge to `main` → push → deploy.
-- **Live:** https://shrey1077.github.io. **`main` is still at `910b894`** —
-  everything below this line is pushed to the BRANCH and has never deployed.
+- **Live:** https://shrey1077.github.io. **`main` is at `9328fe9`** — the branch
+  was merged and pushed on 2026-08-16 and the live site was verified serving it.
+  `main` and `tata-iis-experience` are level; nothing is waiting to deploy.
 - **Run:** `npm run dev` → localhost:3000.
 - **Verify:** `npx tsc --noEmit` · `npx eslint src` · `npm run build`
   (**45 static routes** as of this handoff).
@@ -140,8 +141,32 @@ per-client `logoScale` and `logoTone`.
 the line with the employer's disc below it. ⚠ The rail is drawn per-CELL, not
 per-row, so the grid can carry **no column gap** — a gap is a break in the line.
 
-⚠ `BrainPins` is `hidden lg:block`, so **below 1024px no section panel can be
-opened at all.** The responsive work inside those panels is insurance.
+**`SectionNav`** — the way in below `lg`, added 2026-08-16.
+
+`BrainPins` is `hidden lg:block` and stays that way: its geometry is not
+portable (0–100 viewBox stretched over the stage, columns at 6vw/3vw, rows as
+wide as their labels). Until this was added that meant **below 1024px the
+homepage had no navigation at all** — measured: 8 pin buttons in the DOM, 0
+visible, and the only interactive elements on the page were the four footer
+links. Every section, and every `/clients/[slug]` page behind Clients and
+Projects, was unreachable from a phone.
+
+`SectionNav` is a plain board of the same eight sections, `lg:hidden`, mounted
+in `page.tsx` between the stage and the panel. It is deliberately not a shrunken
+diagram — no connectors, no measured anchors. It keeps the hemisphere split and
+the exact pin treatments (logic flat black `font-digibra`, creative white pill
+in a rainbow border `font-graff`, open inverts each).
+
+⚠ **The two navs must never both drive the panel.** They talk to `SectionPanel`
+over the same `PIN_OPEN_EVENT` bus, so each gates its dispatch on
+`useIsCompact()` — `const active = isCompact ? null : open` in `BrainPins`, and
+the mirror of it in `SectionNav`. It is DERIVED, not synced in an effect, because
+the repo lints `react-hooks/set-state-in-effect` as an error; deriving also means
+crossing the breakpoint dispatches `null` by itself and the panel closes with the
+nav that owned it.
+
+The responsive work inside the panels is no longer insurance — it is now the
+live path below `lg`, and all eight sections were measured at 375px.
 
 ---
 
@@ -250,11 +275,18 @@ All idempotent, all reading from `D:\Assets\Clients\…`. `pdf-to-images.mjs`,
 
 ## 5. Open items
 
-1. **Nothing has deployed.** `main` is at `910b894`; the branch is 16 commits
-   ahead at `831a19c`. The owner merges and pushes on request.
+1. ~~Nothing has deployed.~~ **Resolved 2026-08-16** — merged to `main` at
+   `9328fe9`, pushed, and verified live. The owner still merges and pushes on
+   request; that has not changed.
 2. **Zabraku's three unresolved questions** (§2): the contact page, the
    company-profile framing, the third-party marks.
-3. **Below `lg` the section panels are unreachable** — the pins are hidden.
+3. ~~Below `lg` the section panels are unreachable.~~ **Resolved 2026-08-16** by
+   `SectionNav` (§1). One case stays UNVERIFIED: crossing the `lg` breakpoint
+   with a section open (devtools, or a tablet rotating 1024↔768). The gating is
+   derived so it should hand over cleanly, but it could not be proven in the
+   DOM — under CDP resizing with the Browser pane hidden, `matchMedia` `change`
+   and `window` `resize` events do not fire at all (measured: `matches` flipped
+   true→false with an empty event log). Both steady states were verified.
 4. `scripts/prepare-tata-iis.mjs:354` has a pre-existing **eslint parse error**.
    It is outside `eslint src`, so it has been sitting there unnoticed.
 5. **Mockups**: 14 subsections still have none — `docs/TATA_MOCKUP_PLAN.md`.
