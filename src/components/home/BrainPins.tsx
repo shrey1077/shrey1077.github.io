@@ -29,6 +29,7 @@ import { motion, useReducedMotion } from "framer-motion";
 import { NAV_SECTIONS } from "@/constants/navigation";
 import type { NavSectionId } from "@/types/navigation";
 import { EASE_OUT } from "@/constants/motion";
+import { useIsCompact } from "@/hooks/useMediaQuery";
 
 /** Fired when a section is chosen (or cleared); the panel follows it. */
 export const PIN_OPEN_EVENT = "brainpin:open";
@@ -104,7 +105,9 @@ const CONNECTOR_DRAW = 0.75;
  *  for an id that is absent, so the page is correct either way. */
 /*  Mapping confirmed by the owner: handshake → Clients, briefcase → Projects,
  *  open book → Logofolio, summit-with-flags → Career Path. */
-const SECTION_ICONS: Partial<Record<NavSectionId, string>> = {
+/*  Exported for `SectionNav`, the compact nav that stands in for these pins
+ *  below `lg` — the two share the marks rather than keeping two copies. */
+export const SECTION_ICONS: Partial<Record<NavSectionId, string>> = {
   clients: "/content/icons/clients.png", // handshake
   projects: "/content/icons/projects.png", // briefcase
   logofolio: "/content/icons/logofolio.png", // open book
@@ -393,6 +396,7 @@ function PinRow({
 
 export function BrainPins() {
   const reduceMotion = useReducedMotion() ?? false;
+  const isCompact = useIsCompact();
   const pins = buildPins();
   const [open, setOpen] = useState<NavSectionId | null>(null);
   const rootRef = useRef<HTMLDivElement>(null);
@@ -452,14 +456,20 @@ export function BrainPins() {
     return () => ro.disconnect();
   }, []);
 
+  // Below `lg` this whole block is `hidden`, and `SectionNav` is the live nav
+  // instead. Yield to it rather than leaving a section open behind pins nobody
+  // can see: derived, not synced in an effect, so crossing the breakpoint
+  // dispatches `null` on its own and the panel closes with the pins.
+  const active = isCompact ? null : open;
+
   // Tell the rest of the page which section is open, so the panel can follow.
   useEffect(() => {
-    window.dispatchEvent(new CustomEvent(PIN_OPEN_EVENT, { detail: open }));
-  }, [open]);
+    window.dispatchEvent(new CustomEvent(PIN_OPEN_EVENT, { detail: active }));
+  }, [active]);
 
   // Anywhere outside the pins or the open panel closes it.
   useEffect(() => {
-    if (!open) return;
+    if (!active) return;
     const onDown = (e: MouseEvent) => {
       const t = e.target as Node;
       if (rootRef.current?.contains(t)) return;
@@ -475,13 +485,13 @@ export function BrainPins() {
       window.removeEventListener("mousedown", onDown);
       window.removeEventListener("keydown", onKey);
     };
-  }, [open]);
+  }, [active]);
 
   return (
     <div ref={rootRef} className="pointer-events-none absolute inset-0 z-20 hidden lg:block">
       <PinConnectors
         pins={pins.filter((p) => p.side === "logic")}
-        open={open}
+        open={active}
         reduceMotion={reduceMotion}
         anchors={anchors}
       />
@@ -489,7 +499,7 @@ export function BrainPins() {
         <PinRow
           key={p.id}
           pin={p}
-          open={open === p.id}
+          open={active === p.id}
           reduceMotion={reduceMotion}
           onToggle={() => setOpen((o) => (o === p.id ? null : p.id))}
         />
