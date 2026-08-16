@@ -189,32 +189,15 @@ function connectorPath(index: number, y: number, end: number): string {
   return `M ${x} -2 V ${y - r} Q ${x} ${y} ${x + r} ${y} H ${end}`;
 }
 
-/** Where the outgoing runs turn down, and how far they fall. The topmost turns
- *  furthest RIGHT so the four never cross — the mirror of the incoming rule.
- *  `widest` is the right edge of the longest pin row, measured live, so every
- *  turn is clear of every row whatever the labels say. */
-const OUT_CLEAR = 3;
-const OUT_GAP = 1.4;
-/** The floor: the top of the black band that closes the stage. */
-const OUT_BOTTOM = 93;
+/* A second run per pin used to leave the stroked circle, turn right and fall to
+ * the footing (OUT_CLEAR / OUT_GAP / OUT_BOTTOM / outgoingPath). Removed
+ * 2026-08-17 at the owner's request — the circles are now line ENDS, not
+ * junctions, so nothing measures them any more either. */
 
-function outgoingPath(
-  index: number,
-  y: number,
-  from: number,
-  widest: number,
-): string {
-  const turn = widest + OUT_CLEAR + (3 - index) * OUT_GAP;
-  const r = CONNECTOR_R;
-  return `M ${from} ${y} H ${turn - r} Q ${turn} ${y} ${turn} ${y + r} V ${OUT_BOTTOM}`;
-}
-
-/** The two points a pin's lines touch, as percentages of the stage. */
+/** The point a pin's line lands on, as a percentage of the stage. */
 interface Anchor {
   iconX: number;
   iconY: number;
-  dotX: number;
-  dotY: number;
 }
 
 interface Pin {
@@ -254,11 +237,6 @@ function PinConnectors({
    *  icon) and where the outgoing one leaves (the stroked circle). */
   anchors: Record<string, Anchor>;
 }) {
-  const widest = Math.max(
-    0,
-    ...Object.values(anchors).map((a) => a.dotX),
-  );
-
   return (
     <svg
       aria-hidden
@@ -272,42 +250,50 @@ function PinConnectors({
         const common = {
           fill: "none" as const,
           stroke: "currentColor",
-          // Open thickens BOTH runs of this pin. No second line: a parallel
-          // rail read as a duplicate rather than as emphasis.
+          // Open thickens the line rather than adding a second one beside it.
           strokeWidth: isOpen ? STROKE_OPEN : STROKE_REST,
           vectorEffect: "non-scaling-stroke" as const,
-          pathLength: 100,
           className: "text-neutral-900/45",
         };
+        // ⚠ The reveal is a CLIP, not a dash offset, and it must stay that way.
+        //
+        // The old draw set `pathLength=100` with `stroke-dasharray: 100` and
+        // walked the offset to zero. On paper that is one dash covering the
+        // whole path; in practice it rendered DASHED, because
+        // `vector-effect: non-scaling-stroke` strokes (and therefore dashes) in
+        // a different space from the one `pathLength` normalises. Measured: the
+        // paths are ~52.6 and ~57.5 user units long while being told to call
+        // themselves 100, and the viewBox stretches ~14x across and ~9x down.
+        // The pattern tiles at the wrong rate and breaks the line up.
+        //
+        // A clip has no such problem: it is two straight edges, so the stretch
+        // moves them without distorting anything. Phase one opens downward
+        // through the vertical drop, phase two opens rightward along the turn,
+        // which is the "flows from the top, then reaches its icon" the brief
+        // asks for — continuous, with no dashes at any point.
         const drawAt = (delay: number) =>
           reduceMotion
             ? undefined
             : {
-                strokeDasharray: 100,
-                strokeDashoffset: 100,
+                clipPath: "inset(0 92% 100% 0)",
                 animation: `brainpin-draw ${CONNECTOR_DRAW}s linear ${delay}s forwards`,
               };
 
-        // Both runs land on the icon / circle centre. Until the first
-        // measurement arrives the incoming line stops at the column edge.
+        // The line lands on the icon's centre. Until the first measurement
+        // arrives it stops at the column edge.
         const inY = a ? a.iconY : pin.y * 100;
         const inEnd = a ? a.iconX : CONNECTOR_END;
 
+        // One run per pin. A second path used to leave the stroked circle,
+        // turn right and fall to the footing; removed 2026-08-17 at the
+        // owner's request.
         return (
-          <g key={pin.id}>
-            <path
-              d={connectorPath(pin.index, inY, inEnd)}
-              {...common}
-              style={drawAt(pin.index * CONNECTOR_DRAW)}
-            />
-            {a && (
-              <path
-                d={outgoingPath(pin.index, a.dotY, a.dotX, widest)}
-                {...common}
-                style={drawAt((pin.index + 1) * CONNECTOR_DRAW)}
-              />
-            )}
-          </g>
+          <path
+            key={pin.id}
+            d={connectorPath(pin.index, inY, inEnd)}
+            {...common}
+            style={drawAt(pin.index * CONNECTOR_DRAW)}
+          />
         );
       })}
     </svg>
@@ -445,6 +431,12 @@ function PinRow({
           </span>
         )}
 
+        {/* Pill and circle, flush against each other.
+            ⚠ No gap between these two on purpose: the circle is tangent to the
+            pill's rounded right edge and centred on it. A 24px stub used to
+            run between them — removed 2026-08-17. The gap lives on the BUTTON,
+            so the icon keeps its spacing while this pair stays joined. */}
+        <span className={`flex items-center ${COL[pin.side].align}`}>
         {/* The label keeps its pill geometry throughout — only the treatment
             flips. (It used to go square-and-round on open, which ballooned it
             into a circle wide enough to collide with the pill below.) */}
@@ -471,14 +463,8 @@ function PinRow({
           </span>
         )}
 
-        {/* The stub, then the circle it runs to. */}
         <span
           aria-hidden
-          className={`h-0.5 w-6 shrink-0 ${logic ? "bg-neutral-900/45" : "brain-paint"}`}
-        />
-        <span
-          aria-hidden
-          data-pin-dot={logic ? pin.id : undefined}
           className={`relative grid shrink-0 place-items-center rounded-full ${
             logic
               // Open no longer FILLS the circle — the ring stays and a flat
@@ -512,6 +498,7 @@ function PinRow({
             transition={{ duration: reduceMotion ? 0 : 0.22, ease: EASE_OUT }}
             style={{ width: CIRCLE * 0.42, height: CIRCLE * 0.42 }}
           />
+        </span>
         </span>
       </button>
     </motion.div>
@@ -548,15 +535,15 @@ export function BrainPins() {
     const ro = new ResizeObserver(() => {
       const box = root.getBoundingClientRect();
       if (!box.width || !box.height) return;
+      // Only the icon is measured now. The stroked circle used to be measured
+      // too, as the point the outgoing run left from; that run is gone, so the
+      // circle is a line END and needs no anchor of its own.
       const next: Record<string, Anchor> = {};
-      root.querySelectorAll<HTMLElement>("[data-pin-dot]").forEach((dot) => {
-        const id = dot.dataset.pinDot;
+      root.querySelectorAll<HTMLElement>("[data-pin-icon]").forEach((icon) => {
+        const id = icon.dataset.pinIcon;
         if (!id) return;
-        const icon = root.querySelector(`[data-pin-icon="${id}"]`);
-        if (!icon) return;
         const i = centre(icon, box);
-        const d = centre(dot, box);
-        next[id] = { iconX: i.x, iconY: i.y, dotX: d.x, dotY: d.y };
+        next[id] = { iconX: i.x, iconY: i.y };
       });
       setAnchors((prev) => {
         const keys = Object.keys(next);
@@ -568,9 +555,7 @@ export function BrainPins() {
             return (
               a &&
               Math.abs(a.iconX - b.iconX) < 0.05 &&
-              Math.abs(a.iconY - b.iconY) < 0.05 &&
-              Math.abs(a.dotX - b.dotX) < 0.05 &&
-              Math.abs(a.dotY - b.dotY) < 0.05
+              Math.abs(a.iconY - b.iconY) < 0.05
             );
           });
         return same ? prev : next;

@@ -264,14 +264,25 @@ canvas {
  * is "animate on first load and then stay like that", so this must NOT loop.
  * Every path is normalised with pathLength="100", so one offset fits all four.
  */
+/* ⚠ A CLIP, not a dash offset. The line must be unbroken at every instant.
+ *
+ * This used to walk `stroke-dashoffset` from 100 to 0 over a `pathLength=100`
+ * path, which is one dash covering the whole line on paper and rendered DASHED
+ * in practice: `vector-effect: non-scaling-stroke` strokes — and so dashes — in
+ * a different space from the one `pathLength` normalises. The paths measure
+ * ~52.6 and ~57.5 user units while declaring themselves 100, and the viewBox
+ * stretches ~14x across and ~9x down, so the pattern tiled at the wrong rate
+ * and broke the line into pieces.
+ *
+ * An inset clip is two straight edges. The stretch moves them and distorts
+ * nothing, so the stroke stays solid the whole way.
+ *   0 → 55%   the right inset holds at 92%, the bottom opens: the vertical
+ *             drop grows downward inside a narrow window
+ *   55 → 100% the bottom is done, the right opens: the turn and the run out to
+ *             the icon are revealed
+ * `forwards` holds the finished state — draw once on load, then stay. */
 @keyframes brainpin-draw {
-  from { stroke-dashoffset: 100; stroke-dasharray: 100; }
-  99%  { stroke-dashoffset: 0;   stroke-dasharray: 100; }
-  /* Clear the pattern at the very end. A dash array is how the line DRAWS, but
-   * leaving one on the resting line means the browser is still tiling a dash
-   * pattern along a path that `preserveAspectRatio="none"` stretches ~14x
-   * horizontally and ~9x vertically — the two runs tile at different rates and
-   * the finished line reads as dotted. `none` makes the resting state a plain
-   * unbroken stroke. */
-  to   { stroke-dashoffset: 0;   stroke-dasharray: none; }
+  0%   { clip-path: inset(0 92% 100% 0); }
+  55%  { clip-path: inset(0 92% 0 0); }
+  100% { clip-path: inset(0 0 0 0); }
 }
