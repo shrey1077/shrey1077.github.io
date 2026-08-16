@@ -43,6 +43,21 @@ import { useIsPhone } from "@/hooks/useMediaQuery";
 const CENTER_SCALE = 0.70875; // 0.675 × 1.05
 const CENTER_SCALE_PHONE = 1.37025; // 1.305 × 1.05
 
+/** The brain sits a little high of dead centre (2026-08-17), to open up the
+ *  band beneath it where the portrait orb now lives.
+ *  Safe to change: nothing measures the brain any more. HeroName places both
+ *  words on fixed viewport fractions (`measureBrainV` was deleted), and
+ *  BrainPins measures its own icons and circles, not the artwork. */
+const BRAIN_RISE = -34; // px
+
+/** …and a touch right, so the brain's own grey/colour division lines up with
+ *  the portrait orb's seam directly beneath it.
+ *  ⚠ MEASURED, not judged by eye: the boundary was sampled off the brain
+ *  canvas across four scanlines (587, 591, 594, 595 — it leans slightly) and
+ *  its median sat at x=594 against the orb's seam at x=621. Re-measure if the
+ *  orb's width or the brain's scale changes; both move this. */
+const BRAIN_SHIFT_X = 27; // px
+
 export function HeroStage() {
   // Keep the scrub loop running while the hero is near the viewport; idle it
   // once the visitor has scrolled well past.
@@ -83,7 +98,14 @@ export function HeroStage() {
       <motion.div
         className="absolute inset-0"
         initial={reduceMotion ? false : { opacity: 0 }}
-        animate={{ opacity: 1, scale: centreScale, originX: 0.5, originY: 0.5 }}
+        animate={{
+          opacity: 1,
+          scale: centreScale,
+          x: BRAIN_SHIFT_X,
+          y: BRAIN_RISE,
+          originX: 0.5,
+          originY: 0.5,
+        }}
         transition={{
           opacity: { duration: DURATION.verySlow, ease: EASE_OUT },
           scale: { duration: reduceMotion ? 0 : DURATION.verySlow, ease: EASE_IN_OUT },
@@ -137,7 +159,10 @@ export function HeroStage() {
             sitting the circle on the line would push ~120px of artwork below
             the stage floor — and the line ring's tracery is BLACK, which would
             vanish against the band anyway. */}
-        <div className="pointer-events-none absolute bottom-[7%] left-1/2 w-[clamp(20rem,34vw,29rem)] -translate-x-1/2">
+        {/* Width is the whole FRAME, not the circle — the disc is only ~34% of
+            it, the rest being tracery and splatter. Stepped down twice on
+            2026-08-17: clamp(22rem,38vw,32rem) → −20% → −10%. */}
+        <div className="pointer-events-none absolute bottom-[7%] left-1/2 w-[clamp(15.84rem,27.36vw,23.04rem)] -translate-x-1/2">
           <PortraitOrb />
         </div>
 
