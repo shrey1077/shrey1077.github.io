@@ -303,7 +303,14 @@ All idempotent, all reading from `D:\Assets\Clients\…`. `pdf-to-images.mjs`,
    `BrainPins`' ResizeObserver anchors and `HeroName`'s vw fractions are all
    measured off the LAYOUT viewport and do not move when a visitor zooms. The
    reasoning is written out above the `viewport` export.
-10. `ECard`/`IdentityHeader`, `SidesShowcase`→`SectionBody`, `SpeechBubbles` are
+10. **Pickleball's mark is drawn inline** (`HobbiesRotator`), because no
+    pickleball artwork exists on the drives — `chess.png` is the owner's own
+    supplied file. Swap it for a real one when it lands; this is the road the
+    chess knight already took. `HOBBIES` entries now carry an OPTIONAL `mark`,
+    the same idiom as `SECTION_ICONS`, so the other six stay bare type.
+    ⚠ The rotator's line box is a fixed `h-[30px]` and must stay that way —
+    `HeroName` measures this corner to clamp Imagine's descender above it.
+11. `ECard`/`IdentityHeader`, `SidesShowcase`→`SectionBody`, `SpeechBubbles` are
     **parked, not dead** — do not remove in a dead-code sweep. `ThoughtBox` and
     `CornerText` are genuinely unreferenced.
 
