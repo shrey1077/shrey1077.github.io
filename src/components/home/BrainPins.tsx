@@ -114,6 +114,67 @@ export const SECTION_ICONS: Partial<Record<NavSectionId, string>> = {
   "career-path": "/content/icons/career-path.png", // summit
 };
 
+/* ── The right column is artwork ───────────────────────────────────────────
+ *
+ * The four creative pins are supplied illustrations (2026-08-16): each carries
+ * its own ring, connector, circle, white pill, label and paint splash. They
+ * replace the DOM pill/stub/circle on that side entirely — only the logic
+ * column is still drawn in markup.
+ *
+ * Source art exported on a white ground; the background was keyed out and the
+ * pills deliberately kept opaque (`scripts/`-free, see the handoff). They are
+ * WebP because `next.config` sets `images.unoptimized`, so whatever ships is
+ * what downloads — as PNG the four came to 2.6MB.
+ *
+ * ⚠ Every number below is MEASURED off the artwork, not eyeballed:
+ *  • `pillCenterY` differs per image (0.539–0.676). The row is positioned by
+ *    the PILL's centre, not the image's top — align tops and the four labels
+ *    come out raggedly spaced by up to 13px, because each illustration sits
+ *    its pill at a different height in the frame.
+ *  • `circleC*`/`circleR` are the white disc inside the ring, so the hover dot
+ *    lands in the artwork's own circle rather than near it.
+ * Re-measure if any file is replaced.
+ */
+const ART_H = 96; // px. Puts the pill at ~33px — the height of the DOM pills it replaces.
+
+interface PinArt {
+  src: string;
+  aspect: number;
+  pillCenterY: number;
+  circleCX: number;
+  circleCY: number;
+  circleR: number;
+}
+
+const ART: Partial<Record<NavSectionId, PinArt>> = {
+  art: {
+    src: "/content/pins/art.webp",
+    aspect: 4.0596, pillCenterY: 0.6762,
+    circleCX: 0.2393, circleCY: 0.6458, circleR: 0.2034,
+  },
+  publications: {
+    src: "/content/pins/publications.webp",
+    aspect: 4.3422, pillCenterY: 0.5393,
+    circleCX: 0.215, circleCY: 0.5108, circleR: 0.2034,
+  },
+  "the-extincts-project": {
+    src: "/content/pins/the-extincts-project.webp",
+    aspect: 4.7284, pillCenterY: 0.5425,
+    circleCX: 0.1786, circleCY: 0.5121, circleR: 0.1999,
+  },
+  "ai-generations": {
+    src: "/content/pins/ai-generations.webp",
+    aspect: 4.8619, pillCenterY: 0.5906,
+    circleCX: 0.1867, circleCY: 0.5583, circleR: 0.2015,
+  },
+};
+
+/** How far the unopened artworks fall back while another section is open. The
+ *  artwork cannot invert the way the DOM pill did — the pill and its label are
+ *  baked into the raster — so "which one is open" is carried by the dot in the
+ *  circle plus this. */
+const ART_DIM = 0.45;
+
 function connectorPath(index: number, y: number, end: number): string {
   const x = CONNECTOR_X0 - index * CONNECTOR_GAP;
   const r = CONNECTOR_R;
@@ -249,17 +310,79 @@ function PinConnectors({
 function PinRow({
   pin,
   open,
+  anyOpen,
   onToggle,
   reduceMotion,
 }: {
   pin: Pin;
   open: boolean;
+  /** Whether ANY section is open — the artwork pins dim when it is not theirs. */
+  anyOpen: boolean;
   onToggle: () => void;
   reduceMotion: boolean;
 }) {
   const [hover, setHover] = useState(false);
   const logic = pin.side === "logic";
   const fill = logic ? "bg-neutral-950" : "brain-paint";
+  const art = logic ? undefined : ART[pin.id];
+
+  // The creative column is artwork. Falls through to the DOM pin below if a
+  // section has no file, so an unillustrated id still renders something.
+  if (art) {
+    const w = ART_H * art.aspect;
+    // Same 0.42-of-the-circle dot the DOM pins drop into their ring.
+    const dot = ART_H * art.circleR * 2 * 0.42;
+    return (
+      <motion.div
+        initial={false}
+        animate={{ opacity: anyOpen && !open ? ART_DIM : 1 }}
+        transition={{ duration: reduceMotion ? 0 : 0.35, ease: EASE_OUT }}
+        className={`absolute ${COL[pin.side].x} flex items-center`}
+        // ⚠ Positioned by the pill's centre, not the image's top. See ART.
+        style={{ top: `calc(${pin.y * 100}% - ${ART_H * art.pillCenterY}px)` }}
+      >
+        <button
+          type="button"
+          aria-expanded={open}
+          onClick={onToggle}
+          onMouseEnter={() => setHover(true)}
+          onMouseLeave={() => setHover(false)}
+          onFocus={() => setHover(true)}
+          onBlur={() => setHover(false)}
+          className="pointer-events-auto relative block outline-none focus-visible:ring-2 focus-visible:ring-neutral-900/40"
+          style={{ width: w, height: ART_H }}
+        >
+          {/* The label is inside the raster now, so the button carries its own
+              name — without this the whole right column is four unlabelled
+              buttons to a screen reader. */}
+          <span className="sr-only">{pin.label}</span>
+          <Image
+            src={art.src}
+            alt=""
+            fill
+            sizes={`${Math.round(w)}px`}
+            className="object-contain"
+          />
+          {/* The tell, dropped into the artwork's own circle. */}
+          <motion.span
+            aria-hidden
+            className="absolute block rounded-full bg-neutral-950"
+            initial={false}
+            animate={{ scale: hover || open ? 1 : 0 }}
+            transition={{ duration: reduceMotion ? 0 : 0.22, ease: EASE_OUT }}
+            style={{
+              left: `${art.circleCX * 100}%`,
+              top: `${art.circleCY * 100}%`,
+              width: dot,
+              height: dot,
+              marginLeft: -dot / 2,
+              marginTop: -dot / 2,
+            }}
+          />
+        </button>
+      </motion.div>
+    );
+  }
 
   // The logic pins wait for their own connector to arrive; a pin lands the
   // moment its line finishes the turn. The creative side is not on this clock
@@ -500,6 +623,7 @@ export function BrainPins() {
           key={p.id}
           pin={p}
           open={active === p.id}
+          anyOpen={active !== null}
           reduceMotion={reduceMotion}
           onToggle={() => setOpen((o) => (o === p.id ? null : p.id))}
         />
