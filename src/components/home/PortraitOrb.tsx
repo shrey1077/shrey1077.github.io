@@ -1,61 +1,85 @@
+"use client";
+
 /**
- * PortraitOrb — the owner, twice, in one circle.
+ * PortraitOrb — the owner, split down the middle, following the mouse.
  *
- * Two frames of the same sitting, cross-dissolving on a 10s loop: the mono
- * portrait in a black ring for the logic half, the paint-splattered one in a
- * paint ring for the creative half. Same face, same framing, same crop — the
- * head registers between the two, so the dissolve reads as one person changing
- * rather than two photographs swapping.
+ * Two supplied ring artworks with the owner's two portraits already inside
+ * them: the circuit-line ring around the mono frame, the paint-splatter ring
+ * around the colour one. At rest the circle is half of each — the same
+ * left-logic / right-creative split the brain above it makes — and the pointer
+ * slides the seam: right of centre opens the paint side to 100%, left of
+ * centre closes it and leaves the line side whole.
  *
- * Deliberately NOT a client component. There is no state, no interaction and
- * no measurement here: the whole loop is two CSS animations, one of them half a
- * cycle out of phase (see `portrait-cross` in globals.css). That keeps it off
- * the JS main thread entirely and out of the client bundle.
+ * ⚠ The two frames are pre-composited and ALIGNED at build time, not stacked
+ * by CSS. The supplied rings did not agree: the line ring's white disc sits at
+ * (885.5, 592) with r=329.2 and the paint ring's at (377, 595) with r=306.5 —
+ * different centres AND different radii. Both were re-projected onto one
+ * shared canvas so the disc lands in exactly the same place in each file. That
+ * is what lets the seam pass through the face without the circle appearing to
+ * jump, and it is why both files are the same size and must stay that way.
+ * Re-run the build step if either ring is replaced; do not nudge these by eye.
  *
- * ⚠ The paint ring is `.brain-paint` — the site's animated rainbow gradient,
- * which is what the creative pins wore before the supplied artwork replaced
- * them. It reads as paint but it is NOT literal splatter. Swap it for a real
- * splatter ring if one is ever cut with a transparent centre.
+ * The colour frame is zoomed 1.04 so the two faces register. That number is
+ * measured, not guessed: edge-correlation between the frames peaks across
+ * 1.02–1.05 and falls away either side.
+ *
+ * Motion values, not state — the pointer drives a spring straight into
+ * `clipPath`, so nothing here re-renders on mouse move.
  */
 
+import { useEffect } from "react";
 import Image from "next/image";
+import { motion, useMotionValue, useReducedMotion, useSpring, useTransform } from "framer-motion";
 
-/** Both frames are cropped to the same 480×480 square, top-aligned, which puts
- *  the face just above the circle's centre — where a face wants to sit. */
-const SRC = {
-  mono: "/content/portrait/portrait-mono.webp",
-  colour: "/content/portrait/portrait-colour.webp",
-};
+/** Both frames share this canvas exactly. See the header. */
+const ASPECT = 1100 / 811;
+/** How far off-centre the pointer has to travel for a side to reach 100%.
+ *  1 = the very edge of the viewport; a little over 1 means it saturates
+ *  before the edge, which makes the ends actually reachable in practice. */
+const GAIN = 1.35;
 
 export function PortraitOrb({ className = "" }: { className?: string }) {
-  return (
-    <div className={`relative aspect-square ${className}`}>
-      {/* Logic half — mono, hard black ring. */}
-      <div className="portrait-layer absolute inset-0 overflow-hidden rounded-full border-[3px] border-neutral-950">
-        <Image
-          src={SRC.mono}
-          alt="Shrey Singh"
-          fill
-          sizes="220px"
-          className="object-cover"
-        />
-      </div>
+  const reduceMotion = useReducedMotion();
+  /** 0 = paint fully hidden, 0.5 = an even split, 1 = paint whole. */
+  const split = useMotionValue(0.5);
+  const smooth = useSpring(split, { stiffness: 90, damping: 22, mass: 0.6 });
+  const clipPath = useTransform(
+    reduceMotion ? split : smooth,
+    (v) => `inset(0 0 0 ${(1 - v) * 100}%)`,
+  );
 
-      {/* Creative half — the paint frame. Same black ring as the mono layer
-          FOR NOW: the owner is supplying circular border artwork, and this is
-          the placeholder until it lands. A `.brain-paint` ring was tried here
-          and works (paint wrapper + inner picture, the trick the pins use,
-          since a CSS border cannot hold a gradient) — reinstate that shape
-          when the real border arrives. */}
-      <div className="portrait-layer portrait-layer-b absolute inset-0 overflow-hidden rounded-full border-[3px] border-neutral-950">
+  useEffect(() => {
+    const onMove = (e: PointerEvent) => {
+      const t = (e.clientX / window.innerWidth - 0.5) * GAIN + 0.5;
+      split.set(Math.min(1, Math.max(0, t)));
+    };
+    window.addEventListener("pointermove", onMove, { passive: true });
+    return () => window.removeEventListener("pointermove", onMove);
+  }, [split]);
+
+  return (
+    <div className={`relative ${className}`} style={{ aspectRatio: ASPECT }}>
+      {/* Logic half — circuit ring, mono portrait. Always whole underneath; the
+          paint frame above is what actually moves. */}
+      <Image
+        src="/content/portrait/orb-line.webp"
+        alt="Shrey Singh"
+        fill
+        sizes="460px"
+        className="object-contain"
+        priority
+      />
+
+      {/* Creative half — paint ring, colour portrait, revealed from the right. */}
+      <motion.div className="absolute inset-0" style={{ clipPath }}>
         <Image
-          src={SRC.colour}
+          src="/content/portrait/orb-paint.webp"
           alt=""
           fill
-          sizes="220px"
-          className="object-cover"
+          sizes="460px"
+          className="object-contain"
         />
-      </div>
+      </motion.div>
     </div>
   );
 }

@@ -128,17 +128,16 @@ export function HeroStage() {
           <AboutFacts />
         </div>
 
-        {/* The owner, mono and paint, cross-dissolving. Centred under the brain
-            and sitting ON the black footing band, which it overlaps by about a
-            third — the furniture layer is z-10 and the band is z-0, so the
-            circle reads on top of the line rather than behind it.
-            ⚠ It cannot be centred ON the line at this size: the band's top edge
-            is 56px from the bottom of the stage, so a 166px circle centred
-            there would have 27px of itself clipped off by the stage's
-            overflow. It is hung from the bottom instead.
-            Clears "Imagine" horizontally (that sits at x 784–1013; this spans
-            549–715), which is why a centred circle works here at all. */}
-        <div className="absolute bottom-[1%] left-1/2 w-[clamp(8rem,13vw,11.5rem)] -translate-x-1/2">
+        {/* The owner, split down the middle and following the pointer. Centred
+            under the brain, hung so the artwork's lower reach stops at the top
+            of the black footing band.
+            ⚠ It does NOT overlap the band any more, and that is deliberate.
+            The ring artwork is far taller than the bare circle was (the disc is
+            only 36% of the frame's width, the rest is tracery and splatter), so
+            sitting the circle on the line would push ~120px of artwork below
+            the stage floor — and the line ring's tracery is BLACK, which would
+            vanish against the band anyway. */}
+        <div className="pointer-events-none absolute bottom-[7%] left-1/2 w-[clamp(20rem,34vw,29rem)] -translate-x-1/2">
           <PortraitOrb />
         </div>
 
