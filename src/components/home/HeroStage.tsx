@@ -26,6 +26,7 @@ import { Corner3DGrid } from "@/components/home/Corner3DGrid";
 import { useInViewport } from "@/hooks/useInViewport";
 import { DURATION, EASE_IN_OUT, EASE_OUT } from "@/constants/motion";
 import { CircuitBackdrop } from "@/components/home/CircuitBackdrop";
+import { ThoughtBox } from "@/components/home/ThoughtBox";
 import { BrainPins } from "@/components/home/BrainPins";
 import { useIsPhone } from "@/hooks/useMediaQuery";
 
@@ -114,6 +115,13 @@ export function HeroStage() {
             tails. */}
         <div className="absolute left-[8vw] top-5">
           <CodeStream />
+        </div>
+
+        {/* The creative mirror of the code window. Sits above the section
+            artwork, which was moved down (COL.creative.top in BrainPins) to
+            clear it. */}
+        <div className="absolute right-[6vw] top-5">
+          <ThoughtBox />
         </div>
         <div className="absolute bottom-[9vh] left-[8vw]">
           <AboutFacts />

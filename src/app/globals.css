@@ -34,6 +34,10 @@
   --font-digibra: "Digibra", ui-sans-serif, system-ui, sans-serif;
   --font-graff: "Juturu", ui-sans-serif, system-ui, sans-serif;
   --font-helv: Helvetica, "Helvetica Neue", Arial, sans-serif;
+  /* The right brain's handwriting — ThoughtBox only. A script face, so it is
+     set well above CodeStream's 0.58rem mono: at that size it is unreadable.
+     Fallbacks stay cursive, never a sans, or the voice is lost outright. */
+  --font-sunset: "Sunset Script", "Segoe Script", "Brush Script MT", cursive;
   /* The gallery wall — matched to the hero video's own background (#F9F9F9,
    * sampled from its frames) so the footage dissolves into the page with no
    * visible seam. Pure #fff is reserved for cards, which now sit a breath
@@ -191,6 +195,16 @@ canvas {
   /* One variable file covering 100–900, so weight is free. */
   src: url("/fonts/juturu.woff2") format("woff2-variations");
   font-weight: 100 900;
+  font-style: normal;
+  font-display: swap;
+}
+
+/* The right brain's handwriting (ThoughtBox). Supplied as OTF/TTF/WOFF and
+ * converted to woff2 here — 15KB, single weight 400, full ASCII coverage. */
+@font-face {
+  font-family: "Sunset Script";
+  src: url("/fonts/sunset-script.woff2") format("woff2");
+  font-weight: 400;
   font-style: normal;
   font-display: swap;
 }

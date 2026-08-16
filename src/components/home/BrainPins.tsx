@@ -52,7 +52,11 @@ const COL = {
   // came out under a pixel — the turn the design asks for was invisible.
   // CONNECTOR_END must stay equal to this number.
   logic: { x: "left-[6vw]", top: 0.46, step: 0.075, align: "flex-row" },
-  creative: { x: "right-[3vw]", top: 0.22, step: 0.07, align: "flex-row-reverse" },
+  // Flush to the right edge (`right-0`, not the old `right-[3vw]`) — the owner
+  // wants these hard against the screen edge. The four illustrations are
+  // different widths, so their LEADING edges stay ragged by design; it is the
+  // trailing edge that lines up. `top` moved 0.22 → 0.30 to clear ThoughtBox.
+  creative: { x: "right-0", top: 0.3, step: 0.07, align: "flex-row-reverse" },
 } as const;
 
 type Side = "logic" | "creative";
@@ -135,7 +139,10 @@ export const SECTION_ICONS: Partial<Record<NavSectionId, string>> = {
  *    lands in the artwork's own circle rather than near it.
  * Re-measure if any file is replaced.
  */
-const ART_H = 96; // px. Puts the pill at ~33px — the height of the DOM pills it replaces.
+/** px. Was 96 (pill ≈ 33px, matching the DOM pills these replaced); the owner
+ *  asked for 20% smaller, so 96 × 0.8. Every other number in ART is a FRACTION
+ *  of the image, so they all follow this on their own. */
+const ART_H = 76.8;
 
 interface PinArt {
   src: string;
@@ -169,11 +176,11 @@ const ART: Partial<Record<NavSectionId, PinArt>> = {
   },
 };
 
-/** How far the unopened artworks fall back while another section is open. The
- *  artwork cannot invert the way the DOM pill did — the pill and its label are
- *  baked into the raster — so "which one is open" is carried by the dot in the
- *  circle plus this. */
-const ART_DIM = 0.45;
+/* The unopened artworks used to fall back to 0.45 while another section was
+ * open. Removed 2026-08-16 — the owner wants all four at full strength at all
+ * times. "Which one is open" is now carried solely by the dot dropping into
+ * that artwork's circle, since the pill and label are baked into the raster
+ * and cannot invert the way the DOM pill did. */
 
 function connectorPath(index: number, y: number, end: number): string {
   const x = CONNECTOR_X0 - index * CONNECTOR_GAP;
@@ -310,14 +317,11 @@ function PinConnectors({
 function PinRow({
   pin,
   open,
-  anyOpen,
   onToggle,
   reduceMotion,
 }: {
   pin: Pin;
   open: boolean;
-  /** Whether ANY section is open — the artwork pins dim when it is not theirs. */
-  anyOpen: boolean;
   onToggle: () => void;
   reduceMotion: boolean;
 }) {
@@ -333,10 +337,7 @@ function PinRow({
     // Same 0.42-of-the-circle dot the DOM pins drop into their ring.
     const dot = ART_H * art.circleR * 2 * 0.42;
     return (
-      <motion.div
-        initial={false}
-        animate={{ opacity: anyOpen && !open ? ART_DIM : 1 }}
-        transition={{ duration: reduceMotion ? 0 : 0.35, ease: EASE_OUT }}
+      <div
         className={`absolute ${COL[pin.side].x} flex items-center`}
         // ⚠ Positioned by the pill's centre, not the image's top. See ART.
         style={{ top: `calc(${pin.y * 100}% - ${ART_H * art.pillCenterY}px)` }}
@@ -380,7 +381,7 @@ function PinRow({
             }}
           />
         </button>
-      </motion.div>
+      </div>
     );
   }
 
@@ -623,7 +624,6 @@ export function BrainPins() {
           key={p.id}
           pin={p}
           open={active === p.id}
-          anyOpen={active !== null}
           reduceMotion={reduceMotion}
           onToggle={() => setOpen((o) => (o === p.id ? null : p.id))}
         />
