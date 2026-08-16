@@ -8,73 +8,48 @@
  * mirror the logic side. Extendable — add to HOBBIES. Reduced motion holds the
  * first item.
  *
- * A hobby may carry a `mark`. It is OPTIONAL on purpose, the same way
- * `SECTION_ICONS` is in BrainPins: an entry without one renders as bare type
- * exactly as before, so adding a mark to one pursuit does not oblige the other
- * six to have one. The icon sits to the LEFT of the word — the column is
+ * ⚠ The type is deliberately the SAME as AboutFacts across the stage: heading
+ * `font-graff` extra-bold at 34px, body `font-graff` in neutral-500. This
+ * corner used to run the default system sans at semi-bold, which read as a
+ * different family from the logic corner it is supposed to mirror. Only the
+ * FAMILY and WEIGHT were unified — both corners already shared their colours
+ * (neutral-800 heading, neutral-500 body), and the body sizes still differ
+ * (15px left, 22px right) because this side shows one word at a time.
+ *
+ * Every hobby carries a `mark`, drawn to the LEFT of the word: the column is
  * right-aligned, so leading with the mark keeps the right edge flush.
+ *
+ * ⚠ The line box is a fixed `h-[30px]` and must stay that way. HeroName reads
+ * this corner's `getBoundingClientRect` to clamp Imagine's descender above it,
+ * and it re-measures on resize and two timers — NOT on an observer. A box that
+ * changed height as the rotator cycled would silently leave that clamp stale.
  */
 
 import { useEffect, useState } from "react";
 import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
 import { EASE_OUT } from "@/constants/motion";
-
-/** Pickleball — a paddle and a ball, drawn inline.
- *
- *  There is no pickleball artwork on the drives; `chess.png` is the owner's own
- *  supplied file, and nothing comparable exists for this. So this is drawn here,
- *  which is the same road the chess knight took before real art arrived (see
- *  AboutFacts' ChessMark). Swap it for a file the moment one lands.
- *
- *  Black art on transparency, matching ChessMark's treatment — the holes are a
- *  genuinely empty stroke rather than a light fill, so it reads on this corner's
- *  ground without a plate. Sized to the existing 30px line box so the rotator's
- *  height does not change: HeroName measures this corner to clamp Imagine's
- *  descender above it, and growing the box would move the word. */
-function PickleballMark() {
-  return (
-    <svg
-      aria-hidden
-      viewBox="0 0 24 24"
-      fill="currentColor"
-      className="size-6 shrink-0 text-neutral-950"
-    >
-      <g transform="rotate(-20 9 10)">
-        <ellipse cx="9" cy="7.5" rx="5" ry="5.8" />
-        <rect x="7.4" y="12.5" width="3.2" height="6" rx="1.6" />
-      </g>
-      {/* The ball clears the paddle's rotated handle by ~1.4 units. It was 0.5
-          at cx 18.5 / r 3.9 — the handle's far corner rotates out to x≈13.4,
-          and the stroked ball reached back to x≈13.95, which at a 24px render
-          is half a pixel of daylight. */}
-      <circle
-        cx="19"
-        cy="18"
-        r="3.6"
-        fill="none"
-        stroke="currentColor"
-        strokeWidth="1.2"
-      />
-      <circle cx="17.9" cy="16.9" r="0.5" />
-      <circle cx="20.2" cy="17.4" r="0.5" />
-      <circle cx="18.9" cy="19.8" r="0.5" />
-    </svg>
-  );
-}
+import {
+  ArtsMark,
+  CalligraphyMark,
+  CraftsMark,
+  PaintingMark,
+  PhotographyMark,
+  PickleballMark,
+  SketchingMark,
+} from "@/components/home/HomeMarks";
 
 interface Hobby {
   label: string;
-  /** Optional mark, drawn ahead of the word. Absent on most. */
-  mark?: React.ReactNode;
+  mark: React.ReactNode;
 }
 
 const HOBBIES: Hobby[] = [
-  { label: "Arts" },
-  { label: "Painting" },
-  { label: "Sketching" },
-  { label: "Calligraphy" },
-  { label: "Crafts & Installations" },
-  { label: "Photography" },
+  { label: "Arts", mark: <ArtsMark /> },
+  { label: "Painting", mark: <PaintingMark /> },
+  { label: "Sketching", mark: <SketchingMark /> },
+  { label: "Calligraphy", mark: <CalligraphyMark /> },
+  { label: "Crafts & Installations", mark: <CraftsMark /> },
+  { label: "Photography", mark: <PhotographyMark /> },
   { label: "Pickleball", mark: <PickleballMark /> },
 ];
 
@@ -94,7 +69,7 @@ export function HobbiesRotator() {
 
   return (
     <div className="w-[min(32vw,28rem)] text-right">
-      <h3 className="text-[34px] font-semibold leading-tight tracking-[-0.01em] text-neutral-800">
+      <h3 className="font-graff text-[34px] font-extrabold leading-tight tracking-[-0.01em] text-neutral-800">
         Hobbies
       </h3>
       <div className="mt-1 h-[30px]">
@@ -106,11 +81,13 @@ export function HobbiesRotator() {
             exit={{ opacity: 0, y: -5 }}
             transition={{ duration: 0.3, ease: EASE_OUT }}
             // `justify-end` keeps the right edge flush, which `block` gave for
-            // free before the mark existed.
-            className="flex items-center justify-end gap-2 text-[22px] leading-[1.4] text-neutral-500"
+            // free before the mark existed. `truncate` on the label is the
+            // one-line guarantee — every hobby is a single word or two, but the
+            // column narrows with the viewport and nothing here may wrap.
+            className="font-graff flex items-center justify-end gap-2 text-[22px] leading-[1.4] text-neutral-500"
           >
             {hobby.mark}
-            <span>{hobby.label}</span>
+            <span className="truncate">{hobby.label}</span>
           </motion.span>
         </AnimatePresence>
       </div>

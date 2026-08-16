@@ -18,6 +18,11 @@ import { useEffect, useState } from "react";
 import Image from "next/image";
 import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
 import { EASE_OUT } from "@/constants/motion";
+import {
+  EducationMark,
+  PartTimeMark,
+  ToolsMark,
+} from "@/components/home/HomeMarks";
 
 const FACT_MS = 15000;
 const WORD_MS = 1400;
@@ -40,7 +45,12 @@ function PartTimeWords() {
         animate={{ opacity: 1, y: 0 }}
         exit={{ opacity: 0, y: -5 }}
         transition={{ duration: 0.3, ease: EASE_OUT }}
-        className="block text-[19px] leading-[1.4] text-neutral-500"
+        // ⚠ `font-graff` matters here. This span carried no font class, so it
+        // inherited the document's default sans while Tools and Education
+        // beside it ran Juturu — and once the Hobbies rotator opposite was
+        // unified onto Juturu too, this was the last thing on the stage still
+        // speaking in the system face. `truncate` holds it to one line.
+        className="font-graff block truncate text-[19px] leading-[1.4] text-neutral-500"
       >
         {word}
       </motion.span>
@@ -58,39 +68,49 @@ const BODY = "font-graff text-[15px] font-normal leading-[1.45] text-neutral-500
  *  drawn inline here. That knight existed only because the reference supplied
  *  at the time was a watermarked stock comp; with real artwork on disk there is
  *  nothing left to work around. Black art on transparency, so it reads on this
- *  corner's light ground without a plate. */
+ *  corner's light ground without a plate.
+ *
+ *  ⚠ Stepped down from `size-9` (36px) to `size-6` (24px) on 2026-08-16, when
+ *  every other item gained a mark: 36px was tuned to pair with the 34px rating
+ *  number alone, and left alone it would have been half again the size of the
+ *  ten marks beside it. This is the only real artwork in either corner — the
+ *  rest are drawn (HomeMarks). */
 function ChessMark() {
   return (
-    <span className="relative block size-9 shrink-0">
+    <span className="relative block size-6 shrink-0">
       <Image
         src="/content/icons/chess.png"
         alt=""
         fill
-        sizes="36px"
+        sizes="24px"
         className="object-contain"
       />
     </span>
   );
 }
 
-const FACTS: { key: string; heading: string; body: React.ReactNode }[] = [
+const FACTS: {
+  key: string;
+  heading: string;
+  mark: React.ReactNode;
+  body: React.ReactNode;
+}[] = [
   {
     key: "chess",
     heading: "Chess",
+    mark: <ChessMark />,
     body: (
-      <p className="flex items-center gap-2.5">
-        <ChessMark />
-        <span className="text-[34px] font-bold leading-none tracking-tight text-neutral-800">
-          1563
-        </span>
+      <p className="text-[34px] font-bold leading-none tracking-tight text-neutral-800">
+        1563
       </p>
     ),
   },
   {
     key: "tools",
     heading: "Tools",
+    mark: <ToolsMark />,
     body: (
-      <p className={BODY}>
+      <p className={`${BODY} line-clamp-2`}>
         Adobe&nbsp;CC · Claude
         <sub className="text-[13px] text-neutral-400"> +more</sub> · Leonardo&nbsp;AI
       </p>
@@ -99,23 +119,26 @@ const FACTS: { key: string; heading: string; body: React.ReactNode }[] = [
   {
     key: "education",
     heading: "Education",
-    // Both degrees in full, as the owner writes them. Two lines, not one run —
-    // "B.Tech · M.Des" said nothing about where or in what.
+    mark: <EducationMark />,
+    // ⚠ Shortened 2026-08-16 to hold the two-line cap. It used to carry both
+    // degrees in full — "Jaypee University of Information Technology (JUIT),
+    // Waknaghat, Solan, H.P." and "UID, Karnavati University, Ahmedabad,
+    // Gujarat" — because "B.Tech · M.Des" said nothing about where or in what.
+    // Each of those wrapped to two lines on its own, so the fact ran to four.
+    // The institution and the field survive, which was the point of writing
+    // them out; the town and state are what went. One `truncate`d line per
+    // degree is a hard two-line guarantee, not a hope about string lengths.
     body: (
       <div className={BODY}>
-        <p>
-          B.Tech. (IT) — Jaypee University of Information Technology (JUIT),
-          Waknaghat, Solan, H.P.
-        </p>
-        <p className="mt-1.5">
-          M.Des. (Visual Comm.) — UID, Karnavati University, Ahmedabad, Gujarat
-        </p>
+        <p className="truncate">B.Tech. (IT) — JUIT, Waknaghat</p>
+        <p className="mt-1.5 truncate">M.Des. (Visual Comm.) — UID, Karnavati</p>
       </div>
     ),
   },
   {
     key: "parttime",
     heading: "Part-time",
+    mark: <PartTimeMark />,
     body: <PartTimeWords />,
   },
 ];
@@ -145,7 +168,14 @@ export function AboutFacts() {
           <h3 className="font-graff text-[34px] font-extrabold leading-tight tracking-[-0.01em] text-neutral-800">
             {fact.heading}
           </h3>
-          <div className="mt-1">{fact.body}</div>
+          {/* Mark then body, the same row shape the right corner uses — except
+              mirrored, since this column reads left-to-right. `min-w-0` so the
+              body's `truncate` has a width to truncate against; without it the
+              flex child sizes to its content and never clips. */}
+          <div className="mt-1 flex items-center gap-2.5">
+            {fact.mark}
+            <div className="min-w-0 flex-1">{fact.body}</div>
+          </div>
         </motion.div>
       </AnimatePresence>
     </div>

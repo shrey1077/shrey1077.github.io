@@ -141,6 +141,35 @@ per-client `logoScale` and `logoTone`.
 the line with the employer's disc below it. ⚠ The rail is drawn per-CELL, not
 per-row, so the grid can carry **no column gap** — a gap is a break in the line.
 
+**The two bottom corners** (`AboutFacts` left, `HobbiesRotator` right) were
+unified 2026-08-16 and are now a matched pair. Both: heading `font-graff`
+(Juturu) **extra-bold 34px neutral-800**, body `font-graff` neutral-500, and
+**every item carries a 24px mark**.
+
+- The right corner used to run the document's default sans at semi-bold, which
+  read as a different family from the left it is supposed to mirror. Only
+  family and weight were unified — the colours already matched, and the body
+  SIZES still differ on purpose (15px left, 22px right) because the right shows
+  one word at a time.
+- ⚠ `PartTimeWords` had no font class at all, so it inherited the system sans
+  while `Tools`/`Education` beside it ran Juturu. Fixed in the same pass. The
+  Chess **numeral** (`1563`) is deliberately still the default bold sans — it is
+  a display figure, not body copy.
+- **Body copy is capped at two lines** everywhere. Education used to carry both
+  degrees in full and ran to FOUR lines; it is now one `truncate`d line each,
+  which is a hard guarantee rather than a hope about string lengths. ⚠ The town
+  and state were dropped to buy that ("Waknaghat, Solan, H.P." → "Waknaghat");
+  the institution and field survive, which was the reason the full text existed.
+- Marks live in **`HomeMarks.tsx`**. Ten of the eleven are DRAWN, not artwork —
+  `chess.png` is the only real file, and it was stepped down 36px → 24px so it
+  no longer towers over the drawn set. Swap any drawing for a real file when one
+  lands. House rules and the per-mark reasoning are in that file's header.
+- ⚠ Two of them were redrawn after being *looked at*, and the lesson generalises:
+  Painting and Sketching both came out as a narrow diagonal spike and read as
+  the same object, and Arts was a stroked circle with dots that read as a
+  bowling ball. Geometry that measures correctly can still fail to read. **Put
+  a new mark on screen at ~110px before believing it.**
+
 **`SectionNav`** — the way in below `lg`, added 2026-08-16.
 
 `BrainPins` is `hidden lg:block` and stays that way: its geometry is not
