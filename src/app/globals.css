@@ -156,6 +156,33 @@ canvas {
   100% { background-position: 0% 50%; }
 }
 
+/* ── The portrait orb ───────────────────────────────────────────────────────
+ * Two frames of the same portrait — mono and paint — crossfading on a single
+ * 10s loop. Driven by CSS rather than framer so it costs nothing per frame and
+ * keeps running regardless of what the JS main thread is doing.
+ *
+ * The second layer carries `animation-delay: -5s`, which starts it half a
+ * cycle in: as one reaches full the other is already gone. The base opacities
+ * (1 and 0) are what reduced motion falls back to, so disabling the animation
+ * leaves exactly one frame showing rather than both stacked.  */
+@keyframes portrait-cross {
+  0%,  42%  { opacity: 1; }
+  50%, 92%  { opacity: 0; }
+  100%      { opacity: 1; }
+}
+.portrait-layer {
+  animation: portrait-cross 10s ease-in-out infinite;
+}
+.portrait-layer-b {
+  opacity: 0;
+  animation-delay: -5s;
+}
+@media (prefers-reduced-motion: reduce) {
+  .portrait-layer {
+    animation: none;
+  }
+}
+
 /* LEFT nav — fine graphite grain that surfaces on hover and drifts, like
  * pencil particles catching the light. */
 .brain-grain {

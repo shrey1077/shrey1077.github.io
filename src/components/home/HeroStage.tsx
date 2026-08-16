@@ -27,6 +27,7 @@ import { useInViewport } from "@/hooks/useInViewport";
 import { DURATION, EASE_IN_OUT, EASE_OUT } from "@/constants/motion";
 import { CircuitBackdrop } from "@/components/home/CircuitBackdrop";
 import { ThoughtBox } from "@/components/home/ThoughtBox";
+import { PortraitOrb } from "@/components/home/PortraitOrb";
 import { BrainPins } from "@/components/home/BrainPins";
 import { useIsPhone } from "@/hooks/useMediaQuery";
 
@@ -125,6 +126,20 @@ export function HeroStage() {
         </div>
         <div className="absolute bottom-[9vh] left-[8vw]">
           <AboutFacts />
+        </div>
+
+        {/* The owner, mono and paint, cross-dissolving. Centred under the brain
+            and sitting ON the black footing band, which it overlaps by about a
+            third — the furniture layer is z-10 and the band is z-0, so the
+            circle reads on top of the line rather than behind it.
+            ⚠ It cannot be centred ON the line at this size: the band's top edge
+            is 56px from the bottom of the stage, so a 166px circle centred
+            there would have 27px of itself clipped off by the stage's
+            overflow. It is hung from the bottom instead.
+            Clears "Imagine" horizontally (that sits at x 784–1013; this spans
+            549–715), which is why a centred circle works here at all. */}
+        <div className="absolute bottom-[1%] left-1/2 w-[clamp(8rem,13vw,11.5rem)] -translate-x-1/2">
+          <PortraitOrb />
         </div>
 
         {/* The hand-drawn bubbles sat here until 2026-08-10. Removed once the
