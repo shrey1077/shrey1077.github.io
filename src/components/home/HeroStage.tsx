@@ -27,7 +27,6 @@ import { useInViewport } from "@/hooks/useInViewport";
 import { DURATION, EASE_IN_OUT, EASE_OUT } from "@/constants/motion";
 import { CircuitBackdrop } from "@/components/home/CircuitBackdrop";
 import { ThoughtBox } from "@/components/home/ThoughtBox";
-import { PortraitOrb } from "@/components/home/PortraitOrb";
 import { BrainPins } from "@/components/home/BrainPins";
 import { useIsPhone } from "@/hooks/useMediaQuery";
 
@@ -150,21 +149,12 @@ export function HeroStage() {
           <AboutFacts />
         </div>
 
-        {/* The owner, split down the middle and following the pointer. Centred
-            under the brain, hung so the artwork's lower reach stops at the top
-            of the black footing band.
-            ⚠ It does NOT overlap the band any more, and that is deliberate.
-            The ring artwork is far taller than the bare circle was (the disc is
-            only 36% of the frame's width, the rest is tracery and splatter), so
-            sitting the circle on the line would push ~120px of artwork below
-            the stage floor — and the line ring's tracery is BLACK, which would
-            vanish against the band anyway. */}
-        {/* Width is the whole FRAME, not the circle — the disc is only ~34% of
-            it, the rest being tracery and splatter. Stepped down twice on
-            2026-08-17: clamp(22rem,38vw,32rem) → −20% → −10%. */}
-        <div className="pointer-events-none absolute bottom-[7%] left-1/2 w-[clamp(15.84rem,27.36vw,23.04rem)] -translate-x-1/2">
-          <PortraitOrb />
-        </div>
+        {/* The portrait orb lived here until 2026-08-17 — centred under the
+            brain, over the footing band. It moved to SiteFooter at the
+            owner's request. The brain's BRAIN_SHIFT_X above was measured to
+            line its grey/colour division up with that orb's seam, so it no
+            longer has anything beneath it to agree with; left as-is rather
+            than reverted, because the shift also reads fine on its own. */}
 
         {/* The hand-drawn bubbles sat here until 2026-08-10. Removed once the
             film went full strength — the corner belongs to the artwork now.
