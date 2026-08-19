@@ -339,9 +339,20 @@ All idempotent, all reading from `D:\Assets\Clients\…`. `pdf-to-images.mjs`,
     the same idiom as `SECTION_ICONS`, so the other six stay bare type.
     ⚠ The rotator's line box is a fixed `h-[30px]` and must stay that way —
     `HeroName` measures this corner to clamp Imagine's descender above it.
-11. `ECard`/`IdentityHeader`, `SidesShowcase`→`SectionBody`, `SpeechBubbles` are
-    **parked, not dead** — do not remove in a dead-code sweep. `ThoughtBox` and
-    `CornerText` are genuinely unreferenced.
+11. **Dead-code state, swept 2026-08-17.** Exactly three modules are
+    unreferenced and every one is **parked, not dead — do not remove**:
+    `IdentityHeader` (which is the only importer of `ECard`), `SidesShowcase`
+    (the only importer of `SectionBody`), and `SpeechBubbles`. ECard and
+    SectionBody are therefore transitively parked; a naive "unused file" scan
+    will not list them, but deleting their parents orphans them.
+    Removed in that sweep: `CornerText`, `utils/random.ts`, `GuidelineSeeMore`
+    (orphaned when the Tata campus panels gave way to the brand switch) and
+    `VideoHero` + `TATA_HERO` (orphaned when the hero film came off).
+    `ThoughtBox` is NO LONGER dead — it is the landing's right-brain box.
+    ⚠ `brand/hero.mp4` (2.9MB) and `brand/hero-poster.jpg` (110KB) are still in
+    `public/` and still ship, referenced by nothing. Delete them if the film is
+    not coming back; `scripts/prepare-tata-experience.mjs` still regenerates the
+    poster either way.
 
 ---
 

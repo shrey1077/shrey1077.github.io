@@ -102,8 +102,9 @@ export function TataExperience() {
 
         <ExperienceTransition>
           {/* The 16:9 hero film opened this page until 2026-08-17, removed at
-              the owner's request. VideoHero and TATA_HERO are both still here,
-              unmounted, if it comes back. */}
+              the owner's request. VideoHero and TATA_HERO went with it in the
+              dead-code sweep — recover both from git if the film returns; the
+              mp4 and its poster are still in public/. */}
 
           {/* 1 — description + endorsements. */}
           <section className="mt-8 grid grid-cols-1 gap-10 py-14 lg:grid-cols-[1.4fr_1fr] lg:gap-16 lg:py-16">
