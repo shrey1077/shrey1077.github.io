@@ -99,13 +99,24 @@ canvas {
  * /public/fonts/ and uncomment the @font-face url() sources — no other change
  * is needed; the family names already lead every stack.
  */
+/* SELF-HOSTED since 2026-08-17 — the owner supplied the file, so headings now
+ * render in Copperplate for every visitor rather than only for those with it
+ * installed. 25.8KB woff2, full ASCII coverage.
+ *
+ * ⚠ The descriptor claims 700, but the FILE reports OS/2 weight 400 despite
+ * being the Bold cut. Declaring it 400 while `.tata-heading` asks for 700 would
+ * make the browser synthesise a fake bold on top of an already-bold face and
+ * smear the engraved strokes. Claiming 700 here is what makes the request match
+ * the file exactly, with no synthesis.
+ *
+ * `local()` comes first so an installed copy is used without a download; the
+ * url is the guarantee for everyone else. */
 @font-face {
   font-family: "Copperplate Gothic Bold";
   src:
     local("Copperplate Gothic Bold"),
     local("CopperplateGothic-Bold"),
-    local("Copperplate Gothic Std Bold");
-  /* , url("/fonts/copperplate-gothic-bold.woff2") format("woff2"); */
+    url("/fonts/copperplate-gothic-bold.woff2") format("woff2");
   font-weight: 700;
   font-display: swap;
 }
