@@ -30,6 +30,7 @@ import {
 import { TATA_SECTIONS, TATA_WORK_INTRO } from "@/constants/tataSections";
 import { ExperienceTransition } from "@/components/transition/ExperienceTransition";
 import { PartnerMarquee } from "@/components/client/tata/PartnerMarquee";
+import { TATA_GUIDELINES } from "@/constants/tataExperience";
 import { GuidelineSections } from "@/components/client/tata/GuidelineSections";
 import {
   WorkSections,
@@ -101,12 +102,25 @@ export function TataExperience() {
         </Link>
 
         <ExperienceTransition>
-          {/* The 16:9 hero film opened this page until 2026-08-17, removed at
-              the owner's request. VideoHero and TATA_HERO went with it in the
-              dead-code sweep — recover both from git if the film returns; the
-              mp4 and its poster are still in public/. */}
+          {/* The 16:9 hero film opened this page until 2026-08-17. It, VideoHero,
+              TATA_HERO, hero.mp4, hero-poster.jpg and the pipeline step that
+              built the poster are all gone — recover from git if it returns. */}
 
-          {/* 1 — description + endorsements. */}
+          {/* 1 — the mark. */}
+          <div className="mt-6 flex justify-center border-b border-neutral-200 pb-10">
+            <span className="relative block h-16 w-full max-w-md sm:h-20">
+              <Image
+                src={TATA_GUIDELINES.wordmark}
+                alt="TATA IIS — Tata Indian Institute of Skills"
+                fill
+                priority
+                sizes="(max-width: 640px) 80vw, 448px"
+                className="object-contain"
+              />
+            </span>
+          </div>
+
+          {/* 2 — description + endorsements. */}
           <section className="mt-8 grid grid-cols-1 gap-10 py-14 lg:grid-cols-[1.4fr_1fr] lg:gap-16 lg:py-16">
             <div>
               <span className={LABEL} style={{ color: "var(--brand-accent, #737373)" }}>
