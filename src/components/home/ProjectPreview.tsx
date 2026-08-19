@@ -199,8 +199,22 @@ export function ProjectPreview({
             </aside>
 
             {/* ── CENTRE: the slider ────────────────────────────────────── */}
-            <div className="flex min-h-0 min-w-0 flex-col gap-3">
-              <div className="relative flex min-h-0 flex-1 items-center justify-center">
+            {/* ⚠ `min-h-0` is `lg:` only, for the same reason as the box below.
+                As a grid item it zeroes this column's min-content contribution,
+                which lets the row compress past its own content — stacked, the
+                row collapsed to the 52px control strip while the content inside
+                measured 505px. At `lg` it is needed, so the three columns can
+                scroll independently inside a fixed-height row. */}
+            <div className="flex min-w-0 flex-col gap-3 lg:min-h-0">
+              {/* ⚠ `min-h-[46svh]` is load-bearing below `lg`. The plates are
+                  absolutely positioned so they can cross-fade, which means they
+                  contribute NO height to this box. At `lg` the grid row is
+                  stretched by its tallest sibling and `flex-1` gives the box a
+                  real height regardless; stacked in one column there is nothing
+                  to stretch it, so it collapsed to zero and the slider showed
+                  only its arrows. Measured at 760x1000: clientHeight 48 against
+                  a scrollHeight of 228. */}
+              <div className="relative flex min-h-[46svh] flex-1 items-center justify-center lg:min-h-0">
                 {plate ? (
                   /* ⚠ A CROSS-fade, not `mode="wait"`. Waiting holds the next
                      plate until the previous one has finished leaving, which
