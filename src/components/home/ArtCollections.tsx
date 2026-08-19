@@ -21,6 +21,7 @@ import { motion, useReducedMotion } from "framer-motion";
 import type { ArtCollection } from "@/content/catalogue";
 import { WorkGallery } from "@/components/client/WorkGallery";
 import { EASE_OUT } from "@/constants/motion";
+import { FILM_PLATE_TIGHT } from "@/constants/design";
 import { typeVoiceClass } from "@/constants/typography";
 
 export function ArtCollections({ collections }: { collections: ArtCollection[] }) {
@@ -34,11 +35,14 @@ export function ArtCollections({ collections }: { collections: ArtCollection[] }
   if (current) {
     return (
       <div className="flex h-full min-h-0 flex-col gap-3">
-        <div className="flex shrink-0 items-center gap-4">
+        {/* The tiles carry their own opaque plates, but this row sits straight
+            on the film — which runs un-scrimmed now — so it takes one of its
+            own. `w-fit` so it hugs the controls rather than banding the panel. */}
+        <div className={`flex w-fit shrink-0 items-center gap-4 ${FILM_PLATE_TIGHT} px-4 py-2.5`}>
           <button
             type="button"
             onClick={() => setOpen(null)}
-            className={`${typeVoiceClass("logic", "meta")} group inline-flex cursor-pointer items-center gap-2 text-[0.6rem] uppercase tracking-[0.14em] text-white/60 outline-none transition-colors duration-200 hover:text-white focus-visible:text-white`}
+            className={`${typeVoiceClass("logic", "meta")} group inline-flex cursor-pointer items-center gap-2 text-[0.6rem] uppercase tracking-[0.14em] text-white/70 outline-none transition-colors duration-200 hover:text-white focus-visible:text-white`}
           >
             <span aria-hidden className="inline-block transition-transform duration-200 group-hover:-translate-x-1">←</span>
             All collections
@@ -46,7 +50,7 @@ export function ArtCollections({ collections }: { collections: ArtCollection[] }
           <span className="font-graff text-lg font-bold text-white">
             {current.name}
           </span>
-          <span className={`${typeVoiceClass("logic", "meta")} text-[0.55rem] uppercase tracking-[0.14em] text-white/40`}>
+          <span className={`${typeVoiceClass("logic", "meta")} text-[0.55rem] uppercase tracking-[0.14em] text-white/55`}>
             {current.images.length} pieces
           </span>
         </div>

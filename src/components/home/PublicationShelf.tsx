@@ -23,6 +23,7 @@ import Link from "next/link";
 import { motion, useReducedMotion } from "framer-motion";
 import type { Publication } from "@/constants/publications";
 import { EASE_OUT } from "@/constants/motion";
+import { FILM_PLATE_TIGHT } from "@/constants/design";
 import { typeVoiceClass } from "@/constants/typography";
 
 const META = typeVoiceClass("logic", "meta");
@@ -57,7 +58,11 @@ export function PublicationShelf({
             >
               <Link
                 href={pub.href ?? `/publications/${pub.slug}`}
-                className="group flex h-full items-stretch gap-4 rounded-xl border border-white/12 bg-white/[0.04] p-3 outline-none transition-colors duration-200 hover:border-white/30 hover:bg-white/[0.08] focus-visible:border-white/40"
+                /* The card is the text's plate. A 4%-white wash was enough over
+                   the old scrim; over the un-scrimmed film the kind/year line
+                   and the subtitle disappeared into whatever the footage was
+                   doing behind them. */
+                className={`group flex h-full items-stretch gap-4 ${FILM_PLATE_TIGHT} border border-white/12 p-3 outline-none transition-colors duration-200 hover:border-white/35 focus-visible:border-white/45`}
               >
                 {/* The spine. Fixed width, cropped tall — a cover shown whole at
                     this size is unreadable anyway, and a consistent block keeps
@@ -89,14 +94,17 @@ export function PublicationShelf({
                 </span>
 
                 <span className="flex min-w-0 flex-1 flex-col justify-center py-1">
-                  <span className={`${META} block text-white/45`}>
+                  {/* Raised from /45 and /55: those were tuned against a scrim.
+                      The plate is translucent over MOVING footage, so the
+                      dimmest tokens lost the contrast the scrim used to give. */}
+                  <span className={`${META} block text-white/65`}>
                     {pub.kind} · {pub.year}
                   </span>
                   <span className="font-graff mt-1 block text-[0.98rem] font-bold leading-tight text-white">
                     {pub.title}
                   </span>
                   {pub.subtitle && (
-                    <span className="font-helv mt-1 block truncate text-[0.7rem] leading-snug text-white/55">
+                    <span className="font-helv mt-1 block truncate text-[0.7rem] leading-snug text-white/70">
                       {pub.subtitle}
                     </span>
                   )}

@@ -30,6 +30,7 @@ import { ArtCollections } from "@/components/home/ArtCollections";
 import { PublicationShelf } from "@/components/home/PublicationShelf";
 import { PaintBurst } from "@/components/home/PaintBurst";
 import { PUBLICATIONS } from "@/constants/publications";
+import { FILM_PLATE } from "@/constants/design";
 import { NAV_SECTIONS } from "@/constants/navigation";
 import { clientsInSection } from "@/constants/clients";
 import type { NavSectionId } from "@/types/navigation";
@@ -154,7 +155,15 @@ export function SectionPanel({
           transition={{ duration: reduceMotion ? 0.2 : 0.5, ease: EASE_OUT }}
           className="relative w-full overflow-hidden bg-neutral-950"
         >
-          {/* The ground. Circuit board for logic, thrown paint for creative. */}
+          {/* The ground. Circuit board for logic, the paint film for creative.
+              ⚠ The film is the ground for EVERY creative room now, and it runs
+              at FULL strength — no scrim over it, by the owner's instruction on
+              2026-08-20. Art used to be the only room on the footage while the
+              others sat on the `.brain-paint` gradient; that split is gone.
+              Legibility is bought back by FILM_PLATE behind each block of text
+              instead, which keeps the footage readable between them. Anything
+              added to a creative room from here needs its own plate — there is
+              no longer a scrim to fall back on. */}
           <div aria-hidden className="pointer-events-none absolute inset-0">
             {logic ? (
               <>
@@ -167,27 +176,27 @@ export function SectionPanel({
                 />
                 <div className="absolute inset-0 bg-neutral-950/55" />
               </>
-            ) : section.id === "art" ? (
-              // Art is grounded in the paint film itself, which came off the
-              // hero's right flank on 2026-08-10. It runs brighter and busier
-              // than the gradient the other creative rooms sit on, so it takes
-              // a heavier scrim to keep white type and the tile captions
-              // readable over it.
-              <>
-                <PaintBurst />
-                <div className="absolute inset-0 bg-neutral-950/60" />
-              </>
             ) : (
-              <>
-                <div className="brain-paint absolute inset-0 opacity-70" />
-                <div className="absolute inset-0 bg-neutral-950/45" />
-              </>
+              <PaintBurst />
             )}
           </div>
 
           <div className="relative z-10 mx-auto w-full max-w-7xl px-8 py-12">
-            <header className="mb-8">
-              <span className="font-helv block text-[0.6rem] uppercase tracking-[0.18em] text-white/50">
+            {/* On creative the header sits on its own plate, sized to the copy
+                rather than the panel — a full-width bar would read as the scrim
+                that was just removed. Logic keeps its scrim and needs none. */}
+            <header
+              className={
+                logic
+                  ? "mb-8"
+                  : `mb-8 w-fit max-w-2xl ${FILM_PLATE} px-6 py-5 sm:px-7 sm:py-6`
+              }
+            >
+              <span
+                className={`font-helv block text-[0.6rem] uppercase tracking-[0.18em] ${
+                  logic ? "text-white/50" : "text-white/60"
+                }`}
+              >
                 {entryCount} {entryCount === 1 ? "entry" : "entries"}
               </span>
               <h2
@@ -197,7 +206,11 @@ export function SectionPanel({
               >
                 {section.label}
               </h2>
-              <p className="font-helv mt-3 max-w-xl text-sm leading-relaxed text-white/65">
+              <p
+                className={`font-helv mt-3 max-w-xl text-sm leading-relaxed ${
+                  logic ? "text-white/65" : "text-white/75"
+                }`}
+              >
                 {section.description}
               </p>
             </header>
@@ -272,8 +285,12 @@ export function SectionPanel({
                   );
 
                   // Squares, not pills — a grid of these reads as a board.
-                  const shell =
-                    "group block rounded-2xl border border-white/15 bg-white/[0.06] p-4 outline-none transition-colors duration-300 hover:border-white/45 hover:bg-white/[0.12] focus-visible:ring-2 focus-visible:ring-white/60";
+                  // ⚠ On creative the cell IS the text's plate: a 6%-white wash
+                  // over the un-scrimmed film left the label competing with
+                  // whatever the footage was doing behind it.
+                  const shell = logic
+                    ? "group block rounded-2xl border border-white/15 bg-white/[0.06] p-4 outline-none transition-colors duration-300 hover:border-white/45 hover:bg-white/[0.12] focus-visible:ring-2 focus-visible:ring-white/60"
+                    : `group block ${FILM_PLATE} border border-white/15 p-4 outline-none transition-colors duration-300 hover:border-white/45 focus-visible:ring-2 focus-visible:ring-white/60`;
 
                   return (
                     <li key={c.key}>
@@ -293,7 +310,13 @@ export function SectionPanel({
                 })}
               </ul>
             ) : (
-              <p className="font-helv text-sm text-white/55">
+              <p
+                className={`font-helv text-sm ${
+                  logic
+                    ? "text-white/55"
+                    : `w-fit max-w-xl ${FILM_PLATE} px-5 py-4 text-white/75`
+                }`}
+              >
                 Nothing to show here yet — this section is still being put together.
               </p>
             )}
