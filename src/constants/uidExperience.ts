@@ -26,7 +26,7 @@ export const UID = {
   phone: "+91 92666 63225",
   tagline: "Two years of briefs I set myself, and the craft they left behind.",
   intro:
-    "A master's in visual communication is really an argument about how much of design is thinking and how much is making. This is the case for both — identity and packaging worked through to production, a performance identity, print, and the fieldwork that fed all of it.",
+    "A master's in visual communication is really an argument about how much of design is thinking and how much is making. This is the case for both — identity and packaging worked through to production, a performance identity, print, and the fieldwork that fed all of it. What was written rather than made is in Publications; what was drawn by hand is in Art.",
 };
 
 export interface UidProject {
@@ -39,6 +39,8 @@ export interface UidProject {
   accent: string;
   cols?: 3 | 4;
   aspect?: string;
+  /** An optional way further in — the full document behind an excerpt. */
+  link?: { href: string; label: string };
 }
 
 export const UID_PROJECTS: UidProject[] = [
@@ -47,19 +49,24 @@ export const UID_PROJECTS: UidProject[] = [
     folder: "branding",
     title: "Puran Studios",
     kind: "Identity system",
+    // A sustainability-minded film studio, not a recording studio: the mark is a
+    // leaf whose midrib is a strip of film, and the work it sleeves is
+    // documentary (the Cowspiracy record). Greens are the studio's own —
+    // #00945E and #225D38 against #443635 — off the colour page in the book.
     blurb:
-      "A recording studio's identity, taken from mark exploration through to the things it actually lives on — cards, sleeves, a vinyl label, a billboard. The leaf-and-groove monogram holds at every size.",
-    accent: "#2f7d4f",
+      "A film studio that makes its case for the planet, given a mark that says so: a leaf with a strip of film for a midrib. Taken from the exploration sheet through language, type and colour, then out onto cards, a record sleeve, a hardcover, signage and a billboard.",
+    accent: "#00945E",
   },
   {
     id: "packaging",
     folder: "packaging",
-    title: "Farmstacks",
+    title: "Farm Stacks",
     kind: "Packaging & structure",
     blurb:
-      "Produce packaging designed as a structure first: a die-line that stacks, ships and opens without waste, then a surface that earns its shelf. Worked through to physical prototypes.",
+      "Hydroponic produce packaged as a structure first — a net that stacks, ships and opens without waste, printed, folded and built by hand before any surface was drawn. The zine that documents it runs through to a second brief, the Griffin Muffin Co.",
     accent: "#3f8f3f",
     cols: 3,
+    link: { href: "/publications/packaging-zine", label: "Read the full zine" },
   },
   {
     id: "nirvaan",
@@ -93,15 +100,8 @@ export const UID_PROJECTS: UidProject[] = [
     cols: 3,
     aspect: "3/2",
   },
-  {
-    id: "documents",
-    folder: "documents",
-    title: "The Books",
-    kind: "Documentation",
-    blurb:
-      "Every project was written up as well as made: an ethnography study, the packaging documentation, the Nirvaan record, and the branding book.",
-    accent: "#1f2937",
-    cols: 4,
-    aspect: "3/4",
-  },
+  // ⚠ "The Books" used to close this page — four documentation covers. On
+  // 2026-08-20 the owner moved them to the homepage's Publications room, where
+  // they can be read page by page instead of shown as a cover. A project here
+  // would only duplicate that. The retired plates were `work/documents/`.
 ];

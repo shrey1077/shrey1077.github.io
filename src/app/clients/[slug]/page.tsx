@@ -6,20 +6,21 @@
  *     (Tata IIS is the reference implementation), else
  *   • the minimal ClientWip page.
  *
- * `generateStaticParams` reads `CLIENTS`, so every client page is statically
- * generated; `notFound()` guards unknown slugs.
+ * `generateStaticParams` reads `routedClients()`, so every client that owns a
+ * route is statically generated; `notFound()` guards unknown slugs. An entry
+ * with its own `href` (the chess site) is skipped — it is a static file, not a
+ * route, and would otherwise get an empty page.
  */
 
 import { notFound } from "next/navigation";
 import type { Metadata } from "next";
-import { CLIENTS, clientBySlug } from "@/constants/clients";
+import { clientBySlug, routedClients } from "@/constants/clients";
 import { clientExperienceBySlug } from "@/constants/clientExperiences";
 import { ClientExperience } from "@/components/client/ClientExperience";
 import { TataExperience } from "@/components/client/tata/TataExperience";
 import { AzothExperience } from "@/components/client/azoth/AzothExperience";
 import { UidExperience } from "@/components/client/uid/UidExperience";
 import { CaseStudyExperience } from "@/components/client/case/CaseStudyExperience";
-import { FREELANCE_EXPERIENCE } from "@/constants/freelanceExperience";
 import { NEWSMOBILE_EXPERIENCE } from "@/constants/newsmobileExperience";
 import { ClientWip } from "@/components/client/ClientWip";
 
@@ -29,7 +30,7 @@ interface ClientPageProps {
 
 /** Pre-render one page per known client. */
 export function generateStaticParams() {
-  return CLIENTS.map((client) => ({ slug: client.slug }));
+  return routedClients().map((client) => ({ slug: client.slug }));
 }
 
 export async function generateMetadata({
@@ -56,9 +57,6 @@ export default async function ClientPage({ params }: ClientPageProps) {
   }
   if (slug === "uid") {
     return <UidExperience />;
-  }
-  if (slug === "freelance") {
-    return <CaseStudyExperience config={FREELANCE_EXPERIENCE} />;
   }
   if (slug === "newsmobile") {
     return <CaseStudyExperience config={NEWSMOBILE_EXPERIENCE} />;

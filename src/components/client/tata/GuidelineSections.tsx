@@ -55,9 +55,7 @@ export function GuidelineSections() {
     {
       id: "tata",
       label: "Tata IIS",
-      // ⚠ Type, not the wordmark: the lockup is 3.97:1 and draws 13px tall
-      // inside the pill. See GuidelineSlider's header.
-      mark: ["TATA", "IIS"],
+      logo: g.wordmark,
       plates: deck(g.tataPlates, "Tata IIS"),
       bg: "#000000",
     },

@@ -29,6 +29,12 @@ export interface Client {
    *  keep their `/clients/<slug>` route — this only changes where it's listed.
    *  Absent = "clients". */
   section?: "clients" | "projects";
+  /** Sends the card somewhere other than `/clients/<slug>`, for an entry whose
+   *  page is not a React route at all. Setting it means NO `/clients/<slug>`
+   *  page is generated — `generateStaticParams` skips these — so the card is
+   *  the only way in and the destination has to exist on its own. Currently
+   *  only the chess site, which ships verbatim out of `public/chess/`. */
+  href?: string;
   /** Basic company facts for the section card (from the client's own
    *  material / the 2024 resume). All optional — a card shows what it has. */
   location?: string;
@@ -113,15 +119,6 @@ export const CLIENTS: readonly Client[] = [
     cardLogo: "/content/clients/uid/brand/uid-logo.png",
   },
   {
-    slug: "mycoveda",
-    name: "Mycoveda",
-    sector: "Wellness · Nutrition",
-    accent: "#5C7C3A",
-    essence: "Wellness rooted in quiet, potent nature.",
-    section: "projects",
-    cardLogo: "/content/clients/azoth-biotech/brand/brands/mycoveda.png",
-  },
-  {
     slug: "newsmobile",
     name: "NewsMobile",
     sector: "Digital News",
@@ -132,26 +129,54 @@ export const CLIENTS: readonly Client[] = [
     cardLogo: "/content/career/newsmobile.png",
   },
   {
-    slug: "freelance",
-    name: "Freelance",
-    sector: "Independent · Multi-brand",
-    accent: "#B5533B",
-    essence: "Small brands, each taken from problem to finished thing.",
-    location: "India · Remote",
-  },
-  {
-    slug: "early-works",
-    name: "Early Works",
-    sector: "Archive · Beginnings",
-    accent: "#6B6B6B",
-    essence: "Where the hand learned before the system did.",
+    // The 2022 chess site, shipped verbatim rather than retold — see
+    // scripts/copy-chess-site.mjs. `href` points at the static copy, so this
+    // entry deliberately has no `/clients/chess` page behind it.
+    slug: "chess",
+    name: "Three Steps Ahead",
+    sector: "Chess · Website",
+    accent: "#1f7a4d",
+    essence: "A chess site that argues the board teaches the day.",
     section: "projects",
+    // ⚠ `/chess/index.html`, not `/chess/`. GitHub Pages resolves a directory
+    // to its index, but `next dev` does NOT serve one for a public/ folder —
+    // `/chess/` 404s locally while every file under it is fine. Naming the file
+    // makes the link correct in both, so this can be checked before it deploys.
+    href: "/chess/index.html",
+    // The site's own mark, straight out of the copied folder. ⚠ NOT
+    // `logoTone: "light"` — measured, the artwork is 100% pure black ink on
+    // transparent, so a dark plate erases it completely. It takes the default
+    // white plate. Square lockup (knight over a blackletter wordmark), so it
+    // fits the common box by HEIGHT and lands small without the scale.
+    cardLogo: "/chess/images/logo.png",
+    logoScale: 1.7,
   },
 ] as const;
+
+/* ⚠ Three entries left this list on 2026-08-20, all by the owner's instruction.
+ *
+ *   mycoveda / early-works  — removed from Projects. Nothing linked to either
+ *                             page, so both routes went with them. Mycoveda's
+ *                             mark still ships under azoth-biotech/brand/brands
+ *                             and its logofolio entry is untouched.
+ *   freelance               — its EIGHT brands were promoted to Projects as
+ *                             individual entries (constants/projectStudies.ts),
+ *                             so the single Freelance card that stood for them
+ *                             is gone. FREELANCE_EXPERIENCE survives as their
+ *                             copy, and `public/content/clients/freelance/work/`
+ *                             still holds their plates — the slug names a
+ *                             content folder now, not a client.
+ */
 
 /** Look up a client by slug (used by the detail route). */
 export function clientBySlug(slug: string): Client | undefined {
   return CLIENTS.find((c) => c.slug === slug);
+}
+
+/** The clients that own a generated `/clients/<slug>` page. An entry with its
+ *  own `href` lives outside the app router and must not get an empty one. */
+export function routedClients(): Client[] {
+  return CLIENTS.filter((c) => !c.href);
 }
 
 /** The entries listed under one homepage section (see `Client.section`). */

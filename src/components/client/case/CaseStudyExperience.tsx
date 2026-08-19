@@ -14,59 +14,20 @@
  * Server Component; the plate grids are the client CaseGallery.
  */
 
-import fs from "node:fs";
-import path from "node:path";
 import Link from "next/link";
 import Image from "next/image";
 import { CaseBackdrop } from "@/components/client/case/CaseBackdrop";
 import { ExperienceTransition } from "@/components/transition/ExperienceTransition";
 import { CaseGallery } from "@/components/client/case/CaseGallery";
+import { readCasePlates } from "@/content/catalogue";
 import { typeVoiceClass } from "@/constants/typography";
-import type { CaseStudyConfig, CasePlate } from "@/types/caseStudy";
+import type { CaseStudyConfig } from "@/types/caseStudy";
 
 const META = `${typeVoiceClass("logic", "meta")} text-[0.55rem] tracking-[0.18em]`;
 
-/** Read a category's plates — curated order + intrinsic dims from the prepare
- *  script's `_plates.json`, falling back to whatever webp is on disk. */
-function readPlates(slug: string, folder: string): CasePlate[] {
-  const dir = path.join(
-    process.cwd(),
-    "public",
-    "content",
-    "clients",
-    slug,
-    "work",
-    folder,
-  );
-  const base = `/content/clients/${slug}/work/${folder}`;
-  try {
-    const manifest = JSON.parse(
-      fs.readFileSync(path.join(dir, "_plates.json"), "utf8"),
-    ) as { src: string; w: number; h: number; name?: string }[];
-    return manifest
-      .filter((p) => fs.existsSync(path.join(dir, p.src)))
-      .map((p) => ({
-        url: `${base}/${p.src}`,
-        w: p.w,
-        h: p.h,
-        name: p.name ?? p.src,
-      }));
-  } catch {
-    try {
-      return fs
-        .readdirSync(dir)
-        .filter((f) => f.endsWith(".webp"))
-        .sort()
-        .map((f) => ({ url: `${base}/${f}`, w: 1400, h: 933, name: f }));
-    } catch {
-      return [];
-    }
-  }
-}
-
 export function CaseStudyExperience({ config }: { config: CaseStudyConfig }) {
   const categories = config.categories
-    .map((c) => ({ ...c, plates: readPlates(config.slug, c.folder) }))
+    .map((c) => ({ ...c, plates: readCasePlates(config.slug, c.folder) }))
     .filter((c) => c.plates.length > 0);
 
   return (

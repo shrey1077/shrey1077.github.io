@@ -1,0 +1,93 @@
+
+<!DOCTYPE html>
+<html>
+<head>
+<title>About the Designer</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<link href="css/bootstrap.min.css" rel="stylesheet">
+<link href='https://fonts.googleapis.com/css?family=Podkova:400,700' rel='stylesheet' type='text/css'>
+<link href='https://fonts.googleapis.com/css?family=Open+Sans:400,300,700,800' rel='stylesheet' type='text/css'>
+<link href="css/style.css" rel="stylesheet">
+
+</head>
+<body>
+<header class="main__header normal">
+  <div class="container">
+    <nav class="navbar navbar-default" role="navigation"> 
+      
+      <div class="navbar-header">
+        <h1 class="navbar-brand"><a href="index.html">Three Steps Ahead</a></h1>
+        <a href="#" class="submenu">Menus</a> </div>
+      <div class="menuBar">
+        <ul class="menu">
+            <ul class="menu">
+                <li><a href="index.html">Home</a></li>
+                <li class="hide"><a href="play.html">Play</a></li>
+                <li><a href="learn.html">Learn</a></li>
+                <li class="active"><a href="about.html">About</a></li>
+                <li><a href="contact.html">contact us</a></li>
+              </ul>
+        </ul>
+      </div>
+       
+    </nav>
+  </div>
+</header>
+<section class="main__middle__container">
+  <div class="row titles text-center">
+    <h2>About</h2>
+    <div class="separator"><img src="images/sep.png" alt="sep"></div>
+  </div>
+  <div class="container">
+    <div class="row no_padding nothing">
+      <div class="col-md-6"> <img src="images/content__images/image1.jpg" alt="image" class="img-responsive no-margin full-width"> </div>
+      <div class="col-md-6">
+        <h3>Shrey Dagar</h3>
+        <hr>
+        <p>Myself, Shrey Dagar is an avid Chess enthusiast and loves to apply the teachings of chess in his day to day life. 
+          I am a design student currently pursuing my Masters from UID, Karnavati University. I am an environmentalist and animal lover who loves reading and writing fiction books, watching movies and football</p>
+      </div>
+    </div>
+    <hr>
+   
+  </div>
+</section>
+<footer>
+  <div class="container">
+    <div class="row">
+      
+      <div class="col-md-3">
+        <h3>Social</h3>
+        <p>302, Swagat Afford<br />
+          Gandhinagar, Gujarat 322442<br />
+          India<br />
+          <br />
+          Phone: 9871546175<br />
+          <br />
+        </p>
+        <div class="social__icons">  <img src="images/social/instagram.png" class="socialicon socialicon-google"></img> </div>
+      </div>
+    </div>
+  </div>
+</footer>
+<p class="text-center copyright">&copy; Copyright Shrey Dagar. All Rights Reserved.</p>
+
+<script type="text/javascript" src="js/jquery.min.js"></script> 
+
+<script src="js/bootstrap.min.js"></script> 
+<script type="text/javascript">
+$( "a.submenu" ).click(function() {
+$( ".menuBar" ).slideToggle( "normal", function() {
+
+});
+});
+$( "ul li.dropdown a" ).click(function() {
+$( "ul li.dropdown ul" ).slideToggle( "normal", function() {
+
+});
+$('ul li.dropdown').toggleClass('current');
+});
+</script>
+</body>
+</html>

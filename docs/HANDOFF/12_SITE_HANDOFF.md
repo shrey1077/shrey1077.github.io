@@ -1,5 +1,7 @@
 # 12 — WHOLE-SITE HANDOFF
 
+> **SUPERSEDED by `13_SITE_HANDOFF.md` (2026-08-19). Read 13.**
+
 Written 2026-08-16, superseding 11 (and 09/10 before it). Read this one only.
 
 11 and 12 were drafted the same night by two sessions working in parallel;

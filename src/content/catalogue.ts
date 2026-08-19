@@ -257,6 +257,48 @@ export function readExtinctsSlides(): string[] {
     .map((f) => publicUrl("content", "extincts", f));
 }
 
+/** One case-study category's plates — curated order and intrinsic dimensions
+ *  from the prepare script's `_plates.json`, falling back to whatever webp is
+ *  on disk. Lifted out of CaseStudyExperience on 2026-08-20 so the homepage's
+ *  Projects preview can read the same plates the client pages do. */
+export function readCasePlates(
+  slug: string,
+  folder: string,
+): { url: string; w: number; h: number; name: string }[] {
+  const dir = clientDir(slug, "work", folder);
+  const base = `/content/clients/${slug}/work/${folder}`;
+  try {
+    const manifest = JSON.parse(
+      fs.readFileSync(path.join(dir, "_plates.json"), "utf8"),
+    ) as { src: string; w: number; h: number; name?: string }[];
+    return manifest
+      .filter((p) => fs.existsSync(path.join(dir, p.src)))
+      .map((p) => ({ url: `${base}/${p.src}`, w: p.w, h: p.h, name: p.name ?? p.src }));
+  } catch {
+    try {
+      return fs
+        .readdirSync(dir)
+        .filter((f) => f.endsWith(".webp"))
+        .sort()
+        .map((f) => ({ url: `${base}/${f}`, w: 1400, h: 933, name: f }));
+    } catch {
+      return [];
+    }
+  }
+}
+
+/** One publication's rendered pages, in order, from
+ *  `public/content/publications/<slug>`. Empty for the text-only entries and
+ *  for anything the pipeline has not rendered — callers read an empty result as
+ *  "not a page-turner", never as an error. */
+export function readPublicationPages(slug: string): string[] {
+  const dir = path.join(process.cwd(), "public", "content", "publications", slug);
+  return listFiles(dir)
+    .filter((f) => assetKind(f) === "image")
+    .sort()
+    .map((f) => publicUrl("content", "publications", slug, f));
+}
+
 export interface LogoMark {
   slug: string;
   name: string;

@@ -12,7 +12,7 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import type { Metadata } from "next";
-import { CLIENTS, clientBySlug } from "@/constants/clients";
+import { clientBySlug, routedClients } from "@/constants/clients";
 import { clientExperienceBySlug } from "@/constants/clientExperiences";
 import { readCatalogue, readCatalogueCategory } from "@/content/catalogue";
 import { CatalogueGallery } from "@/components/experience/CatalogueGallery";
@@ -29,7 +29,7 @@ interface CategoryPageProps {
 
 /** One page per catalogue folder per client — straight from the filesystem. */
 export function generateStaticParams() {
-  return CLIENTS.flatMap((client) =>
+  return routedClients().flatMap((client) =>
     readCatalogue(client.slug).map((category) => ({
       slug: client.slug,
       category: category.id,
