@@ -25,6 +25,8 @@ import { TripleSlider } from "@/components/client/tata/TripleSlider";
 import { MediaViewer } from "@/components/experience/MediaViewer";
 import { EASE_OUT } from "@/constants/motion";
 import { BRAND_LANES, brandOf, type TataBrand } from "@/constants/tataSections";
+import { GuidelineSlider, type GuidelineBrand } from "@/components/client/tata/GuidelineSlider";
+import { Reveal } from "@/components/experience/Reveal";
 
 export interface ResolvedItem {
   /** Unique across the page (a folder can back two subsections). */
@@ -46,6 +48,13 @@ export interface ResolvedSection {
   blurb: string;
   accent: string;
   items: ResolvedItem[];
+  /** The theme decks this section opens with. Empty = no slider. */
+  themes?: GuidelineBrand[];
+  /** Alternating ground: dark sections run on near-black, light ones on the
+   *  page's own texture. */
+  dark?: boolean;
+  /** Tiles per row at the widest breakpoint. Print reads four across. */
+  cols?: number;
 }
 
 /** Hold per piece in the hover fly-through. Deliberately quicker than the
@@ -68,12 +77,21 @@ const FLY = {
 };
 const FADE = { enter: { opacity: 0 }, center: { opacity: 1 }, exit: { opacity: 0 } };
 
-/** Tiles per row at the current width — mirrors the grid's own breakpoints. */
-function colsFor(width: number): number {
+/** Tiles per row at the current width — mirrors the grid's own breakpoints.
+ *  ⚠ Must agree with `gridClass` below, because the opened panel is inserted at
+ *  the START of the opened tile's row and that index is computed from this. Let
+ *  them drift and the panel lands mid-row. */
+function colsFor(width: number, wide: number): number {
   if (width < 640) return 1;
   if (width < 1024) return 2;
-  return 3;
+  if (width < 1280) return Math.min(3, wide);
+  return wide;
 }
+
+const gridClass = (wide: number) =>
+  wide >= 4
+    ? "grid grid-cols-1 gap-x-6 gap-y-2 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4"
+    : "grid grid-cols-1 gap-x-6 gap-y-2 sm:grid-cols-2 lg:grid-cols-3";
 
 /* ── one subsection tile ──────────────────────────────────────────────── */
 
@@ -83,12 +101,17 @@ function Tile({
   lane,
   open,
   onToggle,
+  dark = false,
 }: {
   item: ResolvedItem;
   accent: string;
   lane: TataBrand;
   open: boolean;
   onToggle: () => void;
+  /** ⚠ The PLATE stays paper-white on a dark section — much of this catalogue
+   *  is transparent artwork with dark ink and would vanish otherwise. Only the
+   *  caption under it inverts. */
+  dark?: boolean;
 }) {
   const reducedMotion = useReducedMotion();
   const [live, setLive] = useState(false);
@@ -248,7 +271,13 @@ function Tile({
           </span>
         )}
         <span className="min-w-0 flex-1">
-          <span className="tata-heading block text-base leading-[1.15] text-neutral-900">{item.label}</span>
+          <span
+            className={`tata-heading block text-base leading-[1.15] ${
+              dark ? "text-white" : "text-neutral-900"
+            }`}
+          >
+            {item.label}
+          </span>
           {/* The three columns ARE the lane label on desktop. Stacked to one
               column on a phone that reading is gone, so name it there. */}
           {!item.curated && laneArtwork.length > 0 && (
@@ -257,7 +286,13 @@ function Tile({
             </span>
           )}
         </span>
-        <span className="tata-body shrink-0 pt-1 text-[0.6rem] tabular-nums text-neutral-500">{item.count}</span>
+        <span
+          className={`tata-body shrink-0 pt-1 text-[0.6rem] tabular-nums ${
+            dark ? "text-white/60" : "text-neutral-500"
+          }`}
+        >
+          {item.count}
+        </span>
       </div>
     </button>
   );
@@ -342,19 +377,21 @@ function Section({
   onOpenAsset: (a: CollectionAsset) => void;
 }) {
   const gridRef = useRef<HTMLDivElement>(null);
-  const [cols, setCols] = useState(3);
+  const wide = section.cols ?? 3;
+  const [cols, setCols] = useState(wide);
   const [expanded, setExpanded] = useState(true);
   const reduceMotion = useReducedMotion();
+  const dark = !!section.dark;
 
   // Read the column count from the element itself; the panel has to land at the
   // end of the opened tile's ROW, which only the live width can tell us.
   useEffect(() => {
     const el = gridRef.current;
     if (!el) return;
-    const ro = new ResizeObserver(() => setCols(colsFor(window.innerWidth)));
+    const ro = new ResizeObserver(() => setCols(colsFor(window.innerWidth, wide)));
     ro.observe(el);
     return () => ro.disconnect();
-  }, []);
+  }, [wide]);
 
   const openIndex = section.items.findIndex((i) => i.key === openKey);
   const openItem = openIndex === -1 ? null : section.items[openIndex];
@@ -368,25 +405,42 @@ function Section({
   // Lane is fixed to the item's own index so a tile previews the same campus at
   // every width, even where the grid folds to two columns or one.
   const grid = (items: ResolvedItem[], offset: number) => (
-    <div className="grid grid-cols-1 gap-x-6 gap-y-2 sm:grid-cols-2 lg:grid-cols-3">
+    <div className={gridClass(wide)}>
       {items.map((item, i) => (
-        <Tile
-          key={item.key}
-          item={item}
-          accent={section.accent}
-          lane={BRAND_LANES[(offset + i) % BRAND_LANES.length]}
-          open={item.key === openKey}
-          onToggle={() => onToggle(item.key)}
-        />
+        /* ⚠ `Reveal`, not framer's `whileInView`. The pure-framer form was tried
+           here first and never applied its `initial` at all — tiles 7900px below
+           the fold rendered with no style attribute and full opacity, so there
+           was no reveal to see. Reveal drives its own IntersectionObserver AND
+           carries a 1.6s failsafe, so content can never strand hidden; its own
+           header documents that trade-off. Stagger runs along the row. */
+        <Reveal key={item.key} delay={(i % wide) * 0.07}>
+          <Tile
+            item={item}
+            accent={section.accent}
+            lane={BRAND_LANES[(offset + i) % BRAND_LANES.length]}
+            open={item.key === openKey}
+            onToggle={() => onToggle(item.key)}
+            dark={dark}
+          />
+        </Reveal>
       ))}
     </div>
   );
 
   return (
-    <section className="pt-14 first:pt-0">
+    /* ⚠ Alternating ground. A dark section is near-black at 93%, NOT solid: the
+       owner wants the page's circuit texture still faintly readable through it.
+       It also bleeds the full viewport width via the negative margins, so the
+       band spans the page while its contents stay on the same measure as
+       everything else. */
+    <section
+      className={`pt-14 first:pt-0 ${
+        dark ? "-mx-6 mt-14 bg-neutral-950/[0.93] px-6 pb-14 sm:-mx-10 sm:px-10" : ""
+      }`}
+    >
       {/* The headline is the toggle. Open by default — this collapses a long
           page down, it does not hide the work behind a click on arrival. */}
-      <h3 className="border-t border-neutral-200">
+      <h3 className={dark ? "border-t border-white/15" : "border-t border-neutral-200"}>
         <button
           type="button"
           aria-expanded={expanded}
@@ -400,10 +454,18 @@ function Section({
             >
               {section.items.length} subsections
             </span>
-            <span className="tata-heading mt-3 block text-2xl leading-[1.05] text-neutral-900 sm:text-3xl">
+            <span
+              className={`tata-heading mt-3 block text-2xl leading-[1.05] sm:text-3xl ${
+                dark ? "text-white" : "text-neutral-900"
+              }`}
+            >
               {section.title}
             </span>
-            <span className="tata-body mt-3 block max-w-2xl text-sm leading-relaxed text-neutral-600">
+            <span
+              className={`tata-body mt-3 block max-w-2xl text-sm leading-relaxed ${
+                dark ? "text-white/65" : "text-neutral-600"
+              }`}
+            >
               {section.blurb}
             </span>
           </span>
@@ -411,7 +473,11 @@ function Section({
           {/* Chevron: down when open, right when closed. */}
           <span
             aria-hidden
-            className="mt-1 grid size-9 shrink-0 place-items-center rounded-full border border-neutral-200 text-neutral-500 transition-colors duration-300 group-hover:border-neutral-400 group-hover:text-neutral-900"
+            className={`mt-1 grid size-9 shrink-0 place-items-center rounded-full border transition-colors duration-300 ${
+              dark
+                ? "border-white/25 text-white/70 group-hover:border-white group-hover:text-white"
+                : "border-neutral-200 text-neutral-500 group-hover:border-neutral-400 group-hover:text-neutral-900"
+            }`}
           >
             <svg
               viewBox="0 0 24 24"
@@ -438,6 +504,14 @@ function Section({
             transition={{ duration: reduceMotion ? 0.2 : 0.45, ease: EASE_OUT }}
             className="overflow-hidden"
           >
+            {/* This section's own work, behind the same three-way theme switch
+                as the guidelines. Sections with nothing themed render none. */}
+            {section.themes && section.themes.length > 0 && (
+              <div className="mb-12 lg:mx-auto lg:max-w-4xl">
+                <GuidelineSlider brands={[...section.themes]} />
+              </div>
+            )}
+
             <div ref={gridRef}>
               {before.length > 0 && grid(before, 0)}
               <AnimatePresence initial={false} mode="wait">

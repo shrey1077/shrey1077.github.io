@@ -27,7 +27,10 @@ import {
   TATA_GRID,
   tataSubcatMockup,
 } from "@/constants/tataExperience";
-import { TATA_SECTIONS, TATA_WORK_INTRO } from "@/constants/tataSections";
+import { brandOf, TATA_SECTIONS, TATA_WORK_INTRO } from "@/constants/tataSections";
+import { TATA_THEMES, THEME_SLIDER_MAX } from "@/constants/tataThemes";
+import type { GuidelineBrand } from "@/components/client/tata/GuidelineSlider";
+import type { CollectionAsset } from "@/types/experience";
 import { ExperienceTransition } from "@/components/transition/ExperienceTransition";
 import { PartnerMarquee } from "@/components/client/tata/PartnerMarquee";
 import { TATA_GUIDELINES } from "@/constants/tataExperience";
@@ -63,11 +66,35 @@ export function TataExperience() {
   // Resolve every subsection against the catalogue. A subsection with no
   // folder — or a folder that has no assets yet — keeps its slot in the grid
   // and renders as a pending tile, so the taxonomy always reads whole.
-  const sections: ResolvedSection[] = TATA_SECTIONS.map((s) => ({
+  /* The theme slider each section opens with. Same switch as the guidelines —
+   * Tata IIS / IISA / IISM — but showing that section's OWN work, split by
+   * `brandOf()` on the filename.
+   *
+   * ⚠ Digital is fed from the Mockups folder specifically (the owner's ask),
+   * not from every Digital subsection: 68 themed mockups already sit there and
+   * they are the staged, presentable face of that section. Every other section
+   * pools all of its subsections. A brand with nothing to show is dropped
+   * rather than rendered as an empty deck. */
+  const themePool = (assets: CollectionAsset[]): GuidelineBrand[] =>
+    TATA_THEMES.map((t) => ({
+      ...t,
+      plates: assets
+        .filter((a) => a.kind === "image" && brandOf(a.name) === t.id)
+        .slice(0, THEME_SLIDER_MAX)
+        .map((a) => ({ name: a.caption ?? a.name, url: a.url, kind: "image" as const })),
+    })).filter((b) => b.plates.length > 0);
+
+  const sections: ResolvedSection[] = TATA_SECTIONS.map((s, si) => ({
     id: s.id,
     title: s.title,
     blurb: s.blurb,
     accent: s.accent,
+    /* ⚠ Alternating grounds, starting BLACK on Digital — the owner's
+     * zig-zag. Driven off the index so inserting a section re-flows the
+     * pattern instead of stranding two dark bands together. */
+    dark: si % 2 === 0,
+    /** Print reads four across; every other section keeps three. */
+    cols: s.id === "print" ? 4 : 3,
     items: s.items.map((item) => {
       const data = item.folder ? readCatalogueCategory(SLUG, item.folder) : null;
       // `pick` slices one folder across two subsections (the films split).
@@ -84,7 +111,14 @@ export function TataExperience() {
         mockup: item.folder ? mockupIfPresent(tataSubcatMockup(item.folder)) : undefined,
       };
     }),
-  }));
+  })).map((s) => {
+    const digitalMockups =
+      s.id === "digital"
+        ? (s.items.find((i) => i.label === "Mockups")?.assets ?? [])
+        : [];
+    const pool = s.id === "digital" ? digitalMockups : s.items.flatMap((i) => i.assets);
+    return { ...s, themes: themePool(pool) };
+  });
 
   return (
     <main className="tata-scope tata-body relative min-h-dvh w-full bg-gallery px-6 py-14 sm:px-10" style={themeVars}>

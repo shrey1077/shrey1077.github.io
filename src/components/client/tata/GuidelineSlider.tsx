@@ -1,7 +1,10 @@
 "use client";
 
 /**
- * GuidelineSlider — the guideline plates as a switch, a stage and a tray.
+ * GuidelineSlider — a themed deck as a switch, a stage and a tray.
+ *
+ * Built for the Brand Guidelines rulebooks and reused verbatim by every section
+ * under The Work, which is why its labels say "image" rather than "plate".
  *
  * The three brands sit on top as circular pills carrying their own marks;
  * beneath them one rounded panel in the live brand's colour holds the plate
@@ -126,7 +129,7 @@ export function GuidelineSlider({ brands }: { brands: GuidelineBrand[] }) {
         <button
           type="button"
           onClick={() => setViewing(current)}
-          aria-label={`Open ${brand.label} guideline plate ${i + 1} of ${n}`}
+          aria-label={`Open ${brand.label} — image ${i + 1} of ${n}`}
           className="group block w-full outline-none"
         >
           <span className="relative block aspect-[1405/1000] w-full overflow-hidden rounded-2xl">
@@ -166,7 +169,7 @@ export function GuidelineSlider({ brands }: { brands: GuidelineBrand[] }) {
                 <button
                   type="button"
                   onClick={() => setI(idx)}
-                  aria-label={`Show plate ${idx + 1}`}
+                  aria-label={`Show image ${idx + 1}`}
                   aria-current={live}
                   className="group block w-full outline-none"
                 >
