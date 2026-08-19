@@ -26,7 +26,9 @@ import {
   readArtCollections,
   readExtinctsSlides,
   readLogofolio,
+  readPublicationPages,
 } from "@/content/catalogue";
+import { PUBLICATIONS } from "@/constants/publications";
 
 export default function Home() {
   // Every mark, for the Logofolio board.
@@ -37,6 +39,14 @@ export default function Home() {
 
   // The Art room's collections — Art draws its own body, not board cells.
   const artCollections = readArtCollections();
+
+  // Publications draws its own body too. The shelf is a client component and
+  // cannot read the filesystem, so the cover of each document — its first
+  // rendered page — is resolved here. The text-only entries have none, and the
+  // shelf draws a typographic spine for those.
+  const publicationCovers = Object.fromEntries(
+    PUBLICATIONS.map((p) => [p.slug, p.pages ? readPublicationPages(p.slug)[0] : undefined]),
+  );
 
   return (
     <main className="w-full bg-gallery">
@@ -49,6 +59,7 @@ export default function Home() {
         logos={logos}
         extinctsSlides={extinctsSlides}
         artCollections={artCollections}
+        publicationCovers={publicationCovers}
       />
       <SiteFooter />
     </main>

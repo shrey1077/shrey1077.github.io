@@ -123,6 +123,21 @@ export function UidExperience() {
                     <p className="max-w-[46ch] text-[0.86rem] leading-relaxed text-neutral-600">
                       {project.blurb}
                     </p>
+                    {/* Only the packaging project sets this: its plates are an
+                        excerpt the owner chose (pages 13–16), and the whole zine
+                        is readable in the Publications room. */}
+                    {project.link && (
+                      <Link
+                        href={project.link.href}
+                        className="group mt-1 inline-flex w-fit items-center gap-2 text-[0.78rem] font-medium transition-opacity duration-200 hover:opacity-70"
+                        style={{ color: project.accent }}
+                      >
+                        {project.link.label}
+                        <span aria-hidden className="transition-transform duration-200 group-hover:translate-x-1">
+                          →
+                        </span>
+                      </Link>
+                    )}
                     <span
                       aria-hidden
                       className="mt-1 h-0.5 w-12 rounded-full"

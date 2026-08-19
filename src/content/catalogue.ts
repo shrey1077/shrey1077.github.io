@@ -257,6 +257,18 @@ export function readExtinctsSlides(): string[] {
     .map((f) => publicUrl("content", "extincts", f));
 }
 
+/** One publication's rendered pages, in order, from
+ *  `public/content/publications/<slug>`. Empty for the text-only entries and
+ *  for anything the pipeline has not rendered — callers read an empty result as
+ *  "not a page-turner", never as an error. */
+export function readPublicationPages(slug: string): string[] {
+  const dir = path.join(process.cwd(), "public", "content", "publications", slug);
+  return listFiles(dir)
+    .filter((f) => assetKind(f) === "image")
+    .sort()
+    .map((f) => publicUrl("content", "publications", slug, f));
+}
+
 export interface LogoMark {
   slug: string;
   name: string;

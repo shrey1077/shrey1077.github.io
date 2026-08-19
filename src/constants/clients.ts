@@ -29,6 +29,12 @@ export interface Client {
    *  keep their `/clients/<slug>` route — this only changes where it's listed.
    *  Absent = "clients". */
   section?: "clients" | "projects";
+  /** Sends the card somewhere other than `/clients/<slug>`, for an entry whose
+   *  page is not a React route at all. Setting it means NO `/clients/<slug>`
+   *  page is generated — `generateStaticParams` skips these — so the card is
+   *  the only way in and the destination has to exist on its own. Currently
+   *  only the chess site, which ships verbatim out of `public/chess/`. */
+  href?: string;
   /** Basic company facts for the section card (from the client's own
    *  material / the 2024 resume). All optional — a card shows what it has. */
   location?: string;
@@ -140,6 +146,20 @@ export const CLIENTS: readonly Client[] = [
     location: "India · Remote",
   },
   {
+    // The 2022 chess site, shipped verbatim rather than retold — see
+    // scripts/copy-chess-site.mjs. `href` points at the static copy, so this
+    // entry deliberately has no `/clients/chess` page behind it.
+    slug: "chess",
+    name: "Three Steps Ahead",
+    sector: "Chess · Website",
+    accent: "#1f7a4d",
+    essence: "A chess site that argues the board teaches the day.",
+    section: "projects",
+    href: "/chess/",
+    cardLogo: "/chess/images/logo.png",
+    logoTone: "light",
+  },
+  {
     slug: "early-works",
     name: "Early Works",
     sector: "Archive · Beginnings",
@@ -152,6 +172,12 @@ export const CLIENTS: readonly Client[] = [
 /** Look up a client by slug (used by the detail route). */
 export function clientBySlug(slug: string): Client | undefined {
   return CLIENTS.find((c) => c.slug === slug);
+}
+
+/** The clients that own a generated `/clients/<slug>` page. An entry with its
+ *  own `href` lives outside the app router and must not get an empty one. */
+export function routedClients(): Client[] {
+  return CLIENTS.filter((c) => !c.href);
 }
 
 /** The entries listed under one homepage section (see `Client.section`). */

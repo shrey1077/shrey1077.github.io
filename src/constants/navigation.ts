@@ -49,21 +49,27 @@ export const NAV_SECTIONS: readonly NavSection[] = [
   },
 
   // Right — creativity / art.
+  // ⚠ Art and Publications draw their own bodies (SectionPanel's OWN_RENDERER),
+  // so `kind` never reaches `cellsFor` for either. "gallery" is the honest label
+  // now that both have real content behind them; leaving them "coming-soon"
+  // would only mislead the next reader of this file.
   {
     id: "art",
     label: "Art",
     hemisphere: "right",
     order: 0,
-    kind: "coming-soon",
-    description: "Drawings, paintings, and studies away from the screen.",
+    kind: "gallery",
+    description:
+      "Drawings, paintings and studies away from the screen — sketchbooks, observational work, and things made by hand.",
   },
   {
     id: "publications",
     label: "Publications",
     hemisphere: "right",
     order: 1,
-    kind: "coming-soon",
-    description: "Writing, features, and published work.",
+    kind: "gallery",
+    description:
+      "The written work — field studies, a colloquium paper, process books and a newsroom's weekly bylines. These are meant to be read.",
   },
   {
     id: "the-extincts-project",

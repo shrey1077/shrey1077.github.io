@@ -27,7 +27,9 @@ import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
 import { PIN_OPEN_EVENT } from "@/components/home/BrainPins";
 import { CAREER_STOP_COUNT, CareerTimeline } from "@/components/home/CareerTimeline";
 import { ArtCollections } from "@/components/home/ArtCollections";
+import { PublicationShelf } from "@/components/home/PublicationShelf";
 import { PaintBurst } from "@/components/home/PaintBurst";
+import { PUBLICATIONS } from "@/constants/publications";
 import { NAV_SECTIONS } from "@/constants/navigation";
 import { clientsInSection } from "@/constants/clients";
 import type { NavSectionId } from "@/types/navigation";
@@ -43,6 +45,8 @@ interface Cell {
   image?: string;
   /** Light artwork needs a dark plate behind it. */
   tone?: "light" | "dark";
+  /** True when `href` is a static file rather than an app route (see cellsFor). */
+  external?: boolean;
   /** Linear multiplier on the centred logo box, for marks that read small at
    *  the common size. */
   scale?: number;
@@ -58,7 +62,10 @@ function cellsFor(id: NavSectionId, logos: LogoMark[], extinctsSlides: string[])
       key: c.slug,
       label: c.name,
       sub: c.sector,
-      href: `/clients/${c.slug}`,
+      href: c.href ?? `/clients/${c.slug}`,
+      // A `href` client is a plain file under public/, not an app route, so the
+      // client router cannot navigate to it — that cell needs a real anchor.
+      external: !!c.href,
       // `cardLogo` is where the real marks live; `logoSrc` is the older field
       // and is set on no client, which is why every cell fell back to its name
       // in type. Kept as the fallback so anything that does set it still works.
@@ -81,26 +88,30 @@ function cellsFor(id: NavSectionId, logos: LogoMark[], extinctsSlides: string[])
 }
 
 /**
- * Two sections don't fit the board. Career Path is a sequence — 10 stops on one
- * rail, newest first — and a 3-col grid both reflows that into rows and, at the
- * 9-cell cap, would silently drop the oldest. Art's collections drill in to
+ * Three sections don't fit the board. Career Path is a sequence — 10 stops on
+ * one rail, newest first — and a 3-col grid both reflows that into rows and, at
+ * the 9-cell cap, would silently drop the oldest. Art's collections drill in to
  * their plates, which a cell can only do with an `href`, and there is no /art
- * route. Both already have renderers that were orphaned when SidesShowcase was
- * retired; the panel hands over to them instead of flattening them into cells.
+ * route. Publications is a shelf: its entries are documents, whose covers say
+ * almost nothing at cell size, so it leads with words and wants a row.
  */
 const OWN_RENDERER: ReadonlySet<NavSectionId> = new Set([
   "career-path",
   "art",
+  "publications",
 ] satisfies NavSectionId[]);
 
 export function SectionPanel({
   logos,
   extinctsSlides,
   artCollections,
+  publicationCovers,
 }: {
   logos: LogoMark[];
   extinctsSlides: string[];
   artCollections: ArtCollection[];
+  /** slug → first rendered page, read server-side (see app/page.tsx). */
+  publicationCovers: Record<string, string | undefined>;
 }) {
   const reduceMotion = useReducedMotion();
   const [openId, setOpenId] = useState<NavSectionId | null>(null);
@@ -124,7 +135,9 @@ export function SectionPanel({
       ? CAREER_STOP_COUNT
       : section?.id === "art"
         ? artCollections.length
-        : 0;
+        : section?.id === "publications"
+          ? PUBLICATIONS.length
+          : 0;
   const ownRenderer = !!section && OWN_RENDERER.has(section.id) && ownCount > 0;
   const entryCount = ownRenderer ? ownCount : cells.length;
 
@@ -199,6 +212,8 @@ export function SectionPanel({
                   // scroll, so the sideways scroller it used to need — ten stops
                   // crushed below ~832px — is gone.
                   <CareerTimeline />
+                ) : section.id === "publications" ? (
+                  <PublicationShelf publications={PUBLICATIONS} covers={publicationCovers} />
                 ) : (
                   <ArtCollections collections={artCollections} />
                 )}
@@ -262,7 +277,11 @@ export function SectionPanel({
 
                   return (
                     <li key={c.key}>
-                      {c.href ? (
+                      {c.href && c.external ? (
+                        <a href={c.href} className={shell}>
+                          {inner}
+                        </a>
+                      ) : c.href ? (
                         <Link href={c.href} className={shell}>
                           {inner}
                         </Link>
