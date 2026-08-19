@@ -151,6 +151,11 @@ interface PinArt {
   circleCX: number;
   circleCY: number;
   circleR: number;
+  /** The small lead ring at the artwork's far left — where this column's
+   *  connector lands. MEASURED off each file; `ringCY` differs from artwork to
+   *  artwork (0.494–0.627), so it cannot be assumed from the frame. */
+  ringCX: number;
+  ringCY: number;
 }
 
 const ART: Partial<Record<NavSectionId, PinArt>> = {
@@ -158,21 +163,25 @@ const ART: Partial<Record<NavSectionId, PinArt>> = {
     src: "/content/pins/art.webp",
     aspect: 4.0596, pillCenterY: 0.6762,
     circleCX: 0.2393, circleCY: 0.6458, circleR: 0.2034,
+    ringCX: 0.0508, ringCY: 0.6266,
   },
   publications: {
     src: "/content/pins/publications.webp",
     aspect: 4.3422, pillCenterY: 0.5393,
     circleCX: 0.215, circleCY: 0.5108, circleR: 0.2034,
+    ringCX: 0.0392, ringCY: 0.4938,
   },
   "the-extincts-project": {
     src: "/content/pins/the-extincts-project.webp",
     aspect: 4.7284, pillCenterY: 0.5425,
     circleCX: 0.1786, circleCY: 0.5121, circleR: 0.1999,
+    ringCX: 0.0182, ringCY: 0.4984,
   },
   "ai-generations": {
     src: "/content/pins/ai-generations.webp",
     aspect: 4.8619, pillCenterY: 0.5906,
     circleCX: 0.1867, circleCY: 0.5583, circleR: 0.2015,
+    ringCX: 0.0289, ringCY: 0.5391,
   },
 };
 
@@ -182,8 +191,7 @@ const ART: Partial<Record<NavSectionId, PinArt>> = {
  * that artwork's circle, since the pill and label are baked into the raster
  * and cannot invert the way the DOM pill did. */
 
-function connectorPath(index: number, y: number, end: number): string {
-  const x = CONNECTOR_X0 - index * CONNECTOR_GAP;
+function connectorPath(x: number, y: number, end: number): string {
   const r = CONNECTOR_R;
   // Start above the stage so the line reads as arriving from off-screen.
   return `M ${x} -2 V ${y - r} Q ${x} ${y} ${x + r} ${y} H ${end}`;
@@ -194,11 +202,16 @@ function connectorPath(index: number, y: number, end: number): string {
  * 2026-08-17 at the owner's request — the circles are now line ENDS, not
  * junctions, so nothing measures them any more either. */
 
-/** The point a pin's line lands on, as a percentage of the stage. */
+/** The point a pin's line lands on, as a percentage of the stage: the icon on
+ *  the logic side, the artwork's small lead ring on the creative side. */
 interface Anchor {
-  iconX: number;
-  iconY: number;
+  x: number;
+  y: number;
 }
+
+/** Clearance between the creative verticals and the leftmost lead ring, so the
+ *  four drops sit in the gap rather than on top of the artwork. */
+const CREATIVE_CLEAR = 1.6;
 
 interface Pin {
   id: NavSectionId;
@@ -229,13 +242,20 @@ function PinConnectors({
   open,
   reduceMotion,
   anchors,
+  baseX,
+  fallbackEnd,
 }: {
   pins: Pin[];
   open: NavSectionId | null;
   reduceMotion: boolean;
-  /** Measured centres, as % of the stage: where the incoming line lands (the
-   *  icon) and where the outgoing one leaves (the stroked circle). */
+  /** Measured landing points, as % of the stage. */
   anchors: Record<string, Anchor>;
+  /** Where the TOPMOST pin's vertical sits. Each pin below steps one
+   *  CONNECTOR_GAP further left, so the run that travels furthest down sits
+   *  furthest out and no horizontal crosses another's drop. */
+  baseX: number;
+  /** Used only before the first measurement arrives. */
+  fallbackEnd: number;
 }) {
   return (
     <svg
@@ -281,8 +301,8 @@ function PinConnectors({
 
         // The line lands on the icon's centre. Until the first measurement
         // arrives it stops at the column edge.
-        const inY = a ? a.iconY : pin.y * 100;
-        const inEnd = a ? a.iconX : CONNECTOR_END;
+        const inY = a ? a.y : pin.y * 100;
+        const inEnd = a ? a.x : fallbackEnd;
 
         // One run per pin. A second path used to leave the stroked circle,
         // turn right and fall to the footing; removed 2026-08-17 at the
@@ -290,7 +310,7 @@ function PinConnectors({
         return (
           <path
             key={pin.id}
-            d={connectorPath(pin.index, inY, inEnd)}
+            d={connectorPath(baseX - pin.index * CONNECTOR_GAP, inY, inEnd)}
             {...common}
             style={drawAt(pin.index * CONNECTOR_DRAW)}
           />
@@ -343,6 +363,15 @@ function PinRow({
               name — without this the whole right column is four unlabelled
               buttons to a screen reader. */}
           <span className="sr-only">{pin.label}</span>
+          {/* Zero-size marker on the artwork's own lead ring. The connector is
+              measured to this rather than computed, so it keeps landing on the
+              ring when the frame is resized. */}
+          <span
+            aria-hidden
+            data-pin-ring={pin.id}
+            className="absolute"
+            style={{ left: `${art.ringCX * 100}%`, top: `${art.ringCY * 100}%` }}
+          />
           <Image
             src={art.src}
             alt=""
@@ -539,12 +568,13 @@ export function BrainPins() {
       // too, as the point the outgoing run left from; that run is gone, so the
       // circle is a line END and needs no anchor of its own.
       const next: Record<string, Anchor> = {};
-      root.querySelectorAll<HTMLElement>("[data-pin-icon]").forEach((icon) => {
-        const id = icon.dataset.pinIcon;
-        if (!id) return;
-        const i = centre(icon, box);
-        next[id] = { iconX: i.x, iconY: i.y };
-      });
+      root
+        .querySelectorAll<HTMLElement>("[data-pin-icon], [data-pin-ring]")
+        .forEach((el) => {
+          const id = el.dataset.pinIcon ?? el.dataset.pinRing;
+          if (!id) return;
+          next[id] = centre(el, box);
+        });
       setAnchors((prev) => {
         const keys = Object.keys(next);
         const same =
@@ -554,8 +584,8 @@ export function BrainPins() {
             const b = next[k];
             return (
               a &&
-              Math.abs(a.iconX - b.iconX) < 0.05 &&
-              Math.abs(a.iconY - b.iconY) < 0.05
+              Math.abs(a.x - b.x) < 0.05 &&
+              Math.abs(a.y - b.y) < 0.05
             );
           });
         return same ? prev : next;
@@ -570,6 +600,15 @@ export function BrainPins() {
   // can see: derived, not synced in an effect, so crossing the breakpoint
   // dispatches `null` on its own and the panel closes with the pins.
   const active = isCompact ? null : open;
+
+  // Leftmost measured lead ring, backed off by CREATIVE_CLEAR — the origin of
+  // the right column's vertical band. Null until the first measurement.
+  const creativeRingX = pins
+    .filter((p) => p.side === "creative")
+    .map((p) => anchors[p.id]?.x)
+    .filter((x): x is number => typeof x === "number");
+  const creativeBase =
+    creativeRingX.length === 4 ? Math.min(...creativeRingX) - CREATIVE_CLEAR : null;
 
   // Tell the rest of the page which section is open, so the panel can follow.
   useEffect(() => {
@@ -603,7 +642,28 @@ export function BrainPins() {
         open={active}
         reduceMotion={reduceMotion}
         anchors={anchors}
+        baseX={CONNECTOR_X0}
+        fallbackEnd={CONNECTOR_END}
       />
+      {/* The creative column's mirror of the same idea: four drops that turn
+          into the small lead ring on each artwork.
+          ⚠ The band is derived from the MEASURED rings, not a constant. The
+          four illustrations are different widths and right-anchored, so their
+          lead rings sit at four different x — a fixed column would land on the
+          artwork for some and float away from it for others. `creativeBase`
+          takes the leftmost ring and backs off, so the whole bracket clears
+          every one of them. It renders only once measured; before that there
+          is nothing sensible to draw. */}
+      {creativeBase !== null && (
+        <PinConnectors
+          pins={pins.filter((p) => p.side === "creative")}
+          open={active}
+          reduceMotion={reduceMotion}
+          anchors={anchors}
+          baseX={creativeBase}
+          fallbackEnd={creativeBase}
+        />
+      )}
       {pins.map((p) => (
         <PinRow
           key={p.id}
