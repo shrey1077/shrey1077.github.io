@@ -117,11 +117,22 @@ canvas {
   text-transform: uppercase;
 }
 .tata-subhead {
-  font-family: Helvetica, "Helvetica Neue", Arial, ui-sans-serif, sans-serif;
+  font-family: "Helvetica Neue Condensed", "Helvetica Condensed", "Arial Narrow",
+    "Arial Nova Cond", Helvetica, "Helvetica Neue", Arial, ui-sans-serif, sans-serif;
+  font-stretch: condensed;
   font-weight: 700;
 }
+/* ⚠ CONDENSED, as asked — but Helvetica Condensed is NOT on these machines and
+ * is not free to ship, so this is a stack, not the real face. It asks for the
+ * genuine article first and falls to the nearest thing a visitor is likely to
+ * actually have: Arial Narrow / Arial Nova Condensed ship with Windows and are
+ * a close metric match. Drop a licensed Helvetica Condensed into public/fonts
+ * and add an @font-face and every one of these resolves to it instead. */
 .tata-body {
-  font-family: Helvetica, "Helvetica Neue", Arial, ui-sans-serif, sans-serif;
+  font-family: "Helvetica Neue Condensed", "Helvetica Condensed", "HelveticaNeue-Condensed",
+    "Arial Narrow", "Arial Nova Cond", Helvetica, "Helvetica Neue", Arial,
+    ui-sans-serif, sans-serif;
+  font-stretch: condensed;
   font-weight: 400;
 }
 

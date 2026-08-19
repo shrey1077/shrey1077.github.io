@@ -21,7 +21,6 @@
 
 import Image from "next/image";
 import { GuidelineSlider } from "@/components/client/tata/GuidelineSlider";
-import { GuidelineSeeMore } from "@/components/client/tata/GuidelineSeeMore";
 import { TATA_GUIDELINES } from "@/constants/tataExperience";
 
 const COLOUR_LAW = [
@@ -37,54 +36,52 @@ function Guide({ className }: { className: string }) {
 /** Section kicker — a subheading (Helvetica Bold), small and tracked. */
 const KICKER = "tata-subhead text-[0.62rem] uppercase tracking-[0.12em]";
 
-type Campus = typeof TATA_GUIDELINES.iisa;
-
-/** One campus — the mark, and a way into its rulebook. Nothing else. */
-function CampusPanel({ kicker, data, className }: { kicker: string; data: Campus; className: string }) {
-  return (
-    <div className={`flex flex-col items-center gap-7 p-6 text-center lg:p-12 ${className}`}>
-      <span className={`${KICKER} text-neutral-500`}>{kicker}</span>
-
-      {/* ⚠ Both marks share this box exactly — same height, same max width,
-          `object-contain` — so the two campuses read as equals. The two source
-          files are different shapes, so anything that sized to the image itself
-          made one noticeably larger than the other. */}
-      <div className="relative h-28 w-full max-w-[22rem]">
-        <Image src={data.logo} alt={`${kicker} logo`} fill sizes="352px" className="object-contain" />
-      </div>
-
-      {/* The typography plate leads the stack — it is no longer on the page,
-          so this is the only place it survives. */}
-      <GuidelineSeeMore
-        plates={[data.typography, ...data.plates]}
-        accent={data.colours[0].hex}
-        label="Brand Guidelines"
-      />
-    </div>
-  );
-}
+/* CampusPanel lived here — a logo plus a "Brand Guidelines" button, one per
+ * campus, in a half-width row. Removed 2026-08-17: the slider above now
+ * carries all three decks behind one switch, so the panels were a second
+ * door to the same room. GuidelineSeeMore has no callers left on this page.
+ */
 
 export function GuidelineSections() {
   const g = TATA_GUIDELINES;
-  const tataPlates = g.tataPlates.map((url, i) => ({
-    name: `Tata IIS guideline plate ${i + 1}`,
-    url,
-    kind: "image" as const,
-  }));
+  const deck = (urls: readonly string[], who: string) =>
+    urls.map((url, i) => ({ name: `${who} guideline plate ${i + 1}`, url, kind: "image" as const }));
+
+  /* The three decks behind one switch. Grounds are the owner's call: Tata IIS
+     black, Ahmedabad its navy, Mumbai its teal — the campus hexes come from
+     TATA_GUIDELINES rather than being retyped here.
+     ⚠ IISM's teal is colours[1]; colours[0] is the violet. */
+  const brands = [
+    { id: "tata", label: "Tata IIS", plates: deck(g.tataPlates, "Tata IIS"), bg: "#000000" },
+    {
+      id: "iisa",
+      label: "IIS Ahmedabad",
+      plates: deck([g.iisa.typography, ...g.iisa.plates], "IIS Ahmedabad"),
+      bg: g.iisa.colours[0].hex,
+    },
+    {
+      id: "iism",
+      label: "IIS Mumbai",
+      plates: deck([g.iism.typography, ...g.iism.plates], "IIS Mumbai"),
+      bg: g.iism.colours[1].hex,
+    },
+  ];
 
   return (
-    <section aria-label="Logo guidelines" className="border-t border-neutral-200">
-      {/* Tata IIS — the full-width band. The parent brand. */}
+    <section aria-label="Brand guidelines" className="border-t border-neutral-200">
       <div className="p-6 lg:p-10">
-        <span className={KICKER} style={{ color: "var(--brand-accent, #737373)" }}>
+        <h2 className="tata-heading text-2xl leading-[1.05] text-neutral-900 sm:text-3xl">
+          Brand Guidelines
+        </h2>
+        <span className={`${KICKER} mt-3 block`} style={{ color: "var(--brand-accent, #737373)" }}>
           The wordmark &amp; its rulebook
         </span>
 
-        {/* ⚠ The copy and the slider are stacked ROWS, not columns.
-            They shared a two-column grid and it collapsed: the old plate strip
-            is a flex row of twelve 256px plates with no intrinsic width cap, so
-            it forced its column wide and squeezed the copy to about 130px —
-            one word per line. Keep these on separate rows. */}
+        {/* ⚠ The copy and the slider are stacked ROWS, not columns. They shared
+            a two-column grid and it collapsed: the old plate strip had no
+            intrinsic width cap, so it forced its column wide and squeezed the
+            text to about 130px — one word per line. Keep these on separate
+            rows. */}
         <div className="mt-5 grid grid-cols-1 gap-8 lg:grid-cols-[auto_minmax(0,1fr)] lg:items-center lg:gap-12">
           <div className="relative flex aspect-[16/5] w-full max-w-md shrink-0 items-center justify-center overflow-hidden rounded-2xl border border-neutral-200">
             <Guide className="left-1/3 top-0 h-full w-px" />
@@ -122,24 +119,15 @@ export function GuidelineSections() {
           </div>
         </div>
 
-        {/* The plates: one held large, four in the tray, moving on its own. */}
+        {/* One slider for all three rulebooks; the switch sits under it.
+            ⚠ This replaces the two campus panels that used to sit in a
+            half-width row below (each a logo plus a "Brand Guidelines" button).
+            Their decks are reachable here now, so the panels were redundant —
+            what is NOT carried over is the campus logos themselves, which no
+            longer appear anywhere on this page. */}
         <div className="mt-10 lg:mx-auto lg:max-w-4xl">
-          <GuidelineSlider plates={tataPlates} />
+          <GuidelineSlider brands={brands} />
         </div>
-      </div>
-
-      {/* The two campuses — half the width each, beneath the parent. */}
-      <div className="grid grid-cols-1 border-t border-neutral-200 lg:grid-cols-2">
-        <CampusPanel
-          kicker="Campus dialect — Ahmedabad"
-          data={g.iisa}
-          className="border-neutral-200 lg:border-r"
-        />
-        <CampusPanel
-          kicker="Campus dialect — Mumbai"
-          data={g.iism}
-          className="border-t border-neutral-200 lg:border-t-0"
-        />
       </div>
     </section>
   );
