@@ -12,6 +12,7 @@ import {
   Syne,
 } from "next/font/google";
 import { MemoryTransitionHost } from "@/components/transition/MemoryTransitionHost";
+import { RotateGate } from "@/components/home/RotateGate";
 import "./globals.css";
 
 /**
@@ -124,11 +125,25 @@ export const metadata: Metadata = {
     "An interactive experience exploring the two sides of the mind: logic and creativity.",
 };
 
+/**
+ * ⚠ `maximumScale: 1` was here until 2026-08-16 — "lock the visual scale; the
+ * experience is a fixed, full-viewport canvas". It blocked pinch-zoom, which is
+ * a WCAG 2.1 AA failure (1.4.4 Resize Text) and a real barrier for anyone who
+ * enlarges to read. Do not put it back.
+ *
+ * The canvas argument does not hold, for two reasons. Pinch-zoom moves the
+ * VISUAL viewport, not the layout viewport — so `100svh`, the media queries
+ * behind `useIsPhone`/`useIsCompact`, `BrainPins`' ResizeObserver anchors and
+ * `HeroName`'s fixed viewport fractions are all measured off the layout
+ * viewport and do not move when the visitor zooms. And since `SectionNav`
+ * landed, the page below `lg` is an ordinary scrolling document anyway.
+ *
+ * `userScalable` is left unset on purpose: the default is already "yes", and
+ * spelling it out invites the next reader to treat it as a dial worth turning.
+ */
 export const viewport: Viewport = {
-  // Lock the visual scale; the experience is a fixed, full-viewport canvas.
   width: "device-width",
   initialScale: 1,
-  maximumScale: 1,
   themeColor: "#f9f9f9",
 };
 
@@ -147,6 +162,10 @@ export default function RootLayout({
         {/* The memory-dive orchestrator — global so any page's client cards
             can begin a retrieval (thread → response → veil → dive). */}
         <MemoryTransitionHost />
+        {/* Asks a phone to turn sideways, then widens the layout viewport so
+            landscape actually gets the desktop composition rather than the
+            same narrow one on its side. Renders nothing anywhere else. */}
+        <RotateGate />
       </body>
     </html>
   );

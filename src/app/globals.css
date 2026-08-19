@@ -34,6 +34,10 @@
   --font-digibra: "Digibra", ui-sans-serif, system-ui, sans-serif;
   --font-graff: "Juturu", ui-sans-serif, system-ui, sans-serif;
   --font-helv: Helvetica, "Helvetica Neue", Arial, sans-serif;
+  /* The right brain's handwriting — ThoughtBox only. A script face, so it is
+     set well above CodeStream's 0.58rem mono: at that size it is unreadable.
+     Fallbacks stay cursive, never a sans, or the voice is lost outright. */
+  --font-sunset: "Sunset Script", "Segoe Script", "Brush Script MT", cursive;
   /* The gallery wall — matched to the hero video's own background (#F9F9F9,
    * sampled from its frames) so the footage dissolves into the page with no
    * visible seam. Pure #fff is reserved for cards, which now sit a breath
@@ -113,11 +117,22 @@ canvas {
   text-transform: uppercase;
 }
 .tata-subhead {
-  font-family: Helvetica, "Helvetica Neue", Arial, ui-sans-serif, sans-serif;
+  font-family: "Helvetica Neue Condensed", "Helvetica Condensed", "Arial Narrow",
+    "Arial Nova Cond", Helvetica, "Helvetica Neue", Arial, ui-sans-serif, sans-serif;
+  font-stretch: condensed;
   font-weight: 700;
 }
+/* ⚠ CONDENSED, as asked — but Helvetica Condensed is NOT on these machines and
+ * is not free to ship, so this is a stack, not the real face. It asks for the
+ * genuine article first and falls to the nearest thing a visitor is likely to
+ * actually have: Arial Narrow / Arial Nova Condensed ship with Windows and are
+ * a close metric match. Drop a licensed Helvetica Condensed into public/fonts
+ * and add an @font-face and every one of these resolves to it instead. */
 .tata-body {
-  font-family: Helvetica, "Helvetica Neue", Arial, ui-sans-serif, sans-serif;
+  font-family: "Helvetica Neue Condensed", "Helvetica Condensed", "HelveticaNeue-Condensed",
+    "Arial Narrow", "Arial Nova Cond", Helvetica, "Helvetica Neue", Arial,
+    ui-sans-serif, sans-serif;
+  font-stretch: condensed;
   font-weight: 400;
 }
 
@@ -151,6 +166,10 @@ canvas {
   50% { background-position: 100% 50%; }
   100% { background-position: 0% 50%; }
 }
+
+/* The portrait orb briefly crossfaded its two frames on a 10s CSS loop. That
+ * was replaced by a pointer-driven wipe (PortraitOrb), which needs no
+ * keyframes — the seam is a `clipPath` fed by a motion value. */
 
 /* LEFT nav — fine graphite grain that surfaces on hover and drifts, like
  * pencil particles catching the light. */
@@ -191,6 +210,16 @@ canvas {
   /* One variable file covering 100–900, so weight is free. */
   src: url("/fonts/juturu.woff2") format("woff2-variations");
   font-weight: 100 900;
+  font-style: normal;
+  font-display: swap;
+}
+
+/* The right brain's handwriting (ThoughtBox). Supplied as OTF/TTF/WOFF and
+ * converted to woff2 here — 15KB, single weight 400, full ASCII coverage. */
+@font-face {
+  font-family: "Sunset Script";
+  src: url("/fonts/sunset-script.woff2") format("woff2");
+  font-weight: 400;
   font-style: normal;
   font-display: swap;
 }
@@ -246,14 +275,25 @@ canvas {
  * is "animate on first load and then stay like that", so this must NOT loop.
  * Every path is normalised with pathLength="100", so one offset fits all four.
  */
+/* ⚠ A CLIP, not a dash offset. The line must be unbroken at every instant.
+ *
+ * This used to walk `stroke-dashoffset` from 100 to 0 over a `pathLength=100`
+ * path, which is one dash covering the whole line on paper and rendered DASHED
+ * in practice: `vector-effect: non-scaling-stroke` strokes — and so dashes — in
+ * a different space from the one `pathLength` normalises. The paths measure
+ * ~52.6 and ~57.5 user units while declaring themselves 100, and the viewBox
+ * stretches ~14x across and ~9x down, so the pattern tiled at the wrong rate
+ * and broke the line into pieces.
+ *
+ * An inset clip is two straight edges. The stretch moves them and distorts
+ * nothing, so the stroke stays solid the whole way.
+ *   0 → 55%   the right inset holds at 92%, the bottom opens: the vertical
+ *             drop grows downward inside a narrow window
+ *   55 → 100% the bottom is done, the right opens: the turn and the run out to
+ *             the icon are revealed
+ * `forwards` holds the finished state — draw once on load, then stay. */
 @keyframes brainpin-draw {
-  from { stroke-dashoffset: 100; stroke-dasharray: 100; }
-  99%  { stroke-dashoffset: 0;   stroke-dasharray: 100; }
-  /* Clear the pattern at the very end. A dash array is how the line DRAWS, but
-   * leaving one on the resting line means the browser is still tiling a dash
-   * pattern along a path that `preserveAspectRatio="none"` stretches ~14x
-   * horizontally and ~9x vertically — the two runs tile at different rates and
-   * the finished line reads as dotted. `none` makes the resting state a plain
-   * unbroken stroke. */
-  to   { stroke-dashoffset: 0;   stroke-dasharray: none; }
+  0%   { clip-path: inset(0 92% 100% 0); }
+  55%  { clip-path: inset(0 92% 0 0); }
+  100% { clip-path: inset(0 0 0 0); }
 }

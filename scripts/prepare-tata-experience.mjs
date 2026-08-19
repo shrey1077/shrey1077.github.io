@@ -57,21 +57,10 @@ for (const [src, dest, width, format = "webp"] of IMAGES) {
   }
 }
 
-// Hero placeholder poster — the closing frame of the logo-render film.
-try {
-  const posterSrc = path.join(SRC, "Digital/Videos/- RENDER.mp4");
-  const posterOut = path.join(DEST, "brand/hero-poster.jpg");
-  ensure(path.dirname(posterOut));
-  // -sseof -0.5 grabs a frame half a second before the end (the settled mark).
-  execFileSync("ffmpeg", [
-    "-y", "-sseof", "-0.5", "-i", posterSrc, "-frames:v", "1", "-q:v", "3",
-    "-vf", "scale=1600:-2", posterOut,
-  ], { stdio: ["ignore", "ignore", "pipe"] });
-  ok++;
-} catch (e) {
-  fail++;
-  console.error(`POSTER FAIL: ${e.message}`);
-}
+// The hero poster step lived here until 2026-08-17. The 16:9 film was
+// removed from the page and hero.mp4 / hero-poster.jpg were deleted, so
+// regenerating the poster would have quietly put a 110KB unused file back
+// into public/ on the next run.
 
 console.log(`\nDone. ${ok} ok, ${fail} failed.`);
 if (fail > 0) process.exit(1);

@@ -343,6 +343,8 @@ function Section({
 }) {
   const gridRef = useRef<HTMLDivElement>(null);
   const [cols, setCols] = useState(3);
+  const [expanded, setExpanded] = useState(true);
+  const reduceMotion = useReducedMotion();
 
   // Read the column count from the element itself; the panel has to land at the
   // end of the opened tile's ROW, which only the live width can tell us.
@@ -382,34 +384,78 @@ function Section({
 
   return (
     <section className="pt-14 first:pt-0">
-      <div className="border-t border-neutral-200 pb-8 pt-6">
-        <span
-          className="tata-subhead block text-[0.58rem] uppercase tracking-[0.16em]"
-          style={{ color: section.accent }}
+      {/* The headline is the toggle. Open by default — this collapses a long
+          page down, it does not hide the work behind a click on arrival. */}
+      <h3 className="border-t border-neutral-200">
+        <button
+          type="button"
+          aria-expanded={expanded}
+          onClick={() => setExpanded((v) => !v)}
+          className="group flex w-full items-start gap-6 pb-8 pt-6 text-left outline-none focus-visible:ring-2 focus-visible:ring-neutral-900/40"
         >
-          {section.items.length} subsections
-        </span>
-        <h3 className="tata-heading mt-3 text-2xl leading-[1.05] text-neutral-900 sm:text-3xl">
-          {section.title}
-        </h3>
-        <p className="tata-body mt-3 max-w-2xl text-sm leading-relaxed text-neutral-600">{section.blurb}</p>
-      </div>
+          <span className="min-w-0 flex-1">
+            <span
+              className="tata-subhead block text-[0.58rem] uppercase tracking-[0.16em]"
+              style={{ color: section.accent }}
+            >
+              {section.items.length} subsections
+            </span>
+            <span className="tata-heading mt-3 block text-2xl leading-[1.05] text-neutral-900 sm:text-3xl">
+              {section.title}
+            </span>
+            <span className="tata-body mt-3 block max-w-2xl text-sm leading-relaxed text-neutral-600">
+              {section.blurb}
+            </span>
+          </span>
 
-      <div ref={gridRef}>
-        {before.length > 0 && grid(before, 0)}
-        <AnimatePresence initial={false} mode="wait">
-          {openItem && (
-            <Panel
-              key={openItem.key}
-              item={openItem}
-              accent={section.accent}
-              onClose={() => onToggle(openItem.key)}
-              onOpenAsset={onOpenAsset}
-            />
-          )}
-        </AnimatePresence>
-        {after.length > 0 && grid(after, splitAt)}
-      </div>
+          {/* Chevron: down when open, right when closed. */}
+          <span
+            aria-hidden
+            className="mt-1 grid size-9 shrink-0 place-items-center rounded-full border border-neutral-200 text-neutral-500 transition-colors duration-300 group-hover:border-neutral-400 group-hover:text-neutral-900"
+          >
+            <svg
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              className={`size-4 transition-transform duration-300 ${expanded ? "rotate-0" : "-rotate-90"}`}
+            >
+              <path d="M5 9l7 7 7-7" />
+            </svg>
+          </span>
+        </button>
+      </h3>
+
+      <AnimatePresence initial={false}>
+        {expanded && (
+          <motion.div
+            key="body"
+            initial={{ opacity: 0, height: 0 }}
+            animate={{ opacity: 1, height: "auto" }}
+            exit={{ opacity: 0, height: 0 }}
+            transition={{ duration: reduceMotion ? 0.2 : 0.45, ease: EASE_OUT }}
+            className="overflow-hidden"
+          >
+            <div ref={gridRef}>
+              {before.length > 0 && grid(before, 0)}
+              <AnimatePresence initial={false} mode="wait">
+                {openItem && (
+                  <Panel
+                    key={openItem.key}
+                    item={openItem}
+                    accent={section.accent}
+                    onClose={() => onToggle(openItem.key)}
+                    onOpenAsset={onOpenAsset}
+                  />
+                )}
+              </AnimatePresence>
+              {after.length > 0 && grid(after, splitAt)}
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </section>
   );
 }

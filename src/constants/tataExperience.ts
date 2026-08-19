@@ -10,12 +10,12 @@
 
 const BRAND = "/content/clients/tata-iis/brand";
 
-export const TATA_HERO = {
-  poster: `${BRAND}/hero-poster.jpg`,
-  /** The 16:9 fly-through film — plays once on load and freezes on its last
-   *  frame (poster is that last frame). Replace this file to swap the hero. */
-  src: `${BRAND}/hero.mp4` as string | undefined,
-};
+/* TATA_HERO (the 16:9 fly-through film and its poster) lived here until
+ * 2026-08-17. The film was removed from the page, which left VideoHero and this
+ * constant with no callers, so both went in the dead-code sweep.
+ * ⚠ The MEDIA is still on disk and still ships: brand/hero.mp4 is 2.9MB and
+ * brand/hero-poster.jpg 110KB, both now unreferenced by any page.
+ * `scripts/prepare-tata-experience.mjs` still regenerates the poster. */
 
 export const TATA_DESCRIPTION =
   "Tata Indian Institute of Skills (Tata IIS) is a Tata Group initiative, in partnership with the Ministry of Skill Development and Entrepreneurship (MSDE), established to build world-class skill institutes in Mumbai and Ahmedabad. Backed by Tata values, we deliver industry-grade, outcome-driven training in emerging technical and service skills, transforming India's demographic advantage into workplace excellence.";

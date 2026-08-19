@@ -141,6 +141,35 @@ per-client `logoScale` and `logoTone`.
 the line with the employer's disc below it. ⚠ The rail is drawn per-CELL, not
 per-row, so the grid can carry **no column gap** — a gap is a break in the line.
 
+**The two bottom corners** (`AboutFacts` left, `HobbiesRotator` right) were
+unified 2026-08-16 and are now a matched pair. Both: heading `font-graff`
+(Juturu) **extra-bold 34px neutral-800**, body `font-graff` neutral-500, and
+**every item carries a 24px mark**.
+
+- The right corner used to run the document's default sans at semi-bold, which
+  read as a different family from the left it is supposed to mirror. Only
+  family and weight were unified — the colours already matched, and the body
+  SIZES still differ on purpose (15px left, 22px right) because the right shows
+  one word at a time.
+- ⚠ `PartTimeWords` had no font class at all, so it inherited the system sans
+  while `Tools`/`Education` beside it ran Juturu. Fixed in the same pass. The
+  Chess **numeral** (`1563`) is deliberately still the default bold sans — it is
+  a display figure, not body copy.
+- **Body copy is capped at two lines** everywhere. Education used to carry both
+  degrees in full and ran to FOUR lines; it is now one `truncate`d line each,
+  which is a hard guarantee rather than a hope about string lengths. ⚠ The town
+  and state were dropped to buy that ("Waknaghat, Solan, H.P." → "Waknaghat");
+  the institution and field survive, which was the reason the full text existed.
+- Marks live in **`HomeMarks.tsx`**. Ten of the eleven are DRAWN, not artwork —
+  `chess.png` is the only real file, and it was stepped down 36px → 24px so it
+  no longer towers over the drawn set. Swap any drawing for a real file when one
+  lands. House rules and the per-mark reasoning are in that file's header.
+- ⚠ Two of them were redrawn after being *looked at*, and the lesson generalises:
+  Painting and Sketching both came out as a narrow diagonal spike and read as
+  the same object, and Arts was a stroked circle with dots that read as a
+  bowling ball. Geometry that measures correctly can still fail to read. **Put
+  a new mark on screen at ~110px before believing it.**
+
 **`SectionNav`** — the way in below `lg`, added 2026-08-16.
 
 `BrainPins` is `hidden lg:block` and stays that way: its geometry is not
@@ -295,10 +324,35 @@ All idempotent, all reading from `D:\Assets\Clients\…`. `pdf-to-images.mjs`,
    System / Website / Brochure.
 8. **Fonts**: Tata's Copperplate Gothic / Helvetica are licensed and not on the
    drives — `.tata-heading` falls back to Cinzel.
-9. **Accessibility**: `layout.tsx` sets `maximumScale: 1`, blocking pinch-zoom.
-10. `ECard`/`IdentityHeader`, `SidesShowcase`→`SectionBody`, `SpeechBubbles` are
-    **parked, not dead** — do not remove in a dead-code sweep. `ThoughtBox` and
-    `CornerText` are genuinely unreferenced.
+9. ~~Accessibility: `layout.tsx` sets `maximumScale: 1`, blocking pinch-zoom.~~
+   **Resolved 2026-08-16** — removed; all 46 built routes now emit
+   `width=device-width, initial-scale=1`. ⚠ **Do not put it back.** The "fixed
+   canvas" rationale it carried does not hold: pinch-zoom moves the VISUAL
+   viewport, while `100svh`, the `useIsPhone`/`useIsCompact` media queries,
+   `BrainPins`' ResizeObserver anchors and `HeroName`'s vw fractions are all
+   measured off the LAYOUT viewport and do not move when a visitor zooms. The
+   reasoning is written out above the `viewport` export.
+10. **Pickleball's mark is drawn inline** (`HobbiesRotator`), because no
+    pickleball artwork exists on the drives — `chess.png` is the owner's own
+    supplied file. Swap it for a real one when it lands; this is the road the
+    chess knight already took. `HOBBIES` entries now carry an OPTIONAL `mark`,
+    the same idiom as `SECTION_ICONS`, so the other six stay bare type.
+    ⚠ The rotator's line box is a fixed `h-[30px]` and must stay that way —
+    `HeroName` measures this corner to clamp Imagine's descender above it.
+11. **Dead-code state, swept 2026-08-17.** Exactly three modules are
+    unreferenced and every one is **parked, not dead — do not remove**:
+    `IdentityHeader` (which is the only importer of `ECard`), `SidesShowcase`
+    (the only importer of `SectionBody`), and `SpeechBubbles`. ECard and
+    SectionBody are therefore transitively parked; a naive "unused file" scan
+    will not list them, but deleting their parents orphans them.
+    Removed in that sweep: `CornerText`, `utils/random.ts`, `GuidelineSeeMore`
+    (orphaned when the Tata campus panels gave way to the brand switch) and
+    `VideoHero` + `TATA_HERO` (orphaned when the hero film came off).
+    `ThoughtBox` is NO LONGER dead — it is the landing's right-brain box.
+    ⚠ `brand/hero.mp4` (2.9MB) and `brand/hero-poster.jpg` (110KB) are still in
+    `public/` and still ship, referenced by nothing. Delete them if the film is
+    not coming back; `scripts/prepare-tata-experience.mjs` still regenerates the
+    poster either way.
 
 ---
 
