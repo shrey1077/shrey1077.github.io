@@ -4,7 +4,6 @@
  * Diverges from the generic ClientExperience into the directed layout the
  * client asked for:
  *
- *   16:9 hero film (plays once, freezes)                      VideoHero
  *   description (Helvetica) + "Powered by" endorsements
  *   the logo-guideline system (Tata full-width, IISA/IISM)    GuidelineSections
  *   a continuously moving partner marquee                     PartnerMarquee
@@ -22,7 +21,6 @@ import Image from "next/image";
 import { clientExperienceBySlug } from "@/constants/clientExperiences";
 import { readCatalogueCategory } from "@/content/catalogue";
 import {
-  TATA_HERO,
   TATA_DESCRIPTION,
   TATA_POWERED_BY,
   TATA_PARTNERS,
@@ -31,7 +29,6 @@ import {
 } from "@/constants/tataExperience";
 import { TATA_SECTIONS, TATA_WORK_INTRO } from "@/constants/tataSections";
 import { ExperienceTransition } from "@/components/transition/ExperienceTransition";
-import { VideoHero } from "@/components/client/tata/VideoHero";
 import { PartnerMarquee } from "@/components/client/tata/PartnerMarquee";
 import { GuidelineSections } from "@/components/client/tata/GuidelineSections";
 import {
@@ -104,13 +101,12 @@ export function TataExperience() {
         </Link>
 
         <ExperienceTransition>
-          {/* 1 — the 16:9 hero film. */}
-          <div className="mt-8">
-            <VideoHero src={TATA_HERO.src} poster={TATA_HERO.poster} />
-          </div>
+          {/* The 16:9 hero film opened this page until 2026-08-17, removed at
+              the owner's request. VideoHero and TATA_HERO are both still here,
+              unmounted, if it comes back. */}
 
-          {/* 2 — description + endorsements. */}
-          <section className="grid grid-cols-1 gap-10 border-t border-neutral-200 py-14 lg:grid-cols-[1.4fr_1fr] lg:gap-16 lg:py-16">
+          {/* 1 — description + endorsements. */}
+          <section className="mt-8 grid grid-cols-1 gap-10 py-14 lg:grid-cols-[1.4fr_1fr] lg:gap-16 lg:py-16">
             <div>
               <span className={LABEL} style={{ color: "var(--brand-accent, #737373)" }}>
                 Client — Enterprise · Systems
