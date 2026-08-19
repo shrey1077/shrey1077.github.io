@@ -75,11 +75,15 @@ export function PublicationShelf({
                       className="object-cover object-top transition-transform duration-500 group-hover:scale-[1.04]"
                     />
                   ) : (
+                    /* The year, NOT the kind. A cover-less spine drawn with
+                       `kind` reads as a stutter against the meta line directly
+                       beside it — "Blog entryBlog entry · 2019". The year is
+                       the one fact the row does not already repeat. */
                     <span
                       aria-hidden
-                      className="absolute inset-0 grid place-items-center px-1 text-center text-[0.62rem] font-semibold uppercase leading-tight tracking-[0.1em] text-white/85"
+                      className="absolute inset-0 grid place-items-center px-1 text-center text-[0.66rem] font-semibold uppercase leading-tight tracking-[0.08em] text-white/90"
                     >
-                      {pub.kind}
+                      {pub.year}
                     </span>
                   )}
                 </span>

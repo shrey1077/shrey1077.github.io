@@ -155,9 +155,18 @@ export const CLIENTS: readonly Client[] = [
     accent: "#1f7a4d",
     essence: "A chess site that argues the board teaches the day.",
     section: "projects",
-    href: "/chess/",
+    // ⚠ `/chess/index.html`, not `/chess/`. GitHub Pages resolves a directory
+    // to its index, but `next dev` does NOT serve one for a public/ folder —
+    // `/chess/` 404s locally while every file under it is fine. Naming the file
+    // makes the link correct in both, so this can be checked before it deploys.
+    href: "/chess/index.html",
+    // The site's own mark, straight out of the copied folder. ⚠ NOT
+    // `logoTone: "light"` — measured, the artwork is 100% pure black ink on
+    // transparent, so a dark plate erases it completely. It takes the default
+    // white plate. Square lockup (knight over a blackletter wordmark), so it
+    // fits the common box by HEIGHT and lands small without the scale.
     cardLogo: "/chess/images/logo.png",
-    logoTone: "light",
+    logoScale: 1.7,
   },
   {
     slug: "early-works",
