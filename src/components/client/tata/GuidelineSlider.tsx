@@ -9,13 +9,11 @@
  * rather than a backdrop behind one image. Ten thumbnails at a time, the live
  * one picked out. Advances on its own every five seconds.
  *
- * ⚠ Tata IIS wears a TYPE mark, not its logo, and that is not a shortcut. The
- * only Tata asset is the horizontal lockup, which measures 3.97:1 — inside
- * these circles it draws 52x13px, i.e. two lines of type squeezed into
- * thirteen pixels, unreadable. The campus marks are 1.35:1 and 1:1 and sit in
- * the same circle comfortably (52x39 and 52x52), so they are used as-is. Supply
- * a square or stacked Tata IIS mark and this falls back to an image like the
- * other two.
+ * ⚠ The pills are ELONGATED, not circles, and that is what lets all three wear
+ * their real logo. Tata's only asset is the horizontal lockup at 3.97:1, which
+ * inside a circle drew 52x13px — two lines of type in thirteen pixels, so it
+ * had to be replaced with stacked type. A wide pill fits it at its own aspect,
+ * so the genuine mark is back and the type fallback is gone.
  *
  * ⚠ The selected pill is NOT filled with its brand colour. Each mark is drawn
  * in its own palette — IISM's is teal, IISA's navy — so a teal mark on a teal
@@ -44,10 +42,7 @@ export interface GuidelineBrand {
   id: string;
   label: string;
   /** The mark shown in this brand's pill. */
-  logo?: string;
-  /** Used INSTEAD of `logo` where no usable square mark exists — see the
-   *  header. Rendered as stacked type in the heading face. */
-  mark?: string[];
+  logo: string;
   plates: ContentAsset[];
   /** The panel's ground while this brand is showing. */
   bg: string;
@@ -104,9 +99,9 @@ export function GuidelineSlider({ brands }: { brands: GuidelineBrand[] }) {
               className="group outline-none"
             >
               <span
-                className={`grid size-20 place-items-center overflow-hidden rounded-full bg-white p-3.5 transition-all duration-300 ${
+                className={`grid h-24 w-52 place-items-center overflow-hidden rounded-full bg-white px-6 py-4 transition-all duration-300 sm:h-28 sm:w-64 ${
                   live
-                    ? "shadow-[0_10px_30px_-12px_rgba(0,0,0,0.45)]"
+                    ? "shadow-[0_12px_34px_-14px_rgba(0,0,0,0.45)]"
                     : "opacity-55 group-hover:opacity-100"
                 }`}
                 style={{
@@ -114,19 +109,9 @@ export function GuidelineSlider({ brands }: { brands: GuidelineBrand[] }) {
                   outline: live ? "none" : "1px solid rgb(229 229 229)",
                 }}
               >
-                {b.logo ? (
-                  <span className="relative block size-full">
-                    <Image src={b.logo} alt="" fill sizes="80px" className="object-contain" />
-                  </span>
-                ) : (
-                  <span className="tata-heading flex flex-col items-center justify-center leading-[1.05] text-neutral-900">
-                    {b.mark?.map((line, li) => (
-                      <span key={line} className={li === 0 ? "text-[0.78rem]" : "text-[0.78rem]"}>
-                        {line}
-                      </span>
-                    ))}
-                  </span>
-                )}
+                <span className="relative block size-full">
+                  <Image src={b.logo} alt="" fill sizes="256px" className="object-contain" />
+                </span>
               </span>
             </button>
           );

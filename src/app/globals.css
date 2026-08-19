@@ -127,24 +127,39 @@ canvas {
   letter-spacing: 0.045em;
   text-transform: uppercase;
 }
-.tata-subhead {
-  font-family: "Helvetica Neue Condensed", "Helvetica Condensed", "Arial Narrow",
-    "Arial Nova Cond", Helvetica, "Helvetica Neue", Arial, ui-sans-serif, sans-serif;
-  font-stretch: condensed;
-  font-weight: 700;
-}
-/* ⚠ CONDENSED, as asked — but Helvetica Condensed is NOT on these machines and
- * is not free to ship, so this is a stack, not the real face. It asks for the
- * genuine article first and falls to the nearest thing a visitor is likely to
- * actually have: Arial Narrow / Arial Nova Condensed ship with Windows and are
- * a close metric match. Drop a licensed Helvetica Condensed into public/fonts
- * and add an @font-face and every one of these resolves to it instead. */
-.tata-body {
-  font-family: "Helvetica Neue Condensed", "Helvetica Condensed", "HelveticaNeue-Condensed",
-    "Arial Narrow", "Arial Nova Cond", Helvetica, "Helvetica Neue", Arial,
-    ui-sans-serif, sans-serif;
-  font-stretch: condensed;
+/* The two Helvetica cuts, self-hosted, one family with two faces. Both come
+ * from the owner's licensed library (Helvetica LT Std Cond, and Cond Black
+ * Italic at a -12deg angle) and are used on the TATA IIS PAGE ONLY. */
+@font-face {
+  font-family: "Helvetica Cond";
+  src: url("/fonts/helvetica-condensed.woff2") format("woff2");
   font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: "Helvetica Cond";
+  src: url("/fonts/helvetica-black-condensed-oblique.woff2") format("woff2");
+  font-weight: 900;
+  font-style: oblique 12deg;
+  font-display: swap;
+}
+
+/* ⚠ The subhead asks for 900 AND oblique, and both halves are load-bearing.
+ * The black cut is only registered at that weight and style, so dropping
+ * either makes the browser fall to the 400 upright face and synthesise the
+ * difference — a smeared fake-bold slant instead of the real Black Oblique. */
+.tata-subhead {
+  font-family: "Helvetica Cond", "Helvetica LT Std Cond Blk", "Arial Narrow",
+    Helvetica, Arial, ui-sans-serif, sans-serif;
+  font-weight: 900;
+  font-style: oblique 12deg;
+}
+.tata-body {
+  font-family: "Helvetica Cond", "Helvetica LT Std Cond", "Arial Narrow",
+    Helvetica, Arial, ui-sans-serif, sans-serif;
+  font-weight: 400;
+  font-style: normal;
 }
 
 /* Within the Tata experience the site's voiced utilities (mono/serif/script)
@@ -155,7 +170,8 @@ canvas {
 .tata-scope .font-mono-brand,
 .tata-scope .font-serif-brand,
 .tata-scope .font-hand-brand {
-  font-family: Helvetica, "Helvetica Neue", Arial, ui-sans-serif, sans-serif;
+  font-family: "Helvetica Cond", "Helvetica LT Std Cond", "Arial Narrow", Helvetica,
+    Arial, ui-sans-serif, sans-serif;
 }
 
 /* RIGHT nav — a slow painted gradient in the creative palette that never sits
