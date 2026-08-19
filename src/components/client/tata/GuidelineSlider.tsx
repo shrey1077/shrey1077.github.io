@@ -1,25 +1,38 @@
 "use client";
 
 /**
- * GuidelineSlider — the guideline plates as a stage, a tray, and a brand switch.
+ * GuidelineSlider — the guideline plates as a switch, a stage and a tray.
  *
- * One plate held large on its brand's own ground, four thumbnails beneath it,
- * advancing on its own every five seconds. Below that, the three brands: Tata
- * IIS (the default), IIS Ahmedabad, IIS Mumbai. Choosing one swaps the whole
- * deck and the stage's colour with it.
+ * The three brands sit on top as circular pills carrying their own marks;
+ * beneath them one rounded panel in the live brand's colour holds the plate
+ * being shown and the whole tray, so the ground reads as the deck's own field
+ * rather than a backdrop behind one image. Ten thumbnails at a time, the live
+ * one picked out. Advances on its own every five seconds.
+ *
+ * ⚠ Tata IIS wears a TYPE mark, not its logo, and that is not a shortcut. The
+ * only Tata asset is the horizontal lockup, which measures 3.97:1 — inside
+ * these circles it draws 52x13px, i.e. two lines of type squeezed into
+ * thirteen pixels, unreadable. The campus marks are 1.35:1 and 1:1 and sit in
+ * the same circle comfortably (52x39 and 52x52), so they are used as-is. Supply
+ * a square or stacked Tata IIS mark and this falls back to an image like the
+ * other two.
+ *
+ * ⚠ The selected pill is NOT filled with its brand colour. Each mark is drawn
+ * in its own palette — IISM's is teal, IISA's navy — so a teal mark on a teal
+ * fill disappears. The pills stay white and the selection is carried by a ring
+ * in the brand colour instead, which holds for all three.
+ *
+ * ⚠ The tray is a WINDOW, not the first ten. Tata IIS runs to twelve plates, so
+ * a fixed window would leave the auto-advance highlighting nothing once it
+ * passed the tenth; it slides to keep the live plate inside and clamps at the
+ * end. The campus decks are shorter than the window, so the column count is
+ * `min(TRAY, n)` — a hard `grid-cols-10` would strand three empty cells.
  *
  * ⚠ This replaced GuidelinePlates on this page rather than rewriting it —
  * LogoSystem still uses that one, and its unbounded snap-scrolling strip is
- * exactly what broke this band: a flex row of twelve 256px plates has no
+ * what broke this band originally: a flex row of twelve 256px plates has no
  * intrinsic width cap, so sharing a grid row with the copy squeezed the text to
- * one word per line. This is width-contained by construction: the stage is a
- * plain block and the tray a four-column grid, so neither can push its
- * container wider.
- *
- * ⚠ The tray is a WINDOW of four, not the first four. The decks run to twelve
- * plates, so a fixed window would leave the auto-advance highlighting nothing
- * most of the time; it slides to keep the live plate inside and clamps at the
- * end so the last window is still four wide.
+ * one word per line. Everything here is width-contained by construction.
  */
 
 import { useEffect, useState } from "react";
@@ -30,13 +43,18 @@ import { MediaViewer } from "@/components/experience/MediaViewer";
 export interface GuidelineBrand {
   id: string;
   label: string;
+  /** The mark shown in this brand's pill. */
+  logo?: string;
+  /** Used INSTEAD of `logo` where no usable square mark exists — see the
+   *  header. Rendered as stacked type in the heading face. */
+  mark?: string[];
   plates: ContentAsset[];
-  /** The stage's ground while this brand is showing. */
+  /** The panel's ground while this brand is showing. */
   bg: string;
 }
 
 /** Plates visible in the tray at once. */
-const TRAY = 4;
+const TRAY = 10;
 /** Auto-advance cadence. */
 const HOLD_MS = 5000;
 
@@ -61,78 +79,14 @@ export function GuidelineSlider({ brands }: { brands: GuidelineBrand[] }) {
   if (!brand || n === 0) return null;
 
   const current = plates[i];
-  const start = Math.max(0, Math.min(i - Math.floor((TRAY - 1) / 2), n - TRAY));
-  const shown = plates.slice(start, start + TRAY);
+  const cols = Math.min(TRAY, n);
+  const start = Math.max(0, Math.min(i - Math.floor((cols - 1) / 2), n - cols));
+  const shown = plates.slice(start, start + cols);
 
   return (
     <div className="w-full min-w-0">
-      {/* The stage, on the selected brand's ground. */}
-      <button
-        type="button"
-        onClick={() => setViewing(current)}
-        aria-label={`Open ${brand.label} guideline plate ${i + 1} of ${n}`}
-        className="group block w-full outline-none"
-      >
-        <span
-          className="relative block aspect-[1405/1000] w-full overflow-hidden rounded-2xl border border-neutral-200 transition-colors duration-500 group-focus-visible:border-neutral-900"
-          style={{ backgroundColor: brand.bg }}
-        >
-          {plates.map((p, k) => (
-            <Image
-              key={p.url}
-              src={p.url}
-              alt={k === i ? p.name : ""}
-              fill
-              sizes="(max-width: 1024px) 92vw, 62vw"
-              className={`object-contain transition-opacity duration-700 ${
-                k === i ? "opacity-100" : "opacity-0"
-              }`}
-            />
-          ))}
-        </span>
-      </button>
-
-      <div className="mt-3 flex items-center justify-between">
-        <span className="tata-body text-[0.6rem] tabular-nums text-neutral-500">
-          {String(i + 1).padStart(2, "0")} / {String(n).padStart(2, "0")}
-        </span>
-        <span className="tata-body text-[0.6rem] text-neutral-400">
-          Tap a plate to open it full size
-        </span>
-      </div>
-
-      {/* The tray. A grid, so four thumbs always share the width evenly and the
-          row can never grow past its container. */}
-      <ul className="mt-3 grid grid-cols-4 gap-3">
-        {shown.map((p, k) => {
-          const idx = start + k;
-          const live = idx === i;
-          return (
-            <li key={p.url}>
-              <button
-                type="button"
-                onClick={() => setI(idx)}
-                aria-label={`Show plate ${idx + 1}`}
-                aria-current={live}
-                className="group block w-full outline-none"
-              >
-                <span
-                  className={`relative block aspect-[1405/1000] w-full overflow-hidden rounded-xl border transition-all duration-300 ${
-                    live ? "border-neutral-900" : "border-neutral-200 opacity-70 group-hover:opacity-100"
-                  }`}
-                  style={{ backgroundColor: brand.bg }}
-                >
-                  <Image src={p.url} alt="" fill sizes="180px" className="object-contain" />
-                </span>
-              </button>
-            </li>
-          );
-        })}
-      </ul>
-
-      {/* The brand switch. Each pill wears its own colour when live, so the
-          choice and the stage's ground say the same thing. */}
-      <div role="tablist" aria-label="Brand" className="mt-6 flex flex-wrap justify-center gap-3">
+      {/* The switch, on top. */}
+      <div role="tablist" aria-label="Brand" className="flex flex-wrap items-center justify-center gap-5">
         {brands.map((b) => {
           const live = b.id === brand.id;
           return (
@@ -141,21 +95,110 @@ export function GuidelineSlider({ brands }: { brands: GuidelineBrand[] }) {
               type="button"
               role="tab"
               aria-selected={live}
+              aria-label={b.label}
+              title={b.label}
               onClick={() => {
                 setBrandId(b.id);
                 setI(0);
               }}
-              className={`tata-subhead rounded-full border px-5 py-2.5 text-[0.6rem] uppercase tracking-[0.14em] outline-none transition-colors duration-300 focus-visible:ring-2 focus-visible:ring-neutral-900/40 ${
-                live
-                  ? "border-transparent text-white"
-                  : "border-neutral-300 text-neutral-500 hover:border-neutral-900 hover:text-neutral-900"
-              }`}
-              style={live ? { backgroundColor: b.bg } : undefined}
+              className="group outline-none"
             >
-              {b.label}
+              <span
+                className={`grid size-20 place-items-center overflow-hidden rounded-full bg-white p-3.5 transition-all duration-300 ${
+                  live
+                    ? "shadow-[0_10px_30px_-12px_rgba(0,0,0,0.45)]"
+                    : "opacity-55 group-hover:opacity-100"
+                }`}
+                style={{
+                  boxShadow: live ? `0 0 0 3px ${b.bg}` : undefined,
+                  outline: live ? "none" : "1px solid rgb(229 229 229)",
+                }}
+              >
+                {b.logo ? (
+                  <span className="relative block size-full">
+                    <Image src={b.logo} alt="" fill sizes="80px" className="object-contain" />
+                  </span>
+                ) : (
+                  <span className="tata-heading flex flex-col items-center justify-center leading-[1.05] text-neutral-900">
+                    {b.mark?.map((line, li) => (
+                      <span key={line} className={li === 0 ? "text-[0.78rem]" : "text-[0.78rem]"}>
+                        {line}
+                      </span>
+                    ))}
+                  </span>
+                )}
+              </span>
             </button>
           );
         })}
+      </div>
+
+      {/* One panel in the brand's colour, holding the stage AND the tray. */}
+      <div
+        className="mt-6 rounded-3xl p-4 transition-colors duration-500 sm:p-6"
+        style={{ backgroundColor: brand.bg }}
+      >
+        <button
+          type="button"
+          onClick={() => setViewing(current)}
+          aria-label={`Open ${brand.label} guideline plate ${i + 1} of ${n}`}
+          className="group block w-full outline-none"
+        >
+          <span className="relative block aspect-[1405/1000] w-full overflow-hidden rounded-2xl">
+            {plates.map((p, k) => (
+              <Image
+                key={p.url}
+                src={p.url}
+                alt={k === i ? p.name : ""}
+                fill
+                sizes="(max-width: 1024px) 92vw, 62vw"
+                className={`object-contain transition-opacity duration-700 ${
+                  k === i ? "opacity-100" : "opacity-0"
+                }`}
+              />
+            ))}
+          </span>
+        </button>
+
+        <div className="mt-4 flex items-center justify-between">
+          <span className="tata-body text-[0.6rem] tabular-nums text-white/70">
+            {String(i + 1).padStart(2, "0")} / {String(n).padStart(2, "0")}
+          </span>
+          <span className="tata-body text-[0.6rem] text-white/50">Tap a plate to open it full size</span>
+        </div>
+
+        {/* The tray, on the same ground. Columns are counted, not hard-coded —
+            see the header. */}
+        <ul
+          className="mt-3 grid gap-2"
+          style={{ gridTemplateColumns: `repeat(${cols}, minmax(0, 1fr))` }}
+        >
+          {shown.map((p, k) => {
+            const idx = start + k;
+            const live = idx === i;
+            return (
+              <li key={p.url}>
+                <button
+                  type="button"
+                  onClick={() => setI(idx)}
+                  aria-label={`Show plate ${idx + 1}`}
+                  aria-current={live}
+                  className="group block w-full outline-none"
+                >
+                  <span
+                    className={`relative block aspect-[1405/1000] w-full overflow-hidden rounded-md bg-white/95 transition-all duration-300 ${
+                      live
+                        ? "opacity-100 ring-2 ring-white"
+                        : "opacity-45 group-hover:opacity-80"
+                    }`}
+                  >
+                    <Image src={p.url} alt="" fill sizes="90px" className="object-contain" />
+                  </span>
+                </button>
+              </li>
+            );
+          })}
+        </ul>
       </div>
 
       <MediaViewer asset={viewing} onClose={() => setViewing(null)} />

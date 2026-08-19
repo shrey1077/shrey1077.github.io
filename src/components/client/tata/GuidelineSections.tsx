@@ -52,16 +52,26 @@ export function GuidelineSections() {
      TATA_GUIDELINES rather than being retyped here.
      ⚠ IISM's teal is colours[1]; colours[0] is the violet. */
   const brands = [
-    { id: "tata", label: "Tata IIS", plates: deck(g.tataPlates, "Tata IIS"), bg: "#000000" },
+    {
+      id: "tata",
+      label: "Tata IIS",
+      // ⚠ Type, not the wordmark: the lockup is 3.97:1 and draws 13px tall
+      // inside the pill. See GuidelineSlider's header.
+      mark: ["TATA", "IIS"],
+      plates: deck(g.tataPlates, "Tata IIS"),
+      bg: "#000000",
+    },
     {
       id: "iisa",
       label: "IIS Ahmedabad",
+      logo: g.iisa.logo,
       plates: deck([g.iisa.typography, ...g.iisa.plates], "IIS Ahmedabad"),
       bg: g.iisa.colours[0].hex,
     },
     {
       id: "iism",
       label: "IIS Mumbai",
+      logo: g.iism.logo,
       plates: deck([g.iism.typography, ...g.iism.plates], "IIS Mumbai"),
       bg: g.iism.colours[1].hex,
     },
