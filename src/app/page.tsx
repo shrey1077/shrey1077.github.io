@@ -26,9 +26,11 @@ import {
   readArtCollections,
   readExtinctsSlides,
   readLogofolio,
+  readCasePlates,
   readPublicationPages,
 } from "@/content/catalogue";
 import { PUBLICATIONS } from "@/constants/publications";
+import { PROJECT_STUDIES, STUDY_CONTENT_SLUG } from "@/constants/projectStudies";
 
 export default function Home() {
   // Every mark, for the Logofolio board.
@@ -48,6 +50,15 @@ export default function Home() {
     PUBLICATIONS.map((p) => [p.slug, p.pages ? readPublicationPages(p.slug)[0] : undefined]),
   );
 
+  // The eight independent commissions on the Projects board open a preview
+  // rather than a page, and the preview is a client component — so their plates
+  // are read here, the same way publication covers are.
+  // ⚠ They still live under the `freelance` CONTENT folder even though no
+  // client owns that slug any more; see constants/projectStudies.ts.
+  const studyPlates = Object.fromEntries(
+    PROJECT_STUDIES.map((s) => [s.id, readCasePlates(STUDY_CONTENT_SLUG, s.folder)]),
+  );
+
   return (
     <main className="w-full bg-gallery">
       <HeroStage />
@@ -60,6 +71,7 @@ export default function Home() {
         extinctsSlides={extinctsSlides}
         artCollections={artCollections}
         publicationCovers={publicationCovers}
+        studyPlates={studyPlates}
       />
       <SiteFooter />
     </main>

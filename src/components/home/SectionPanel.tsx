@@ -29,7 +29,9 @@ import { CAREER_STOP_COUNT, CareerTimeline } from "@/components/home/CareerTimel
 import { ArtCollections } from "@/components/home/ArtCollections";
 import { PublicationShelf } from "@/components/home/PublicationShelf";
 import { PaintBurst } from "@/components/home/PaintBurst";
+import { ProjectPreview, type StudyPlate } from "@/components/home/ProjectPreview";
 import { PUBLICATIONS } from "@/constants/publications";
+import { PROJECT_STUDIES, projectStudyById } from "@/constants/projectStudies";
 import { FILM_PLATE } from "@/constants/design";
 import { NAV_SECTIONS } from "@/constants/navigation";
 import { clientsInSection } from "@/constants/clients";
@@ -51,15 +53,33 @@ interface Cell {
   /** Linear multiplier on the centred logo box, for marks that read small at
    *  the common size. */
   scale?: number;
+  /** A study id instead of a destination: this cell opens ProjectPreview in
+   *  place rather than navigating anywhere. Mutually exclusive with `href`. */
+  studyId?: string;
+  /** `image` is ARTWORK, not a mark: fill the plate edge to edge instead of
+   *  fitting it into the centred logo box. Six of the eight studies have no
+   *  mark, so their cell is fronted by the first plate of the work itself. */
+  fill?: boolean;
 }
 
 /** The centred box every mark is fitted into, as a percentage of the plate, and
  *  the ceiling a scaled one may not pass so nothing touches the card's edge. */
 const LOGO_BOX = { w: 62, h: 31, max: 94 };
 
-function cellsFor(id: NavSectionId, logos: LogoMark[], extinctsSlides: string[]): Cell[] {
+/** Cells to a screenful. Four to a row since 2026-08-20, so this is three full
+ *  rows — the rest stay a scroll away rather than shrinking. Projects sits at
+ *  exactly 10 now, so the cap must clear that or the board would silently drop
+ *  the last brands. */
+const BOARD_CAP = 12;
+
+function cellsFor(
+  id: NavSectionId,
+  logos: LogoMark[],
+  extinctsSlides: string[],
+  studyPlates: Record<string, StudyPlate[]>,
+): Cell[] {
   if (id === "clients" || id === "projects") {
-    return clientsInSection(id).map((c) => ({
+    const clients: Cell[] = clientsInSection(id).map((c) => ({
       key: c.slug,
       label: c.name,
       sub: c.sector,
@@ -74,6 +94,29 @@ function cellsFor(id: NavSectionId, logos: LogoMark[], extinctsSlides: string[])
       tone: c.logoTone,
       scale: c.logoScale,
     }));
+    if (id !== "projects") return clients;
+    // The eight independent commissions, promoted out of the old Freelance
+    // room on 2026-08-20. They have no page — they open ProjectPreview.
+    return [
+      ...clients,
+      ...PROJECT_STUDIES.map((s) => {
+        // A mark where one exists; otherwise the first plate of the work.
+        // ⚠ Without this the six mark-less studies printed their name INSIDE
+        // the empty plate and again as the caption under it — "Leder Warren
+        // Leder Warren". Fronting them with the work fixes the stutter and
+        // says more about the project than its name set twice would.
+        const first = studyPlates[s.id]?.[0]?.url;
+        return {
+          key: s.id,
+          label: s.name,
+          sub: s.kind,
+          studyId: s.id,
+          image: s.logo ?? first,
+          tone: s.logoTone,
+          fill: !s.logo && !!first,
+        };
+      }),
+    ];
   }
   if (id === "logofolio") {
     return logos.map((m) => ({ key: m.slug, label: m.name, image: m.url, tone: m.tone }));
@@ -107,27 +150,37 @@ export function SectionPanel({
   extinctsSlides,
   artCollections,
   publicationCovers,
+  studyPlates,
 }: {
   logos: LogoMark[];
   extinctsSlides: string[];
   artCollections: ArtCollection[];
   /** slug → first rendered page, read server-side (see app/page.tsx). */
   publicationCovers: Record<string, string | undefined>;
+  /** study id → its plates, read server-side for the same reason. */
+  studyPlates: Record<string, StudyPlate[]>;
 }) {
   const reduceMotion = useReducedMotion();
   const [openId, setOpenId] = useState<NavSectionId | null>(null);
+  // Which independent commission is being previewed, if any. Held here rather
+  // than in the board so that closing a section closes its preview too.
+  const [studyId, setStudyId] = useState<string | null>(null);
 
   useEffect(() => {
-    const onPin = (e: Event) => setOpenId((e as CustomEvent<NavSectionId | null>).detail);
+    const onPin = (e: Event) => {
+      setOpenId((e as CustomEvent<NavSectionId | null>).detail);
+      // A preview belongs to the section that opened it; leaving the section
+      // while a dialog is still up would strand it over the wrong room.
+      setStudyId(null);
+    };
     window.addEventListener(PIN_OPEN_EVENT, onPin);
     return () => window.removeEventListener(PIN_OPEN_EVENT, onPin);
   }, []);
 
   const section = NAV_SECTIONS.find((s) => s.id === openId) ?? null;
   const logic = section?.hemisphere === "left";
-  const cells = section ? cellsFor(section.id, logos, extinctsSlides) : [];
-  // Nine to a screen — the rest stay a scroll away rather than shrinking.
-  const board = cells.slice(0, 9);
+  const cells = section ? cellsFor(section.id, logos, extinctsSlides, studyPlates) : [];
+  const board = cells.slice(0, BOARD_CAP);
 
   // A section with its own renderer counts its own entries, and falls back to
   // the empty note if its content folder turned out to be bare.
@@ -232,16 +285,31 @@ export function SectionPanel({
                 )}
               </div>
             ) : board.length > 0 ? (
-              <ul className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3">
+              <ul className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-4">
                 {board.map((c) => {
                   const inner = (
                     <>
                       <span
                         className={`relative mb-4 block aspect-[4/3] w-full overflow-hidden rounded-xl ${
-                          c.tone === "light" ? "bg-neutral-900" : "bg-white/90"
+                          c.fill
+                            ? "bg-neutral-900"
+                            : c.tone === "light"
+                              ? "bg-neutral-900"
+                              : "bg-white/90"
                         }`}
                       >
-                        {c.image ? (
+                        {c.image && c.fill ? (
+                          // Artwork, not a mark: it covers the plate. The logo
+                          // box would shrink a whole poster to the size of a
+                          // wordmark and leave three-quarters of the cell blank.
+                          <Image
+                            src={c.image}
+                            alt=""
+                            fill
+                            sizes="(min-width: 1024px) 22vw, 45vw"
+                            className="object-cover transition-transform duration-500 group-hover:scale-[1.03]"
+                          />
+                        ) : c.image ? (
                           // Marks sit in a fixed, centred box rather than filling
                           // the plate. `object-contain` across the whole plate
                           // sizes each logo by its own aspect, so a square mark
@@ -294,7 +362,18 @@ export function SectionPanel({
 
                   return (
                     <li key={c.key}>
-                      {c.href && c.external ? (
+                      {c.studyId ? (
+                        // Opens a dialog, so it is a button. A link that opens
+                        // a dialog lies to anyone middle-clicking it, and these
+                        // eight have no page to middle-click to.
+                        <button
+                          type="button"
+                          onClick={() => setStudyId(c.studyId!)}
+                          className={`${shell} w-full cursor-pointer text-left`}
+                        >
+                          {inner}
+                        </button>
+                      ) : c.href && c.external ? (
                         <a href={c.href} className={shell}>
                           {inner}
                         </a>
@@ -321,6 +400,17 @@ export function SectionPanel({
               </p>
             )}
           </div>
+
+          {/* The preview is mounted INSIDE the panel so it inherits the
+              `data-section-panel` marker — the pins treat a click in here as
+              inside, and dismissing the dialog does not also close the room
+              behind it. It is `position: fixed`, so the panel's
+              `overflow-hidden` never clips it. */}
+          <ProjectPreview
+            study={studyId ? (projectStudyById(studyId) ?? null) : null}
+            plates={studyId ? (studyPlates[studyId] ?? []) : []}
+            onClose={() => setStudyId(null)}
+          />
         </motion.section>
       )}
     </AnimatePresence>

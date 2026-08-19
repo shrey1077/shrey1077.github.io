@@ -119,15 +119,6 @@ export const CLIENTS: readonly Client[] = [
     cardLogo: "/content/clients/uid/brand/uid-logo.png",
   },
   {
-    slug: "mycoveda",
-    name: "Mycoveda",
-    sector: "Wellness · Nutrition",
-    accent: "#5C7C3A",
-    essence: "Wellness rooted in quiet, potent nature.",
-    section: "projects",
-    cardLogo: "/content/clients/azoth-biotech/brand/brands/mycoveda.png",
-  },
-  {
     slug: "newsmobile",
     name: "NewsMobile",
     sector: "Digital News",
@@ -136,14 +127,6 @@ export const CLIENTS: readonly Client[] = [
     location: "Gurugram, Haryana",
     site: "newsmobile.in",
     cardLogo: "/content/career/newsmobile.png",
-  },
-  {
-    slug: "freelance",
-    name: "Freelance",
-    sector: "Independent · Multi-brand",
-    accent: "#B5533B",
-    essence: "Small brands, each taken from problem to finished thing.",
-    location: "India · Remote",
   },
   {
     // The 2022 chess site, shipped verbatim rather than retold — see
@@ -168,15 +151,22 @@ export const CLIENTS: readonly Client[] = [
     cardLogo: "/chess/images/logo.png",
     logoScale: 1.7,
   },
-  {
-    slug: "early-works",
-    name: "Early Works",
-    sector: "Archive · Beginnings",
-    accent: "#6B6B6B",
-    essence: "Where the hand learned before the system did.",
-    section: "projects",
-  },
 ] as const;
+
+/* ⚠ Three entries left this list on 2026-08-20, all by the owner's instruction.
+ *
+ *   mycoveda / early-works  — removed from Projects. Nothing linked to either
+ *                             page, so both routes went with them. Mycoveda's
+ *                             mark still ships under azoth-biotech/brand/brands
+ *                             and its logofolio entry is untouched.
+ *   freelance               — its EIGHT brands were promoted to Projects as
+ *                             individual entries (constants/projectStudies.ts),
+ *                             so the single Freelance card that stood for them
+ *                             is gone. FREELANCE_EXPERIENCE survives as their
+ *                             copy, and `public/content/clients/freelance/work/`
+ *                             still holds their plates — the slug names a
+ *                             content folder now, not a client.
+ */
 
 /** Look up a client by slug (used by the detail route). */
 export function clientBySlug(slug: string): Client | undefined {
