@@ -20,7 +20,7 @@
  */
 
 import Image from "next/image";
-import { GuidelinePlates } from "@/components/client/GuidelinePlates";
+import { GuidelineSlider } from "@/components/client/tata/GuidelineSlider";
 import { GuidelineSeeMore } from "@/components/client/tata/GuidelineSeeMore";
 import { TATA_GUIDELINES } from "@/constants/tataExperience";
 
@@ -42,11 +42,15 @@ type Campus = typeof TATA_GUIDELINES.iisa;
 /** One campus — the mark, and a way into its rulebook. Nothing else. */
 function CampusPanel({ kicker, data, className }: { kicker: string; data: Campus; className: string }) {
   return (
-    <div className={`flex flex-col items-start gap-6 p-6 lg:p-10 ${className}`}>
+    <div className={`flex flex-col items-center gap-7 p-6 text-center lg:p-12 ${className}`}>
       <span className={`${KICKER} text-neutral-500`}>{kicker}</span>
 
-      <div className="relative h-16 w-full max-w-[17rem]">
-        <Image src={data.logo} alt={`${kicker} logo`} fill sizes="280px" className="object-contain object-left" />
+      {/* ⚠ Both marks share this box exactly — same height, same max width,
+          `object-contain` — so the two campuses read as equals. The two source
+          files are different shapes, so anything that sized to the image itself
+          made one noticeably larger than the other. */}
+      <div className="relative h-28 w-full max-w-[22rem]">
+        <Image src={data.logo} alt={`${kicker} logo`} fill sizes="352px" className="object-contain" />
       </div>
 
       {/* The typography plate leads the stack — it is no longer on the page,
@@ -76,28 +80,30 @@ export function GuidelineSections() {
           The wordmark &amp; its rulebook
         </span>
 
-        {/* Two columns INSIDE the band: the mark and its law on the left, the
-            plate strip on the right. At full width a single stack left the
-            wordmark enormous and the rest stranded under it. */}
-        <div className="mt-5 grid grid-cols-1 gap-8 lg:grid-cols-[1.15fr_1fr] lg:gap-14">
-          <div className="flex flex-col gap-5">
-            <div className="relative flex aspect-[16/5] w-full items-center justify-center overflow-hidden rounded-2xl border border-neutral-200">
-              <Guide className="left-1/3 top-0 h-full w-px" />
-              <Guide className="left-2/3 top-0 h-full w-px" />
-              <Guide className="left-0 top-1/3 h-px w-full" />
-              <Guide className="left-0 top-2/3 h-px w-full" />
-              <div className="relative aspect-[4/1] w-3/4">
-                <Image
-                  src={g.wordmark}
-                  alt="TATA IIS — Tata Indian Institute of Skills wordmark"
-                  fill
-                  sizes="(max-width: 1024px) 75vw, 620px"
-                  className="object-contain"
-                />
-              </div>
+        {/* ⚠ The copy and the slider are stacked ROWS, not columns.
+            They shared a two-column grid and it collapsed: the old plate strip
+            is a flex row of twelve 256px plates with no intrinsic width cap, so
+            it forced its column wide and squeezed the copy to about 130px —
+            one word per line. Keep these on separate rows. */}
+        <div className="mt-5 grid grid-cols-1 gap-8 lg:grid-cols-[auto_minmax(0,1fr)] lg:items-center lg:gap-12">
+          <div className="relative flex aspect-[16/5] w-full max-w-md shrink-0 items-center justify-center overflow-hidden rounded-2xl border border-neutral-200">
+            <Guide className="left-1/3 top-0 h-full w-px" />
+            <Guide className="left-2/3 top-0 h-full w-px" />
+            <Guide className="left-0 top-1/3 h-px w-full" />
+            <Guide className="left-0 top-2/3 h-px w-full" />
+            <div className="relative aspect-[4/1] w-3/4">
+              <Image
+                src={g.wordmark}
+                alt="TATA IIS — Tata Indian Institute of Skills wordmark"
+                fill
+                sizes="(max-width: 1024px) 75vw, 420px"
+                className="object-contain"
+              />
             </div>
+          </div>
 
-            <p className="tata-body max-w-xl text-xs leading-relaxed text-neutral-600">
+          <div className="flex min-w-0 flex-col gap-5">
+            <p className="tata-body max-w-2xl text-sm leading-relaxed text-neutral-600">
               Copperplate Gothic Bold, kerned to the Tata Trusts standard, on an 8x
               construction grid. The subtitle line is structural, not decorative — it
               exists so the mark never reads as &ldquo;TIIS&rdquo;.
@@ -106,18 +112,19 @@ export function GuidelineSections() {
             <div className="flex flex-wrap items-center gap-x-6 gap-y-2">
               {COLOUR_LAW.map((c) => (
                 <span key={c.hex} className="flex items-center gap-2.5">
-                  <span aria-hidden className={`size-5 rounded-full ${c.swatch}`} />
-                  <span className="tata-body text-[0.68rem] text-neutral-600">
+                  <span aria-hidden className={`size-5 shrink-0 rounded-full ${c.swatch}`} />
+                  <span className="tata-body whitespace-nowrap text-[0.68rem] text-neutral-600">
                     {c.hex} — {c.use}
                   </span>
                 </span>
               ))}
             </div>
           </div>
+        </div>
 
-          <div className="min-h-0">
-            <GuidelinePlates plates={tataPlates} />
-          </div>
+        {/* The plates: one held large, four in the tray, moving on its own. */}
+        <div className="mt-10 lg:mx-auto lg:max-w-4xl">
+          <GuidelineSlider plates={tataPlates} />
         </div>
       </div>
 
