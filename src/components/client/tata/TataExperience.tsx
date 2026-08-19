@@ -188,7 +188,31 @@ export function TataExperience() {
             </div>
           </section>
 
-          {/* 3 — the logo-guideline system. */}
+          {/* 3 — the two campuses, side by side, ahead of the rulebooks. Each
+              is the mark and the one line that describes its dialect; the
+              guidelines themselves are the switch in the next section. */}
+          <section
+            aria-label="The two campuses"
+            className="grid grid-cols-1 gap-10 border-t border-neutral-200 py-14 md:grid-cols-2 md:gap-16"
+          >
+            {[
+              { kicker: "Campus dialect — Ahmedabad", d: TATA_GUIDELINES.iisa, align: "md:items-start md:text-left" },
+              { kicker: "Campus dialect — Mumbai", d: TATA_GUIDELINES.iism, align: "md:items-end md:text-right" },
+            ].map(({ kicker, d, align }) => (
+              <div key={kicker} className={`flex flex-col items-center gap-5 text-center ${align}`}>
+                <span className={`${LABEL} text-neutral-500`}>{kicker}</span>
+                {/* Both marks share one box — same height, same max width — so
+                    the two campuses read as equals. The source files are
+                    different shapes, so sizing to the image made one larger. */}
+                <span className="relative block h-20 w-full max-w-[16rem]">
+                  <Image src={d.logo} alt={`${kicker} logo`} fill sizes="256px" className="object-contain" />
+                </span>
+                <p className="tata-body max-w-sm text-sm leading-relaxed text-neutral-600">{d.line}</p>
+              </div>
+            ))}
+          </section>
+
+          {/* 4 — the logo-guideline system. */}
           <GuidelineSections />
 
           {/* 4 — the partner marquee. */}

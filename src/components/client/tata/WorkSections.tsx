@@ -27,6 +27,7 @@ import { EASE_OUT } from "@/constants/motion";
 import { BRAND_LANES, brandOf, type TataBrand } from "@/constants/tataSections";
 import { GuidelineSlider, type GuidelineBrand } from "@/components/client/tata/GuidelineSlider";
 import { Reveal } from "@/components/experience/Reveal";
+import { ScrollRows } from "@/components/client/tata/ScrollRows";
 
 export interface ResolvedItem {
   /** Unique across the page (a folder can back two subsections). */
@@ -379,7 +380,11 @@ function Section({
   const gridRef = useRef<HTMLDivElement>(null);
   const wide = section.cols ?? 3;
   const [cols, setCols] = useState(wide);
-  const [expanded, setExpanded] = useState(true);
+  /* ⚠ Collapsed on first load (owner's call). The page is long and the
+     headlines are the map; opening one is a deliberate act. Note this is
+     what makes the pinned scroll below sensible — a section only takes
+     over the scroll once you have asked for it. */
+  const [expanded, setExpanded] = useState(false);
   const reduceMotion = useReducedMotion();
   const dark = !!section.dark;
 
@@ -404,6 +409,31 @@ function Section({
 
   // Lane is fixed to the item's own index so a tile previews the same campus at
   // every width, even where the grid folds to two columns or one.
+  /** One row of tiles. Chunked here rather than in one grid, because the pin
+   *  advances the section a ROW at a time and needs them as separate nodes. */
+  const rowsOf = (items: ResolvedItem[], offset: number) => {
+    const out: React.ReactNode[] = [];
+    for (let r = 0; r * cols < items.length; r++) {
+      const slice = items.slice(r * cols, r * cols + cols);
+      out.push(
+        <div key={r} className={gridClass(wide)}>
+          {slice.map((item, i) => (
+            <Tile
+              key={item.key}
+              item={item}
+              accent={section.accent}
+              lane={BRAND_LANES[(offset + r * cols + i) % BRAND_LANES.length]}
+              open={item.key === openKey}
+              onToggle={() => onToggle(item.key)}
+              dark={dark}
+            />
+          ))}
+        </div>,
+      );
+    }
+    return out;
+  };
+
   const grid = (items: ResolvedItem[], offset: number) => (
     <div className={gridClass(wide)}>
       {items.map((item, i) => (
@@ -438,8 +468,7 @@ function Section({
         dark ? "-mx-6 mt-14 bg-neutral-950/[0.93] px-6 pb-14 sm:-mx-10 sm:px-10" : ""
       }`}
     >
-      {/* The headline is the toggle. Open by default — this collapses a long
-          page down, it does not hide the work behind a click on arrival. */}
+      {/* The headline is the toggle; every section starts closed. */}
       <h3 className={dark ? "border-t border-white/15" : "border-t border-neutral-200"}>
         <button
           type="button"
@@ -513,19 +542,31 @@ function Section({
             )}
 
             <div ref={gridRef}>
-              {before.length > 0 && grid(before, 0)}
-              <AnimatePresence initial={false} mode="wait">
-                {openItem && (
-                  <Panel
-                    key={openItem.key}
-                    item={openItem}
-                    accent={section.accent}
-                    onClose={() => onToggle(openItem.key)}
-                    onOpenAsset={onOpenAsset}
-                  />
-                )}
-              </AnimatePresence>
-              {after.length > 0 && grid(after, splitAt)}
+              {/* ⚠ Two layouts, and the switch is deliberate. With nothing open
+                  the rows are PINNED and advanced by scroll. The moment a
+                  subsection opens, the pin is dropped and the flat grid returns
+                  — the opened panel is inserted between rows, and a panel
+                  growing inside a sticky viewport of fixed height either
+                  overflows it or scrolls the pin away mid-read. */}
+              {openItem ? (
+                <>
+                  {before.length > 0 && grid(before, 0)}
+                  <AnimatePresence initial={false} mode="wait">
+                    <Panel
+                      key={openItem.key}
+                      item={openItem}
+                      accent={section.accent}
+                      onClose={() => onToggle(openItem.key)}
+                      onOpenAsset={onOpenAsset}
+                    />
+                  </AnimatePresence>
+                  {after.length > 0 && grid(after, splitAt)}
+                </>
+              ) : (
+                <ScrollRows rows={Math.ceil(section.items.length / cols)}>
+                  {rowsOf(section.items, 0)}
+                </ScrollRows>
+              )}
             </div>
           </motion.div>
         )}
