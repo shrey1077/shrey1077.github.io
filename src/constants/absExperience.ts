@@ -1,0 +1,187 @@
+/**
+ * ABS Wholesale — bespoke page configuration.
+ *
+ * ABS distributes vape, smoke-shop and convenience product out of Santa Fe
+ * Springs, California into six states. Its client room was a placeholder until
+ * 2026-08-20, when the owner supplied the retail and social creative.
+ *
+ * The room is organised BY BRAND, per the owner's instruction, and the order
+ * says which is which: ABS's own house identity first, then the three brands
+ * built FOR them — Luzid, Kartpipe, Himax Distro — then the brands they carry
+ * and promote, then Misc.
+ *
+ * ⚠ Misc is a rule, not a leftovers bin. A brand with a single artwork goes
+ * there rather than getting a category of one, by the owner's instruction. Nine
+ * do: Stündenglass, the Bear glass, Hush Kratom, MIT45, Beamer, Prime,
+ * Cignature, Elf Bar and Al Fakher. `prepare-abs-experience.mjs` FAILS if a
+ * named category ever drops below two pieces, so the rule cannot rot quietly.
+ *
+ * ⚠ Kartpipe is its own category even though every Kartpipe piece carries
+ * Luzid's logo — it ships under Luzid, but it is a distinct product identity
+ * and the owner names it separately.
+ *
+ * Plates come from scripts/prepare-abs-experience.mjs.
+ */
+
+import type { CaseStudyConfig } from "@/types/caseStudy";
+
+export const ABS_EXPERIENCE: CaseStudyConfig = {
+  slug: "abs",
+  eyebrow: "Selected — Distribution & retail creative",
+  title: "ABS Wholesale",
+  tagline: "A distributor's whole shelf, brand by brand.",
+  intro:
+    "ABS moves vape, smoke-shop and convenience product into thousands of storefronts, which makes its design problem unusual: not one identity but dozens, each belonging to somebody else, all of them going out under the same sales number and the same feed. The work splits in two. Some brands were built here from nothing — Luzid, its Kartpipe spin-off, and Himax Distro. The rest are brands ABS carries, where the job is to make a supplier's product look like it belongs in a serious catalogue and still move a case of it this week.",
+  metaLines: [
+    "Brand identity · Retail & social creative · Trade",
+    "Santa Fe Springs, California",
+    "absdistro.com",
+  ],
+  footerNote: "Distribution and retail creative — selected work, shown as portfolio record",
+  categories: [
+    {
+      id: "abs-house",
+      folder: "abs-house",
+      name: "ABS Wholesale",
+      kind: "House identity · Trade & internal",
+      headline: "The one number every brand goes out under.",
+      challenge:
+        "A distributor is invisible by design — the brands on the shelf get the attention. ABS still needed a mark of its own that could sit at the foot of every piece of creative it published, carry a booth at trade shows, and speak as an employer.",
+      description:
+        "The infinity monogram in gold on oxblood, and the things a house identity actually has to do: the one-stop-solution board for smoke shops, liquor stores, gas stations and 7-Eleven; a trade booth layout; seasonal pieces; and a hiring flyer that still reads as the same company.",
+      accent: "#C4690F",
+    },
+    {
+      id: "luzid",
+      folder: "luzid",
+      name: "Luzid",
+      kind: "Brand built in-house · Device identity",
+      headline: "Built here, from the name up.",
+      challenge:
+        "A disposable-vape market where every device claims the same puff count needs a brand with an actual idea, not another spec sheet. Luzid had to hold a straight face across a hardware line while still being the loud one on a shelf of loud ones.",
+      description:
+        "The Luzid identity and the Sikret 2.0 line it launched — the 650mAh device, the touch-sensitive surface, the colourway drops, and the \"What's your Sikret?\" campaign the range hangs on. Angular wordmark, saturated gradients, product photographed as the hero.",
+      accent: "#7C3AED",
+    },
+    {
+      id: "kartpipe",
+      folder: "kartpipe",
+      name: "Kartpipe",
+      kind: "Brand built in-house · Product identity",
+      headline: "A classical pipe that happens to be a vape.",
+      challenge:
+        "A device shaped like a briar pipe is either a novelty or a statement, and nothing in between. The creative had to land it as the second thing — heritage form, modern internals — without the joke getting there first.",
+      description:
+        "Kartpipe launched under Luzid on a single idea repeated three ways: classic meets modern, performance in your palm, the classic rejuvenated. Dark, product-forward frames that let the silhouette do the arguing.",
+      accent: "#2F3133",
+    },
+    {
+      id: "himax",
+      folder: "himax",
+      name: "Himax Distro",
+      kind: "Brand built in-house · Distribution identity",
+      headline: "A second front door.",
+      challenge:
+        "A distribution arm needed to stand apart from ABS while carrying the same catalogue — its own mark, its own voice, and creative that could front other people's product without looking borrowed.",
+      description:
+        "The HM monogram and the campaigns that ran under it, including the Orion Bar launch and a Black Friday push. Same discipline as the house work, deliberately a different accent.",
+      accent: "#E0452C",
+    },
+    {
+      id: "tyson",
+      folder: "tyson",
+      name: "Tyson 2.0",
+      kind: "Carried brand · Launch & retail",
+      headline: "A heavyweight, sold like one.",
+      challenge:
+        "A licensed brand arrives with its own equity and its own guardrails. The creative had to use the name and the likeness at full strength while still reading as an ABS piece with an ABS order line on it.",
+      description:
+        "Launch and restock creative for Tyson 2.0 — the Heavy Weight, the Round 2 drop, the Strawberry Watermelon flavour push — staged in ring-side blacks and greens under the Himax banner.",
+      accent: "#1F7A3D",
+    },
+    {
+      id: "deathrow",
+      folder: "deathrow",
+      name: "Deathrow Vapes",
+      kind: "Carried brand · Celebrity launch",
+      headline: "Snoop's name on the box.",
+      challenge:
+        "Celebrity product lives or dies on whether the association reads instantly. Two frames, one recognisable face, and the spec — 7000 puffs, 5% nicotine — still legible at feed size.",
+      description:
+        "Launch creative for Deathrow Vapes, built around the Snoop Dogg association and kept deliberately spare so the portrait and the pack carry it.",
+      accent: "#B3162A",
+    },
+    {
+      id: "puffco",
+      folder: "puffco",
+      name: "Puffco",
+      kind: "Carried brand · Catalogue system",
+      headline: "One system, a whole hardware range.",
+      challenge:
+        "The largest single run in the room: a dozen SKUs across the Proxy, Peak, Guardian and Budsy lines. Shot separately, at different times, they had to arrive as one catalogue rather than a dozen unrelated posts.",
+      description:
+        "A repeatable frame — product cut out on a near-white ground, the Puffco lockup top-left, the ABS order bar at the foot — applied across Proxy, Proxy Bub, Wizard, Droplet, Plus, Pro, Peak, Guardian, Guardian Ball Cap, Travel Pack, Budsy and Cupsy. The consistency IS the work.",
+      accent: "#111827",
+    },
+    {
+      id: "stiiizy",
+      folder: "stiiizy",
+      name: "Stiiizy",
+      kind: "Carried brand · Retail creative",
+      headline: "Hemp pods, staged soft.",
+      challenge:
+        "A brand with a strong existing look, sold into the same feed as everything else. The pieces had to feel like Stiiizy and still belong to the ABS grid.",
+      description:
+        "Pod and battery creative — the one-gram pack of ten, the White Raspberry drop, the 550mAh battery — shot warm and floral against the harder frames around them.",
+      accent: "#6D28D9",
+    },
+    {
+      id: "polk-a-dot",
+      folder: "polk-a-dot",
+      name: "Polk A Dot",
+      kind: "Carried brand · Teaser campaign",
+      headline: "Coming soon, twice.",
+      challenge:
+        "Two pre-launch teasers with no product story to tell yet — only the pack, the name, and a date that had not arrived.",
+      description:
+        "Pastel teaser frames for the gummies and the chocolate bars, leaning on the packaging's own confectionery palette rather than inventing one.",
+      accent: "#E86FA0",
+    },
+    {
+      id: "jungo",
+      folder: "jungo",
+      name: "Jungo Leaf",
+      kind: "Carried brand · Product creative",
+      headline: "Loose leaf, staged lush.",
+      challenge:
+        "Rolling tobacco is a commodity category with almost no visual language of its own beyond the pouch.",
+      description:
+        "Two frames built out of the pack's own jungle motif — the grape variant and the five-cut, ten-pouch box — pushed into full foliage rather than laid flat.",
+      accent: "#3F8F3F",
+    },
+    {
+      id: "shruumz",
+      folder: "shruumz",
+      name: "Diamond Shruumz",
+      kind: "Carried brand · Product creative",
+      headline: "Two colourways, one frame.",
+      challenge:
+        "A pack that ships in variants needs creative that changes colour without changing shape, so the range reads as a range.",
+      description:
+        "The five-pack staged twice — one cyan, one magenta — on the same splash composition, with the weight and count held in the same place both times.",
+      accent: "#2F6DB5",
+    },
+    {
+      id: "misc",
+      folder: "misc",
+      name: "Misc",
+      kind: "Carried brands · One piece each",
+      headline: "The long tail of a catalogue.",
+      challenge:
+        "A distributor's feed is mostly this: one good frame for a brand that gets one good frame. They still have to look like they came from the same desk.",
+      description:
+        "Single pieces for Stündenglass, the Bear glass range, Hush Kratom, MIT45, Beamer, Prime, Cignature, Elf Bar and Al Fakher. Kept together deliberately rather than each given a category of one.",
+      accent: "#6B6B6B",
+    },
+  ],
+};
