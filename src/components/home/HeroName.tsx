@@ -189,6 +189,7 @@ export function HeroName() {
   const thinkRef = useRef<HTMLSpanElement>(null);
   const imagineRef = useRef<HTMLSpanElement>(null);
   // True only while the liquid is actually on screen; see the span below.
+  const [paintOff, setPaintOff] = useState(false);
   // True only while the mesh is actually drawing; see the Think span.
   const [meshOn, setMeshOn] = useState(false);
 
@@ -311,27 +312,26 @@ export function HeroName() {
         className="absolute top-0 z-20"
       >
         <motion.span {...rise(0.5)} className="relative block">
-          {/* ⚠ The painted word is NO LONGER HIDDEN under the liquid. It used
-              to drop to opacity-0 once the particles started, which left
-              "Imagine" readable only in the instants the particles happened to
-              cover its strokes — the owner asked for it visible at all times
-              on 2026-08-21. The gradient word now sits underneath and the
-              liquid plays over it, so the word is legible on the worst frame
-              of the loop and the effect still reads on the best.
-
-              The span also keeps `imagineRef`: it is what the layout's ink
-              metrics measure, and what a reduced-motion visitor reads. */}
+          {/* ⚠ The span STAYS, and keeps `imagineRef`. It is what the layout
+              measures (see the ink-metrics effect above) and what a
+              reduced-motion or canvas-less visitor actually reads. The liquid
+              only takes over its FILL: `paintOff` drops the gradient once
+              ImagineParticles reports it is really drawing, so a failure to
+              start leaves the painted word intact rather than a hole.
+              Reverting is deleting the sibling and this one class. */}
           <span
             ref={imagineRef}
             style={{
               fontSize: `calc(${BASE_SIZE} * ${IMAGINE_RATIO})`,
               lineHeight: IMAGINE_LEADING,
             }}
-            className={`${WORD} brain-paint bg-clip-text font-graff font-bold text-transparent`}
+            className={`${WORD} brain-paint bg-clip-text font-graff font-bold text-transparent ${
+              paintOff ? "opacity-0" : ""
+            }`}
           >
             Imagine
           </span>
-          <ImagineParticles word="Imagine" fontFrom={imagineRef} />
+          <ImagineParticles word="Imagine" fontFrom={imagineRef} onActive={setPaintOff} />
         </motion.span>
       </motion.div>
     </h1>

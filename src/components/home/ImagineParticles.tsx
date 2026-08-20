@@ -59,12 +59,7 @@ const DENSITY = 26;
  *  to the height it stays the same fraction of a stroke at every size. */
 const sizeFor = (h: number) => Math.max(3.5, Math.min(14, h * 0.115));
 const SPEED = 4;
-/** ⚠ 30, a THIRD of the 90 it shipped with — the owner found that circle far
- *  too wide on 2026-08-21. This is the radius in which the pointer shoves
- *  particles aside, so it reads directly as the size of the disturbance around
- *  the cursor. Dropping it also tightens the effect: at 90 the push reached
- *  most of the word at once, so the whole thing heaved rather than parting. */
-const HOVER_RADIUS = 30;
+const HOVER_RADIUS = 90;
 const BREAK_CHANCE = 50;
 const ALPHA_THR = 50;
 

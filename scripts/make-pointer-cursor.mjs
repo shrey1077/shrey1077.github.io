@@ -1,21 +1,26 @@
 /**
  * make-brain-cursor.mjs — the pointer.
  *
- * A black-stroked ring with a flat rainbow disc inside it, at 24px across in a
- * 32px canvas — the owner's brief on 2026-08-21, replacing the brain glyph that
- * replaced the three.js firework cursor. No trail, no canvas, no rAF: it is two
- * PNGs and a CSS declaration.
+ * A black-stroked ring with a small flat-rainbow DOT at its centre, at 24px
+ * across in a 32px canvas — updated 2026-08-21 per the owner: the colour area
+ * shrinks to a dot, leaving a transparent gap between the ring's inner edge
+ * and the dot. No trail, no canvas, no rAF: it is two PNGs and a CSS
+ * declaration.
  *
  * ⚠ "Rainbow" is FLAT, not a gradient — eight solid wedges taken from
  * `.brain-paint`'s own stops, so the pointer carries the same palette the right
  * hemisphere throws rather than a generic spectrum. Wedges are drawn as paths
- * rather than a conic gradient because a conic would band badly at 24px and is
- * not reliably rasterised by sharp.
+ * rather than a conic gradient because a conic would band badly at this size
+ * and is not reliably rasterised by sharp.
  *
  * ⚠ THE BLACK RING IS WHAT MAKES IT WORK ON BOTH GROUNDS. The hero is #f9f9f9
- * and the section panels are near-black; a bare rainbow disc dissolves into the
- * paint film on the creative side. The stroke gives it a hard edge everywhere,
- * which is the same problem the brain glyph solved with a white halo.
+ * and the section panels are near-black; a bare rainbow shape dissolves into
+ * the paint film on the creative side. The stroke gives it a hard edge
+ * everywhere, which is the same problem the brain glyph solved with a white
+ * halo.
+ *
+ * ⚠ THE GAP BETWEEN RING AND DOT MUST STAY TRANSPARENT — no fill, so the page
+ * underneath shows through the middle band, not a white or black disc.
  *
  * ⚠ HOTSPOT IS THE CENTRE, unlike the brain's top-left. A ring reads as a
  * reticle — the thing under the middle of it is the thing you are pointing at —
@@ -35,8 +40,9 @@ import path from "node:path";
 const OUT = "D:/Brain Folio/public/cursors";
 const SIZE = 32;
 const CX = 16, CY = 16;
-const R = 12;          // disc radius — 24px across, the "medium" the brief asked for
+const R = 12;          // ring radius — 24px across, the "medium" the brief asked for
 const STROKE = 2.2;    // the black ring
+const DOT_R = 3.5;     // the colour dot at centre — leaves a transparent gap to the ring
 
 /** `.brain-paint`'s stops, in order. */
 const PAINT = [
@@ -48,9 +54,9 @@ const PAINT = [
 const wedges = PAINT.map((c, i) => {
   const a0 = (i / PAINT.length) * Math.PI * 2 - Math.PI / 2;
   const a1 = ((i + 1) / PAINT.length) * Math.PI * 2 - Math.PI / 2;
-  const x0 = CX + R * Math.cos(a0), y0 = CY + R * Math.sin(a0);
-  const x1 = CX + R * Math.cos(a1), y1 = CY + R * Math.sin(a1);
-  return `<path d="M${CX} ${CY} L${x0.toFixed(2)} ${y0.toFixed(2)} A${R} ${R} 0 0 1 ${x1.toFixed(2)} ${y1.toFixed(2)} Z" fill="${c}"/>`;
+  const x0 = CX + DOT_R * Math.cos(a0), y0 = CY + DOT_R * Math.sin(a0);
+  const x1 = CX + DOT_R * Math.cos(a1), y1 = CY + DOT_R * Math.sin(a1);
+  return `<path d="M${CX} ${CY} L${x0.toFixed(2)} ${y0.toFixed(2)} A${DOT_R} ${DOT_R} 0 0 1 ${x1.toFixed(2)} ${y1.toFixed(2)} Z" fill="${c}"/>`;
 }).join("");
 
 const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="${SIZE}" height="${SIZE}" viewBox="0 0 ${SIZE} ${SIZE}">
