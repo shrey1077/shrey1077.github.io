@@ -41,9 +41,11 @@ export interface CaseCategory {
   accent: string;
   /** Optional live site to link out to. */
   site?: string;
-  /** How this category shows its plates. Absent = the standard CaseGallery
-   *  grid. "coverflow" is the 3D flow, opt-in per category so nothing else
-   *  changes shape by accident — currently only ABS's Luzid section. */
+  /** How this category shows its plates. Absent = fall back to the config's
+   *  own `presentation`, and absent there too = the standard CaseGallery grid.
+   *  "coverflow" is the 3D flow.
+   *  ⚠ ABS now sets this at CONFIG level (all twelve categories flow), so this
+   *  per-category field is only for overriding one section against the room. */
   presentation?: "coverflow";
 }
 
@@ -52,8 +54,22 @@ export interface CaseStudyConfig {
   slug: string;
   /** Small eyebrow above the title ("Selected — Independent practice"). */
   eyebrow: string;
-  /** The room's name. */
+  /** The room's name. Always set — it is the accessible name and the <title>
+   *  even when `titleLogo` replaces it visually. */
   title: string;
+  /** Print the brand's own logo in place of the typeset title. The <h1> stays,
+   *  with `title` as its alt text, so the heading is unchanged to a screen
+   *  reader and to search. ABS uses this; Newsmobile does not. */
+  titleLogo?: string;
+  /** Default presentation for EVERY category in this room. A category may
+   *  still override it. */
+  presentation?: "coverflow";
+  /** Wrap the room in one font family, e.g. ABS's Barlow. A bare Tailwind
+   *  class, applied to the page root so every child inherits it. */
+  fontClass?: string;
+  /** Show the numbered category index under the intro. Defaults to TRUE, so
+   *  Newsmobile is untouched; ABS sets it false at the owner's request. */
+  showIndex?: boolean;
   /** The expressive serif line under the title. */
   tagline: string;
   /** The opening paragraph. */

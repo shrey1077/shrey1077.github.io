@@ -31,8 +31,31 @@ export function CaseStudyExperience({ config }: { config: CaseStudyConfig }) {
     .map((c) => ({ ...c, plates: readCasePlates(config.slug, c.folder) }))
     .filter((c) => c.plates.length > 0);
 
+  /* ⚠ A room that declares its own `fontClass` speaks in ONE family, so the
+     Typography Constitution's per-voice faces are SUPPRESSED inside it and
+     weight carries the hierarchy instead. Without this, `typeVoiceClass` would
+     set font-family on exactly the elements that matter most — the tagline, the
+     category headlines and every meta line — and override the family inherited
+     from <main>, leaving the room in three faces instead of one.
+     Newsmobile sets no fontClass, so it keeps the voices untouched. */
+  const oneVoice = Boolean(config.fontClass);
+  const meta = oneVoice
+    ? "text-[0.55rem] font-medium tracking-[0.18em]"
+    : META;
+  /* The weight ramp, used only when oneVoice. Three steps, deliberately wide
+     apart so the hierarchy survives at Barlow's low contrast: 700 headline,
+     600 sub-head, 400 body. Nothing lighter than 400 carries body copy here —
+     #fafafa is already a low-contrast ground. */
+  const displayCls = oneVoice
+    ? "font-bold"
+    : typeVoiceClass("creative", "display");
+  const bodyCls = oneVoice ? "font-normal" : "";
+  const subheadCls = oneVoice ? "font-semibold" : "font-semibold";
+
   return (
-    <main className="relative min-h-dvh w-full bg-[#fafafa] px-6 py-12 text-neutral-900 sm:px-10">
+    <main
+      className={`relative min-h-dvh w-full bg-[#fafafa] px-6 py-12 text-neutral-900 sm:px-10 ${config.fontClass ?? ""}`}
+    >
       {/* Optional house film, run as a wash behind the room. Fixed so it holds
           still while the page scrolls, and muted enough that plates stay the
           subject. `poster` carries reduced-motion viewers. */}
@@ -56,18 +79,33 @@ export function CaseStudyExperience({ config }: { config: CaseStudyConfig }) {
           {/* The room, stated. */}
           <header className="grid grid-cols-1 gap-8 border-b border-neutral-200 py-16 lg:grid-cols-[1fr_auto] lg:gap-16 lg:py-24">
             <div className="flex flex-col gap-6">
-              <span className={`${META} uppercase text-neutral-400`}>
+              <span className={`${meta} uppercase text-neutral-400`}>
                 {config.eyebrow}
               </span>
+              {/* ⚠ The <h1> STAYS when a logo is used — the logo goes inside it
+                  with `title` as alt text, so the heading level, the accessible
+                  name and the document outline are identical either way. A bare
+                  <Image> here would silently delete the page's only h1. */}
               <h1 className="text-[clamp(2.4rem,6vw,5rem)] font-semibold leading-[0.98] tracking-[-0.03em]">
-                {config.title}
+                {config.titleLogo ? (
+                  <Image
+                    src={config.titleLogo}
+                    alt={config.title}
+                    width={480}
+                    height={409}
+                    priority
+                    className="h-auto w-[clamp(11rem,26vw,19rem)] object-contain"
+                  />
+                ) : (
+                  config.title
+                )}
               </h1>
               <p
-                className={`${typeVoiceClass("creative", "display")} max-w-[24ch] text-[clamp(1.15rem,2.4vw,1.9rem)] leading-[1.15] text-neutral-500`}
+                className={`${displayCls} max-w-[24ch] text-[clamp(1.15rem,2.4vw,1.9rem)] leading-[1.15] text-neutral-500`}
               >
                 {config.tagline}
               </p>
-              <p className="max-w-[64ch] text-[0.95rem] leading-relaxed text-neutral-600">
+              <p className={`${bodyCls} max-w-[64ch] text-[0.95rem] leading-relaxed text-neutral-600`}>
                 {config.intro}
               </p>
             </div>
@@ -84,7 +122,7 @@ export function CaseStudyExperience({ config }: { config: CaseStudyConfig }) {
               ) : null}
               <div className="flex flex-col gap-1 lg:items-end">
                 {config.metaLines.map((line) => (
-                  <span key={line} className={`${META} uppercase text-neutral-400`}>
+                  <span key={line} className={`${meta} uppercase text-neutral-400`}>
                     {line}
                   </span>
                 ))}
@@ -93,6 +131,7 @@ export function CaseStudyExperience({ config }: { config: CaseStudyConfig }) {
           </header>
 
           {/* The index — one line per category. */}
+          {(config.showIndex ?? true) ? (
           <nav
             aria-label="Index"
             className="flex flex-col gap-px border-b border-neutral-200 py-8"
@@ -104,7 +143,7 @@ export function CaseStudyExperience({ config }: { config: CaseStudyConfig }) {
                 className="group flex items-baseline gap-4 py-2 outline-none transition-colors duration-200"
               >
                 <span
-                  className={`${META} shrink-0 tabular-nums text-neutral-400 transition-colors group-hover:text-neutral-900`}
+                  className={`${meta} shrink-0 tabular-nums text-neutral-400 transition-colors group-hover:text-neutral-900`}
                   style={{ ["--hover" as string]: c.accent }}
                 >
                   {String(i + 1).padStart(2, "0")}
@@ -116,12 +155,13 @@ export function CaseStudyExperience({ config }: { config: CaseStudyConfig }) {
                   aria-hidden
                   className="mx-2 hidden h-px flex-1 self-center bg-neutral-200 sm:block"
                 />
-                <span className={`${META} hidden shrink-0 text-neutral-400 sm:block`}>
+                <span className={`${meta} hidden shrink-0 text-neutral-400 sm:block`}>
                   {c.kind}
                 </span>
               </a>
             ))}
           </nav>
+          ) : null}
 
           {/* The categories. */}
           {categories.map((c, i) => (
@@ -135,27 +175,27 @@ export function CaseStudyExperience({ config }: { config: CaseStudyConfig }) {
                   <span className={META} style={{ color: c.accent }}>
                     {String(i + 1).padStart(2, "0")} — {c.kind}
                   </span>
-                  <h2 className="text-[clamp(1.5rem,3vw,2.4rem)] font-semibold leading-[1.05] tracking-[-0.015em]">
+                  <h2 className={`${subheadCls} text-[clamp(1.5rem,3vw,2.4rem)] leading-[1.05] tracking-[-0.015em]`}>
                     {c.name}
                   </h2>
                   <p
-                    className={`${typeVoiceClass("creative", "display")} max-w-[30ch] text-[1.15rem] leading-[1.2] text-neutral-800`}
+                    className={`${displayCls} max-w-[30ch] text-[1.15rem] leading-[1.2] text-neutral-800`}
                   >
                     {c.headline}
                   </p>
 
                   <div className="mt-1 flex flex-col gap-1.5">
                     <span
-                      className={`${typeVoiceClass("logic", "meta")} text-[0.5rem] tracking-[0.24em] text-neutral-400`}
+                      className={`${oneVoice ? "font-semibold" : typeVoiceClass("logic", "meta")} text-[0.5rem] tracking-[0.24em] text-neutral-400`}
                     >
                       The challenge
                     </span>
-                    <p className="max-w-[46ch] text-[0.82rem] leading-relaxed text-neutral-500">
+                    <p className={`${bodyCls} max-w-[46ch] text-[0.82rem] leading-relaxed text-neutral-500`}>
                       {c.challenge}
                     </p>
                   </div>
 
-                  <p className="max-w-[46ch] text-[0.86rem] leading-relaxed text-neutral-600">
+                  <p className={`${bodyCls} max-w-[46ch] text-[0.86rem] leading-relaxed text-neutral-600`}>
                     {c.description}
                   </p>
 
@@ -177,7 +217,7 @@ export function CaseStudyExperience({ config }: { config: CaseStudyConfig }) {
                   />
                 </div>
 
-                {c.presentation === "coverflow" ? (
+                {(c.presentation ?? config.presentation) === "coverflow" ? (
                   <CoverflowGallery plates={c.plates} accent={c.accent} />
                 ) : (
                   <CaseGallery plates={c.plates} accent={c.accent} />
@@ -187,7 +227,7 @@ export function CaseStudyExperience({ config }: { config: CaseStudyConfig }) {
           ))}
 
           <footer className="py-12 text-center">
-            <p className={`${META} uppercase text-neutral-400`}>
+            <p className={`${meta} uppercase text-neutral-400`}>
               {config.footerNote}
             </p>
           </footer>

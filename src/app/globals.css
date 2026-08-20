@@ -118,6 +118,23 @@ canvas {
   font-family: Helvetica, "Helvetica Neue", Arial, ui-sans-serif, system-ui, sans-serif;
 }
 
+/* ABS Wholesale's page voice — one family for the whole room, with WEIGHT
+ * carrying the hierarchy rather than a second family. Applied to that page's
+ * <main> via CaseStudyConfig.fontClass; used nowhere else.
+ *
+ * ⚠ A PLAIN CLASS, deliberately, not a `--font-*` token in `@theme inline`.
+ * As a theme token Tailwind only emits the `font-abs` utility if it SEES the
+ * class in scanned source, and here the name lives in a string field inside
+ * src/constants/absExperience.ts — the scanner did not pick it up, the utility
+ * was never generated, and the room silently rendered in the default sans.
+ * Written out longhand it cannot be dropped.
+ *
+ * ⚠ The fallback must stay a grotesque: Barlow is a low-contrast sans, and a
+ * serif fallback re-voices the whole room while the webfont is loading. */
+.font-abs {
+  font-family: var(--font-barlow), "Helvetica Neue", Arial, ui-sans-serif, sans-serif;
+}
+
 /*
  * Tata IIS full-experience — a strict two-typeface system (client directive):
  *   .tata-heading → Copperplate Gothic Bold  (the logo font)
@@ -143,6 +160,7 @@ canvas {
  *
  * `local()` comes first so an installed copy is used without a download; the
  * url is the guarantee for everyone else. */
+
 @font-face {
   font-family: "Copperplate Gothic Bold";
   src:
@@ -249,7 +267,6 @@ canvas {
     animation: none;
   }
 }
-
 
 /* ── Landing hemisphere faces ───────────────────────────────────────────────
  * Self-hosted so the landing never waits on a third party for its headline.
