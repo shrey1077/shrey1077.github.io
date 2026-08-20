@@ -36,7 +36,7 @@ import { FILM_PLATE } from "@/constants/design";
 import { NAV_SECTIONS } from "@/constants/navigation";
 import { clientsInSection } from "@/constants/clients";
 import type { NavSectionId } from "@/types/navigation";
-import type { ArtCollection, LogoMark } from "@/content/catalogue";
+import type { ArtCollection, LogoMark, MarkPlate } from "@/content/catalogue";
 import { EASE_OUT } from "@/constants/motion";
 
 /** One cell of the board. */
@@ -151,6 +151,7 @@ export function SectionPanel({
   artCollections,
   publicationCovers,
   studyPlates,
+  markPlates,
 }: {
   logos: LogoMark[];
   extinctsSlides: string[];
@@ -159,6 +160,9 @@ export function SectionPanel({
   publicationCovers: Record<string, string | undefined>;
   /** study id → its plates, read server-side for the same reason. */
   studyPlates: Record<string, StudyPlate[]>;
+  /** original mark url → trimmed art + the scale that matches its ink area to
+   *  every other mark's. Empty falls back to the untrimmed files. */
+  markPlates: Record<string, MarkPlate>;
 }) {
   const reduceMotion = useReducedMotion();
   const [openId, setOpenId] = useState<NavSectionId | null>(null);
@@ -286,7 +290,20 @@ export function SectionPanel({
               </div>
             ) : board.length > 0 ? (
               <ul className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-4">
-                {board.map((c) => {
+                {board.map((cell) => {
+                  // ⚠ Marks are swapped for their TRIMMED art here, and take the
+                  // scale that matches their ink area to every other mark's.
+                  // `object-contain` sizes a logo by its bounding box, so a file
+                  // that is 97% transparent padding renders tiny however it is
+                  // scaled — the padding has to be gone before a scale means
+                  // anything. Both the art and the number come from
+                  // scripts/prepare_logo_marks.py; see readMarkPlates.
+                  // `fill` cells are a study's own work plate, never a mark, and
+                  // are deliberately left alone.
+                  const swap = cell.image && !cell.fill ? markPlates[cell.image] : undefined;
+                  const c: Cell = swap
+                    ? { ...cell, image: swap.url, scale: swap.scale }
+                    : cell;
                   const inner = (
                     <>
                       {/* ⚠ Logo plates are PURE white — `bg-white`, not the

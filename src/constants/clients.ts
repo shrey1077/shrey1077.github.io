@@ -43,10 +43,13 @@ export interface Client {
   contact?: string;
   /** Logo shown in the card's top band. */
   cardLogo?: string;
-  /** Linear multiplier on the board's centred logo box. The box is one size for
-   *  everything, which evens out bounding boxes but not ink — a mark that is
-   *  mostly whitespace, or a small device beside a long wordmark, still reads
-   *  small. This is the per-logo correction for those. 1 = the common size. */
+  /** Linear multiplier on the board's centred logo box.
+   *  ⚠ MOSTLY RETIRED. The board now trims every mark to its ink and computes
+   *  the scale that matches its rendered ink AREA to every other mark's
+   *  (scripts/prepare_logo_marks.py -> readMarkPlates), and that value wins
+   *  over this one. Hand values were removed on 2026-08-20 rather than left to
+   *  contradict what actually renders. Kept only as the fallback for a mark
+   *  that is not in the generated map. */
   logoScale?: number;
   /** "light" when the artwork is white or pale, so the card gives it a dark
    *  plate instead of the default white one. Without it a white mark on
@@ -77,7 +80,6 @@ export const CLIENTS: readonly Client[] = [
     // The owner's own AVIF, converted to PNG with its alpha intact (512x256,
     // pure black art on transparent). Replaces the resume-sourced mark.
     cardLogo: "/content/clients/azoth-biotech/brand/logo-azoth.png",
-    logoScale: 2,
   },
   {
     slug: "abs",
@@ -88,7 +90,6 @@ export const CLIENTS: readonly Client[] = [
     location: "Santa Fe Springs, California",
     site: "abscali.com",
     cardLogo: "/content/career/abs.png",
-    logoScale: 3,
   },
   {
     slug: "zabraku-media",
@@ -105,9 +106,6 @@ export const CLIENTS: readonly Client[] = [
     // see scripts/recolor_zabraku_mark.py. The original file is kept as the
     // only copy of the mark as it came off the cover.
     cardLogo: "/content/clients/zabraku-media/zabraku-logo-dark.png",
-    // A 7.8:1 wordmark is width-limited at the common box and lands at less
-    // than half the ink of the others; this brings it back in line.
-    logoScale: 1.5,
   },
   {
     slug: "uid",
@@ -152,7 +150,6 @@ export const CLIENTS: readonly Client[] = [
     // white plate. Square lockup (knight over a blackletter wordmark), so it
     // fits the common box by HEIGHT and lands small without the scale.
     cardLogo: "/chess/images/logo.png",
-    logoScale: 1.7,
   },
 ] as const;
 

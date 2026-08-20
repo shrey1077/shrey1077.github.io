@@ -27,6 +27,7 @@ import {
   readExtinctsSlides,
   readLogofolio,
   readCasePlates,
+  readMarkPlates,
   readPublicationPages,
 } from "@/content/catalogue";
 import { PUBLICATIONS } from "@/constants/publications";
@@ -59,6 +60,11 @@ export default function Home() {
     PROJECT_STUDIES.map((s) => [s.id, readCasePlates(STUDY_CONTENT_SLUG, s.folder)]),
   );
 
+  // Board marks, trimmed to their ink and scaled to match one another. Keyed
+  // by original url, so the board swaps art and scale without anything that
+  // references a logo having to know. See scripts/prepare_logo_marks.py.
+  const markPlates = readMarkPlates();
+
   return (
     <main className="w-full bg-gallery">
       <HeroStage />
@@ -72,6 +78,7 @@ export default function Home() {
         artCollections={artCollections}
         publicationCovers={publicationCovers}
         studyPlates={studyPlates}
+        markPlates={markPlates}
       />
       <SiteFooter />
     </main>
