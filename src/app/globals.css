@@ -55,38 +55,32 @@ html {
   scroll-behavior: smooth;
 }
 
-/* The pointer is the site's own motif. Replaces the three.js firework cursor
- * that was removed on 2026-08-20 — same idea, 3.5KB of PNG instead of 509KB of
- * bundled three.js, and no WebGL, no rAF loop, no hidden native cursor.
+/* The pointer: a black-stroked ring with a flat rainbow disc inside, 24px
+ * across. Replaces the brain glyph (2026-08-21), which replaced the three.js
+ * firework cursor before it. No trail, no canvas, no rAF — two PNGs totalling
+ * 2.4KB and this declaration.
  *
- * ⚠ Drawn with a white halo around near-black ink, because it has to read on
- * BOTH grounds: the hero is #f9f9f9 and the section panels are near-black. A
- * single-colour pointer vanishes on one of them. See make-brain-cursor.mjs.
+ * ⚠ The BLACK RING is what makes it work on both grounds. The hero is #f9f9f9
+ * and the section panels are near-black; a bare rainbow disc dissolves into the
+ * paint film on the creative side. See scripts/make-pointer-cursor.mjs.
  *
- * ⚠ Hotspot 4 4 — the top-left, NOT the brain's centre. A cursor whose hotspot
- * sits under its own artwork makes precise clicking guesswork; an arrow works
- * because the point that clicks is the point you can see.
+ * ⚠ Hotspot 16 16 — the CENTRE, unlike the brain's top-left. A ring reads as a
+ * reticle: the thing under the middle of it is the thing being pointed at.
  *
  * ⚠ The plain `url()` line comes FIRST and is deliberately not merged with the
- * `image-set` one: a browser without image-set support keeps the 1x cursor,
- * and one with it overrides with the retina pair. Written the other way round,
- * older browsers would drop the declaration entirely and show the arrow.
+ * `image-set` one: a browser without image-set support keeps the 1x cursor, and
+ * one with it overrides with the retina pair. The other way round, older
+ * browsers drop the declaration entirely and fall back to the arrow.
  *
  * ⚠ Interactive elements are left alone on purpose. Links and buttons keep
- * their hand, which is the only signal that they are clickable — the removed
- * firework hid the native cursor everywhere and took that signal with it. */
+ * their hand, which is the only signal that they are clickable. */
 body {
-  cursor: url("/cursors/brain.png") 4 4, auto;
+  cursor: url("/cursors/pointer.png") 16 16, auto;
   cursor:
-    image-set(url("/cursors/brain.png") 1x, url("/cursors/brain@2x.png") 2x) 4 4,
+    image-set(url("/cursors/pointer.png") 1x, url("/cursors/pointer@2x.png") 2x) 16 16,
     auto;
 }
 
-/* ⚠ Without this, buttons show the OS ARROW. The UA stylesheet sets
- * `cursor: default` on <button>, which beats the inherited brain — so a page
- * of brain pointers would sprout an arrow over every button, which reads as a
- * bug rather than a choice. Links already carry `pointer` from the UA sheet;
- * this gives buttons the same hand, and disabled ones keep their own signal. */
 button:not(:disabled),
 summary,
 [role="button"] {

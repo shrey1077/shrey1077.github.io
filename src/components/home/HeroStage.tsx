@@ -26,7 +26,6 @@ import { Corner3DGrid } from "@/components/home/Corner3DGrid";
 import { useInViewport } from "@/hooks/useInViewport";
 import { DURATION, EASE_IN_OUT, EASE_OUT } from "@/constants/motion";
 import { CircuitBackdrop } from "@/components/home/CircuitBackdrop";
-import { ThoughtBox } from "@/components/home/ThoughtBox";
 import { BrainPins } from "@/components/home/BrainPins";
 import { useIsPhone } from "@/hooks/useMediaQuery";
 
@@ -139,12 +138,12 @@ export function HeroStage() {
           <CodeStream />
         </div>
 
-        {/* The creative mirror of the code window. Sits above the section
-            artwork, which was moved down (COL.creative.top in BrainPins) to
-            clear it. */}
-        <div className="absolute right-[6vw] top-5">
-          <ThoughtBox />
-        </div>
+        {/* ⚠ ThoughtBox stood here — the creative mirror of the code window —
+            and was removed on 2026-08-21 by the owner's instruction. The
+            component file is kept, unreferenced, in case it comes back.
+            BrainPins still carries the offset that was added to clear it
+            (COL.creative.top, 0.22 -> 0.30); that space is now simply free, so
+            the pins can move back up if the box stays gone. */}
         <div className="absolute bottom-[9vh] left-[8vw]">
           <AboutFacts />
         </div>
