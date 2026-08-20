@@ -19,6 +19,7 @@ import Image from "next/image";
 import { CaseBackdrop } from "@/components/client/case/CaseBackdrop";
 import { ExperienceTransition } from "@/components/transition/ExperienceTransition";
 import { CaseGallery } from "@/components/client/case/CaseGallery";
+import { CoverflowGallery } from "@/components/client/case/CoverflowGallery";
 import { readCasePlates } from "@/content/catalogue";
 import { typeVoiceClass } from "@/constants/typography";
 import type { CaseStudyConfig } from "@/types/caseStudy";
@@ -176,7 +177,11 @@ export function CaseStudyExperience({ config }: { config: CaseStudyConfig }) {
                   />
                 </div>
 
-                <CaseGallery plates={c.plates} accent={c.accent} />
+                {c.presentation === "coverflow" ? (
+                  <CoverflowGallery plates={c.plates} accent={c.accent} />
+                ) : (
+                  <CaseGallery plates={c.plates} accent={c.accent} />
+                )}
               </div>
             </section>
           ))}

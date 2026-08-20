@@ -62,6 +62,8 @@ export const ABS_EXPERIENCE: CaseStudyConfig = {
       description:
         "The Luzid identity and the Sikret 2.0 line it launched — the 650mAh device, the touch-sensitive surface, the colourway drops, and the \"What's your Sikret?\" campaign the range hangs on. Angular wordmark, saturated gradients, product photographed as the hero.",
       accent: "#7C3AED",
+      // The owner asked for the coverflow here, and only here.
+      presentation: "coverflow",
     },
     {
       id: "kartpipe",
