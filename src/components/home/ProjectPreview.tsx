@@ -3,31 +3,47 @@
 /**
  * ProjectPreview — one independent commission, opened from the Projects board.
  *
- * Three columns, as the owner specified on 2026-08-20:
+ * The owner's layout, revised 2026-08-20 (no slider):
  *
- *   left   ·  the mark, and the facts — name, kind, accent, site
- *   centre ·  the slider through the work
- *   right  ·  the words — headline, challenge, what was made
+ *   left   ·  a one-third column — the mark, and the facts
+ *   right  ·  a one-third column — the words
+ *   middle ·  the whole body of work as a COLLAGE, which fills the gap between
+ *             the two columns and then runs the FULL WIDTH beneath them
  *
- * The centre is the widest thing on screen only in the sense that it is the
- * subject; the thirds are literal (`lg:grid-cols-3`). Below `lg` the three
- * stack in that same order, because the mark and the name are what tell you
- * which project you just opened.
+ * ⚠ That L-shape is why the two columns are FLOATS and not grid tracks. A grid
+ * item cannot wrap around another, so a grid would force the collage either
+ * into the middle third alone (wasting the full width below) or entirely below
+ * the columns (wasting the middle). Floated columns with the collage in normal
+ * flow give exactly the requested shape, for free, at every width.
+ *
+ * ⚠ Because it depends on float wrapping, the collage images are `inline-block`.
+ * Block-level children do NOT flow around floats — only line boxes do, so block
+ * images would slide under the columns and be overlapped by them. Each image is
+ * scaled to a common row height and keeps its own aspect, which is what makes
+ * the rows read as a composed collage rather than a grid with holes in it.
+ *
+ * ⚠ Nothing here may create a block formatting context around the collage —
+ * `overflow`, `display:flow-root`, `contain` on the collage's container would
+ * all stop the wrap and silently break the layout back into stacked blocks.
+ *
+ * Below `lg` the floats are off and it is one honest column: mark, words, then
+ * the collage.
  *
  * ⚠ These entries do NOT navigate. Every other Projects cell is a link to a
  * page; these eight open here instead, because the work is a handful of plates
  * and a paragraph rather than a room. That is why the board renders them as
  * `<button>` and not `<a>` — a link that opens a dialog is a lie to anyone
- * middle-clicking it.
+ * middle-clicking it. UID and the chess site are unaffected: they are real
+ * pages and their cells still navigate.
  *
- * Keyboard and focus follow MediaViewer: Escape closes, arrows walk the
- * slider, background scroll is locked while open, focus moves to Close and
- * returns to the opener on dismiss.
+ * Escape closes, background scroll is locked while open, focus moves to Close
+ * and returns to the opener on dismiss. There are no arrow keys any more —
+ * there is nothing left to step through.
  */
 
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef } from "react";
 import Image from "next/image";
-import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
+import { AnimatePresence, motion } from "framer-motion";
 import type { ProjectStudy } from "@/constants/projectStudies";
 import { DURATION, EASE_OUT } from "@/constants/motion";
 import { Z_INDEX } from "@/constants/design";
@@ -42,6 +58,11 @@ export interface StudyPlate {
   name: string;
 }
 
+/** The row height every collage image is scaled to, so widths vary by aspect
+ *  and the rows still line up. Set as a custom property so one declaration
+ *  drives both the height and the aspect-derived width. */
+const COLLAGE_H = "[--ch:104px] sm:[--ch:132px] lg:[--ch:164px]";
+
 export function ProjectPreview({
   study,
   plates,
@@ -52,31 +73,16 @@ export function ProjectPreview({
   plates: StudyPlate[];
   onClose: () => void;
 }) {
-  const reduceMotion = useReducedMotion();
   const closeRef = useRef<HTMLButtonElement>(null);
-  const [at, setAt] = useState(0);
 
   const open = study !== null;
-  const count = plates.length;
 
-  // Handlers live in a ref so the key effect can depend on OPEN/CLOSED alone,
-  // and never tear itself down between slides.
-  const nav = useRef({ onClose, count });
+  // The handler lives in a ref so the key effect can depend on OPEN/CLOSED
+  // alone and never tears itself down mid-dialog.
+  const nav = useRef({ onClose });
   useEffect(() => {
-    nav.current = { onClose, count };
+    nav.current = { onClose };
   });
-
-  // A new study starts at its first plate. ⚠ Adjusted DURING RENDER, not in an
-  // effect — the repo lints set-state-in-effect as an error, and this is the
-  // case React documents it for ("adjusting state when a prop changes"). An
-  // effect would also paint one frame of the previous study's plate first.
-  // Compared by id, not by object: the parent rebuilds the object each render.
-  const studyId = study?.id;
-  const [lastStudyId, setLastStudyId] = useState(studyId);
-  if (studyId !== lastStudyId) {
-    setLastStudyId(studyId);
-    setAt(0);
-  }
 
   useEffect(() => {
     if (!open) return;
@@ -87,9 +93,6 @@ export function ProjectPreview({
 
     const onKey = (e: KeyboardEvent) => {
       if (e.key === "Escape") nav.current.onClose();
-      const n = nav.current.count;
-      if (n > 1 && e.key === "ArrowLeft") setAt((i) => (i - 1 + n) % n);
-      if (n > 1 && e.key === "ArrowRight") setAt((i) => (i + 1) % n);
     };
     window.addEventListener("keydown", onKey);
     return () => {
@@ -98,10 +101,6 @@ export function ProjectPreview({
       opener?.focus?.();
     };
   }, [open]);
-
-  // `at` is held across a study change for one render before the effect above
-  // resets it, so clamp rather than index past the end of a shorter set.
-  const plate = plates[Math.min(at, Math.max(count - 1, 0))];
 
   return (
     <AnimatePresence>
@@ -131,16 +130,21 @@ export function ProjectPreview({
             </button>
           </div>
 
-          {/* One click target for the whole body, so a stray click on the
-              gutters closes but nothing inside does. */}
+          {/* The scroll container. One click target for the body, so a stray
+              click on the gutters closes but nothing inside does. */}
           <div
-            className="grid min-h-0 flex-1 grid-cols-1 gap-6 overflow-y-auto px-6 py-6 sm:px-10 lg:grid-cols-3 lg:gap-10 lg:overflow-hidden"
+            className="min-h-0 flex-1 overflow-y-auto px-6 py-6 sm:px-10"
             onClick={(e) => e.stopPropagation()}
           >
-            {/* ── LEFT: the mark, and the facts ─────────────────────────── */}
-            <aside className="flex min-w-0 flex-col gap-5 lg:overflow-y-auto lg:pr-1">
+            {/* ── LEFT: the mark, and the facts (floated third) ─────────── */}
+            <aside className="mb-6 flex flex-col gap-5 lg:mb-4 lg:mr-8 lg:float-left lg:w-[30%]">
               <span
-                className={`relative flex aspect-[3/2] w-full items-center justify-center overflow-hidden rounded-2xl ${
+                // ⚠ `max-w-[300px]` below `lg`. The plate is 3:2 of whatever
+                // width it gets, and stacked in one column that was the full
+                // 680 — a 453px-tall slab of near-empty white behind a single
+                // line of type. At `lg` the column is already ~283 so the cap
+                // never bites there.
+                className={`relative flex aspect-[3/2] w-full max-w-[300px] items-center justify-center overflow-hidden rounded-2xl lg:max-w-none ${
                   study.logoTone === "light" ? "bg-neutral-900" : "bg-white/92"
                 }`}
               >
@@ -177,8 +181,8 @@ export function ProjectPreview({
 
               <dl className="flex flex-col gap-2 text-[0.72rem]">
                 <div className="flex gap-3">
-                  <dt className={`${META} w-16 shrink-0 text-white/35`}>Plates</dt>
-                  <dd className="text-white/70 tabular-nums">{count}</dd>
+                  <dt className={`${META} w-16 shrink-0 text-white/35`}>Pieces</dt>
+                  <dd className="text-white/70 tabular-nums">{plates.length}</dd>
                 </div>
                 {study.site && (
                   <div className="flex gap-3">
@@ -198,85 +202,8 @@ export function ProjectPreview({
               </dl>
             </aside>
 
-            {/* ── CENTRE: the slider ────────────────────────────────────── */}
-            {/* ⚠ `min-h-0` is `lg:` only, for the same reason as the box below.
-                As a grid item it zeroes this column's min-content contribution,
-                which lets the row compress past its own content — stacked, the
-                row collapsed to the 52px control strip while the content inside
-                measured 505px. At `lg` it is needed, so the three columns can
-                scroll independently inside a fixed-height row. */}
-            <div className="flex min-w-0 flex-col gap-3 lg:min-h-0">
-              {/* ⚠ `min-h-[46svh]` is load-bearing below `lg`. The plates are
-                  absolutely positioned so they can cross-fade, which means they
-                  contribute NO height to this box. At `lg` the grid row is
-                  stretched by its tallest sibling and `flex-1` gives the box a
-                  real height regardless; stacked in one column there is nothing
-                  to stretch it, so it collapsed to zero and the slider showed
-                  only its arrows. Measured at 760x1000: clientHeight 48 against
-                  a scrollHeight of 228. */}
-              <div className="relative flex min-h-[46svh] flex-1 items-center justify-center lg:min-h-0">
-                {plate ? (
-                  /* ⚠ A CROSS-fade, not `mode="wait"`. Waiting holds the next
-                     plate until the previous one has finished leaving, which
-                     puts an empty beat between every step of a slider — and if
-                     the exit ever stalls, the slider looks broken while the
-                     counter keeps counting. Overlapping them has neither
-                     problem, which is why the frames are absolutely stacked. */
-                  <AnimatePresence initial={false}>
-                    <motion.div
-                      key={plate.url}
-                      initial={reduceMotion ? { opacity: 0 } : { opacity: 0, scale: 0.985 }}
-                      animate={{ opacity: 1, scale: 1 }}
-                      exit={reduceMotion ? { opacity: 0 } : { opacity: 0, scale: 1.008 }}
-                      transition={{ duration: reduceMotion ? 0.15 : 0.28, ease: EASE_OUT }}
-                      className="absolute inset-0 flex h-full w-full items-center justify-center"
-                    >
-                      {/* Plates vary from 1200x800 to 1081x1921 in one folder,
-                          so nothing here fixes an aspect: the image is capped
-                          on BOTH axes and finds its own shape between them. */}
-                      <Image
-                        src={plate.url}
-                        alt={plate.name}
-                        width={plate.w}
-                        height={plate.h}
-                        sizes="(min-width: 1024px) 32vw, 90vw"
-                        className="max-h-[52svh] w-auto max-w-full rounded-lg object-contain lg:max-h-[64svh]"
-                        priority
-                      />
-                    </motion.div>
-                  </AnimatePresence>
-                ) : (
-                  <p className={`${META} text-white/40`}>No plates for this one yet.</p>
-                )}
-              </div>
-
-              {count > 1 && (
-                <div className="flex shrink-0 items-center justify-center gap-5">
-                  <button
-                    type="button"
-                    aria-label="Previous plate"
-                    onClick={() => setAt((i) => (i - 1 + count) % count)}
-                    className="rounded-full border border-white/20 px-3 py-1 text-white/60 outline-none transition-colors duration-200 hover:border-white/60 hover:text-white focus-visible:border-white"
-                  >
-                    ←
-                  </button>
-                  <span className={`${META} text-[0.62rem] tabular-nums text-white/45`}>
-                    {String(at + 1).padStart(2, "0")} / {String(count).padStart(2, "0")}
-                  </span>
-                  <button
-                    type="button"
-                    aria-label="Next plate"
-                    onClick={() => setAt((i) => (i + 1) % count)}
-                    className="rounded-full border border-white/20 px-3 py-1 text-white/60 outline-none transition-colors duration-200 hover:border-white/60 hover:text-white focus-visible:border-white"
-                  >
-                    →
-                  </button>
-                </div>
-              )}
-            </div>
-
-            {/* ── RIGHT: the words ──────────────────────────────────────── */}
-            <div className="flex min-w-0 flex-col gap-5 lg:overflow-y-auto lg:pr-1">
+            {/* ── RIGHT: the words (floated third) ──────────────────────── */}
+            <div className="mb-6 flex flex-col gap-5 lg:mb-4 lg:ml-8 lg:float-right lg:w-[30%]">
               <p className="text-[clamp(1.05rem,1.9vw,1.4rem)] font-medium leading-[1.25] tracking-[-0.01em] text-white">
                 {study.headline}
               </p>
@@ -293,6 +220,51 @@ export function ProjectPreview({
                 </p>
               </div>
             </div>
+
+            {/* ── THE COLLAGE ───────────────────────────────────────────── */}
+            {/* In normal flow, so it fills the channel between the two floats
+                and then runs the full width once it clears them. No wrapper
+                with `overflow` — that would end the wrap. */}
+            {plates.length > 0 ? (
+              <div className={`${COLLAGE_H} text-center lg:text-left`}>
+                {plates.map((p) => (
+                  <span
+                    key={p.url}
+                    // ⚠ `max-w-full` is not decoration. Width is derived from
+                    // the plate's own aspect, and Leder's banner is 1500x225 —
+                    // 6.67:1, which at this row height computes to 1093px and
+                    // pushed a horizontal scrollbar onto the whole dialog at
+                    // 1024. The cap turns that one plate into a full-width band
+                    // and `object-cover` takes up the slack.
+                    className="mr-2 mb-2 inline-block max-w-full overflow-hidden rounded-md align-top"
+                    style={{
+                      height: "var(--ch)",
+                      // Aspect-derived width off a shared row height. `calc`
+                      // rather than a computed px so the responsive --ch steps
+                      // keep working without re-measuring in JS.
+                      width: `calc(var(--ch) * ${(p.w / p.h).toFixed(4)})`,
+                    }}
+                  >
+                    <Image
+                      src={p.url}
+                      alt={p.name}
+                      width={p.w}
+                      height={p.h}
+                      sizes="(min-width: 1024px) 20vw, 40vw"
+                      className="h-full w-full object-cover transition-transform duration-500 hover:scale-[1.04]"
+                    />
+                  </span>
+                ))}
+              </div>
+            ) : (
+              <p className={`${META} py-10 text-center text-white/40`}>
+                No pieces for this one yet.
+              </p>
+            )}
+
+            {/* Floats are taken out of flow; without this the scroll container
+                ends at the collage and the taller column hangs out of it. */}
+            <div className="clear-both" />
           </div>
         </motion.div>
       )}
