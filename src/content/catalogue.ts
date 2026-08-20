@@ -25,6 +25,7 @@
 
 import fs from "node:fs";
 import path from "node:path";
+import { AUTHORED_MARKS } from "@/constants/logofolio";
 
 const CONTENT_ROOT = path.join(process.cwd(), "public", "content", "clients");
 
@@ -351,21 +352,39 @@ export interface LogoMark {
  *  `scripts/prepare-logofolio.mjs`. Empty until that script has run. */
 export function readLogofolio(): LogoMark[] {
   const dir = path.join(process.cwd(), "public", "content", "logofolio");
+  let manifest: { slug: string; name: string; tone: string }[] = [];
   try {
-    const raw = fs.readFileSync(path.join(dir, "_manifest.json"), "utf8");
-    const parsed: unknown = JSON.parse(raw);
-    if (!Array.isArray(parsed)) return [];
-    return (parsed as { slug: string; name: string; tone: string }[])
-      .filter((m) => fs.existsSync(path.join(dir, `${m.slug}.png`)))
-      .map((m) => ({
-        slug: m.slug,
-        name: m.name,
-        tone: m.tone === "light" ? "light" : "dark",
-        url: publicUrl("content", "logofolio", `${m.slug}.png`),
-      }));
+    const parsed: unknown = JSON.parse(fs.readFileSync(path.join(dir, "_manifest.json"), "utf8"));
+    if (Array.isArray(parsed)) manifest = parsed as typeof manifest;
   } catch {
-    return []; // no manifest yet — the section simply shows nothing
+    // no manifest yet — an entry can still resolve through its own `url`
   }
+  const byslug = new Map(manifest.map((m) => [m.slug, m]));
+
+  // ⚠ AUTHORED_MARKS both FILTERS and ORDERS. The wall shows only marks the
+  // owner drew, in the order they named them — never just whatever the folder
+  // happens to hold. A named mark whose file is missing is skipped silently, so
+  // the list can name work before its artwork lands.
+  return AUTHORED_MARKS.flatMap((want) => {
+    const entry = byslug.get(want.slug);
+    if (want.url) {
+      const onDisk = path.join(process.cwd(), "public", ...want.url.split("/").filter(Boolean));
+      if (!fs.existsSync(onDisk)) return [];
+      return [{
+        slug: want.slug,
+        name: want.name ?? entry?.name ?? want.slug,
+        tone: (entry?.tone === "light" ? "light" : "dark") as "light" | "dark",
+        url: want.url,
+      }];
+    }
+    if (!entry || !fs.existsSync(path.join(dir, `${want.slug}.png`))) return [];
+    return [{
+      slug: entry.slug,
+      name: want.name ?? entry.name,
+      tone: (entry.tone === "light" ? "light" : "dark") as "light" | "dark",
+      url: publicUrl("content", "logofolio", `${entry.slug}.png`),
+    }];
+  });
 }
 
 /** One category (by route id) with its direct assets. Null if unknown. */
