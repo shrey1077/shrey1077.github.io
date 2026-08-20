@@ -17,9 +17,13 @@
 import sharp from "sharp";
 import fs from "node:fs";
 import path from "node:path";
-import { BWP, ROOT } from "./sources.mjs";
+import { ASSETS, BWP, ROOT } from "./sources.mjs";
 
 const P = BWP;
+/** ⚠ Two marks below are FREELANCE brands and live under the CLIENT archive,
+ *  not the folio one. They were looked up under `P` and never resolved — see
+ *  the note on their entries. */
+const A = ASSETS;
 const FOLIO = ROOT;
 const DEST = path.join(FOLIO, "public/content/logofolio");
 
@@ -35,10 +39,16 @@ const LOGOS = [
   { slug: "kavaka", name: "Kavaka", src: `${FOLIO}/public/content/clients/azoth-biotech/brand/brands/kavaka.png` },
   { slug: "naturalist", name: "Naturalist Nootropics", src: `${P}/logos/Naturalist Logo_ Resolution Free.pdf` },
   { slug: "newsmobile", name: "NewsMobile", src: `${P}/Extincts/newsmobile_logo.png` },
-  { slug: "puran-studios", name: "Puran Studios", src: `${P}/UID/Branding/pnglogo-01.png` },
+  // ⚠ Under `branddocu/` — the UID branding folder gained that subfolder and
+  //   this path was never updated, so the mark silently stopped resolving.
+  { slug: "puran-studios", name: "Puran Studios", src: `${P}/UID/Branding/branddocu/pnglogo-01.png` },
   { slug: "mycoveda-symbol", name: "Mycoveda — symbol", src: `${P}/UID/whitelogonew-01-01.png` },
   { slug: "betright365", name: "BetRight365", src: `${P}/Zabraku Media/black new logo@2x.png` },
-  { slug: "first-divine", name: "First Divine", src: `${P}/Zabraku Media/Asset 7@2x.png` },
+  // ⚠ A FREELANCE brand, not a Zabraku one — it sits in the client archive.
+  //   `Zabraku Media/Asset 7@2x.png` has never existed; the nearest lookalike
+  //   is `vapes/ABS branding/Asset 7@3x.png`, a different brand at a different
+  //   scale. Do not "fix" this back toward Zabraku.
+  { slug: "first-divine", name: "First Divine", src: `${A}/Clients/Freelance/First Divine/Asset 7@2x.png` },
   { slug: "fabs", name: "FABS Distro", src: `${P}/vapes/Brands developed under ABS/FABS color@2x.png` },
   { slug: "elf-bar", name: "Elf Bar", src: `${P}/logos/Asset 20@3x.png` },
   { slug: "hyla", name: "Hyla", src: `${P}/logos/Asset 24@3x.png` },
@@ -49,7 +59,8 @@ const LOGOS = [
   { slug: "top-shine", name: "Top Shine", src: `${P}/logos/top shine.pdf` },
   { slug: "shrey-singh-rook", name: "Shrey Singh — Rook", src: `${P}/logos/black.pdf` },
   { slug: "shrey-singh-lion", name: "Shrey Singh — Lion", src: `${P}/logos/SinghlogoB.pdf` },
-  { slug: "komono", name: "Komono", src: `${P}/komono/komono1-01.png` },
+  // ⚠ Also a FREELANCE brand — there is no `komono/` at the folio archive root.
+  { slug: "komono", name: "Komono", src: `${A}/Clients/Freelance/komono/komono1-01.png` },
 ];
 // Deliberately absent: Flum / Tobo / Casa Playa / Puff (only packshots and ad
 // layouts exist, no standalone mark), FAbSinc (a name variant of FABS — each

@@ -1,6 +1,40 @@
 /**
  * prepare-tata-iis.mjs — asset pipeline for the Tata IIS experience.
  *
+ * ⚠⚠ LARGELY SUPERSEDED — DO NOT RE-RUN EXPECTING IT TO WIN. ⚠⚠
+ *
+ * The Tata IIS archive was REORGANISED into theme folders after this script was
+ * written, and it still addresses the OLD flat layout. 57 of its 129 source
+ * references no longer resolve (measured 2026-08-21). The files are not lost —
+ * they moved:
+ *
+ *   Socials/*                     →  Digital/Social Media/{IISA,IISM,Tata IIS} theme/
+ *   Print/Banners/*               →  Digital/Website Banners/{IISA,IISM} theme/
+ *   Digital/Mockups/* billboards  →  Print/Events/Skills Conclave/
+ *   Print/Flyers/1x/*             →  Print/Flyers/Course Flyers/
+ *   Print/Flyers/ARAI_*           →  Print/Brochures/Trifolds/
+ *   Print/Standee/DSC_*           →  Photography/
+ *   partner logos                 →  Logos and Guidelines/Partner logos/…/PNG/*@3x.png
+ *
+ * `prepare-tata-themes.mjs` is the LIVE pipeline for that material: it reads the
+ * new theme folders and emits the `iisa-` / `iism-` / `tata-` prefixed files
+ * actually sitting in `catalogue/Socials & Screens/` today. The Letterhead
+ * entries here are likewise superseded by `pdf-to-images.mjs`, which renders
+ * `Print/Letterhead/Letterhead N.pdf` rather than the old Header/footer PNGs.
+ *
+ * A further ~15 sources are genuinely gone from the archive (the Safety posters,
+ * Socials/Quiz/, Happy Birthday, Stories-03/04). They were dropped in curation
+ * and no committed output depends on them.
+ *
+ * ⚠ Re-running is also NOT side-effect free: it writes `brand/partners/*.png`
+ * RAW (see the partner block below), whereas the committed art is the
+ * NORMALISED peer-set from `normalize-tata-partners.mjs`. Run normalize
+ * afterwards, or the marquee loses its equal-weight sizing.
+ *
+ * Kept because the Print/Brochures/Certificates/Handbook families below are
+ * still its own, and its _meta.json copy is the source of the catalogue's
+ * descriptions and captions.
+ *
  * CATALOGUE EDITION (rework): all works live as catalogue categories —
  * one folder per work family under public/content/clients/tata-iis/catalogue/,
  * each with a _meta.json (order, description, cover, captions, portrait).
