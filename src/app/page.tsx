@@ -22,7 +22,6 @@ import { HeroStage } from "@/components/home/HeroStage";
 import { SectionNav } from "@/components/home/SectionNav";
 import { SectionPanel } from "@/components/home/SectionPanel";
 import { SiteFooter } from "@/components/footer/SiteFooter";
-import { FireworkCursor } from "@/components/home/FireworkCursor";
 import {
   readArtCollections,
   readExtinctsSlides,
@@ -82,11 +81,6 @@ export default function Home() {
         markPlates={markPlates}
       />
       <SiteFooter />
-      {/* Homepage only, by the owner's instruction. It pulls a ~532KB lazy
-          chunk (three.js is bundled into it), so it must never move to
-          layout.tsx — every client page would then pay for it. It gates
-          itself off on coarse pointers and reduced motion. */}
-      <FireworkCursor />
     </main>
   );
 }
