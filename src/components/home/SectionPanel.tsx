@@ -28,6 +28,7 @@ import { PIN_OPEN_EVENT } from "@/components/home/BrainPins";
 import { CAREER_STOP_COUNT, CareerTimeline } from "@/components/home/CareerTimeline";
 import { ArtCollections } from "@/components/home/ArtCollections";
 import { PublicationShelf } from "@/components/home/PublicationShelf";
+import { LogofolioWall } from "@/components/home/LogofolioWall";
 import { PaintBurst } from "@/components/home/PaintBurst";
 import { ProjectPreview, type StudyPlate } from "@/components/home/ProjectPreview";
 import { PUBLICATIONS } from "@/constants/publications";
@@ -143,6 +144,10 @@ const OWN_RENDERER: ReadonlySet<NavSectionId> = new Set([
   "career-path",
   "art",
   "publications",
+  // Logofolio moved off the board on 2026-08-20: 25 marks at the board's
+  // 12-cell cap meant thirteen were simply not shown, and a wall of marks
+  // wants to be a wall rather than a page of cards.
+  "logofolio",
 ] satisfies NavSectionId[]);
 
 export function SectionPanel({
@@ -195,7 +200,9 @@ export function SectionPanel({
         ? artCollections.length
         : section?.id === "publications"
           ? PUBLICATIONS.length
-          : 0;
+          : section?.id === "logofolio"
+            ? logos.length
+            : 0;
   const ownRenderer = !!section && OWN_RENDERER.has(section.id) && ownCount > 0;
   const entryCount = ownRenderer ? ownCount : cells.length;
 
@@ -284,6 +291,8 @@ export function SectionPanel({
                   <CareerTimeline />
                 ) : section.id === "publications" ? (
                   <PublicationShelf publications={PUBLICATIONS} covers={publicationCovers} />
+                ) : section.id === "logofolio" ? (
+                  <LogofolioWall logos={logos} markPlates={markPlates} />
                 ) : (
                   <ArtCollections collections={artCollections} />
                 )}

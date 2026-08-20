@@ -200,7 +200,15 @@ def main() -> None:
         s, reach = scale_for_box(size, target)
         if reach < 0.995:
             capped.append(f"{key} ({reach * 100:.0f}% of target)")
-        marks[url] = {"url": f"/content/marks/{key}.png", "scale": s}
+        # w/h ship too: the Logofolio grid fits marks into a SQUARE cell,
+        # where a different dimension binds than in the board's wide box, so
+        # it has to redo the footprint solve from the aspect itself.
+        marks[url] = {
+            "url": f"/content/marks/{key}.png",
+            "scale": s,
+            "w": size[0],
+            "h": size[1],
+        }
         print(
             f"{key:<30}{before * 100:>11.1f}%{frac * 100:>7.1f}%"
             f"{size[0] / size[1]:>8.2f}{s:>8.2f}"

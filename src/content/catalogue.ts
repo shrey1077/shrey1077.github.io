@@ -267,6 +267,11 @@ export function readExtinctsSlides(): string[] {
 export interface MarkPlate {
   url: string;
   scale: number;
+  /** Intrinsic size of the TRIMMED art. The Logofolio wall re-solves its own
+   *  sizing from this, because it seats marks in a square-ish cell where a
+   *  different dimension binds than in the board's wide box. */
+  w: number;
+  h: number;
 }
 
 export function readMarkPlates(): Record<string, MarkPlate> {
@@ -276,7 +281,15 @@ export function readMarkPlates(): Record<string, MarkPlate> {
     if (!parsed || typeof parsed !== "object") return {};
     const out: Record<string, MarkPlate> = {};
     for (const [key, v] of Object.entries(parsed as Record<string, MarkPlate>)) {
-      if (v && typeof v.url === "string" && typeof v.scale === "number") out[key] = v;
+      if (
+        v &&
+        typeof v.url === "string" &&
+        typeof v.scale === "number" &&
+        typeof v.w === "number" &&
+        typeof v.h === "number"
+      ) {
+        out[key] = v;
+      }
     }
     return out;
   } catch {
