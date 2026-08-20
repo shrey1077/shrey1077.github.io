@@ -351,7 +351,6 @@ const METAS = {
       "amtech-pavilion-banner-ii.webp": "Amtech — banner, second wave.",
     },
   },
-  },
   [`${CAT}/Stationery`]: {
     order: 10,
     cover: "letterhead-header.webp",
