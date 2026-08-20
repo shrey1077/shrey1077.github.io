@@ -17,8 +17,9 @@
 import sharp from "sharp";
 import fs from "node:fs";
 import path from "node:path";
+import { CONTENT } from "./sources.mjs";
 
-const DIR = "D:/Brain Folio/public/content/clients/tata-iis/brand/partners";
+const DIR = path.join(CONTENT, "clients/tata-iis/brand/partners");
 const ORIG = path.join(DIR, "_orig");
 
 const TARGET_AREA = 8200; // ink area per logo, in output px²

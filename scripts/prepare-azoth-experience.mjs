@@ -4,9 +4,9 @@
  * social work → rejected logos).
  *
  * Sources (the user's own design work):
- *   D:/Assets/Clients/Azoth+                     — the social posts + cert
- *   D:/Brain Website portfolio/Azoth             — logos, sub-brand marks, sheets
- *   D:/Brain Website portfolio/logos             — the Naturalist logo (PDF)
+ *   _source/Assets/Clients/Azoth+                     — the social posts + cert
+ *   _source/BWP/Azoth             — logos, sub-brand marks, sheets
+ *   _source/BWP/logos             — the Naturalist logo (PDF)
  *
  * Output: public/content/clients/azoth-biotech/{brand,work}/…
  * Idempotent. Node ≥ 18, sharp (+ pdf-to-img for the Naturalist logo PDF).
@@ -15,11 +15,12 @@
 import sharp from "sharp";
 import fs from "node:fs";
 import path from "node:path";
+import { ASSETS, BWP, CONTENT } from "./sources.mjs";
 
-const AZ = "D:/Assets/Clients/Azoth+";
-const BR = "D:/Brain Website portfolio/Azoth";
-const LG = "D:/Brain Website portfolio/logos";
-const DEST = "D:/Brain Folio/public/content/clients/azoth-biotech";
+const AZ = path.join(ASSETS, "Clients/Azoth+");
+const BR = path.join(BWP, "Azoth");
+const LG = path.join(BWP, "logos");
+const DEST = path.join(CONTENT, "clients/azoth-biotech");
 
 const ensure = (p) => fs.mkdirSync(p, { recursive: true });
 let ok = 0, fail = 0;

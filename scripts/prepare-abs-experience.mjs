@@ -7,7 +7,7 @@
  * Distro), most for brands they carry and promote (Tyson 2.0, Deathrow Vapes,
  * Puffco, Stiiizy, and a long tail of others).
  *
- * Source: D:/Brain Website portfolio/vapes/ABS branding — a FLAT folder of 56
+ * Source: _source/BWP/vapes/ABS branding — a FLAT folder of 56
  * files whose names are the Instagram captions they shipped with. There is no
  * folder structure to inherit, so the brand of each piece is recovered from the
  * caption, and every assignment below was checked against the ARTWORK, not just
@@ -41,9 +41,10 @@ import sharp from "sharp";
 import crypto from "node:crypto";
 import fs from "node:fs";
 import path from "node:path";
+import { BWP, CONTENT } from "./sources.mjs";
 
-const SRC = "D:/Brain Website portfolio/vapes/ABS branding";
-const DEST = "D:/Brain Folio/public/content/clients/abs";
+const SRC = path.join(BWP, "vapes/ABS branding");
+const DEST = path.join(CONTENT, "clients/abs");
 
 const ensure = (p) => fs.mkdirSync(p, { recursive: true });
 

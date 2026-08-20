@@ -7,7 +7,7 @@
  * The painting and craft made alongside it go to public/content/art instead,
  * which the homepage's Art room reads.
  *
- * Source: D:/Brain Website portfolio/UID
+ * Source: _source/BWP/UID
  * Output: public/content/clients/uid/{brand,work}/…
  * Idempotent. Node ≥ 18, sharp (+ pdf-to-img for the documentation PDFs).
  */
@@ -15,9 +15,10 @@
 import sharp from "sharp";
 import fs from "node:fs";
 import path from "node:path";
+import { BWP, CONTENT } from "./sources.mjs";
 
-const SRC = "D:/Brain Website portfolio/UID";
-const DEST = "D:/Brain Folio/public/content/clients/uid";
+const SRC = path.join(BWP, "UID");
+const DEST = path.join(CONTENT, "clients/uid");
 
 const ensure = (p) => fs.mkdirSync(p, { recursive: true });
 let ok = 0, fail = 0;
@@ -107,7 +108,7 @@ for (const [folder, files] of Object.entries(WORK)) {
 
 /* The painting and the craft belong to the ART room, not to the degree page —
  * they go to public/content/art, which the homepage's Art panel reads. */
-const ART = "D:/Brain Folio/public/content/art";
+const ART = path.join(CONTENT, "art");
 
 console.log("art — painting:");
 const PAINTING = [

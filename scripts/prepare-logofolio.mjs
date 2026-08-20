@@ -17,9 +17,10 @@
 import sharp from "sharp";
 import fs from "node:fs";
 import path from "node:path";
+import { BWP, ROOT } from "./sources.mjs";
 
-const P = "D:/Brain Website portfolio";
-const FOLIO = "D:/Brain Folio";
+const P = BWP;
+const FOLIO = ROOT;
 const DEST = path.join(FOLIO, "public/content/logofolio");
 
 /** Every mark, once. `src` is the cleanest available artwork for that brand. */

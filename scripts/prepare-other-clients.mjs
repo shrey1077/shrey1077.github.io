@@ -2,7 +2,7 @@
  * prepare-other-clients.mjs — asset pipeline for Azoth Biotech, Newsmobile,
  * Zabraku Media, and UID.
  *
- * Source: D:\Brain Website portfolio\{Azoth,Newsmobile,Zabraku Media,UID}.
+ * Source: _source\BWP\{Azoth,Newsmobile,Zabraku Media,UID}.
  * These are the user's OWN raw project folders (not a single-client archive
  * like Tata IIS) — each folder is a grab-bag mixing several small brands,
  * personal work, and (occasionally) other people's coursework. Every asset
@@ -25,9 +25,10 @@ import sharp from "sharp";
 import { execFileSync } from "node:child_process";
 import fs from "node:fs";
 import path from "node:path";
+import { BWP, CONTENT } from "./sources.mjs";
 
-const SRC = "D:/Brain Website portfolio";
-const DEST_ROOT = "D:/Brain Folio/public/content/clients";
+const SRC = BWP;
+const DEST_ROOT = path.join(CONTENT, "clients");
 const NO_VIDEO = process.argv.includes("--no-video");
 
 /** [source (under SRC), dest (under DEST_ROOT/<slug>), maxWidth, format?] */

@@ -6,7 +6,7 @@
  * of trust:
  *
  *  1. The site owner's own Photoshop mockups, sitting unused in
- *     `D:\Brain Website portfolio\Tata\portfolio shrey\`. These are real
+ *     `_source\BWP\Tata\portfolio shrey\`. These are real
  *     composites with correct perspective and lighting — always preferred.
  *  2. `Digital/Mockups/**` in the archive, already themed and imported by
  *     prepare-tata-themes.mjs.
@@ -28,10 +28,11 @@
 import sharp from "sharp";
 import fs from "node:fs";
 import path from "node:path";
+import { BWP, CONTENT } from "./sources.mjs";
 
-const PS = "D:/Brain Website portfolio/Tata/portfolio shrey";
-const FOLIO = "D:/Brain Website portfolio/Tata folio/Graphics/Mockups";
-const DEST = "D:/Brain Folio/public/content/clients/tata-iis/catalogue";
+const PS = path.join(BWP, "Tata/portfolio shrey");
+const FOLIO = path.join(BWP, "Tata folio/Graphics/Mockups");
+const DEST = path.join(CONTENT, "clients/tata-iis/catalogue");
 
 const MAX_W = 1600;
 

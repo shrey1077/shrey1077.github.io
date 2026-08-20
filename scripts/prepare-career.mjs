@@ -13,10 +13,11 @@
 import sharp from "sharp";
 import fs from "node:fs";
 import path from "node:path";
+import { BWP, ROOT } from "./sources.mjs";
 
-const RESUME = "D:/Brain Website portfolio/Resume ShreySingh-2024-01.png";
-const P = "D:/Brain Website portfolio";
-const FOLIO = "D:/Brain Folio";
+const RESUME = path.join(BWP, "Resume ShreySingh-2024-01.png");
+const P = BWP;
+const FOLIO = ROOT;
 const DEST = path.join(FOLIO, "public/content/career");
 
 /** Regions of the resume layout holding each employer's mark. */

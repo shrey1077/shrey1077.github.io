@@ -36,8 +36,9 @@
 import sharp from "sharp";
 import fs from "node:fs";
 import path from "node:path";
+import { PUBLIC } from "./sources.mjs";
 
-const OUT = "D:/Brain Folio/public/cursors";
+const OUT = path.join(PUBLIC, "cursors");
 const SIZE = 32;
 const CX = 16, CY = 16;
 const R = 12;          // ring radius — 24px across, the "medium" the brief asked for

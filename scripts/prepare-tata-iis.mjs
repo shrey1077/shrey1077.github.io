@@ -6,7 +6,7 @@
  * each with a _meta.json (order, description, cover, captions, portrait).
  * Cards render from folders; category routes render the galleries.
  *
- * Reads the curated archive (D:\Assets\Clients\Tata IIS), produces web
+ * Reads the curated archive (_source\Assets\Clients\Tata IIS), produces web
  * derivatives, and writes metas. Idempotent: images are regenerated cheaply;
  * VIDEOS ARE SKIPPED IF PRESENT (re-encode by deleting the file first).
  * Images via sharp (repo dependency); videos/posters via ffmpeg on PATH.
@@ -23,9 +23,10 @@ import sharp from "sharp";
 import { execFileSync } from "node:child_process";
 import fs from "node:fs";
 import path from "node:path";
+import { ASSETS, CONTENT } from "./sources.mjs";
 
-const SRC = "D:/Assets/Clients/Tata IIS";
-const DEST = "D:/Brain Folio/public/content/clients/tata-iis";
+const SRC = path.join(ASSETS, "Clients/Tata IIS");
+const DEST = path.join(CONTENT, "clients/tata-iis");
 const NO_VIDEO = process.argv.includes("--no-video");
 
 const CAT = "catalogue";
