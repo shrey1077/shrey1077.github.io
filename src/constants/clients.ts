@@ -97,11 +97,14 @@ export const CLIENTS: readonly Client[] = [
     accent: "#B3264A",
     essence: "A media house with a story-first spine.",
     location: "Malviya Nagar, Delhi",
-    // Lifted off the cover of the 2021 company portfolio: the wordmark is white
-    // and yellow on black, so it is cut out onto transparency and flagged
-    // `light` — on the default white plate it would be an empty card.
-    cardLogo: "/content/clients/zabraku-media/zabraku-logo.png",
-    logoTone: "light",
+    // Lifted off the cover of the 2021 company portfolio, where the wordmark
+    // was white and yellow on black. Measured, 72% of its ink was near-white,
+    // so on the pure-white plate the board uses since 2026-08-20 it read as
+    // "RA" and nothing else. `zabraku-logo-dark.png` is that artwork with the
+    // WHITE characters recoloured to #262626 and the brand yellow untouched —
+    // see scripts/recolor_zabraku_mark.py. The original file is kept as the
+    // only copy of the mark as it came off the cover.
+    cardLogo: "/content/clients/zabraku-media/zabraku-logo-dark.png",
     // A 7.8:1 wordmark is width-limited at the common box and lands at less
     // than half the ink of the others; this brings it back in line.
     logoScale: 1.5,

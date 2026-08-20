@@ -289,13 +289,23 @@ export function SectionPanel({
                 {board.map((c) => {
                   const inner = (
                     <>
+                      {/* ⚠ Logo plates are PURE white — `bg-white`, not the
+                          `bg-white/90` they were. At 90% the panel's ground
+                          bled through, so the plates sat at slightly different
+                          greys depending on what was behind them; the owner
+                          asked for one flat white on 2026-08-20.
+
+                          `tone === "light"` still buys a dark plate, and it is
+                          now a SAFETY, not a style: artwork that is white on
+                          transparent is invisible on white. Zabraku used to
+                          need it and no longer does (its white characters were
+                          recoloured — see clients.ts). Exactly one mark still
+                          does: `mycoveda-symbol` in the Logofolio, measured at
+                          100% white ink. Do not drop this branch without
+                          recolouring that file too. */}
                       <span
                         className={`relative mb-4 block aspect-[4/3] w-full overflow-hidden rounded-xl ${
-                          c.fill
-                            ? "bg-neutral-900"
-                            : c.tone === "light"
-                              ? "bg-neutral-900"
-                              : "bg-white/90"
+                          c.fill || c.tone === "light" ? "bg-neutral-900" : "bg-white"
                         }`}
                       >
                         {c.image && c.fill ? (
