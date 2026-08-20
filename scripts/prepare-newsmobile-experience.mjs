@@ -5,7 +5,7 @@
  * numbered webp plates and writes a `_plates.json` manifest per category
  * (curated order + intrinsic dimensions) for the natural-aspect gallery.
  *
- * Source: D:/Assets/Clients/Newsmobile+
+ * Source: _source/Assets/Clients/Newsmobile+
  * Output: public/content/clients/newsmobile/work/<category>/…
  * Idempotent. Node >= 18, sharp.
  */
@@ -13,9 +13,10 @@
 import sharp from "sharp";
 import fs from "node:fs";
 import path from "node:path";
+import { ASSETS, CONTENT } from "./sources.mjs";
 
-const SRC = "D:/Assets/Clients/Newsmobile+";
-const DEST = "D:/Brain Folio/public/content/clients/newsmobile";
+const SRC = path.join(ASSETS, "Clients/Newsmobile+");
+const DEST = path.join(CONTENT, "clients/newsmobile");
 
 const ensure = (p) => fs.mkdirSync(p, { recursive: true });
 let ok = 0,

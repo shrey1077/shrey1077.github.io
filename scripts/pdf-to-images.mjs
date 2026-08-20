@@ -26,10 +26,11 @@
 import { execFileSync } from "node:child_process";
 import fs from "node:fs";
 import path from "node:path";
+import { ASSETS, CONTENT } from "./sources.mjs";
 
 const PY = "C:/Users/tatai/AppData/Local/Python/pythoncore-3.14-64/python.exe";
-const SRC = "D:/Assets/Clients/Tata IIS";
-const OUT = "D:/Brain Folio/public/content/clients/tata-iis/catalogue";
+const SRC = path.join(ASSETS, "Clients/Tata IIS");
+const OUT = path.join(CONTENT, "clients/tata-iis/catalogue");
 
 const MAX_EDGE = 1800;
 const QUALITY = 82;

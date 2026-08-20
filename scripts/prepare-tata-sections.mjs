@@ -24,9 +24,10 @@ import { pdf } from "pdf-to-img";
 import sharp from "sharp";
 import fs from "node:fs";
 import path from "node:path";
+import { ASSETS, CONTENT } from "./sources.mjs";
 
-const SRC = "D:/Assets/Clients/Tata IIS";
-const DEST = "D:/Brain Folio/public/content/clients/tata-iis/catalogue";
+const SRC = path.join(ASSETS, "Clients/Tata IIS");
+const DEST = path.join(CONTENT, "clients/tata-iis/catalogue");
 
 /** Source filename → tidy asset slug. */
 const slug = (name) =>

@@ -1,12 +1,46 @@
 /**
  * prepare-tata-iis.mjs — asset pipeline for the Tata IIS experience.
  *
+ * ⚠⚠ LARGELY SUPERSEDED — DO NOT RE-RUN EXPECTING IT TO WIN. ⚠⚠
+ *
+ * The Tata IIS archive was REORGANISED into theme folders after this script was
+ * written, and it still addresses the OLD flat layout. 57 of its 129 source
+ * references no longer resolve (measured 2026-08-21). The files are not lost —
+ * they moved:
+ *
+ *   Socials/*                     →  Digital/Social Media/{IISA,IISM,Tata IIS} theme/
+ *   Print/Banners/*               →  Digital/Website Banners/{IISA,IISM} theme/
+ *   Digital/Mockups/* billboards  →  Print/Events/Skills Conclave/
+ *   Print/Flyers/1x/*             →  Print/Flyers/Course Flyers/
+ *   Print/Flyers/ARAI_*           →  Print/Brochures/Trifolds/
+ *   Print/Standee/DSC_*           →  Photography/
+ *   partner logos                 →  Logos and Guidelines/Partner logos/…/PNG/*@3x.png
+ *
+ * `prepare-tata-themes.mjs` is the LIVE pipeline for that material: it reads the
+ * new theme folders and emits the `iisa-` / `iism-` / `tata-` prefixed files
+ * actually sitting in `catalogue/Socials & Screens/` today. The Letterhead
+ * entries here are likewise superseded by `pdf-to-images.mjs`, which renders
+ * `Print/Letterhead/Letterhead N.pdf` rather than the old Header/footer PNGs.
+ *
+ * A further ~15 sources are genuinely gone from the archive (the Safety posters,
+ * Socials/Quiz/, Happy Birthday, Stories-03/04). They were dropped in curation
+ * and no committed output depends on them.
+ *
+ * ⚠ Re-running is also NOT side-effect free: it writes `brand/partners/*.png`
+ * RAW (see the partner block below), whereas the committed art is the
+ * NORMALISED peer-set from `normalize-tata-partners.mjs`. Run normalize
+ * afterwards, or the marquee loses its equal-weight sizing.
+ *
+ * Kept because the Print/Brochures/Certificates/Handbook families below are
+ * still its own, and its _meta.json copy is the source of the catalogue's
+ * descriptions and captions.
+ *
  * CATALOGUE EDITION (rework): all works live as catalogue categories —
  * one folder per work family under public/content/clients/tata-iis/catalogue/,
  * each with a _meta.json (order, description, cover, captions, portrait).
  * Cards render from folders; category routes render the galleries.
  *
- * Reads the curated archive (D:\Assets\Clients\Tata IIS), produces web
+ * Reads the curated archive (_source\Assets\Clients\Tata IIS), produces web
  * derivatives, and writes metas. Idempotent: images are regenerated cheaply;
  * VIDEOS ARE SKIPPED IF PRESENT (re-encode by deleting the file first).
  * Images via sharp (repo dependency); videos/posters via ffmpeg on PATH.
@@ -23,9 +57,10 @@ import sharp from "sharp";
 import { execFileSync } from "node:child_process";
 import fs from "node:fs";
 import path from "node:path";
+import { ASSETS, CONTENT } from "./sources.mjs";
 
-const SRC = "D:/Assets/Clients/Tata IIS";
-const DEST = "D:/Brain Folio/public/content/clients/tata-iis";
+const SRC = path.join(ASSETS, "Clients/Tata IIS");
+const DEST = path.join(CONTENT, "clients/tata-iis");
 const NO_VIDEO = process.argv.includes("--no-video");
 
 const CAT = "catalogue";
@@ -349,7 +384,6 @@ const METAS = {
       "skill-connect-folder.webp": "Skill Connect — the bi-fold folder.",
       "amtech-pavilion-banner-ii.webp": "Amtech — banner, second wave.",
     },
-  },
   },
   [`${CAT}/Stationery`]: {
     order: 10,

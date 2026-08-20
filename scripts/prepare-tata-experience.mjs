@@ -18,9 +18,10 @@ import sharp from "sharp";
 import { execFileSync } from "node:child_process";
 import fs from "node:fs";
 import path from "node:path";
+import { ASSETS, CONTENT } from "./sources.mjs";
 
-const SRC = "D:/Assets/Clients/Tata IIS";
-const DEST = "D:/Brain Folio/public/content/clients/tata-iis";
+const SRC = path.join(ASSETS, "Clients/Tata IIS");
+const DEST = path.join(CONTENT, "clients/tata-iis");
 
 const IMAGES = [
   // Powered-by endorsement logos (normalized width; PNG keeps transparency).

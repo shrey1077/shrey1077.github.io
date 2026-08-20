@@ -17,9 +17,10 @@ import { pdf } from "pdf-to-img";
 import sharp from "sharp";
 import fs from "node:fs";
 import path from "node:path";
+import { ASSETS, CONTENT } from "./sources.mjs";
 
-const SRC = "D:/Assets/Clients/Tata IIS/Logos and Guidelines/IISA/IISA Logo Guidelines (1).pdf";
-const DEST = "D:/Brain Folio/public/content/clients/tata-iis/brand/guidelines-iisa";
+const SRC = path.join(ASSETS, "Clients/Tata IIS/Logos and Guidelines/IISA/IISA Logo Guidelines (1).pdf");
+const DEST = path.join(CONTENT, "clients/tata-iis/brand/guidelines-iisa");
 
 /** 1-indexed PDF pages to keep, in strip order. */
 const PAGES = [1, 3, 4, 5, 6, 7];

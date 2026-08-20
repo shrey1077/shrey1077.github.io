@@ -1,7 +1,7 @@
 /**
  * prepare-zabraku-portfolio.mjs — Zabraku's 2021 company portfolio, page by page.
  *
- * Source: `D:/Assets/Clients/Zabrtaku+/Portfolio 2021.pdf` — 39 pages, an A4
+ * Source: `_source/Assets/Clients/Zabrtaku+/Portfolio 2021.pdf` — 39 pages, an A4
  * cover and back with 37 landscape spreads between them. Same engine as every
  * other PDF in this repo: pypdfium2 through a Python shim, webp at q82, no PDF
  * ships. Idempotent — pages already written are skipped unless --force.
@@ -32,11 +32,12 @@
 import { execFileSync } from "node:child_process";
 import fs from "node:fs";
 import path from "node:path";
+import { ASSETS, CONTENT } from "./sources.mjs";
 
 const PY = "C:/Users/tatai/AppData/Local/Python/pythoncore-3.14-64/python.exe";
-const SRC = "D:/Assets/Clients/Zabrtaku+/Portfolio 2021.pdf";
+const SRC = path.join(ASSETS, "Clients/Zabrtaku+/Portfolio 2021.pdf");
 const CATALOGUE =
-  "D:/Brain Folio/public/content/clients/zabraku-media/catalogue";
+  path.join(CONTENT, "clients/zabraku-media/catalogue");
 
 const MAX_EDGE = 1800;
 const QUALITY = 82;

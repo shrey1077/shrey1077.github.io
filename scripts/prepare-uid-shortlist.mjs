@@ -25,7 +25,7 @@
  * page becomes a webp and the site reads those. A 59 MB zine in a static export
  * is not a download anyone wants.
  *
- * Source: D:/Brain Website portfolio/UID
+ * Source: _source/BWP/UID
  * Idempotent. Node >= 18, sharp; pypdfium2 through the shared Python shim.
  */
 
@@ -33,11 +33,12 @@ import sharp from "sharp";
 import fs from "node:fs";
 import path from "node:path";
 import { execFileSync } from "node:child_process";
+import { BWP, CONTENT } from "./sources.mjs";
 
 const PY = "C:/Users/tatai/AppData/Local/Python/pythoncore-3.14-64/python.exe";
-const ROOT = "D:/Brain Website portfolio/UID";
+const ROOT = path.join(BWP, "UID");
 const SHORT = `${ROOT}/Shortlisted for Claude`;
-const FOLIO = "D:/Brain Folio/public/content";
+const FOLIO = CONTENT;
 const UID_WORK = `${FOLIO}/clients/uid/work`;
 const ART = `${FOLIO}/art`;
 const PUBS = `${FOLIO}/publications`;

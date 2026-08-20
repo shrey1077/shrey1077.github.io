@@ -42,3 +42,10 @@ next-env.d.ts
 
 # scratch / session recordings (root-level only, not public/videos/)
 /video-background-remover.webm
+
+# raw source material — ~10 GB of client archives and folio masters, consolidated
+# here 2026-08-21 so the whole project lives under one root. Read by the
+# prepare-* pipelines via scripts/sources.mjs; never tracked, never exported.
+# ⚠ Not a cache: _source/BWP/_masters/brain-alpha.webm is the ONLY copy of the
+# master the hero brain frames are generated from. Do not delete this tree.
+/_source/

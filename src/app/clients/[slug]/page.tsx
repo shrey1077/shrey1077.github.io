@@ -22,6 +22,7 @@ import { AzothExperience } from "@/components/client/azoth/AzothExperience";
 import { UidExperience } from "@/components/client/uid/UidExperience";
 import { CaseStudyExperience } from "@/components/client/case/CaseStudyExperience";
 import { NEWSMOBILE_EXPERIENCE } from "@/constants/newsmobileExperience";
+import { ABS_EXPERIENCE } from "@/constants/absExperience";
 import { ClientWip } from "@/components/client/ClientWip";
 
 interface ClientPageProps {
@@ -60,6 +61,12 @@ export default async function ClientPage({ params }: ClientPageProps) {
   }
   if (slug === "newsmobile") {
     return <CaseStudyExperience config={NEWSMOBILE_EXPERIENCE} />;
+  }
+  // ABS is a distributor: its room is organised by BRAND rather than by
+  // commission, which is the same shape as NewsMobile's — several categories,
+  // each a small case study with its own plates.
+  if (slug === "abs") {
+    return <CaseStudyExperience config={ABS_EXPERIENCE} />;
   }
 
   const experience = clientExperienceBySlug(slug);

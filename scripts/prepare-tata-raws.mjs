@@ -16,10 +16,11 @@
 import { execFileSync } from "node:child_process";
 import fs from "node:fs";
 import path from "node:path";
+import { ASSETS, CONTENT } from "./sources.mjs";
 
 const PY = "C:/Users/tatai/AppData/Local/Python/pythoncore-3.14-64/python.exe";
-const SRC = "D:/Assets/Clients/Tata IIS";
-const OUT = "D:/Brain Folio/public/content/clients/tata-iis/catalogue";
+const SRC = path.join(ASSETS, "Clients/Tata IIS");
+const OUT = path.join(CONTENT, "clients/tata-iis/catalogue");
 
 /** Source folder → catalogue folder. `prefix` marks these as installed shots
  *  so they read as "in place", and keeps them apart from the flat artwork. */

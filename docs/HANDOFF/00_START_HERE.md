@@ -1,9 +1,10 @@
 # START HERE
 
-**`14_SITE_HANDOFF.md` is the current, whole-site handoff. Read that one only.**
+**`15_SITE_HANDOFF.md` is the current, whole-site handoff. Read that one only.**
 
 Everything else in this folder is history:
 
+- `14_SITE_HANDOFF.md` - superseded 2026-08-21
 - `13_SITE_HANDOFF.md` - superseded 2026-08-20
 - `12_SITE_HANDOFF.md` - superseded 2026-08-19
 - `11_SITE_HANDOFF.md` - superseded

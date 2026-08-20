@@ -34,9 +34,10 @@
 
 import fs from "node:fs";
 import path from "node:path";
+import { BWP, PUBLIC } from "./sources.mjs";
 
-const SRC = "D:/Brain Website portfolio/UID/Shortlisted for Claude/Chess website";
-const DEST = "D:/Brain Folio/public/chess";
+const SRC = path.join(BWP, "UID/Shortlisted for Claude/Chess website");
+const DEST = path.join(PUBLIC, "chess");
 
 /** The only rewrite: protocol-upgrade the http assets so HTTPS can load them. */
 const UPGRADES = [

@@ -41,6 +41,10 @@ export interface CaseCategory {
   accent: string;
   /** Optional live site to link out to. */
   site?: string;
+  /** How this category shows its plates. Absent = the standard CaseGallery
+   *  grid. "coverflow" is the 3D flow, opt-in per category so nothing else
+   *  changes shape by accident — currently only ABS's Luzid section. */
+  presentation?: "coverflow";
 }
 
 /** A full categorised client page. */

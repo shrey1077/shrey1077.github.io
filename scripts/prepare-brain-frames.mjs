@@ -9,7 +9,8 @@
  * Extracts the window from brain-alpha.webm with alpha (the VP9 alpha needs the
  * libvpx-vp9 decoder) and writes numbered alpha-WebP frames.
  *
- * Source: public/videos/brain-alpha.webm  →  Output: public/brain/frames/NNN.webp
+ * Source: _source/BWP/_masters/brain-alpha.webm
+ * Output: public/brain/frames/NNN.webp
  * Idempotent. Node ≥ 18, ffmpeg on PATH, sharp.
  */
 
@@ -18,9 +19,15 @@ import sharp from "sharp";
 import fs from "node:fs";
 import os from "node:os";
 import path from "node:path";
+import { BWP, PUBLIC } from "./sources.mjs";
 
-const SRC = "D:/Brain Folio/public/videos/brain-alpha.webm";
-const DEST = "D:/Brain Folio/public/brain/frames";
+// ⚠ The master lives OUTSIDE the repo, with every other pipeline source. It
+// used to sit in public/videos/, where it shipped 7.9MB to every visitor for
+// nothing — no component ever loaded it; its only consumer is this script.
+// Moved 2026-08-21. Keep it: without it these frames cannot be regenerated,
+// which is exactly what a re-encode of the 12.4MB sequence would need.
+const SRC = path.join(BWP, "_masters/brain-alpha.webm");
+const DEST = path.join(PUBLIC, "brain/frames");
 const START = 2.12; // resting frame 2.92 − 0.8
 const DUR = 1.6; // ±0.8s window
 

@@ -47,8 +47,10 @@
  * words tuck against its real crown and base at any size.
  */
 
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import { motion, useMotionValue, useSpring, useReducedMotion } from "framer-motion";
+import { ImagineParticles } from "@/components/home/ImagineParticles";
+import { ThinkMesh } from "@/components/home/ThinkMesh";
 import { DURATION, EASE_OUT } from "@/constants/motion";
 
 /** How far each word travels on Z, as a scale delta. Tripled from 0.05 on the
@@ -186,6 +188,10 @@ export function HeroName() {
 
   const thinkRef = useRef<HTMLSpanElement>(null);
   const imagineRef = useRef<HTMLSpanElement>(null);
+  // True only while the liquid is actually on screen; see the span below.
+  const [paintOff, setPaintOff] = useState(false);
+  // True only while the mesh is actually drawing; see the Think span.
+  const [meshOn, setMeshOn] = useState(false);
 
   // Z-breath. Springs are slow and soft so this never reads as a jump.
   const thinkZ = useMotionValue(1);
@@ -280,14 +286,20 @@ export function HeroName() {
         style={{ y: thinkY, scale: thinkScale, transformOrigin: "100% 50%", right: THINK_RIGHT }}
         className="absolute top-0 z-30"
       >
-        <motion.span {...rise(0.35)} className="block">
+        <motion.span {...rise(0.35)} className="relative block">
+          {/* ⚠ The span STAYS, and keeps `thinkRef` — the layout's ink metrics
+              measure it, and it is what a reduced-motion visitor reads. The
+              mesh only takes over its FILL, and only once ThinkMesh reports it
+              is really drawing, so a WebGL2 failure leaves the word rather
+              than a hole. Reverting is deleting the sibling and one class. */}
           <span
             ref={thinkRef}
             style={{ fontSize: BASE_SIZE, lineHeight: THINK_LEADING, color: THINK_GREY }}
-            className={`${WORD} font-digibra`}
+            className={`${WORD} font-digibra ${meshOn ? "opacity-0" : ""}`}
           >
             Think
           </span>
+          <ThinkMesh word="Think" from={thinkRef} onActive={setMeshOn} />
         </motion.span>
       </motion.div>
 
@@ -299,17 +311,27 @@ export function HeroName() {
         style={{ y: imagineY, scale: imagineScale, transformOrigin: "0% 50%", left: IMAGINE_LEFT }}
         className="absolute top-0 z-20"
       >
-        <motion.span {...rise(0.5)} className="block">
+        <motion.span {...rise(0.5)} className="relative block">
+          {/* ⚠ The span STAYS, and keeps `imagineRef`. It is what the layout
+              measures (see the ink-metrics effect above) and what a
+              reduced-motion or canvas-less visitor actually reads. The liquid
+              only takes over its FILL: `paintOff` drops the gradient once
+              ImagineParticles reports it is really drawing, so a failure to
+              start leaves the painted word intact rather than a hole.
+              Reverting is deleting the sibling and this one class. */}
           <span
             ref={imagineRef}
             style={{
               fontSize: `calc(${BASE_SIZE} * ${IMAGINE_RATIO})`,
               lineHeight: IMAGINE_LEADING,
             }}
-            className={`${WORD} brain-paint bg-clip-text font-graff font-bold text-transparent`}
+            className={`${WORD} brain-paint bg-clip-text font-graff font-bold text-transparent ${
+              paintOff ? "opacity-0" : ""
+            }`}
           >
             Imagine
           </span>
+          <ImagineParticles word="Imagine" fontFrom={imagineRef} onActive={setPaintOff} />
         </motion.span>
       </motion.div>
     </h1>
