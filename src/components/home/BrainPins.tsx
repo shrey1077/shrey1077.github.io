@@ -52,11 +52,19 @@ const COL = {
   // came out under a pixel — the turn the design asks for was invisible.
   // CONNECTOR_END must stay equal to this number.
   logic: { x: "left-[6vw]", top: 0.46, step: 0.075, align: "flex-row" },
-  // Flush to the right edge (`right-0`, not the old `right-[3vw]`) — the owner
-  // wants these hard against the screen edge. The four illustrations are
-  // different widths, so their LEADING edges stay ragged by design; it is the
-  // trailing edge that lines up. `top` moved 0.22 → 0.30 to clear ThoughtBox.
-  creative: { x: "right-0", top: 0.3, step: 0.07, align: "flex-row-reverse" },
+  // ⚠ 6vw, MIRRORING the logic column — and this reverses the earlier `right-0`
+  // ("hard against the screen edge"). The two instructions cannot both hold:
+  // once the artwork is mirrored its lead ring sits at the artwork's RIGHT
+  // edge, so flush-right puts the ring against the viewport edge and the
+  // connector band — CREATIVE_CLEAR plus three CONNECTOR_GAPs, ~4.3% of the
+  // stage — lands off-screen entirely. Measured at 1280px: the rings came out
+  // at 97–98% of the stage with nothing to the right of them.
+  // The owner asked on 2026-08-21 for the column to read as a mirror image, so
+  // it now takes the same gutter the left column has. The four illustrations
+  // are still different widths, so their trailing edges stay ragged by design;
+  // it is the LEADING edge that lines up now. `top` still carries the 0.22 →
+  // 0.30 offset added to clear ThoughtBox, which is gone.
+  creative: { x: "right-[6vw]", top: 0.3, step: 0.07, align: "flex-row-reverse" },
 } as const;
 
 type Side = "logic" | "creative";
@@ -156,32 +164,36 @@ interface PinArt {
    *  artwork (0.494–0.627), so it cannot be assumed from the frame. */
   ringCX: number;
   ringCY: number;
+  /** The ring's OWN colour, sampled from the artwork — the hover fill drops
+   *  this into the ring so each section answers in its own hue. Measured by
+   *  scripts/analyze_pin_art.py; re-sample if a file is replaced. */
+  ringColor: string;
 }
 
 const ART: Partial<Record<NavSectionId, PinArt>> = {
   art: {
     src: "/content/pins/art.webp",
     aspect: 4.0596, pillCenterY: 0.6762,
-    circleCX: 0.2393, circleCY: 0.6458, circleR: 0.2034,
-    ringCX: 0.0508, ringCY: 0.6266,
+    circleCX: 0.7607, circleCY: 0.6458, circleR: 0.2034,
+    ringCX: 0.9492, ringCY: 0.6266, ringColor: "#ed5f00",
   },
   publications: {
     src: "/content/pins/publications.webp",
     aspect: 4.3422, pillCenterY: 0.5393,
-    circleCX: 0.215, circleCY: 0.5108, circleR: 0.2034,
-    ringCX: 0.0392, ringCY: 0.4938,
+    circleCX: 0.7850, circleCY: 0.5108, circleR: 0.2034,
+    ringCX: 0.9608, ringCY: 0.4938, ringColor: "#e3274b",
   },
   "the-extincts-project": {
     src: "/content/pins/the-extincts-project.webp",
     aspect: 4.7284, pillCenterY: 0.5425,
-    circleCX: 0.1786, circleCY: 0.5121, circleR: 0.1999,
-    ringCX: 0.0182, ringCY: 0.4984,
+    circleCX: 0.8214, circleCY: 0.5121, circleR: 0.1999,
+    ringCX: 0.9818, ringCY: 0.4984, ringColor: "#af1f9d",
   },
   "ai-generations": {
     src: "/content/pins/ai-generations.webp",
     aspect: 4.8619, pillCenterY: 0.5906,
-    circleCX: 0.1867, circleCY: 0.5583, circleR: 0.2015,
-    ringCX: 0.0289, ringCY: 0.5391,
+    circleCX: 0.8133, circleCY: 0.5583, circleR: 0.2015,
+    ringCX: 0.9711, ringCY: 0.5391, ringColor: "#0096a6",
   },
 };
 
@@ -195,6 +207,15 @@ function connectorPath(x: number, y: number, end: number): string {
   const r = CONNECTOR_R;
   // Start above the stage so the line reads as arriving from off-screen.
   return `M ${x} -2 V ${y - r} Q ${x} ${y} ${x + r} ${y} H ${end}`;
+}
+
+/** The creative column's mirror of the same run: drops from the top, then turns
+ *  LEFT into the artwork's lead ring, which now sits at the artwork's right
+ *  edge. The owner asked for the right column — sections and lines both — to
+ *  read as a mirror image on 2026-08-21. */
+function connectorPathMirrored(x: number, y: number, end: number): string {
+  const r = CONNECTOR_R;
+  return `M ${x} -2 V ${y - r} Q ${x} ${y} ${x - r} ${y} H ${end}`;
 }
 
 /* A second run per pin used to leave the stroked circle, turn right and fall to
@@ -244,6 +265,7 @@ function PinConnectors({
   anchors,
   baseX,
   fallbackEnd,
+  mirrored = false,
 }: {
   pins: Pin[];
   open: NavSectionId | null;
@@ -256,6 +278,8 @@ function PinConnectors({
   baseX: number;
   /** Used only before the first measurement arrives. */
   fallbackEnd: number;
+  /** The creative column runs the other way — see connectorPathMirrored. */
+  mirrored?: boolean;
 }) {
   return (
     <svg
@@ -295,7 +319,10 @@ function PinConnectors({
           reduceMotion
             ? undefined
             : {
-                clipPath: "inset(0 92% 100% 0)",
+                // Mirrored, the reveal has to open LEFTWARD, from the
+                // right edge — otherwise the line draws itself away from the
+                // ring it is travelling to.
+                clipPath: mirrored ? "inset(0 0 100% 92%)" : "inset(0 92% 100% 0)",
                 animation: `brainpin-draw ${CONNECTOR_DRAW}s linear ${delay}s forwards`,
               };
 
@@ -310,7 +337,11 @@ function PinConnectors({
         return (
           <path
             key={pin.id}
-            d={connectorPath(baseX - pin.index * CONNECTOR_GAP, inY, inEnd)}
+            d={
+              mirrored
+                ? connectorPathMirrored(baseX + pin.index * CONNECTOR_GAP, inY, inEnd)
+                : connectorPath(baseX - pin.index * CONNECTOR_GAP, inY, inEnd)
+            }
             {...common}
             style={drawAt(pin.index * CONNECTOR_DRAW)}
           />
@@ -340,8 +371,9 @@ function PinRow({
   // section has no file, so an unillustrated id still renders something.
   if (art) {
     const w = ART_H * art.aspect;
-    // Same 0.42-of-the-circle dot the DOM pins drop into their ring.
-    const dot = ART_H * art.circleR * 2 * 0.42;
+    // The lead ring is far smaller than the big circle the old tell used, so
+    // the fill is sized from ART_H directly rather than from `circleR`.
+    const ringDot = ART_H * 0.085;
     return (
       <div
         className={`absolute ${COL[pin.side].x} flex items-center`}
@@ -379,20 +411,29 @@ function PinRow({
             sizes={`${Math.round(w)}px`}
             className="object-contain"
           />
-          {/* The tell, dropped into the artwork's own circle. */}
+          {/* The tell. It used to be a black dot dropped into the BIG white
+              circle; the owner replaced it on 2026-08-21 with the artwork's own
+              small lead ring filling in its own colour. The big circle is left
+              alone entirely now.
+
+              Positioned on the same measured ring point the connector lands on,
+              so the fill sits IN the ring rather than near it. It is a separate
+              element from the `data-pin-ring` marker, which must stay zero-size
+              or the connector measurement moves with it. */}
           <motion.span
             aria-hidden
-            className="absolute block rounded-full bg-neutral-950"
+            className="absolute block rounded-full"
             initial={false}
             animate={{ scale: hover || open ? 1 : 0 }}
             transition={{ duration: reduceMotion ? 0 : 0.22, ease: EASE_OUT }}
             style={{
-              left: `${art.circleCX * 100}%`,
-              top: `${art.circleCY * 100}%`,
-              width: dot,
-              height: dot,
-              marginLeft: -dot / 2,
-              marginTop: -dot / 2,
+              left: `${art.ringCX * 100}%`,
+              top: `${art.ringCY * 100}%`,
+              width: ringDot,
+              height: ringDot,
+              marginLeft: -ringDot / 2,
+              marginTop: -ringDot / 2,
+              backgroundColor: art.ringColor,
             }}
           />
         </button>
@@ -601,14 +642,16 @@ export function BrainPins() {
   // dispatches `null` on its own and the panel closes with the pins.
   const active = isCompact ? null : open;
 
-  // Leftmost measured lead ring, backed off by CREATIVE_CLEAR — the origin of
-  // the right column's vertical band. Null until the first measurement.
+  // RIGHTMOST measured lead ring, cleared by CREATIVE_CLEAR — the origin of the
+  // right column's vertical band. ⚠ Was the LEFTmost, backed off to the left;
+  // the column is mirrored now, so the rings sit at each artwork's right edge
+  // and the band has to stand outside them on the RIGHT. Null until measured.
   const creativeRingX = pins
     .filter((p) => p.side === "creative")
     .map((p) => anchors[p.id]?.x)
     .filter((x): x is number => typeof x === "number");
   const creativeBase =
-    creativeRingX.length === 4 ? Math.min(...creativeRingX) - CREATIVE_CLEAR : null;
+    creativeRingX.length === 4 ? Math.max(...creativeRingX) + CREATIVE_CLEAR : null;
 
   // Tell the rest of the page which section is open, so the panel can follow.
   useEffect(() => {
@@ -651,8 +694,8 @@ export function BrainPins() {
           four illustrations are different widths and right-anchored, so their
           lead rings sit at four different x — a fixed column would land on the
           artwork for some and float away from it for others. `creativeBase`
-          takes the leftmost ring and backs off, so the whole bracket clears
-          every one of them. It renders only once measured; before that there
+          takes the RIGHTmost ring and clears it, so the whole bracket stands
+          outside every one of them. It renders only once measured; before that there
           is nothing sensible to draw. */}
       {creativeBase !== null && (
         <PinConnectors
@@ -662,6 +705,7 @@ export function BrainPins() {
           anchors={anchors}
           baseX={creativeBase}
           fallbackEnd={creativeBase}
+          mirrored
         />
       )}
       {pins.map((p) => (
