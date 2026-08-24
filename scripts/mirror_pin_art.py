@@ -9,20 +9,29 @@ baked into each WebP, so a CSS `scaleX(-1)` would reverse the words too.
 
 THE METHOD, and why it is this and not text detection:
   1. Flip the whole image. Everything is now mirrored, words included.
-  2. Flip ONE rectangle back: the white pill, minus the circle's width at the
-     end the circle now occupies. That rectangle contains the label and nothing
-     else, so the words come back the right way round while the circle, ring and
-     splash stay mirrored.
+  2. Flip ONE region back: the pill's own SILHOUETTE — its white body, the label
+     glyphs enclosed in it, and its outline. That region holds the label and
+     nothing else, so the words come back the right way round while the circle,
+     the lead ring and the splash stay mirrored.
 
-  Locating that rectangle needs only the PILL'S BOUNDS, found as the largest
-  connected near-white region. Detecting the glyphs directly was tried first and
-  is not reliable here: the splash carries dark desaturated droplets AND white
-  highlights, so "dark pixel with white above and below" grabs a chunk of paint
-  and the box ran ~380px past the end of the word. The pill is a big solid
-  shape and is not ambiguous.
+  Locating it needs only the pill, found as the largest connected near-white
+  region and then hole-filled and grown 2px. Detecting the glyphs directly was
+  tried first and is not reliable here: the splash carries dark desaturated
+  droplets AND white highlights, so "dark pixel with white above and below"
+  grabs a chunk of paint and the box ran ~380px past the end of the word. The
+  pill is a big solid shape and is not ambiguous.
 
-  ⚠ The pill is a stadium — horizontally symmetric — so flipping that rectangle
-  back does not disturb its rounded ends.
+  ⚠ IT IS THE SILHOUETTE, NOT THE BOUNDING RECTANGLE. That was the first
+  attempt and it is wrong: the splash crosses the pill on all four artworks, so
+  flipping the rectangle re-mirrors the paint inside it and leaves a hard
+  rectangular seam standing out against the surrounding splash. Masking to the
+  shape ends the flip on the pill's own outline, where an edge already exists.
+
+  ⚠ The circle is a SEPARATE white component — a dark outline runs between it
+  and the pill — so it is outside the mask and stays mirrored, which is what the
+  brief wants. An earlier version assumed it sat inside the pill's box and
+  subtracted its width from that box; that un-flipped only part of each label
+  and left the words half reversed.
 
 Originals are copied to pins/_orig/ once and are always the input, so this is
 idempotent and re-runnable. Do not delete _orig: the four WebPs are the only
