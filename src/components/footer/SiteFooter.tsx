@@ -22,7 +22,6 @@
  */
 
 import { PortraitOrb } from "@/components/home/PortraitOrb";
-import { FooterLiquidGrid } from "@/components/footer/FooterLiquidGrid";
 import { SITE } from "@/constants/site";
 
 const LINKS: { label: string; value: string; href: string; external: boolean }[] = [
@@ -41,14 +40,8 @@ export function SiteFooter() {
     year > SITE.inceptionYear ? `${SITE.inceptionYear}–${year}` : `${year}`;
 
   return (
-    <footer className="relative isolate w-full border-t border-neutral-200 bg-gallery px-6 py-12 sm:px-10">
-      {/* The rippling dot ground. ⚠ `relative isolate` above exists FOR this:
-          `relative` gives the absolutely-positioned canvas something to fill,
-          and `isolate` opens a stacking context so its negative z-index cannot
-          escape behind the page itself. It adds no height — see the component.
-          Everything below stays exactly where it was. */}
-      <FooterLiquidGrid />
-      <div className="relative mx-auto grid w-full max-w-7xl items-center justify-items-center gap-10 md:grid-cols-[1fr_auto_1fr] md:gap-8">
+    <footer className="w-full border-t border-neutral-200 bg-gallery px-6 py-12 sm:px-10">
+      <div className="mx-auto grid w-full max-w-7xl items-center justify-items-center gap-10 md:grid-cols-[1fr_auto_1fr] md:gap-8">
         {/* Name — logic face, left. */}
         <div className="font-digibra text-center md:justify-self-start md:text-left">
           <p className="text-[clamp(1.7rem,3.4vw,2.9rem)] leading-[1.05] text-neutral-900">
@@ -93,7 +86,7 @@ export function SiteFooter() {
         </div>
       </div>
 
-      <p className="font-graff relative mx-auto mt-10 w-full max-w-7xl text-center text-[0.7rem] font-normal text-neutral-400">
+      <p className="font-graff mx-auto mt-10 w-full max-w-7xl text-center text-[0.7rem] font-normal text-neutral-400">
         © {copyrightYears} {SITE.name}. All rights reserved.
       </p>
     </footer>
