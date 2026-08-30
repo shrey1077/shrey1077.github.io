@@ -22,11 +22,9 @@
  *     `font-graff`, and open inverts each, which is what the pins do.
  *
  * State: the pins own `open` above `lg` and this owns it below, and they never
- * both operate at one width. Both still talk over the same `PIN_OPEN_EVENT`
- * bus — but ⚠ THE LISTENER CHANGED. It used to be SectionPanel, which opened an
- * overlay; that panel is off the page and JourneyStage listens now, so the
- * event means "take me there" rather than "open this". Below `lg` the journey
- * is a plain stack, so a click here scrolls to that section's block.
+ * both operate at one width. Both talk to `SectionPanel` over the same
+ * `PIN_OPEN_EVENT` bus, so the panel needed no change and there is still only
+ * one open section on the page.
  */
 
 import { useEffect, useRef, useState } from "react";

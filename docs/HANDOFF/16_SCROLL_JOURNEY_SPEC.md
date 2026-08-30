@@ -1,57 +1,29 @@
-# 16 — Scroll journey spec (the "exsec" build)
+# 16 — The scroll journey: built, then discarded
 
-Owner's brief, 2026-08-25, answered 2026-08-25. This is a FIVE-PART build across
-several sessions. Read this before starting any part; it holds the decisions and
-the two hard constraints that shape all of them.
+⚠⚠ **THIS WAS BUILT AND THEN REVERTED AT THE OWNER'S REQUEST, 2026-08-25.**
+The site uses the CLICK-TO-VIEW overlay (`SectionPanel`), as it did before. Do
+not implement anything below without asking: the owner saw it working and
+preferred what was already there.
 
-⚠ This is a SPEC, not a record of what exists. Nothing below is built unless a
-part is ticked. Update the ticks as parts land.
+Kept from the same brief: **the Imagine change** (rainbow gradient + THINK's
+mesh, commit `4e859dc8`) and the **PORTFOLIO / 2026 and footing wordmark**
+(`1d8b915f`). Those are live and unaffected by any of this.
 
-ALL FIVE PARTS LANDED 2026-08-25 (commits 4e859dc8, be9a8bf3 and this one).
-What the sections below still describe as "to settle" HAS been settled; the
-measured answers are recorded in each part and in those commit messages. The
-open items that remain are listed under "Still open" at the foot of this file.
-
----
-
-## The brief, as agreed
-
-1. **Imagine** loses the liquid particle effect. The word becomes a slow
-   animated rainbow **gradient**, and carries the **same mesh effect THINK has**
-   (`ThinkMesh` — pointer drags the glyphs, springs back).
-2. **All eight expanded sections ("exsecs") exist in the page at all times** —
-   four left, four right. Not one-at-a-time overlays.
-3. What a pin used to open is now always present and reached by scrolling.
-   **Click-to-jump survives**: a pin jumps you to that exsec.
-4. **The journey.** First scroll: the camera zooms *through* the brain's left
-   extremity while the playhead runs past the current scrub window, and emerges
-   at the **Clients** exsec. From there the exsecs sit on a **2D plane** in a
-   zig-zag: Clients, then Arts down-and-right, then Projects down-and-left, and
-   so on alternating. Navigation eases in/out.
-5. **Narrow screens keep a simple vertical stack**, sections alternating
-   left/right. No 2D plane below `lg`.
-6. Gradient motion is **gentle and slow**.
+The journey lived in `be9a8bf3` and `20f221dd`, both reverted. Recover the code
+from those if it is ever wanted again.
 
 ---
 
-## Two hard constraints — read before designing anything
+## Why this file still exists
 
-### The master is 1280×720, and the hero already renders it ~1:1
+The plan was wrong for the site, but several things MEASURED along the way are
+true regardless and cost real time to establish.
 
-Measured in the live DOM: the brain renders at **1265×712 CSS px**, and is
-already UNDER-sampled on a dpr-1.75 display (which would want ~2215px). There is
-no higher-resolution source — the `.webm` IS the master
-(`_source/BWP/_masters/brain-alpha.webm`).
+### The brain master's full timeline
 
-**Therefore a "fly through the brain" zoom WILL soften as it scales past native.**
-This is not a bug to fix later; it is a ceiling. Decide how far the zoom goes
-with that in mind, and consider ending the fly-through on a cut/dissolve at the
-point where softening would become obvious rather than pushing to full screen.
-
-### The footage the journey needs exists, but not as frames
-
-The master is **6.039s**. The site uses only **2.12–3.72s** (48 frames) for the
-pointer scrub. Frames sampled across the whole master:
+`_source/BWP/_masters/brain-alpha.webm` is **6.039s**; the hero's pointer scrub
+uses only **2.12–3.72s** (the 48 stills in `public/brain/frames`). Sampled
+across the whole file:
 
 | t | what the brain does |
 |---|---|
@@ -64,94 +36,56 @@ pointer scrub. Frames sampled across the whole master:
 | 5.2s | further left, big spray |
 | 5.9s | **hard left, fully coloured, spray fills the right** |
 
-So 3.72→6.04s is exactly the "brain moves left and frees the right side" motion
-the brief asks for. **But it is ~70 more frames ≈ +14MB** at the current q75
-encoding, on top of the 9.39MB already shipping.
+There IS unused footage in which the brain vacates the right-hand side. If a
+future idea needs that motion, it exists and does not have to be animated.
 
-**Frames are not viable for this phase.** The likely answer is a `<video>` for
-the journey phase. Note the original reason video was rejected (see
-`BrainSequence`'s header) was *random seeking* being expensive — scroll-driven
-playback is monotonic, which video handles well. **Part 2 exists to settle this
-before anything is built on top of it.**
+### What that footage costs, measured
 
----
+For the 3.72→6.04s tail:
 
-## The parts, in order
+| form | size |
+|---|---|
+| alpha-WebP stills at the sequence's own q75 (~70 frames) | ~14 MB |
+| VP9 **with** alpha, crf 34 | 3.45 MB |
+| VP9 **with** alpha, crf 40 | 2.53 MB |
+| VP9 **with** alpha, crf 46 | 1.62 MB |
+| VP9 flattened onto #f9f9f9, no alpha, crf 34 | 1.45 MB |
 
-Sequence matters: **2 → 3 → 4**. Part 2's outcome decides the page's structure;
-Part 3's layout decides what Part 4 animates. Part 1 is independent.
+⚠ Alpha costs roughly 2.4x, but the brain composites over `CircuitBackdrop` —
+a flattened clip blanks the circuit traces behind a grey rectangle.
+⚠ crf 40 is indistinguishable from 34 under magnification; 46 visibly loses the
+fine spray filaments.
 
-One part per session — parts 3 and 4 will each fill one.
+### The resolution ceiling — the important one
 
-### [x] Part 1 — Imagine: rainbow + mesh  · Sonnet
-- Remove `ImagineParticles` from `HeroName` (keep the file, unreferenced).
-- `ThinkMesh` gains an opt-in animated rainbow.
-- ⚠ Do the colour **in the shader**, not by re-rasterising. `paint()` builds a
-  canvas and re-uploads via `texImage2D`; driving that per frame to animate a
-  gradient is wasteful. Rasterise the glyphs ONCE as an alpha mask and colour
-  them in the fragment shader from a `uPhase` uniform.
-- ⚠ The texture is uploaded with `UNPACK_PREMULTIPLY_ALPHA_WEBGL`, so shader
-  output must be premultiplied too (`rgb = colour * alpha`).
-- THINK must keep its solid `THINK_GREY`. The rainbow is opt-in per instance.
-- Palette: `.brain-paint`'s eight stops, so the word matches the site.
+Measured in the live DOM: the brain renders at **1265×712 CSS px**, i.e. ~1:1
+with its 1280×720 source, and is already UNDER-sampled on a dpr-1.75 display
+(which would want ~2215px across). **There is no higher-resolution master** —
+the `.webm` IS the master.
 
-### [x] Part 2 — Brain journey spike  · Opus
-- Settle **video vs frames** for 3.72→6.04s. Measure both; do not assume.
-- Establish how far the zoom goes given the 720p ceiling, and where the
-  fly-through hands off to the plane.
-- Deliverable: a working scroll→playhead+zoom prototype and a weight number.
-
-### [x] Part 3 — Exsec layout  · Opus
-- Convert `SectionPanel` (454 lines, `AnimatePresence`, one section at a time,
-  driven by `PIN_OPEN_EVENT`) into eight always-present blocks positioned on a
-  2D plane in the zig-zag.
-- Keep `PIN_OPEN_EVENT` alive as the click-to-jump route.
-- Narrow screens: simple alternating stack, no plane.
-
-### [x] Part 4 — Scroll choreography  · Opus
-- Drive the plane traversal from scroll with ease in/out.
-- Couple the brain phase and the nav to scroll progress.
-- Hand off cleanly between the fly-through and the plane.
-
-### [x] Part 5 — Responsive, reduced motion, a11y, polish  · Sonnet
-- Mechanical once the system exists.
-- ⚠ Reduced motion needs a real answer here, not a disabled animation: with the
-  journey carrying the navigation, a visitor who asked for no motion still has
-  to be able to reach all eight sections.
+Any idea that magnifies the brain magnifies past native and will soften. That is
+a property of the source, not something to tune later.
 
 ---
 
-## Standing traps for this build
+## Traps worth carrying forward
 
 - **`document.hidden`.** `ResizeObserver` and `IntersectionObserver` do NOT
-  deliver while the page is hidden, and screenshots fail outright. A hidden pane
-  makes scroll-driven work look broken when it is fine. Check it FIRST and
-  sample it INSIDE any measurement loop.
+  deliver while the page is hidden, and screenshots fail outright. Observer- and
+  scroll-driven work looks broken when it is fine. Check it FIRST and sample it
+  INSIDE any measurement loop.
 - **Stale bundles.** A change can be on disk, typecheck clean, and still not be
   in the browser. If the DOM disagrees with the source, hard-reload before
   concluding anything.
-- **Verify in the DOM, but look as well.** Several things here (the zoom's
-  softening, the zig-zag's rhythm) cannot be judged from numbers.
-
-
----
-
-## Still open
-
-Not blockers, but the honest list of what this build did NOT finish:
-
-- **The `projects` in-place study preview is gone.** The old overlay's board
-  could open a study via ProjectPreview, fed by `studyPlates`. The plane shows
-  BrandCardSlider for that room instead. `src/app/page.tsx` carries the exact
-  note on how to read the plates back and restore it.
-- **The hero → journey handoff has a seam.** The hero's still-frame brain and
-  the journey's video brain are two different elements; the fly-through begins
-  from the video's first frame rather than continuing the hero's exact pose.
-  It reads acceptably because the fly-through starts zoomed and moving, but it
-  is not a true match cut.
-- **`SectionPanel` and `SectionBody` are both unreferenced now** (SectionBody
-  only via the parked SidesShowcase chain). Neither is deleted, in case the
-  overlay is wanted back. They are dead weight in the tree until then.
-- **FLY_ZOOM is 2.6 and that is a source limit, not a taste one.** If a deeper
-  fly-through is ever wanted, it needs a higher-resolution master — the 1280x720
-  webm cannot give it.
+- **`readPixels` on a WebGL canvas** returns 0,0,0,0 from outside the draw call
+  (there is no `preserveDrawingBuffer`). It looks like a definitive negative and
+  is not one.
+- **`inset-0` plus an overridden `left`/`top` collapses the box.** `inset-0` also
+  sets `right:0`/`bottom:0`, which stay in force — width computes as
+  (parent − left − right). This silently made every journey cell 154×112px while
+  every DOM check passed.
+- **`SectionBody` is NOT the live section renderer.** It belongs to the parked
+  `SidesShowcase` chain and is poorer than what `SectionPanel` renders: it sends
+  `publications` to "coming soon" and gives `logofolio` the flat grid rather than
+  the wall. Anything needing section content should use SectionPanel's
+  renderers.
