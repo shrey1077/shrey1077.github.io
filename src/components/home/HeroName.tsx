@@ -7,29 +7,29 @@
  * it reads as a watermark the brain sits IN FRONT OF rather than a headline
  * over it. Its final K is right-aligned to the brain's midline, so the word
  * ends exactly where the logic hemisphere does and the brain laps over its
- * last letter. Imagine answers it at the base in Juturu bold, starting from
- * a little past that midline (54%) and running right. Think is a fifth of
- * black; Imagine carries the paint gradient again as of 2026-08-10.
+ * last letter. imagine answers it at the base in Juturu bold, starting from
+ * a little past that midline and running right.
  *
- * That fill has been on and off twice, and the reason is what sits behind it.
- * It went solid white when the paint film ran across the right flank at full
- * strength — a gradient fill simply vanished into a gradient ground. The film
- * has since moved to the Art section, which leaves this word pure white on a
- * near-white circuit backdrop at a 1.05:1 contrast ratio, i.e. invisible. The
- * paint is what makes it legible now. If a coloured layer ever returns to the
- * right flank, this goes back to solid white.
+ * BOTH WORDS ARE MESHES NOW (2026-08-25). Each is rasterised to a texture that
+ * a grid of vertices drags through and springs back from — THINK in its flat
+ * THINK_GREY, imagine in a rainbow that sweeps slowly along the word. imagine
+ * used to be liquid particles over a static gradient; the owner replaced that
+ * with THINK's effect plus moving colour. ImagineParticles is kept, unused.
  *
- * ⚠ The fill is `bg-clip-text`, so the word's opacity CANNOT come from an
- * alpha on the text colour (a `text-black` with a slash-opacity suffix, the
- * way Think is dimmed) — that destroys the clip and the word disappears.
- * Dim the layer, not the type.
+ * ⚠ The `brain-paint` span underneath each is the FALLBACK, not the fill. It is
+ * what a reduced-motion or WebGL-less visitor reads, and it is hidden the moment
+ * the mesh reports it is really drawing. The moving colour lives in the shader.
  *
- * The two no longer slide sideways. They breathe on the Z axis instead:
- * centre-screen is the rest state, and moving the pointer left pushes Think
- * five percent toward you while Imagine recedes by the same amount — moving
- * right does the reverse. Five percent is small on purpose. The brain answers
- * the mouse far more strongly, and the words are meant to be the room it sits
- * in, not a second thing competing for the eye.
+ * ⚠ That fallback is `bg-clip-text`, so its opacity CANNOT come from an alpha on
+ * the text colour (a `text-black` with a slash-opacity suffix, the way Think is
+ * dimmed) — that destroys the clip and the word disappears. Dim the layer, not
+ * the type.
+ *
+ * The two no longer slide sideways. They change SIZE with the pointer instead:
+ * each is at its largest when the pointer is on its own side and falls to
+ * SIZE_MIN_RATIO of that on the far side, crossing at the midpoint dead centre.
+ * See SIZE_MIN_RATIO — this replaced a much smaller symmetric "breath" on
+ * 2026-08-21.
  *
  * ⚠ Think used to sit BEHIND the footage at z-0, so the brain lapped over its
  * final K. That was reversed on the owner's instruction 2026-08-10: Think is
@@ -49,7 +49,6 @@
 
 import { useEffect, useRef, useState } from "react";
 import { motion, useMotionValue, useSpring, useReducedMotion } from "framer-motion";
-import { ImagineParticles } from "@/components/home/ImagineParticles";
 import { ThinkMesh } from "@/components/home/ThinkMesh";
 import { DURATION, EASE_OUT } from "@/constants/motion";
 
@@ -61,9 +60,9 @@ import { DURATION, EASE_OUT } from "@/constants/motion";
  *   · the ink clamps (EDGE_MARGIN, FLOOR_GAP) measure the UNSCALED span, so
  *     with the box already at max size they are computed for the largest state
  *     the word can ever reach and stay correct at every smaller one; and
- *   · ThinkMesh and ImagineParticles bake their masks from the layout box, so
- *     a word that scaled ABOVE 1 would be resampling a mask baked smaller than
- *     it is drawn, and both would soften.
+ *   · BOTH words' meshes bake their texture from the layout box, so a word that
+ *     scaled ABOVE 1 would be resampling a texture baked smaller than it is
+ *     drawn, and would soften.
  *
  *  Replaces the old symmetric ±ZOOM breath (0.85–1.15 about a mid size). The
  *  owner asked on 2026-08-21 for a real size range, big on the pointer's side
@@ -225,9 +224,8 @@ export function HeroName() {
 
   const thinkRef = useRef<HTMLSpanElement>(null);
   const imagineRef = useRef<HTMLSpanElement>(null);
-  // True only while the liquid is actually on screen; see the span below.
-  const [paintOff, setPaintOff] = useState(false);
-  // True only while the mesh is actually drawing; see the Think span.
+  // True only while each word's mesh is actually drawing; see the spans below.
+  const [imagineMeshOn, setImagineMeshOn] = useState(false);
   const [meshOn, setMeshOn] = useState(false);
 
   // The size breath. Springs are slow and soft so this never reads as a jump.
@@ -358,11 +356,20 @@ export function HeroName() {
         <motion.span {...rise(0.5)} className="relative block">
           {/* ⚠ The span STAYS, and keeps `imagineRef`. It is what the layout
               measures (see the ink-metrics effect above) and what a
-              reduced-motion or canvas-less visitor actually reads. The liquid
-              only takes over its FILL: `paintOff` drops the gradient once
-              ImagineParticles reports it is really drawing, so a failure to
-              start leaves the painted word intact rather than a hole.
-              Reverting is deleting the sibling and this one class. */}
+              reduced-motion or WebGL-less visitor actually reads. The mesh only
+              takes over its FILL: `imagineMeshOn` drops the painted word once
+              ThinkMesh reports it is really drawing, so a failure to start
+              leaves the gradient word intact rather than a hole.
+
+              ⚠ THE LIQUID IS GONE. ImagineParticles ran here until 2026-08-25,
+              when the owner asked for the word to keep changing rainbow colours
+              and to carry THINK's mesh instead. The component file is kept,
+              unreferenced, in case it returns.
+
+              ⚠ The colour now comes from the MESH, not from this span. The
+              `brain-paint` class below is the fallback the mesh replaces —
+              a static gradient for anyone the shader never starts for. The
+              moving rainbow is `rainbow` on ThinkMesh. */}
           <span
             ref={imagineRef}
             style={{
@@ -370,12 +377,12 @@ export function HeroName() {
               lineHeight: IMAGINE_LEADING,
             }}
             className={`${WORD} brain-paint bg-clip-text font-graff font-bold text-transparent ${
-              paintOff ? "opacity-0" : ""
+              imagineMeshOn ? "opacity-0" : ""
             }`}
           >
             imagine
           </span>
-          <ImagineParticles word="imagine" fontFrom={imagineRef} onActive={setPaintOff} />
+          <ThinkMesh word="imagine" from={imagineRef} onActive={setImagineMeshOn} rainbow />
         </motion.span>
       </motion.div>
     </h1>
