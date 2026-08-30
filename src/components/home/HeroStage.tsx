@@ -16,6 +16,7 @@
  * SidesShowcase, revealed by scrolling. Desktop only for now.
  */
 
+import { useEffect, useState } from "react";
 import { motion, useReducedMotion } from "framer-motion";
 import { BrainSequence } from "@/components/home/BrainSequence";
 import { HeroName } from "@/components/home/HeroName";
@@ -26,9 +27,11 @@ import { Corner3DGrid } from "@/components/home/Corner3DGrid";
 import { useInViewport } from "@/hooks/useInViewport";
 import { DURATION, EASE_IN_OUT, EASE_OUT } from "@/constants/motion";
 import { CircuitBackdrop } from "@/components/home/CircuitBackdrop";
-import { BrainPins } from "@/components/home/BrainPins";
+import { BrainPins, PIN_OPEN_EVENT } from "@/components/home/BrainPins";
 import { useIsPhone } from "@/hooks/useMediaQuery";
 import { SITE } from "@/constants/site";
+import { NAV_SECTIONS } from "@/constants/navigation";
+import type { NavSectionId } from "@/types/navigation";
 
 /** The landing brain read too large at 1:1 — sit it back a quarter, then a
  *  further tenth (2026-08-10) to give the words and pins more room, then 5%
@@ -69,6 +72,18 @@ export function HeroStage() {
   const isPhone = useIsPhone();
   const centreScale = isPhone ? CENTER_SCALE_PHONE : CENTER_SCALE;
 
+  /* Which section is open, for the footing band. ⚠ Read off the same
+     PIN_OPEN_EVENT bus the pins and SectionNav already publish on, rather than
+     lifting state — the band is the third listener, not a new source of truth,
+     so it cannot disagree with what is actually open. */
+  const [openId, setOpenId] = useState<NavSectionId | null>(null);
+  useEffect(() => {
+    const onPin = (e: Event) => setOpenId((e as CustomEvent<NavSectionId | null>).detail);
+    window.addEventListener(PIN_OPEN_EVENT, onPin);
+    return () => window.removeEventListener(PIN_OPEN_EVENT, onPin);
+  }, []);
+  const openLabel = openId ? NAV_SECTIONS.find((n) => n.id === openId)?.label : null;
+
   return (
     <section
       ref={ref}
@@ -108,16 +123,30 @@ export function HeroStage() {
           It now also carries the wordmark, centred — so it is no longer
           `aria-hidden`: it holds real content. */}
       <div className="pointer-events-none absolute inset-x-0 bottom-0 z-0 grid h-[7%] place-items-center bg-neutral-950">
-        {/* ⚠ The two halves take the two hemisphere faces, the same split the
-            landing and the footer both make: Digibra for the logic side,
-            Juturu bold for the creative one. */}
-        <p className="flex items-baseline gap-[0.3em] text-[clamp(0.7rem,1.5vw,1.15rem)] leading-none">
-          <span className="font-digibra font-bold tracking-[0.12em] text-white">
-            {NAME_FIRST}
-          </span>
-          <span className="font-graff font-bold tracking-[0.02em] text-white">
-            {NAME_REST.join(" ")}
-          </span>
+        {/* ⚠ THE BAND ANSWERS THE PAGE. At rest it carries the wordmark; the
+            moment a section is open it carries that section's title instead,
+            in Digibra — the owner's instruction, 2026-08-25. The name is not
+            deleted, it is the resting state, so the band is never empty.
+            The two name halves take the two hemisphere faces, the same split
+            the landing and the footer both make. */}
+        <p
+          key={openLabel ?? "wordmark"}
+          className="flex items-baseline gap-[0.3em] text-[clamp(0.7rem,1.5vw,1.15rem)] leading-none"
+        >
+          {openLabel ? (
+            <span className="font-digibra font-bold tracking-[0.16em] text-white">
+              {openLabel}
+            </span>
+          ) : (
+            <>
+              <span className="font-digibra font-bold tracking-[0.12em] text-white">
+                {NAME_FIRST}
+              </span>
+              <span className="font-graff font-bold tracking-[0.02em] text-white">
+                {NAME_REST.join(" ")}
+              </span>
+            </>
+          )}
         </p>
       </div>
 

@@ -20,7 +20,7 @@
  * in here are not "outside".
  */
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
@@ -171,6 +171,7 @@ export function SectionPanel({
 }) {
   const reduceMotion = useReducedMotion();
   const [openId, setOpenId] = useState<NavSectionId | null>(null);
+  const panelRef = useRef<HTMLElement>(null);
   // Which independent commission is being previewed, if any. Held here rather
   // than in the board so that closing a section closes its preview too.
   const [studyId, setStudyId] = useState<string | null>(null);
@@ -185,6 +186,25 @@ export function SectionPanel({
     window.addEventListener(PIN_OPEN_EVENT, onPin);
     return () => window.removeEventListener(PIN_OPEN_EVENT, onPin);
   }, []);
+
+  /* Bring the opened room into view — the owner asked on 2026-08-25 for the
+     page to come down to the section rather than leaving the visitor to find it.
+     The scroll itself is fired from the panel's `onAnimationComplete` below.
+
+     ⚠ IT CANNOT BE DONE WHEN `openId` CHANGES. The panel animates from height 0
+     to auto over half a second, so at that moment its box is still zero-tall and
+     sitting directly under the hero: scrollIntoView aims at the wrong place and
+     is then left behind as the box grows. Measured doing exactly that — the
+     panel settled with its top 395px BELOW the viewport top instead of at it.
+     Waiting for the open animation to finish is what makes the target real. */
+  const scrollToPanel = () => {
+    panelRef.current?.scrollIntoView({
+      // ⚠ `start`, not `center`: these rooms are taller than the viewport, and
+      // centring one puts its heading off the top of the screen.
+      behavior: reduceMotion ? "auto" : "smooth",
+      block: "start",
+    });
+  };
 
   const section = NAV_SECTIONS.find((s) => s.id === openId) ?? null;
   const logic = section?.hemisphere === "left";
@@ -210,6 +230,7 @@ export function SectionPanel({
     <AnimatePresence initial={false}>
       {section && (
         <motion.section
+          ref={panelRef}
           data-section-panel
           key={section.id}
           aria-label={section.label}
@@ -217,6 +238,11 @@ export function SectionPanel({
           animate={{ opacity: 1, height: "auto" }}
           exit={reduceMotion ? { opacity: 0 } : { opacity: 0, height: 0 }}
           transition={{ duration: reduceMotion ? 0.2 : 0.5, ease: EASE_OUT }}
+          // ⚠ Guarded on `openId`: this also fires when the panel animates OUT,
+          //   and scrolling to a closing panel drags the page down as it goes.
+          onAnimationComplete={() => {
+            if (openId) scrollToPanel();
+          }}
           className="relative w-full overflow-hidden bg-neutral-950"
         >
           {/* The ground. Circuit board for logic, the paint film for creative.

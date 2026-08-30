@@ -135,6 +135,26 @@ canvas {
   font-family: var(--font-barlow), "Helvetica Neue", Arial, ui-sans-serif, sans-serif;
 }
 
+/* ⚠ THE LANDING'S FACE OVERRIDE — one rule, switched by UNIFY_FACES_ON_HOME
+ * (src/constants/faces.ts), which decides whether <main> carries this class.
+ * The owner asked on 2026-08-25 to see the landing with every Juturu word in
+ * Digibra, and to be able to go back cheaply.
+ *
+ * ⚠ It sets FONT-FAMILY ONLY. Colour was explicitly excluded — `imagine` keeps
+ * its rainbow and every other `.font-graff` element keeps the colour it had.
+ *
+ * ⚠ Scoped to the landing on purpose. `font-graff` is used on client pages and
+ * inside the section panels too; overriding the token itself would re-voice the
+ * whole site rather than the one page that was asked about.
+ *
+ * ⚠ This also reaches the HERO WORD, which is the point but is worth knowing:
+ * ThinkMesh rasterises from `getComputedStyle(el).font`, so the mesh follows
+ * this automatically — and the ink metrics in HeroName have to follow it too,
+ * which is why the same flag drives both. */
+.faces-unified .font-graff {
+  font-family: "Digibra", ui-sans-serif, system-ui, sans-serif;
+}
+
 /*
  * Tata IIS full-experience — a strict two-typeface system (client directive):
  *   .tata-heading → Copperplate Gothic Bold  (the logo font)

@@ -51,6 +51,7 @@ import { useEffect, useRef, useState } from "react";
 import { motion, useMotionValue, useSpring, useReducedMotion } from "framer-motion";
 import { ThinkMesh } from "@/components/home/ThinkMesh";
 import { DURATION, EASE_OUT } from "@/constants/motion";
+import { UNIFY_FACES_ON_HOME } from "@/constants/faces";
 
 /** How far each word shrinks as the pointer crosses to the other side.
  *
@@ -124,24 +125,24 @@ const IMAGINE_LEFT = "62%";
 const THINK_INK_TOP = 0.168;
 const IMAGINE_INK_TOP = 0.716;
 
-/** The two faces are nothing alike, so one font-size does not give one height.
- *  Measured on canvas at 200px: "Think" in Digibra rises 149px and has no
- *  descender at all; "Imagine" in Juturu rises 140px with 42px hanging below.
+/** One font-size does not give one height, so `imagine` is scaled to match
+ *  THINK's ASCENT rather than its size — equal ascent is what reads as equal.
  *
- *  Matching TOTAL ink would shrink Imagine's letters to pay for its descender
- *  and leave it looking smaller. What reads as equal size is equal ASCENT, so
- *  Imagine takes a 6.4% bump and the descender is free to hang.
+ *  ⚠ THIS IS PER-FACE AND PER-STRING, and both change under
+ *  UNIFY_FACES_ON_HOME. Measured on canvas at 200px, 2026-08-25:
+ *      THINK   / Digibra  ascent 0.715
+ *      imagine / Juturu   ascent 0.710   → ratio 143/142, essentially parity
+ *      imagine / Digibra  ascent 0.740   → ratio 0.966, imagine set SMALLER
+ *  Digibra's lowercase ascenders overshoot its caps, so an all-Digibra
+ *  "imagine" is TALLER than "THINK" at the same size and has to come down.
  *
- *  ⚠ RE-MEASURE THIS whenever the creative face changes — it was 149/137 for
- *  the face before that one, and 149/140 while the words read "Think" and
- *  "Imagine". CASING COUNTS: re-measured on canvas at 200px on 2026-08-21 for
- *  the new "THINK" / "imagine", it is 143/142, i.e. essentially parity. The
- *  6.4% bump Imagine used to take is gone, because the gap it corrected was
- *  Digibra's lowercase ASCENDERS (h, k) overshooting its caps — set all-caps,
- *  THINK is the shorter word, not the taller one.
- *  The number is a property of the two fonts and the two strings, not a taste
- *  call. */
-const IMAGINE_RATIO = 143 / 142;
+ *  ⚠ It is also much WIDER: 5.289em against Juturu's 3.244em, +63%. At the top
+ *  of the size range that takes the word from ~255px to ~397px across. It still
+ *  clears the right edge from IMAGINE_LEFT, but there is far less slack than
+ *  there was — re-check if either the anchor or the size range moves.
+ *
+ *  ⚠ RE-MEASURE whenever a face, a weight, the casing or the string changes. */
+const IMAGINE_RATIO = UNIFY_FACES_ON_HOME ? 0.715 / 0.74 : 143 / 142;
 
 /** Both faces' metrics, in em, measured on canvas at 200px at the weight each
  *  word is actually set in. FONT_* are the face's DECLARED metrics, INK_* the
@@ -172,17 +173,26 @@ const IMAGINE_RATIO = 143 / 142;
  *     dot and the g reach exactly as high and low as the capital I did.
  *  The four FONT_* figures are declared face metrics and never depend on the
  *  string, so they are untouched. */
-const IMAGINE_FONT_ASCENT = 1.17;
-const IMAGINE_FONT_DESCENT = 0.21;
-const IMAGINE_INK_DESCENT = 0.21;
-const IMAGINE_INK_ASCENT = 0.71;
+/* ⚠ Imagine's four numbers come in TWO SETS, one per face, because every one of
+ * them is a property of the family and the exact word. Juturu declares a 1.17
+ * ascent against 0.21; Digibra declares a flat 0.75/0.25. Mixing a declared
+ * metric from one face with an ink metric from the other puts the word's
+ * baseline in the wrong place and, with `bg-clip-text`, shears the descenders. */
+const IMAGINE_FONT_ASCENT = UNIFY_FACES_ON_HOME ? 0.75 : 1.17;
+const IMAGINE_FONT_DESCENT = UNIFY_FACES_ON_HOME ? 0.25 : 0.21;
+const IMAGINE_INK_DESCENT = UNIFY_FACES_ON_HOME ? 0.25 : 0.21;
+const IMAGINE_INK_ASCENT = UNIFY_FACES_ON_HOME ? 0.74 : 0.71;
 const THINK_FONT_ASCENT = 0.75;
 const THINK_FONT_DESCENT = 0.25;
 const THINK_INK_ASCENT = 0.715;
 
 /** Line boxes. Imagine's MUST clear 1.38 or the fill shears; the remainder is
  *  slack. Think's 0.82 is unchanged — it clears its 0.5 requirement already. */
-const IMAGINE_LEADING = 1.45;
+/* ⚠ Juturu needs 1.38 clear or the g's descender lands outside the box and
+ * `bg-clip-text` paints it with nothing; 1.45 gave it slack. Digibra declares
+ * only 1.0, so the box can close up — but not to THINK's 0.82, because unlike
+ * "THINK" the word "imagine" HAS a descender in this face (0.25 of ink). */
+const IMAGINE_LEADING = UNIFY_FACES_ON_HOME ? 1.08 : 1.45;
 const THINK_LEADING = 0.82;
 
 /** Where a word's lowest / highest ink sits relative to the top of its box.
