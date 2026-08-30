@@ -7,6 +7,11 @@ the two hard constraints that shape all of them.
 ⚠ This is a SPEC, not a record of what exists. Nothing below is built unless a
 part is ticked. Update the ticks as parts land.
 
+ALL FIVE PARTS LANDED 2026-08-25 (commits 4e859dc8, be9a8bf3 and this one).
+What the sections below still describe as "to settle" HAS been settled; the
+measured answers are recorded in each part and in those commit messages. The
+open items that remain are listed under "Still open" at the foot of this file.
+
 ---
 
 ## The brief, as agreed
@@ -78,7 +83,7 @@ Part 3's layout decides what Part 4 animates. Part 1 is independent.
 
 One part per session — parts 3 and 4 will each fill one.
 
-### [ ] Part 1 — Imagine: rainbow + mesh  · Sonnet
+### [x] Part 1 — Imagine: rainbow + mesh  · Sonnet
 - Remove `ImagineParticles` from `HeroName` (keep the file, unreferenced).
 - `ThinkMesh` gains an opt-in animated rainbow.
 - ⚠ Do the colour **in the shader**, not by re-rasterising. `paint()` builds a
@@ -90,25 +95,25 @@ One part per session — parts 3 and 4 will each fill one.
 - THINK must keep its solid `THINK_GREY`. The rainbow is opt-in per instance.
 - Palette: `.brain-paint`'s eight stops, so the word matches the site.
 
-### [ ] Part 2 — Brain journey spike  · Opus
+### [x] Part 2 — Brain journey spike  · Opus
 - Settle **video vs frames** for 3.72→6.04s. Measure both; do not assume.
 - Establish how far the zoom goes given the 720p ceiling, and where the
   fly-through hands off to the plane.
 - Deliverable: a working scroll→playhead+zoom prototype and a weight number.
 
-### [ ] Part 3 — Exsec layout  · Opus
+### [x] Part 3 — Exsec layout  · Opus
 - Convert `SectionPanel` (454 lines, `AnimatePresence`, one section at a time,
   driven by `PIN_OPEN_EVENT`) into eight always-present blocks positioned on a
   2D plane in the zig-zag.
 - Keep `PIN_OPEN_EVENT` alive as the click-to-jump route.
 - Narrow screens: simple alternating stack, no plane.
 
-### [ ] Part 4 — Scroll choreography  · Opus
+### [x] Part 4 — Scroll choreography  · Opus
 - Drive the plane traversal from scroll with ease in/out.
 - Couple the brain phase and the nav to scroll progress.
 - Hand off cleanly between the fly-through and the plane.
 
-### [ ] Part 5 — Responsive, reduced motion, a11y, polish  · Sonnet
+### [x] Part 5 — Responsive, reduced motion, a11y, polish  · Sonnet
 - Mechanical once the system exists.
 - ⚠ Reduced motion needs a real answer here, not a disabled animation: with the
   journey carrying the navigation, a visitor who asked for no motion still has
@@ -127,3 +132,26 @@ One part per session — parts 3 and 4 will each fill one.
   concluding anything.
 - **Verify in the DOM, but look as well.** Several things here (the zoom's
   softening, the zig-zag's rhythm) cannot be judged from numbers.
+
+
+---
+
+## Still open
+
+Not blockers, but the honest list of what this build did NOT finish:
+
+- **The `projects` in-place study preview is gone.** The old overlay's board
+  could open a study via ProjectPreview, fed by `studyPlates`. The plane shows
+  BrandCardSlider for that room instead. `src/app/page.tsx` carries the exact
+  note on how to read the plates back and restore it.
+- **The hero → journey handoff has a seam.** The hero's still-frame brain and
+  the journey's video brain are two different elements; the fly-through begins
+  from the video's first frame rather than continuing the hero's exact pose.
+  It reads acceptably because the fly-through starts zoomed and moving, but it
+  is not a true match cut.
+- **`SectionPanel` and `SectionBody` are both unreferenced now** (SectionBody
+  only via the parked SidesShowcase chain). Neither is deleted, in case the
+  overlay is wanted back. They are dead weight in the tree until then.
+- **FLY_ZOOM is 2.6 and that is a source limit, not a taste one.** If a deeper
+  fly-through is ever wanted, it needs a higher-resolution master — the 1280x720
+  webm cannot give it.
