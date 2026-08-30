@@ -34,11 +34,8 @@ import type { CollectionAsset } from "@/types/experience";
 import { ExperienceTransition } from "@/components/transition/ExperienceTransition";
 import { PartnerMarquee } from "@/components/client/tata/PartnerMarquee";
 import { TATA_GUIDELINES } from "@/constants/tataExperience";
-import { GuidelineSections } from "@/components/client/tata/GuidelineSections";
-import {
-  WorkSections,
-  type ResolvedSection,
-} from "@/components/client/tata/WorkSections";
+import { type ResolvedSection } from "@/components/client/tata/WorkSections";
+import { TataSectionsBoard } from "@/components/client/tata/TataSectionsBoard";
 import { TataFooter } from "@/components/client/tata/TataFooter";
 
 const SLUG = "tata-iis";
@@ -212,16 +209,13 @@ export function TataExperience() {
             ))}
           </section>
 
-          {/* 4 — the logo-guideline system. */}
-          <GuidelineSections />
-
-          {/* 4 — the partner marquee. */}
-          <section className="border-t border-neutral-200 py-6">
-            <span className={`${LABEL} block px-1 text-neutral-500`}>In the company of</span>
-            <PartnerMarquee logos={TATA_PARTNERS} />
-          </section>
-
-          {/* 5 — the work: one heading, the note, then the five headlines. */}
+          {/* 5 — the work, as six pins you click.
+              ⚠ THIS PAGE IS CLICK-TO-VIEW NOW (owner, 2026-08-25). It used to
+              render GuidelineSections and then every work section in one long
+              scroll; both are now rooms behind pins, which is why
+              GuidelineSections no longer appears above and WorkSections is no
+              longer given the whole array. Nothing was dropped — the board
+              renders the same two components, one room at a time. */}
           <section id="work" className="scroll-mt-8 pt-10">
             <h2 className="tata-heading text-3xl leading-[1.05] text-neutral-900 sm:text-4xl">
               The Work
@@ -230,7 +224,7 @@ export function TataExperience() {
               {TATA_WORK_INTRO}
             </p>
             <div className="mt-12">
-              <WorkSections sections={sections} />
+              <TataSectionsBoard sections={sections} />
             </div>
           </section>
 
@@ -241,6 +235,16 @@ export function TataExperience() {
               Shrey Singh
               <span className="tata-body text-neutral-600"> — Lead Manager, Tata IIS (2024&ndash;2026)</span>
             </p>
+          </section>
+
+          {/* The partner marquee, LAST — moved down from between the brand
+              blocks and the work on the owner's instruction, 2026-08-25. It
+              reads as a closing credit here rather than as an interruption
+              partway down, and it no longer sits between the reader and the
+              pins. */}
+          <section className="mt-16 border-t border-neutral-200 py-6">
+            <span className={`${LABEL} block px-1 text-neutral-500`}>In the company of</span>
+            <PartnerMarquee logos={TATA_PARTNERS} />
           </section>
 
           <TataFooter />
