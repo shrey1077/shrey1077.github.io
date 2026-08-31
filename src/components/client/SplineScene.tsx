@@ -74,12 +74,22 @@ export function SplineScene({
   filter = "grayscale(1) brightness(1.85) contrast(0.72)",
   /** See-through, as asked — the page reads through the robot. */
   opacity = 0.42,
+  /** Grow the scene past its box. ⚠ Applied to the HOST, not the layer: the
+   *  layer carries the filter, and a transform there would be composited with
+   *  it in a way that re-rasterises the filtered result every frame. */
+  scale = 1.28,
+  /** Slide it across, as a percentage of the layer's width. Positive is right.
+   *  The scene sits left-of-centre in its own frame, so this is what puts the
+   *  robot clear of the wordmark rather than behind it. */
+  offsetX = "14%",
 }: {
   url?: string;
   className?: string;
   blend?: React.CSSProperties["mixBlendMode"];
   filter?: string;
   opacity?: number;
+  scale?: number;
+  offsetX?: string;
 }) {
   const reduceMotion = useReducedMotion();
   const { ref, inView } = useInViewport<HTMLDivElement>({ rootMargin: "300px" });
@@ -136,7 +146,11 @@ export function SplineScene({
       className={`pointer-events-auto absolute inset-0 overflow-hidden ${className}`}
       style={{ mixBlendMode: blend, opacity, filter }}
     >
-      <div ref={hostRef} className="h-full w-full" />
+      <div
+        ref={hostRef}
+        className="h-full w-full"
+        style={{ transform: `translateX(${offsetX}) scale(${scale})`, transformOrigin: "center" }}
+      />
     </div>
   );
 }

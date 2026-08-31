@@ -25,7 +25,12 @@ import type { Client } from "@/constants/clients";
 import type { ClientExperienceConfig } from "@/types/client";
 import { SplineScene } from "@/components/client/SplineScene";
 import type { ExperienceAnchor } from "@/types/experience";
-import { readCatalogue, readPhotography, readSections } from "@/content/catalogue";
+import {
+  readCatalogue,
+  readCatalogueCategory,
+  readPhotography,
+  readSections,
+} from "@/content/catalogue";
 import { ExperienceLayout } from "@/components/experience/ExperienceLayout";
 import { ExperienceHero } from "@/components/experience/ExperienceHero";
 import { ExperienceNavigation } from "@/components/experience/ExperienceNavigation";
@@ -61,6 +66,13 @@ const DEFAULT_DESCRIPTIONS: Record<string, string> = {
 export function ClientExperience({ client, config }: ClientExperienceProps) {
   const folderSections = readSections(client.slug);
   const catalogue = readCatalogue(client.slug);
+  /* The one category the config asks to open in place, read here because this
+     is already the server and CatalogueSection stays a Server Component. Null
+     when unset, or when the id does not match a folder — in which case the
+     section falls back to all-cards rather than rendering an empty block. */
+  const expandedCatalogue = config.catalogueExpandId
+    ? readCatalogueCategory(client.slug, config.catalogueExpandId)
+    : null;
   const photography = readPhotography(client.slug);
 
   const describe = (anchor: string, fallback?: string) =>
@@ -129,7 +141,12 @@ export function ClientExperience({ client, config }: ClientExperienceProps) {
       anchor: "catalogue",
       description: describe("catalogue"),
       render: () => (
-        <CatalogueSection clientSlug={client.slug} categories={catalogue} />
+        <CatalogueSection
+          clientSlug={client.slug}
+          categories={catalogue}
+          expandId={config.catalogueExpandId}
+          expandAssets={expandedCatalogue?.assets}
+        />
       ),
     });
   }
