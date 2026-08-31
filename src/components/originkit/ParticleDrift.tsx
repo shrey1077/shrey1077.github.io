@@ -21,6 +21,9 @@
 //      instead of yellow, and this is the value's only definition.
 //   2. The root wrapper's `minWidth: 1200 / minHeight: 800` are dropped, with
 //      the reason written where they stood.
+//   3. `pointermove` is listened for on the WINDOW rather than the canvas, so
+//      the pointer's links still form when the field is used as a
+//      `pointer-events: none` background. See the note at the listener.
 // The shaders, the physics and every other constant are untouched.
 
 "use client"
@@ -538,7 +541,22 @@ export default function ParticleDrift(props: Props) {
             ptrRef.current.y = -10000
         }
 
-        canvas.addEventListener("pointermove", track)
+        // ⚠ TRACKED ON THE WINDOW, not on the canvas — the third and last edit
+        //   to the supplied source, and it is REQUIRED wherever this is used as
+        //   a background. The original listens on the canvas, which needs the
+        //   canvas to accept pointer events; as a background layer it must be
+        //   `pointer-events: none` or it swallows every click meant for the
+        //   content above it. Listening on the canvas there means it never
+        //   receives a move, `ptrRef` stays parked at (-10000, -10000), no
+        //   particle is ever within `reach`, and the pointer's own links —
+        //   the lines that form and break around the cursor, drawn in the
+        //   ACCENT colour — never appear at all. `track` already maps client
+        //   coordinates through the canvas's own rect, so it works unchanged
+        //   from a window event.
+        //   `pointerleave` stays on the canvas: leaving the element is still
+        //   what should park the pointer, and a window-level leave fires when
+        //   the cursor exits the document, which is not the same thing.
+        window.addEventListener("pointermove", track, { passive: true })
         canvas.addEventListener("pointerenter", track)
         canvas.addEventListener("pointerleave", onLeave)
 
@@ -548,7 +566,7 @@ export default function ParticleDrift(props: Props) {
         // StrictMode's mount -> cleanup -> mount would reuse a force-lost one.
         return () => {
             cancelAnimationFrame(raf)
-            canvas.removeEventListener("pointermove", track)
+            window.removeEventListener("pointermove", track)
             canvas.removeEventListener("pointerenter", track)
             canvas.removeEventListener("pointerleave", onLeave)
         }
