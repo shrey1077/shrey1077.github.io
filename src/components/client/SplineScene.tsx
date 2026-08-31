@@ -63,15 +63,22 @@ const VIEWER_ID = "spline-viewer-module";
 export function SplineScene({
   url = SCENE_URL,
   className = "",
-  /** Montek blends the robot against its heading with `mix-blend-mode:
-   *  exclusion`, which is what makes it read as part of the type rather than a
-   *  render pasted over it. Kept as the default, overridable per room. */
-  blend = "exclusion" as const,
-  opacity = 1,
+  /** ⚠ NORMAL, not Montek's `exclusion`. Exclusion against Montek's near-black
+   *  banner is what gives that template its chrome robot; against THIS page's
+   *  white ground the same blend inverts it to a hard silhouette, which is the
+   *  "black" the owner rejected on 2026-08-25. */
+  blend = "normal" as const,
+  /** Desaturate and lift the scene so it reads as pale grey rather than as a
+   *  dark render. The brightness is doing the real work: the model's body is
+   *  near-black, and grayscale alone would only make it neutral-black. */
+  filter = "grayscale(1) brightness(1.85) contrast(0.72)",
+  /** See-through, as asked — the page reads through the robot. */
+  opacity = 0.42,
 }: {
   url?: string;
   className?: string;
   blend?: React.CSSProperties["mixBlendMode"];
+  filter?: string;
   opacity?: number;
 }) {
   const reduceMotion = useReducedMotion();
@@ -115,8 +122,19 @@ export function SplineScene({
     <div
       ref={ref}
       aria-hidden
-      className={`pointer-events-none absolute inset-0 overflow-hidden ${className}`}
-      style={{ mixBlendMode: blend, opacity }}
+      // ⚠ `pointer-events-auto`, NOT none — the scene's cursor-following is the
+      //   whole reason it is here, and it is handled INSIDE the Spline viewer.
+      //   With `pointer-events: none` the viewer never receives a move and the
+      //   robot simply stands still, which is exactly what happened first time.
+      //   Unlike the footer's particle field this cannot be redirected to a
+      //   window listener: the tracking lives in the remote scene's own runtime,
+      //   not in code here.
+      //   It is safe because this layer is rendered BEFORE the hero content and
+      //   carries no z-index, so the content paints above it: a pointer over the
+      //   type or a link hits the content, and one over empty hero space reaches
+      //   the scene. Nothing is blocked; the robot just tracks the open areas.
+      className={`pointer-events-auto absolute inset-0 overflow-hidden ${className}`}
+      style={{ mixBlendMode: blend, opacity, filter }}
     >
       <div ref={hostRef} className="h-full w-full" />
     </div>
