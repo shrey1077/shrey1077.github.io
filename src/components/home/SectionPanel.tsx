@@ -25,6 +25,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
 import { PIN_OPEN_EVENT } from "@/components/home/BrainPins";
+import { SectionParticles } from "@/components/home/SectionParticles";
 import { CAREER_STOP_COUNT, CareerTimeline } from "@/components/home/CareerTimeline";
 import { ArtCollections } from "@/components/home/ArtCollections";
 import { PublicationShelf } from "@/components/home/PublicationShelf";
@@ -265,6 +266,11 @@ export function SectionPanel({
                   className="object-cover opacity-40 grayscale"
                 />
                 <div className="absolute inset-0 bg-neutral-950/55" />
+                {/* The drifting field, OVER the circuit ground rather than
+                    instead of it — the owner asked for the previous background
+                    to stay slightly visible, so this layer is transparent-backed
+                    and held at reduced opacity. Logic rooms only. */}
+                <SectionParticles />
               </>
             ) : (
               <PaintBurst />
