@@ -124,6 +124,13 @@ export const CLIENT_EXPERIENCES: readonly ClientExperienceConfig[] = [
   {
     slug: "zabraku-media",
     tagline: "A media house with a story-first spine",
+    // ⚠ REMOTE SCENE, AND IT IS NOT OURS. This is the Montek template author's
+    //   own Spline project, which the owner pointed at on 2026-08-25 wanting its
+    //   cursor-responsive robot. Nothing about it is vendored — no model, no
+    //   texture, no animation — so it is served from their account at view time.
+    //   Replace with a scene on the owner's own Spline account before this is
+    //   deployed publicly. See SplineScene's header for the full reasoning.
+    splineScene: "https://prod.spline.design/AqtlWJlNbO-ZMkvz/scene.splinecode",
     brandTheme: {
       // Orbitron — techno display; used large and tracked-out only.
       fontVar: "--font-orbitron",

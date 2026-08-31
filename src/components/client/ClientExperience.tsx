@@ -23,6 +23,7 @@
 
 import type { Client } from "@/constants/clients";
 import type { ClientExperienceConfig } from "@/types/client";
+import { SplineScene } from "@/components/client/SplineScene";
 import type { ExperienceAnchor } from "@/types/experience";
 import { readCatalogue, readPhotography, readSections } from "@/content/catalogue";
 import { ExperienceLayout } from "@/components/experience/ExperienceLayout";
@@ -166,12 +167,21 @@ export function ClientExperience({ client, config }: ClientExperienceProps) {
       <div style={themeVars}>
       {config.legacyIntro && <LegacyIntro />}
 
-      <ExperienceHero
-        eyebrow={`Client — ${client.sector}`}
-        title={client.name}
-        tagline={config.tagline}
-        stats={config.stats}
-      />
+      {/* The hero, optionally with a Spline scene behind it. ⚠ `relative` and
+          `isolate` exist FOR that scene: it is an absolutely-positioned layer
+          that has to fill the hero, and it blends against the type
+          (mix-blend-mode), which needs a stacking context of its own or the
+          blend reaches the whole page. See SplineScene for what the scene
+          actually is and why its URL matters. */}
+      <div className="relative isolate">
+        {config.splineScene && <SplineScene url={config.splineScene} />}
+        <ExperienceHero
+          eyebrow={`Client — ${client.sector}`}
+          title={client.name}
+          tagline={config.tagline}
+          stats={config.stats}
+        />
+      </div>
 
       <ExperienceNavigation
         anchors={sections.map(({ index, title, anchor }) => ({ index, title, anchor }))}
