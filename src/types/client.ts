@@ -26,6 +26,16 @@ export interface ClientBranch {
 
 /** Config for a client's dedicated experience page. */
 export interface ClientExperienceConfig {
+  /** A hosted Spline scene to run behind this room's hero.
+   *
+   *  ⚠ THIS IS A REMOTE URL, NOT AN ASSET. Whatever it points at is fetched
+   *  from someone's Spline account at view time — see SplineScene's header for
+   *  the licensing, availability and third-party-request consequences. Setting
+   *  it is a deliberate act; leaving it unset is the norm. */
+  splineScene?: string;
+  /** Catalogue category id to open IN PLACE in the catalogue section instead of
+   *  leaving it behind a card. The other categories follow it as cards. */
+  catalogueExpandId?: string;
   /** Must match the client's slug in constants/clients.ts. */
   slug: string;
   /** Short positioning line under the client name. */

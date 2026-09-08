@@ -1,6 +1,7 @@
 import type { Metadata, Viewport } from "next";
 import {
   Anton,
+  Barlow,
   Caveat,
   Caveat_Brush,
   Cinzel,
@@ -119,6 +120,16 @@ const playfair = Playfair_Display({
   display: "swap",
 });
 
+/** ABS Wholesale's page voice. The owner asked for Barlow across that room,
+ *  with weight — not family — carrying the hierarchy, so the full ramp ships:
+ *  300 for the intro body, 500/600 for sub-heads, 700/800 for headlines. */
+const barlow = Barlow({
+  subsets: ["latin"],
+  weight: ["300", "400", "500", "600", "700", "800"],
+  variable: "--font-barlow",
+  display: "swap",
+});
+
 export const metadata: Metadata = {
   title: "Mind — Interactive Brain",
   description:
@@ -155,7 +166,7 @@ export default function RootLayout({
   return (
     <html
       lang="en"
-      className={`${caveat.variable} ${caveatBrush.variable} ${fraunces.variable} ${plexMono.variable} ${cinzel.variable} ${michroma.variable} ${anton.variable} ${orbitron.variable} ${playfair.variable} ${syne.variable}`}
+      className={`${caveat.variable} ${caveatBrush.variable} ${fraunces.variable} ${plexMono.variable} ${cinzel.variable} ${michroma.variable} ${anton.variable} ${orbitron.variable} ${playfair.variable} ${syne.variable} ${barlow.variable}`}
     >
       <body className="bg-gallery text-neutral-900 antialiased">
         {children}

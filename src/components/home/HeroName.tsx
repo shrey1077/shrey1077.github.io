@@ -7,29 +7,29 @@
  * it reads as a watermark the brain sits IN FRONT OF rather than a headline
  * over it. Its final K is right-aligned to the brain's midline, so the word
  * ends exactly where the logic hemisphere does and the brain laps over its
- * last letter. Imagine answers it at the base in Juturu bold, starting from
- * a little past that midline (54%) and running right. Think is a fifth of
- * black; Imagine carries the paint gradient again as of 2026-08-10.
+ * last letter. imagine answers it at the base in Juturu bold, starting from
+ * a little past that midline and running right.
  *
- * That fill has been on and off twice, and the reason is what sits behind it.
- * It went solid white when the paint film ran across the right flank at full
- * strength — a gradient fill simply vanished into a gradient ground. The film
- * has since moved to the Art section, which leaves this word pure white on a
- * near-white circuit backdrop at a 1.05:1 contrast ratio, i.e. invisible. The
- * paint is what makes it legible now. If a coloured layer ever returns to the
- * right flank, this goes back to solid white.
+ * BOTH WORDS ARE MESHES NOW (2026-08-25). Each is rasterised to a texture that
+ * a grid of vertices drags through and springs back from — THINK in its flat
+ * THINK_GREY, imagine in a rainbow that sweeps slowly along the word. imagine
+ * used to be liquid particles over a static gradient; the owner replaced that
+ * with THINK's effect plus moving colour. ImagineParticles is kept, unused.
  *
- * ⚠ The fill is `bg-clip-text`, so the word's opacity CANNOT come from an
- * alpha on the text colour (a `text-black` with a slash-opacity suffix, the
- * way Think is dimmed) — that destroys the clip and the word disappears.
- * Dim the layer, not the type.
+ * ⚠ The `brain-paint` span underneath each is the FALLBACK, not the fill. It is
+ * what a reduced-motion or WebGL-less visitor reads, and it is hidden the moment
+ * the mesh reports it is really drawing. The moving colour lives in the shader.
  *
- * The two no longer slide sideways. They breathe on the Z axis instead:
- * centre-screen is the rest state, and moving the pointer left pushes Think
- * five percent toward you while Imagine recedes by the same amount — moving
- * right does the reverse. Five percent is small on purpose. The brain answers
- * the mouse far more strongly, and the words are meant to be the room it sits
- * in, not a second thing competing for the eye.
+ * ⚠ That fallback is `bg-clip-text`, so its opacity CANNOT come from an alpha on
+ * the text colour (a `text-black` with a slash-opacity suffix, the way Think is
+ * dimmed) — that destroys the clip and the word disappears. Dim the layer, not
+ * the type.
+ *
+ * The two no longer slide sideways. They change SIZE with the pointer instead:
+ * each is at its largest when the pointer is on its own side and falls to
+ * SIZE_MIN_RATIO of that on the far side, crossing at the midpoint dead centre.
+ * See SIZE_MIN_RATIO — this replaced a much smaller symmetric "breath" on
+ * 2026-08-21.
  *
  * ⚠ Think used to sit BEHIND the footage at z-0, so the brain lapped over its
  * final K. That was reversed on the owner's instruction 2026-08-10: Think is
@@ -49,15 +49,27 @@
 
 import { useEffect, useRef, useState } from "react";
 import { motion, useMotionValue, useSpring, useReducedMotion } from "framer-motion";
-import { ImagineParticles } from "@/components/home/ImagineParticles";
 import { ThinkMesh } from "@/components/home/ThinkMesh";
 import { DURATION, EASE_OUT } from "@/constants/motion";
+import { UNIFY_FACES_ON_HOME } from "@/constants/faces";
 
-/** How far each word travels on Z, as a scale delta. Tripled from 0.05 on the
- *  owner's instruction 2026-08-10 — the breath was deliberately small when the
- *  words were scenery at 12vw, and now that they are half that size it reads as
- *  nothing at 5%. */
-const ZOOM = 0.15;
+/** How far each word shrinks as the pointer crosses to the other side.
+ *
+ *  ⚠ THE WORDS ONLY EVER SCALE DOWN. BASE_SIZE below is the MAXIMUM size, and
+ *  this is the fraction of it each word falls to when the pointer is fully on
+ *  the other side. That direction is deliberate and load-bearing twice over:
+ *   · the ink clamps (EDGE_MARGIN, FLOOR_GAP) measure the UNSCALED span, so
+ *     with the box already at max size they are computed for the largest state
+ *     the word can ever reach and stay correct at every smaller one; and
+ *   · BOTH words' meshes bake their texture from the layout box, so a word that
+ *     scaled ABOVE 1 would be resampling a texture baked smaller than it is
+ *     drawn, and would soften.
+ *
+ *  Replaces the old symmetric ±ZOOM breath (0.85–1.15 about a mid size). The
+ *  owner asked on 2026-08-21 for a real size range, big on the pointer's side
+ *  and small on the other, with the midpoint at dead centre — which this gives
+ *  for free: at t = 0 both sit at (1 + SIZE_MIN_RATIO) / 2. */
+const SIZE_MIN_RATIO = 0.375;
 
 /** Size and placement both come from a mockup the owner overlaid on the stage
  *  in black (2026-08-10). Derived rather than eyeballed: the mockup crop also
@@ -75,19 +87,31 @@ const ZOOM = 0.15;
  *  as exact. IMAGINE_RATIO is deliberately left to carry Imagine's size, so
  *  the two keep their measured ascent match rather than drifting apart. */
 const WORD = "block whitespace-nowrap will-change-transform";
-const BASE_SIZE = "clamp(1.3rem, 5.2vw, 6rem)";
+/** ⚠ THIS IS NOW THE MAXIMUM SIZE, not a mid size. It was clamp(1.3rem, 5.2vw,
+ *  6rem) when the words breathed ±15% around it; the top of that range was
+ *  therefore ~5.98vw, which is what this now states outright. SIZE_MIN_RATIO
+ *  takes each word down from here, so the pair still covers roughly the old
+ *  ceiling at its largest and goes far smaller than before at its smallest —
+ *  the range the owner drew on 2026-08-21. */
+const BASE_SIZE = "clamp(1.5rem, 6vw, 6.9rem)";
 
-/** Horizontal anchors, as CSS offsets. Think is pinned by its RIGHT edge and
- *  Imagine by its LEFT, so each grows away from the middle and the pair keeps
- *  its gap at any size. Think's right edge lands at 43% of the width, Imagine's
- *  left at 46.5% — they no longer meet at the midline the way they used to. */
+/** Horizontal anchors, as CSS offsets: Think's box is pinned by its RIGHT edge
+ *  and Imagine's by its LEFT, so the pair keeps its gap at any size.
+ *
+ *  ⚠ The BOX is pinned there, but each word now scales about its OWN CENTRE
+ *  (transformOrigin 50% 50%), so what stays put as the size changes is the
+ *  word's centre, not the pinned edge — the owner asked on 2026-08-21 for both
+ *  to stay centred, horizontally and vertically, at every size. With the old
+ *  edge origins the words grew outward from the middle and their centres slid
+ *  as they scaled. */
 const THINK_RIGHT = "57%";
 /** Moved right on the owner's instruction 2026-08-10 so Imagine clears the
  *  brain entirely and sits in the white. Measured, not guessed: at the leftmost
- *  pointer position — where Imagine is at its smallest, 0.85 — its right edge
- *  sat at 61.99%, and the word now BEGINS where it used to end. The left edge
- *  is the anchor (transformOrigin 0% 50%), so the zoom never moves it; at full
- *  1.15 the word still ends around 83%, clear of the right pins. */
+ *  pointer position its right edge sat at 61.99%, and the word now BEGINS where
+ *  it used to end.
+ *  ⚠ The 0.85/1.15 reasoning that used to be recorded here is void: the word no
+ *  longer grows past its box, and it scales about its centre rather than this
+ *  edge, so its left edge travels inward as it shrinks instead of holding. */
 const IMAGINE_LEFT = "62%";
 
 /** Vertical anchors, as a fraction of the viewport, measured to each word's
@@ -101,18 +125,24 @@ const IMAGINE_LEFT = "62%";
 const THINK_INK_TOP = 0.168;
 const IMAGINE_INK_TOP = 0.716;
 
-/** The two faces are nothing alike, so one font-size does not give one height.
- *  Measured on canvas at 200px: "Think" in Digibra rises 149px and has no
- *  descender at all; "Imagine" in Juturu rises 140px with 42px hanging below.
+/** One font-size does not give one height, so `imagine` is scaled to match
+ *  THINK's ASCENT rather than its size — equal ascent is what reads as equal.
  *
- *  Matching TOTAL ink would shrink Imagine's letters to pay for its descender
- *  and leave it looking smaller. What reads as equal size is equal ASCENT, so
- *  Imagine takes a 6.4% bump and the descender is free to hang.
+ *  ⚠ THIS IS PER-FACE AND PER-STRING, and both change under
+ *  UNIFY_FACES_ON_HOME. Measured on canvas at 200px, 2026-08-25:
+ *      THINK   / Digibra  ascent 0.715
+ *      imagine / Juturu   ascent 0.710   → ratio 143/142, essentially parity
+ *      imagine / Digibra  ascent 0.740   → ratio 0.966, imagine set SMALLER
+ *  Digibra's lowercase ascenders overshoot its caps, so an all-Digibra
+ *  "imagine" is TALLER than "THINK" at the same size and has to come down.
  *
- *  ⚠ RE-MEASURE THIS whenever the creative face changes — it was 149/137 for
- *  the face before this one. The number is a property of the two fonts, not a
- *  taste call. */
-const IMAGINE_RATIO = 149 / 140;
+ *  ⚠ It is also much WIDER: 5.289em against Juturu's 3.244em, +63%. At the top
+ *  of the size range that takes the word from ~255px to ~397px across. It still
+ *  clears the right edge from IMAGINE_LEFT, but there is far less slack than
+ *  there was — re-check if either the anchor or the size range moves.
+ *
+ *  ⚠ RE-MEASURE whenever a face, a weight, the casing or the string changes. */
+const IMAGINE_RATIO = UNIFY_FACES_ON_HOME ? 0.715 / 0.74 : 143 / 142;
 
 /** Both faces' metrics, in em, measured on canvas at 200px at the weight each
  *  word is actually set in. FONT_* are the face's DECLARED metrics, INK_* the
@@ -135,18 +165,34 @@ const IMAGINE_RATIO = 149 / 140;
  *  box — which is why Think ran off the top of the stage. Solid type doesn't
  *  clip against its own box, so this only ever mattered for the edge clamp.
  *
- *  ⚠ RE-MEASURE all six whenever either face, or its weight, changes. */
-const IMAGINE_FONT_ASCENT = 1.17;
-const IMAGINE_FONT_DESCENT = 0.21;
-const IMAGINE_INK_DESCENT = 0.21;
-const IMAGINE_INK_ASCENT = 0.71;
+ *  ⚠ RE-MEASURE all six whenever either face, its weight, OR THE CASING of
+ *  either word changes. Re-measured 2026-08-21 for "THINK" / "imagine":
+ *   · THINK_INK_ASCENT fell 0.745 → 0.715. Digibra's h and k rise above its
+ *     cap height, so the all-caps word is SHORTER than the mixed-case one.
+ *   · Imagine's two ink figures did NOT move (0.71 / 0.21): in Juturu the i's
+ *     dot and the g reach exactly as high and low as the capital I did.
+ *  The four FONT_* figures are declared face metrics and never depend on the
+ *  string, so they are untouched. */
+/* ⚠ Imagine's four numbers come in TWO SETS, one per face, because every one of
+ * them is a property of the family and the exact word. Juturu declares a 1.17
+ * ascent against 0.21; Digibra declares a flat 0.75/0.25. Mixing a declared
+ * metric from one face with an ink metric from the other puts the word's
+ * baseline in the wrong place and, with `bg-clip-text`, shears the descenders. */
+const IMAGINE_FONT_ASCENT = UNIFY_FACES_ON_HOME ? 0.75 : 1.17;
+const IMAGINE_FONT_DESCENT = UNIFY_FACES_ON_HOME ? 0.25 : 0.21;
+const IMAGINE_INK_DESCENT = UNIFY_FACES_ON_HOME ? 0.25 : 0.21;
+const IMAGINE_INK_ASCENT = UNIFY_FACES_ON_HOME ? 0.74 : 0.71;
 const THINK_FONT_ASCENT = 0.75;
 const THINK_FONT_DESCENT = 0.25;
-const THINK_INK_ASCENT = 0.745;
+const THINK_INK_ASCENT = 0.715;
 
 /** Line boxes. Imagine's MUST clear 1.38 or the fill shears; the remainder is
  *  slack. Think's 0.82 is unchanged — it clears its 0.5 requirement already. */
-const IMAGINE_LEADING = 1.45;
+/* ⚠ Juturu needs 1.38 clear or the g's descender lands outside the box and
+ * `bg-clip-text` paints it with nothing; 1.45 gave it slack. Digibra declares
+ * only 1.0, so the box can close up — but not to THINK's 0.82, because unlike
+ * "THINK" the word "imagine" HAS a descender in this face (0.25 of ink). */
+const IMAGINE_LEADING = UNIFY_FACES_ON_HOME ? 1.08 : 1.45;
 const THINK_LEADING = 0.82;
 
 /** Where a word's lowest / highest ink sits relative to the top of its box.
@@ -188,14 +234,15 @@ export function HeroName() {
 
   const thinkRef = useRef<HTMLSpanElement>(null);
   const imagineRef = useRef<HTMLSpanElement>(null);
-  // True only while the liquid is actually on screen; see the span below.
-  const [paintOff, setPaintOff] = useState(false);
-  // True only while the mesh is actually drawing; see the Think span.
+  // True only while each word's mesh is actually drawing; see the spans below.
+  const [imagineMeshOn, setImagineMeshOn] = useState(false);
   const [meshOn, setMeshOn] = useState(false);
 
-  // Z-breath. Springs are slow and soft so this never reads as a jump.
-  const thinkZ = useMotionValue(1);
-  const imagineZ = useMotionValue(1);
+  // The size breath. Springs are slow and soft so this never reads as a jump.
+  // ⚠ Both start at the MIDPOINT, which is where a pointer at dead centre puts
+  //   them — starting at 1 makes both words snap down on the first mouse move.
+  const thinkZ = useMotionValue((1 + SIZE_MIN_RATIO) / 2);
+  const imagineZ = useMotionValue((1 + SIZE_MIN_RATIO) / 2);
   const thinkScale = useSpring(thinkZ, { stiffness: 50, damping: 20, mass: 0.6 });
   const imagineScale = useSpring(imagineZ, { stiffness: 50, damping: 20, mass: 0.6 });
 
@@ -253,9 +300,14 @@ export function HeroName() {
         const half = window.innerWidth / 2;
         // -1 at the left edge, 0 dead centre, +1 at the right edge.
         const t = Math.max(-1, Math.min(1, (e.clientX - half) / half));
-        // Pointer left → Think comes forward, Imagine recedes. Right inverts it.
-        thinkZ.set(1 - t * ZOOM);
-        imagineZ.set(1 + t * ZOOM);
+        // Pointer left → THINK at full size, imagine at its smallest. Right
+        // inverts it. `u` runs 0→1 across the screen, so each word is a
+        // straight lerp between SIZE_MIN_RATIO and 1 and the two cross at the
+        // midpoint exactly at centre screen.
+        const u = (t + 1) / 2;
+        const span = 1 - SIZE_MIN_RATIO;
+        thinkZ.set(1 - u * span);
+        imagineZ.set(SIZE_MIN_RATIO + u * span);
       };
       window.addEventListener("pointermove", onMove, { passive: true });
     }
@@ -283,7 +335,7 @@ export function HeroName() {
           keeps the K anchored while the word breathes. */}
       <motion.div
         aria-hidden
-        style={{ y: thinkY, scale: thinkScale, transformOrigin: "100% 50%", right: THINK_RIGHT }}
+        style={{ y: thinkY, scale: thinkScale, transformOrigin: "50% 50%", right: THINK_RIGHT }}
         className="absolute top-0 z-30"
       >
         <motion.span {...rise(0.35)} className="relative block">
@@ -297,9 +349,9 @@ export function HeroName() {
             style={{ fontSize: BASE_SIZE, lineHeight: THINK_LEADING, color: THINK_GREY }}
             className={`${WORD} font-digibra ${meshOn ? "opacity-0" : ""}`}
           >
-            Think
+            THINK
           </span>
-          <ThinkMesh word="Think" from={thinkRef} onActive={setMeshOn} />
+          <ThinkMesh word="THINK" from={thinkRef} onActive={setMeshOn} />
         </motion.span>
       </motion.div>
 
@@ -308,17 +360,26 @@ export function HeroName() {
           the same reason. */}
       <motion.div
         aria-hidden
-        style={{ y: imagineY, scale: imagineScale, transformOrigin: "0% 50%", left: IMAGINE_LEFT }}
+        style={{ y: imagineY, scale: imagineScale, transformOrigin: "50% 50%", left: IMAGINE_LEFT }}
         className="absolute top-0 z-20"
       >
         <motion.span {...rise(0.5)} className="relative block">
           {/* ⚠ The span STAYS, and keeps `imagineRef`. It is what the layout
               measures (see the ink-metrics effect above) and what a
-              reduced-motion or canvas-less visitor actually reads. The liquid
-              only takes over its FILL: `paintOff` drops the gradient once
-              ImagineParticles reports it is really drawing, so a failure to
-              start leaves the painted word intact rather than a hole.
-              Reverting is deleting the sibling and this one class. */}
+              reduced-motion or WebGL-less visitor actually reads. The mesh only
+              takes over its FILL: `imagineMeshOn` drops the painted word once
+              ThinkMesh reports it is really drawing, so a failure to start
+              leaves the gradient word intact rather than a hole.
+
+              ⚠ THE LIQUID IS GONE. ImagineParticles ran here until 2026-08-25,
+              when the owner asked for the word to keep changing rainbow colours
+              and to carry THINK's mesh instead. The component file is kept,
+              unreferenced, in case it returns.
+
+              ⚠ The colour now comes from the MESH, not from this span. The
+              `brain-paint` class below is the fallback the mesh replaces —
+              a static gradient for anyone the shader never starts for. The
+              moving rainbow is `rainbow` on ThinkMesh. */}
           <span
             ref={imagineRef}
             style={{
@@ -326,12 +387,12 @@ export function HeroName() {
               lineHeight: IMAGINE_LEADING,
             }}
             className={`${WORD} brain-paint bg-clip-text font-graff font-bold text-transparent ${
-              paintOff ? "opacity-0" : ""
+              imagineMeshOn ? "opacity-0" : ""
             }`}
           >
-            Imagine
+            imagine
           </span>
-          <ImagineParticles word="Imagine" fontFrom={imagineRef} onActive={setPaintOff} />
+          <ThinkMesh word="imagine" from={imagineRef} onActive={setImagineMeshOn} rainbow />
         </motion.span>
       </motion.div>
     </h1>

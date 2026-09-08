@@ -63,12 +63,54 @@ void main() {
   vUv = aUv;
 }`;
 
+/** `.brain-paint`'s eight stops, as the shader sees them — the same palette the
+ *  right hemisphere throws, so a rainbow word matches the site rather than
+ *  inventing a second spectrum. */
 const FRAG_SRC = `#version 300 es
 precision highp float;
 in vec2 vUv;
 out vec4 outColor;
 uniform sampler2D uTex;
-void main() { outColor = texture(uTex, vUv); }`;
+/** 0 = use the texture's own colour (THINK). 1 = paint the gradient. */
+uniform float uRainbow;
+/** Drifts 0..1 and wraps, sweeping the gradient along the word. */
+uniform float uPhase;
+
+const vec3 P0 = vec3(1.000, 0.180, 0.545);
+const vec3 P1 = vec3(1.000, 0.353, 0.235);
+const vec3 P2 = vec3(1.000, 0.541, 0.000);
+const vec3 P3 = vec3(0.961, 0.773, 0.094);
+const vec3 P4 = vec3(0.498, 0.749, 0.180);
+const vec3 P5 = vec3(0.000, 0.651, 0.651);
+const vec3 P6 = vec3(0.247, 0.416, 0.847);
+const vec3 P7 = vec3(0.478, 0.247, 0.690);
+
+/** Eight stops on a LOOP — stop 7 blends back into stop 0 — so a sweeping
+ *  phase never shows a seam where the palette restarts. */
+vec3 paint(float t) {
+  float f = fract(t) * 8.0;
+  int i = int(floor(f));
+  float k = smoothstep(0.0, 1.0, fract(f));
+  vec3 a = i == 0 ? P0 : i == 1 ? P1 : i == 2 ? P2 : i == 3 ? P3
+         : i == 4 ? P4 : i == 5 ? P5 : i == 6 ? P6 : P7;
+  vec3 b = i == 0 ? P1 : i == 1 ? P2 : i == 2 ? P3 : i == 3 ? P4
+         : i == 4 ? P5 : i == 5 ? P6 : i == 6 ? P7 : P0;
+  return mix(a, b, k);
+}
+
+void main() {
+  vec4 t = texture(uTex, vUv);
+  // ⚠ The texture is uploaded with UNPACK_PREMULTIPLY_ALPHA_WEBGL, and the draw
+  // blends ONE / ONE_MINUS_SRC_ALPHA — so the gradient must be PREMULTIPLIED
+  // too (colour * alpha). Emitting straight colour here haloes every glyph.
+  vec3 lit = paint(vUv.x + uPhase) * t.a;
+  outColor = vec4(mix(t.rgb, lit, uRainbow), t.a);
+}`;
+
+/** Seconds for one full sweep of the eight stops across the word. The owner
+ *  asked for "gentle slow speed" (2026-08-25); at 24s the colour is always
+ *  moving but never draws attention to itself. */
+const RAINBOW_PERIOD = 24;
 
 function compile(gl: WebGL2RenderingContext, type: number, src: string) {
   const sh = gl.createShader(type);
@@ -87,11 +129,19 @@ export function ThinkMesh({
   word,
   from,
   onActive,
+  rainbow = false,
 }: {
   word: string;
   /** The element whose box, font and colour the mesh copies. */
   from: React.RefObject<HTMLElement | null>;
   onActive?: (active: boolean) => void;
+  /** Paint the word as a slowly sweeping rainbow instead of its own colour.
+   *  ⚠ Opt-in, and OFF for THINK, whose flat THINK_GREY is deliberate (see the
+   *  header). Imagine turns it on. The colour is computed per fragment from
+   *  `uPhase`, NOT by re-rasterising: `paint()` builds a canvas and re-uploads
+   *  the whole texture, so animating a gradient through it would rebuild the
+   *  word every frame for something the shader does for free. */
+  rainbow?: boolean;
 }) {
   const reduceMotion = useReducedMotion();
   const canvasRef = useRef<HTMLCanvasElement>(null);
@@ -193,6 +243,8 @@ export function ThinkMesh({
     const aUv = gl.getAttribLocation(program, "aUv");
     const aDisp = gl.getAttribLocation(program, "aDisp");
     const uTex = gl.getUniformLocation(program, "uTex");
+    const uRainbow = gl.getUniformLocation(program, "uRainbow");
+    const uPhase = gl.getUniformLocation(program, "uPhase");
 
     const vao = gl.createVertexArray();
     gl.bindVertexArray(vao);
@@ -237,7 +289,14 @@ export function ThinkMesh({
       // metrics put it where the DOM had it.
       const px = parseFloat(style.font.match(/(\d+(?:\.\d+)?)px/)?.[1] ?? "100");
       ctx.font = style.font.replace(/(\d+(?:\.\d+)?)px/, `${px * dpr}px`);
-      ctx.fillStyle = style.color;
+      // ⚠ In rainbow mode the texture is an ALPHA MASK, so the glyphs must be
+      // rasterised OPAQUE and coloured in the shader. Using the element's own
+      // colour here breaks it outright: the word that wants the rainbow is
+      // `bg-clip-text text-transparent`, so `style.color` is rgba(0,0,0,0) —
+      // the texture came out fully transparent, the shader had zero alpha to
+      // paint, and the word vanished entirely (its painted fallback is hidden
+      // the moment the mesh reports it is drawing, so there was nothing left).
+      ctx.fillStyle = rainbow ? "#fff" : style.color;
       ctx.textBaseline = "alphabetic";
       const m = ctx.measureText(word);
       const asc = m.actualBoundingBoxAscent;
@@ -278,7 +337,7 @@ export function ThinkMesh({
 
     onActive?.(true);
 
-    const tick = () => {
+    const tick = (now: number) => {
       cur.vx = cur.x - cur.px;
       cur.vy = cur.y - cur.py;
       if (Math.hypot(cur.vx, cur.vy) > 0.3) { cur.vx = 0; cur.vy = 0; }
@@ -313,6 +372,9 @@ export function ThinkMesh({
       gl.activeTexture(gl.TEXTURE0);
       gl.bindTexture(gl.TEXTURE_2D, tex);
       gl.uniform1i(uTex, 0);
+      gl.uniform1f(uRainbow, rainbow ? 1 : 0);
+      // "Gentle and slow", as asked: one full sweep of the palette every ~24s.
+      gl.uniform1f(uPhase, rainbow ? (now * 0.001) / RAINBOW_PERIOD : 0);
       gl.enable(gl.BLEND);
       gl.blendFunc(gl.ONE, gl.ONE_MINUS_SRC_ALPHA);
       gl.bindVertexArray(vao);
@@ -336,7 +398,7 @@ export function ThinkMesh({
       gl.deleteShader(fs);
       onActive?.(false);
     };
-  }, [reduceMotion, box.w, box.h, style.font, style.color, word, onActive]);
+  }, [reduceMotion, box.w, box.h, style.font, style.color, word, onActive, rainbow]);
 
   if (reduceMotion) return null;
 

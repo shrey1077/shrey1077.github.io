@@ -37,7 +37,11 @@ interface Stop {
   to: string;
   logo?: string;
   kind: "work" | "study";
-  /** Black artwork — flip it to white so it lifts off the dark panel. */
+  /** ⚠ "This artwork is BLACK." It used to mean "flip it to white", back when
+   *  the checkpoints sat straight on the near-black section panel. They now sit
+   *  on a light card (see the panel below), so the flag renders the mark AS
+   *  black instead — `brightness-0` with no `invert`. Tata IIS and NDTV are the
+   *  two, and inverting either here would erase it into the card. */
   invert?: boolean;
 }
 
@@ -83,6 +87,14 @@ export function CareerTimeline() {
       {/* No column gap: a gap is a break in the rail, and the segments have to
           abut for the row to read as one line. The cells carry their own `px`
           instead, so the content still breathes. */}
+      {/* ⚠ ONE card for the whole route, not one per checkpoint — the owner
+          asked for a COMMON rounded rectangle behind the circles (2026-08-25),
+          and it is what lets the type go dark: the section's own ground is
+          near-black, so dark text only reads against this.
+          It wraps the grid rather than sitting behind it as an absolute layer,
+          so the card grows with however many rows the grid builds at whatever
+          column count — nothing counts rows or measures. */}
+      <div className="rounded-2xl bg-gallery px-3 py-7 shadow-sm sm:px-5">
       <ul className="grid grid-cols-2 gap-x-0 gap-y-7 sm:grid-cols-3 lg:grid-cols-5">
         {STOPS.map((s, i) => (
           <motion.li
@@ -96,34 +108,35 @@ export function CareerTimeline() {
                 meets its neighbours' slices and the row reads as one line. */}
             <span
               aria-hidden
-              className={`absolute inset-x-0 ${RAIL_TOP} h-px bg-white/20`}
+              className={`absolute inset-x-0 ${RAIL_TOP} h-px bg-neutral-900/15`}
             />
 
-            {/* The checkpoint pin, sitting on that line. The ring is the panel's
-                own ground, which punches the rail out from under the pin so the
-                marker reads as ON the line rather than crossed by it. */}
+            {/* The checkpoint pin, sitting on that line. ⚠ The ring must stay
+                the CARD's own colour (`ring-gallery`), not the section panel's:
+                its whole job is to punch the rail out from under the pin, and
+                it can only do that by matching whatever is directly behind it.
+                It was `ring-neutral-900` while the rail sat on the dark panel. */}
             <span
               aria-hidden
-              className={`absolute ${RAIL_TOP} z-10 size-1.5 -translate-y-[calc(50%-0.5px)] rounded-full ring-[3px] ring-neutral-900 ${
-                s.kind === "study" ? "bg-white/40" : "bg-white"
+              className={`absolute ${RAIL_TOP} z-10 size-1.5 -translate-y-[calc(50%-0.5px)] rounded-full ring-[3px] ring-gallery ${
+                s.kind === "study" ? "bg-neutral-900/40" : "bg-neutral-900"
               }`}
             />
 
-            {/* The mark, on disc. Kept dark rather than white: the logos that
-                carry no `invert` are light or coloured artwork chosen to read
-                against this panel, and a white plate would swallow them. */}
-            <span className="relative mt-4 grid size-14 shrink-0 place-items-center overflow-hidden rounded-full border border-white/15 bg-white/[0.06] sm:size-16">
+            {/* The mark, on disc — now a faint dark wash on the light card
+                rather than a faint light one on the dark panel. */}
+            <span className="relative mt-4 grid size-14 shrink-0 place-items-center overflow-hidden rounded-full border border-neutral-900/10 bg-neutral-900/[0.04] sm:size-16">
               {s.logo ? (
                 <Image
                   src={s.logo}
                   alt={s.org}
                   fill
                   sizes="80px"
-                  className={`object-contain p-3 ${s.invert ? "brightness-0 invert" : ""}`}
+                  className={`object-contain p-3 ${s.invert ? "brightness-0" : ""}`}
                 />
               ) : (
                 <span
-                  className={`${typeVoiceClass("logic", "meta")} text-[0.7rem] text-white/70`}
+                  className={`${typeVoiceClass("logic", "meta")} text-[0.7rem] text-neutral-500`}
                 >
                   {initialsOf(s.org)}
                 </span>
@@ -132,19 +145,19 @@ export function CareerTimeline() {
 
             {/* Everything the checkpoint says, under it. */}
             <span
-              className={`${typeVoiceClass("logic", "meta")} mt-2.5 text-[0.46rem] tracking-[0.02em] text-white/60 tabular-nums`}
+              className={`${typeVoiceClass("logic", "meta")} mt-2.5 text-[0.46rem] tracking-[0.02em] text-neutral-500 tabular-nums`}
             >
               {s.from} — {s.to}
             </span>
-            <span className="mt-1 line-clamp-2 text-[0.62rem] font-medium leading-tight text-white">
+            <span className="mt-1 line-clamp-2 text-[0.62rem] font-medium leading-tight text-neutral-900">
               {s.org}
             </span>
-            <span className="mt-0.5 line-clamp-2 text-[0.55rem] leading-snug text-white/55">
+            <span className="mt-0.5 line-clamp-2 text-[0.55rem] leading-snug text-neutral-600">
               {s.role}
             </span>
             {s.kind === "study" && (
               <span
-                className={`${typeVoiceClass("logic", "meta")} mt-1 text-[0.44rem] tracking-[0.1em] text-white/35`}
+                className={`${typeVoiceClass("logic", "meta")} mt-1 text-[0.44rem] tracking-[0.1em] text-neutral-400`}
               >
                 Study
               </span>
@@ -152,6 +165,7 @@ export function CareerTimeline() {
           </motion.li>
         ))}
       </ul>
+      </div>
     </div>
   );
 }

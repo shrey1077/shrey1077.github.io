@@ -12,8 +12,19 @@
  * spring the old scrub used (smooth ease-in and ease-out, no overshoot); at rest
  * it holds the middle frame. Reduced motion parks on the middle frame.
  *
- * The canvas is tagged `data-brain` so HeroName can read its alpha to place the
- * name against the brain (same as it read the old <video>).
+ * ⚠ The canvas is tagged `data-brain`, and NOTHING READS IT any more. It was
+ * how HeroName found the brain's vertical extent from the alpha, the same way
+ * it read the old <video>; that measurement was replaced by fixed mockup
+ * heights (see THINK_INK_TOP / IMAGINE_INK_TOP) and `measureBrainV` went with
+ * it. The attribute is kept as the hook a future measurement would use, but it
+ * is currently written and never read — do not assume changing the alpha
+ * affects the hero's layout, because it does not.
+ *
+ * ⚠ ALL FRAMES PRELOAD EAGERLY on mount — the whole sequence lands before the
+ * hero is interactive. At 9.39MB (2026-08-21, after the q75 re-encode) that is
+ * most of the homepage's weight. Encoding has been tuned; this strategy has
+ * not. If time-to-interactive is ever the complaint rather than total transfer,
+ * this loop is the thing to change, not the encoder settings.
  */
 
 import { useEffect, useLayoutEffect, useRef } from "react";

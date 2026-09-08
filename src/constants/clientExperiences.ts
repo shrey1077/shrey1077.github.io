@@ -124,6 +124,13 @@ export const CLIENT_EXPERIENCES: readonly ClientExperienceConfig[] = [
   {
     slug: "zabraku-media",
     tagline: "A media house with a story-first spine",
+    // ⚠ REMOTE SCENE, AND IT IS NOT OURS. This is the Montek template author's
+    //   own Spline project, which the owner pointed at on 2026-08-25 wanting its
+    //   cursor-responsive robot. Nothing about it is vendored — no model, no
+    //   texture, no animation — so it is served from their account at view time.
+    //   Replace with a scene on the owner's own Spline account before this is
+    //   deployed publicly. See SplineScene's header for the full reasoning.
+    splineScene: "https://prod.spline.design/AqtlWJlNbO-ZMkvz/scene.splinecode",
     brandTheme: {
       // Orbitron — techno display; used large and tracked-out only.
       fontVar: "--font-orbitron",
@@ -140,6 +147,11 @@ export const CLIENT_EXPERIENCES: readonly ClientExperienceConfig[] = [
       note: "The wordmark cut into a radial line field — a media identity built to move.",
     },
     catalogueLabel: "Company Portfolio",
+    // ⚠ The 35-page 2021 deck opens IN PLACE rather than behind a card, at the
+    //   owner's request (2026-08-25): it is the substance of this room, and
+    //   making the reader click into it buried it under two much smaller
+    //   categories. Brand Identity and Event Campaigns follow it as cards.
+    catalogueExpandId: "portfolio-2021",
     // Both of these appear inside the deck as work: ABS Wholesale has its own
     // client room, and the RK Entertainment identity is the case study in
     // Zabraku's own Brand Identity room. ABS's mark comes on a white ground so

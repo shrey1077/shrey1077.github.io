@@ -371,20 +371,26 @@ function Section({
   openKey,
   onToggle,
   onOpenAsset,
+  startExpanded,
 }: {
   section: ResolvedSection;
   openKey: string | null;
   onToggle: (key: string) => void;
   onOpenAsset: (a: CollectionAsset) => void;
+  startExpanded?: boolean;
 }) {
   const gridRef = useRef<HTMLDivElement>(null);
   const wide = section.cols ?? 3;
   const [cols, setCols] = useState(wide);
-  /* ⚠ Collapsed on first load (owner's call). The page is long and the
-     headlines are the map; opening one is a deliberate act. Note this is
-     what makes the pinned scroll below sensible — a section only takes
-     over the scroll once you have asked for it. */
-  const [expanded, setExpanded] = useState(false);
+  /* ⚠ Collapsed on first load (owner's call) — WHEN THE SECTIONS ARE A LIST.
+     The page was long and the headlines were the map, so opening one was a
+     deliberate act, and that is what made the pinned scroll below sensible.
+     ⚠ `startExpanded` exists because the Tata page is CLICK-TO-VIEW now: a pin
+     already is the deliberate act, and leaving this false made every room open
+     to a headline and a "6 subsections" count with nothing under it — two
+     clicks to reach any work. The default is unchanged, so anywhere still
+     rendering these as a list behaves exactly as before. */
+  const [expanded, setExpanded] = useState(!!startExpanded);
   const reduceMotion = useReducedMotion();
   const dark = !!section.dark;
 
@@ -577,7 +583,14 @@ function Section({
 
 /* ── the whole work area ──────────────────────────────────────────────── */
 
-export function WorkSections({ sections }: { sections: ResolvedSection[] }) {
+export function WorkSections({
+  sections,
+  startExpanded = false,
+}: {
+  sections: ResolvedSection[];
+  /** Open every section's tiles immediately — see the note on `expanded`. */
+  startExpanded?: boolean;
+}) {
   // One subsection open across the entire page — opening another closes it.
   const [openKey, setOpenKey] = useState<string | null>(null);
   const [viewing, setViewing] = useState<ContentAsset | null>(null);
@@ -591,6 +604,7 @@ export function WorkSections({ sections }: { sections: ResolvedSection[] }) {
           openKey={openKey}
           onToggle={(key) => setOpenKey((k) => (k === key ? null : key))}
           onOpenAsset={(a) => setViewing(a as ContentAsset)}
+          startExpanded={startExpanded}
         />
       ))}
       <MediaViewer asset={viewing} onClose={() => setViewing(null)} />

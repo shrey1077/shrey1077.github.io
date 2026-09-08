@@ -16,6 +16,7 @@
  * SidesShowcase, revealed by scrolling. Desktop only for now.
  */
 
+import { useEffect, useState } from "react";
 import { motion, useReducedMotion } from "framer-motion";
 import { BrainSequence } from "@/components/home/BrainSequence";
 import { HeroName } from "@/components/home/HeroName";
@@ -26,8 +27,11 @@ import { Corner3DGrid } from "@/components/home/Corner3DGrid";
 import { useInViewport } from "@/hooks/useInViewport";
 import { DURATION, EASE_IN_OUT, EASE_OUT } from "@/constants/motion";
 import { CircuitBackdrop } from "@/components/home/CircuitBackdrop";
-import { BrainPins } from "@/components/home/BrainPins";
+import { BrainPins, PIN_OPEN_EVENT } from "@/components/home/BrainPins";
 import { useIsPhone } from "@/hooks/useMediaQuery";
+import { SITE } from "@/constants/site";
+import { NAV_SECTIONS } from "@/constants/navigation";
+import type { NavSectionId } from "@/types/navigation";
 
 /** The landing brain read too large at 1:1 — sit it back a quarter, then a
  *  further tenth (2026-08-10) to give the words and pins more room, then 5%
@@ -56,6 +60,10 @@ const BRAIN_RISE = -34; // px
  *  orb's width or the brain's scale changes; both move this. */
 const BRAIN_SHIFT_X = 27; // px
 
+/** ⚠ Split from SITE.name rather than hard-coded, the same way SiteFooter does
+ *  it — the two halves take different faces, so they cannot be one string. */
+const [NAME_FIRST, ...NAME_REST] = SITE.name.split(" ");
+
 export function HeroStage() {
   // Keep the scrub loop running while the hero is near the viewport; idle it
   // once the visitor has scrolled well past.
@@ -63,6 +71,18 @@ export function HeroStage() {
   const reduceMotion = useReducedMotion();
   const isPhone = useIsPhone();
   const centreScale = isPhone ? CENTER_SCALE_PHONE : CENTER_SCALE;
+
+  /* Which section is open, for the footing band. ⚠ Read off the same
+     PIN_OPEN_EVENT bus the pins and SectionNav already publish on, rather than
+     lifting state — the band is the third listener, not a new source of truth,
+     so it cannot disagree with what is actually open. */
+  const [openId, setOpenId] = useState<NavSectionId | null>(null);
+  useEffect(() => {
+    const onPin = (e: Event) => setOpenId((e as CustomEvent<NavSectionId | null>).detail);
+    window.addEventListener(PIN_OPEN_EVENT, onPin);
+    return () => window.removeEventListener(PIN_OPEN_EVENT, onPin);
+  }, []);
+  const openLabel = openId ? NAV_SECTIONS.find((n) => n.id === openId)?.label : null;
 
   return (
     <section
@@ -78,15 +98,57 @@ export function HeroStage() {
           2026-08-10 — pulled off the landing and reused behind the Art
           section's previews (SectionPanel). */}
 
+      {/* PORTFOLIO / 2026, top centre and above the footage.
+          ⚠ Deliberately NOT a heading. The stage already has one h1 ("Think.
+          Imagine."), and a second heading here would compete with it in the
+          document outline for what is a wordmark, not a section title.
+          The year is right-aligned to the word — `items-end` on the column, so
+          the alignment holds at every size rather than being nudged by hand. */}
+      <div className="pointer-events-none absolute inset-x-0 top-[3.2%] z-30 flex justify-center">
+        <p className="flex flex-col items-end leading-none">
+          <span className="font-digibra text-[clamp(0.95rem,2.3vw,2rem)] font-bold tracking-[0.22em] text-neutral-900">
+            PORTFOLIO
+          </span>
+          <span className="font-graff mt-1 text-[clamp(0.5rem,1vw,0.8rem)] font-bold tracking-[0.14em] text-neutral-500">
+            2026
+          </span>
+        </p>
+      </div>
+
       {/* The black footing. Runs the FULL width — it started as a mask under
           the brain artwork on the left and carries across the right flank so
           the stage closes on one band rather than half of one. It sits above
           the circuit backdrop and below everything else, so the words, the
-          pins and the corner furniture all read on top of it. */}
-      <div
-        aria-hidden
-        className="pointer-events-none absolute inset-x-0 bottom-0 z-0 h-[7%] bg-neutral-950"
-      />
+          pins and the corner furniture all read on top of it.
+          It now also carries the wordmark, centred — so it is no longer
+          `aria-hidden`: it holds real content. */}
+      <div className="pointer-events-none absolute inset-x-0 bottom-0 z-0 grid h-[7%] place-items-center bg-neutral-950">
+        {/* ⚠ THE BAND ANSWERS THE PAGE. At rest it carries the wordmark; the
+            moment a section is open it carries that section's title instead,
+            in Digibra — the owner's instruction, 2026-08-25. The name is not
+            deleted, it is the resting state, so the band is never empty.
+            The two name halves take the two hemisphere faces, the same split
+            the landing and the footer both make. */}
+        <p
+          key={openLabel ?? "wordmark"}
+          className="flex items-baseline gap-[0.3em] text-[clamp(0.7rem,1.5vw,1.15rem)] leading-none"
+        >
+          {openLabel ? (
+            <span className="font-digibra font-bold tracking-[0.16em] text-white">
+              {openLabel}
+            </span>
+          ) : (
+            <>
+              <span className="font-digibra font-bold tracking-[0.12em] text-white">
+                {NAME_FIRST}
+              </span>
+              <span className="font-graff font-bold tracking-[0.02em] text-white">
+                {NAME_REST.join(" ")}
+              </span>
+            </>
+          )}
+        </p>
+      </div>
 
       {/* The name — BEFORE the footage in the DOM (no positive z-index), so the
           brain crosses in FRONT of the letters. */}

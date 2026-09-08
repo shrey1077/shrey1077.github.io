@@ -53,7 +53,21 @@ try {
   for (const f of files) {
     const out = path.join(DEST, f.replace(".png", ".webp"));
     await sharp(path.join(tmp, f))
-      .webp({ quality: 82, alphaQuality: 92, effort: 5 })
+      // ⚠ q75/a80/e6, not the original q82/a92/e5. Measured 2026-08-21 by
+      // encoding all 48 frames from the master once at each setting (NOT by
+      // re-encoding the shipped WebPs, which compounds artifacts and overstates
+      // the saving): 12.36MB → 9.39MB, a 24% cut, and the resting frame is
+      // indistinguishable from q82 at 2x magnification. q70 goes to 8.15MB but
+      // starts blurring the fine paint spray on the right flank, so it is left
+      // on the table.
+      //
+      // ⚠ RESOLUTION IS NOT THE LEVER IT LOOKS LIKE. Measured in the live DOM,
+      // this sequence renders at 1265x712 CSS px — essentially 1:1 with the
+      // 1280x720 source, and already UNDER-sampled on a dpr-1.75 display, which
+      // would want ~2215px. Shrinking the frames softens the hero directly.
+      // Quality and frame count are the real levers; frame count is untouched
+      // because it changes the scrub's feel, not just its weight.
+      .webp({ quality: 75, alphaQuality: 80, effort: 6 })
       .toFile(out);
     total += fs.statSync(out).size;
   }

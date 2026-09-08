@@ -21,6 +21,7 @@
 import { HeroStage } from "@/components/home/HeroStage";
 import { SectionNav } from "@/components/home/SectionNav";
 import { SectionPanel } from "@/components/home/SectionPanel";
+import { UNIFY_FACES_ON_HOME } from "@/constants/faces";
 import { SiteFooter } from "@/components/footer/SiteFooter";
 import {
   readArtCollections,
@@ -66,7 +67,9 @@ export default function Home() {
   const markPlates = readMarkPlates();
 
   return (
-    <main className="w-full bg-gallery">
+    <main
+      className={`w-full bg-gallery ${UNIFY_FACES_ON_HOME ? "faces-unified" : ""}`}
+    >
       <HeroStage />
       {/* Below `lg` the stage's pins are hidden, which left the eight sections
           — and every client page behind them — with no route in at all. This is
