@@ -6,14 +6,17 @@
  * The brain rests on its calibrated middle frame, mouse-scrubbable. The name is
  * stacked on it ("Shrey" on the crown, "Singh" at the base). Around it:
  *   • top-left   — a code window (logic).
- *   • top-right  — was the ECard; parked 2026-08-09, see below.
- *   • right      — the right brain's thought box.
+ *   • top-right  — was the ECard; removed 2026-08-09, see below.
+ *   • right      — was the thought box; removed with it.
  *   • bottom-left  — the about-me facts (logic).
  *   • bottom-right — the hobbies (creative).
  *   • the two left corners — faint 3D lattices.
  *
- * There is no click-to-choose pose machine — the sections live below, in
- * SidesShowcase, revealed by scrolling. Desktop only for now.
+ * There is no click-to-choose pose machine — the sections are the PINS either
+ * side of the brain, and clicking one opens it in SectionPanel below.
+ * ⚠ This used to say the sections lived in `SidesShowcase`, revealed by
+ * scrolling. That component was never wired into a route and was deleted
+ * 2026-09-10; the pins have been the way in for a long time.
  */
 
 import { useEffect, useState } from "react";
@@ -174,8 +177,10 @@ export function HeroStage() {
         <BrainSequence active={inView} />
       </motion.div>
 
-      {/* The ECard (IdentityHeader) sat here until 2026-08-09 — parked at the
-          owner's request. Re-mount with <IdentityHeader /> to bring it back. */}
+      {/* The ECard (IdentityHeader) sat here until 2026-08-09, parked at the
+          owner's request, and both components were deleted 2026-09-10 as
+          unreachable. ⚠ This used to say "re-mount with <IdentityHeader />",
+          which no longer works — recover the pair from git history first. */}
 
       {/* The sections, annotated onto the brain. Real navigation, so it sits
           outside the aria-hidden furniture block below. */}
@@ -202,7 +207,7 @@ export function HeroStage() {
 
         {/* ⚠ ThoughtBox stood here — the creative mirror of the code window —
             and was removed on 2026-08-21 by the owner's instruction. The
-            component file is kept, unreferenced, in case it comes back.
+            component file was deleted 2026-09-10; git history has it.
             BrainPins still carries the offset that was added to clear it
             (COL.creative.top, 0.22 -> 0.30); that space is now simply free, so
             the pins can move back up if the box stays gone. */}
@@ -219,7 +224,7 @@ export function HeroStage() {
 
         {/* The hand-drawn bubbles sat here until 2026-08-10. Removed once the
             film went full strength — the corner belongs to the artwork now.
-            SpeechBubbles is kept, unmounted, for if they come back. */}
+            SpeechBubbles was deleted 2026-09-10; git history has it. */}
         {/* Tagged because HeroName clamps Imagine's descender above whatever
             sits in this corner — it measures this box rather than assuming a
             height, so moving the rotator moves the word's floor with it. */}

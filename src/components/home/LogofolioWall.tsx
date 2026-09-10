@@ -8,10 +8,11 @@
  * orthogonal neighbours lift a little less, and a short leave-delay stops the
  * wall flickering as the pointer crosses a seam.
  *
- * ⚠ NOT `LogofolioGrid`. That component still exists and is still wired into
- * SectionBody, which SidesShowcase imports — the parked chain the handoff says
- * not to disturb. Overwriting it would have silently rewritten parked code, so
- * this is a new file and the old one is left exactly as it was.
+ * ⚠ This was written as a NEW file rather than by overwriting `LogofolioGrid`,
+ * which was then the flat grid this replaced. That component has since been
+ * deleted (2026-09-10) along with the unreachable `SidesShowcase → SectionBody`
+ * chain that was its only consumer, so the distinction no longer matters —
+ * this is the Logofolio room's only renderer now.
  *
  * What changed from the supplied component, and why:
  *

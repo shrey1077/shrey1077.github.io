@@ -23,13 +23,6 @@ export interface NormalizedPointer {
 export type AnimationState = "idle" | "intro" | "active" | "transitioning";
 
 /**
- * @deprecated As of Phase 2 the focused section is identified by `NavSectionId`
- * (see `@/types/navigation`) and the store's `activeSection` uses that. This
- * coarse left/right type is retained only for reference and is no longer used.
- */
-export type ActiveSection = "left" | "right" | null;
-
-/**
  * The build phase of the overall project.
  *
  * This is a deliberate architectural hook: future systems can branch on the

@@ -34,7 +34,11 @@
   --font-digibra: "Digibra", ui-sans-serif, system-ui, sans-serif;
   --font-graff: "Juturu", ui-sans-serif, system-ui, sans-serif;
   --font-helv: Helvetica, "Helvetica Neue", Arial, sans-serif;
-  /* The right brain's handwriting — ThoughtBox only. A script face, so it is
+  /* ⚠ ORPHANED. The right brain's handwriting, and ThoughtBox was its only
+     consumer — that component was deleted 2026-09-10, so nothing sets
+     `font-sunset` any more. The token and its @font-face are left in place
+     because the FILE is still shipped in /public/fonts; drop both together if
+     the script voice is not coming back. A script face, so it is
      set well above CodeStream's 0.58rem mono: at that size it is unreadable.
      Fallbacks stay cursive, never a sans, or the voice is lost outright. */
   --font-sunset: "Sunset Script", "Segoe Script", "Brush Script MT", cursive;

@@ -14,7 +14,9 @@
  * a grid of vertices drags through and springs back from — THINK in its flat
  * THINK_GREY, imagine in a rainbow that sweeps slowly along the word. imagine
  * used to be liquid particles over a static gradient; the owner replaced that
- * with THINK's effect plus moving colour. ImagineParticles is kept, unused.
+ * with THINK's effect plus moving colour. ImagineParticles was DELETED on
+ * 2026-09-10 with the rest of the unreachable tree; recover it from git if the
+ * liquid is ever wanted back.
  *
  * ⚠ The `brain-paint` span underneath each is the FALLBACK, not the fill. It is
  * what a reduced-motion or WebGL-less visitor reads, and it is hidden the moment
@@ -373,8 +375,8 @@ export function HeroName() {
 
               ⚠ THE LIQUID IS GONE. ImagineParticles ran here until 2026-08-25,
               when the owner asked for the word to keep changing rainbow colours
-              and to carry THINK's mesh instead. The component file is kept,
-              unreferenced, in case it returns.
+              and to carry THINK's mesh instead. The component was deleted on
+              2026-09-10; git history has it if the liquid is ever wanted back.
 
               ⚠ The colour now comes from the MESH, not from this span. The
               `brain-paint` class below is the fallback the mesh replaces —
