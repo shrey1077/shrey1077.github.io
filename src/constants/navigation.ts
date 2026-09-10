@@ -89,12 +89,6 @@ export const NAV_SECTIONS: readonly NavSection[] = [
   },
 ] as const;
 
-/** Two-digit index of a section within the full list ("01" … "08"). */
-export function navSectionIndex(id: NavSectionId): string {
-  const i = NAV_SECTIONS.findIndex((s) => s.id === id);
-  return String(i + 1).padStart(2, "0");
-}
-
 /** Sections for one hemisphere, sorted top → bottom. */
 export function navSectionsFor(hemisphere: "left" | "right"): NavSection[] {
   return NAV_SECTIONS.filter((s) => s.hemisphere === hemisphere).sort(

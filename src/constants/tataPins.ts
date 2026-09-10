@@ -33,8 +33,3 @@ export const TATA_PINS: TataPin[] = [
   { id: "proposals", label: "Proposals", side: "right", index: 1 },
   { id: "ai-solutions", label: "AI Apps Dashboard", side: "right", index: 2 },
 ];
-
-/** ⚠ The owner calls this room "AI Apps Dashboard"; the content constant calls
- *  it "AI Solutions". The pin label above wins on this page — the id is what
- *  joins them, and the id is unchanged so nothing else has to move. */
-export const TATA_PIN_BY_ID = Object.fromEntries(TATA_PINS.map((p) => [p.id, p]));

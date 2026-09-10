@@ -84,8 +84,10 @@ a property of the source, not something to tune later.
   sets `right:0`/`bottom:0`, which stay in force — width computes as
   (parent − left − right). This silently made every journey cell 154×112px while
   every DOM check passed.
-- **`SectionBody` is NOT the live section renderer.** It belongs to the parked
-  `SidesShowcase` chain and is poorer than what `SectionPanel` renders: it sends
-  `publications` to "coming soon" and gives `logofolio` the flat grid rather than
-  the wall. Anything needing section content should use SectionPanel's
-  renderers.
+- **~~`SectionBody` is NOT the live section renderer.~~** RESOLVED 2026-09-10:
+  `SectionBody` and the whole parked `SidesShowcase` chain were deleted as
+  unreachable, so the trap is gone — `SectionPanel` is now the only place
+  section content is rendered. Kept here because the underlying lesson stands:
+  a component that LOOKS like the renderer may be a superseded one, and this
+  chain silently sent `publications` to "coming soon" and gave `logofolio` the
+  flat grid instead of the wall.
