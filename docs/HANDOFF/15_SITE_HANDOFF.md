@@ -127,9 +127,25 @@ the words sit in spring-scaled `motion.div`s, and a client rect bakes the
 transform into the texture size. Both wait on `document.fonts.load`; drawing
 early bakes the fallback sans in permanently.
 
-⚠ **ThoughtBox was removed 2026-08-21.** The file is kept, unreferenced.
-BrainPins still carries the offset added to clear it (`COL.creative.top`,
-0.22 → 0.30) — that space is now free.
+⚠ **ThoughtBox was removed 2026-08-21** (file deleted 2026-09-10). The right
+column's offset that cleared it is gone too.
+
+**Update 2026-09-17 — the landing was re-laid:**
+- **imagine sits on THINK's line.** Its ink centre is DERIVED from THINK's in
+  `HeroName` (`IMAGINE_INK_TOP` is gone), and both words scale about their ink
+  centres (`originY`), so they stay aligned at every size.
+- **ThinkMesh now puts the baseline where CSS does.** It used to centre the ink
+  on the box, which drew THINK ~6px below its own span. THINK moved up ~6px on
+  screen as a result — that is the fix, not a regression.
+- **Both pin columns share one set of rows** (`ROW_TOP` / `ROW_STEP` in
+  BrainPins); artwork rows add `LOGIC_ROW_HALF` to land on the same centre line.
+- **Logic pins carry a tagline** (`NavSection.tagline`) and **a trace into the
+  brain** — `BrainTraces`, a separate layer mounted just BEFORE the footage so
+  the brain covers the line ends. The ends sit in a band measured to be opaque
+  in all 48 frames; re-measure if the frames are replaced.
+- Verifying visuals: headless `--virtual-time-budget` captures drop framer
+  animations unpredictably (pins, imagine and connectors went missing). Capture
+  in REAL time over DevTools instead.
 
 Everything else from handoff 14 §1 holds: BRAIN_SHIFT_X = 27 is safe to revert,
 one connector run per pin, **the reveal is a CLIP not a dash offset**,

@@ -3,9 +3,14 @@
 /**
  * BrainPins — the sections, floating either side of the brain.
  *
- * No leader lines back to the brain any more. Each section is a label pill with
- * a short stub off its inner edge to a stroked circle, and a second rule off
- * its outer edge to the screen corner — so it reads as strung across the flank.
+ * Each section is a label pill with a stroked circle on its inner end, and a
+ * hairline that arrives from the top corner — so it reads as strung across the
+ * flank.
+ *
+ * ⚠ THE LOGIC PINS ALSO RUN INTO THE BRAIN (2026-09-17), and that run is NOT
+ * drawn here. It has to pass BEHIND the artwork, and everything in this block
+ * sits above it at z-20, so it lives in BrainTraces, a layer under the footage.
+ * This file only tags each circle (`data-pin-circle`) for it to measure.
  *
  * They hold still. The four used to levitate, but eight drifting labels around
  * a brain that already answers the mouse, over a full-strength film, was two
@@ -30,6 +35,7 @@ import { NAV_SECTIONS } from "@/constants/navigation";
 import type { NavSectionId } from "@/types/navigation";
 import { EASE_OUT } from "@/constants/motion";
 import { useIsCompact } from "@/hooks/useMediaQuery";
+import { typeVoiceClass } from "@/constants/typography";
 
 /** Fired when a section is chosen (or cleared); the panel follows it. */
 export const PIN_OPEN_EVENT = "brainpin:open";
@@ -43,15 +49,31 @@ const RING_STROKE = 2;
 const RING = `radial-gradient(closest-side, transparent calc(100% - ${RING_STROKE}px), #000 calc(100% - ${RING_STROKE}px))`;
 const RING_MASK = { WebkitMaskImage: RING, maskImage: RING } as const;
 
-/** Where each column sits and the band it occupies. THINK is high on the crown
- *  so the left flank is clear from 40% down; IMAGINE runs along the base, so
- *  the right column has to sit above it. */
+/** The rows both columns share, as fractions of the stage.
+ *
+ *  ⚠ ONE SET OF ROWS FOR BOTH SIDES. The right column used to sit higher
+ *  (0.30, stepping 0.07) because imagine ran along the base and the column had
+ *  to clear it. The owner moved imagine up beside THINK on 2026-09-17 and asked
+ *  for the two columns to run parallel, bottom-aligned — so both now read these
+ *  two numbers and cannot drift apart again. */
+const ROW_TOP = 0.46;
+const ROW_STEP = 0.075;
+
+/** Half the height of a logic row: the pill's 1.07rem type at `leading-none`
+ *  plus `py-1.5` twice is 1.82rem, and the 28px icon is shorter than that, so
+ *  the pill sets the row. A logic row is placed by its TOP edge and an artwork
+ *  row by its pill's CENTRE, so the artwork adds this to land on the same line.
+ *  ⚠ Re-derive if the logic pill's type size or padding changes. */
+const LOGIC_ROW_HALF = "0.91rem";
+
+/** Where each column sits. THINK and imagine are both high on the crown now, so
+ *  both flanks are clear from 40% down. */
 const COL = {
   // 6vw, not 3: the connectors need a gutter to turn in. At 3vw the four
   // verticals and their corners ate the whole margin and the horizontal run
   // came out under a pixel — the turn the design asks for was invisible.
   // CONNECTOR_END must stay equal to this number.
-  logic: { x: "left-[6vw]", top: 0.46, step: 0.075, align: "flex-row" },
+  logic: { x: "left-[6vw]", top: ROW_TOP, step: ROW_STEP, align: "flex-row" },
   // ⚠ 6vw, MIRRORING the logic column — and this reverses the earlier `right-0`
   // ("hard against the screen edge"). The two instructions cannot both hold:
   // once the artwork is mirrored its lead ring sits at the artwork's RIGHT
@@ -62,9 +84,8 @@ const COL = {
   // The owner asked on 2026-08-21 for the column to read as a mirror image, so
   // it now takes the same gutter the left column has. The four illustrations
   // are still different widths, so their trailing edges stay ragged by design;
-  // it is the LEADING edge that lines up now. `top` still carries the 0.22 →
-  // 0.30 offset added to clear ThoughtBox, which is gone.
-  creative: { x: "right-[6vw]", top: 0.3, step: 0.07, align: "flex-row-reverse" },
+  // it is the LEADING edge that lines up now.
+  creative: { x: "right-[6vw]", top: ROW_TOP, step: ROW_STEP, align: "flex-row-reverse" },
 } as const;
 
 type Side = "logic" | "creative";
@@ -105,8 +126,9 @@ const STROKE_OPEN = 2;
 
 /** The reveal clock. Four lines draw back to back, and a pin lands the moment
  *  its own line completes its turn — so the last pin arrives at exactly
- *  4 × DRAW = 3s, which is the brief. */
-const CONNECTOR_DRAW = 0.75;
+ *  4 × DRAW = 3s, which is the brief. Exported so BrainTraces can start each
+ *  pin's run into the brain the moment that pin has landed. */
+export const CONNECTOR_DRAW = 0.75;
 
 /** The mark that sits ahead of each logic pill, by section id.
  *
@@ -241,6 +263,8 @@ interface Pin {
   side: Side;
   /** Position within its own column — drives the connector and its delay. */
   index: number;
+  /** Small caps under the pill. Logic side only; see NavSection. */
+  tagline?: string;
 }
 
 function buildPins(): Pin[] {
@@ -253,6 +277,7 @@ function buildPins(): Pin[] {
         y: COL[side].top + i * COL[side].step,
         side,
         index: i,
+        tagline: s.tagline,
       }));
   return [...make("logic", "left"), ...make("creative", "right")];
 }
@@ -378,7 +403,11 @@ function PinRow({
       <div
         className={`absolute ${COL[pin.side].x} flex items-center`}
         // ⚠ Positioned by the pill's centre, not the image's top. See ART.
-        style={{ top: `calc(${pin.y * 100}% - ${ART_H * art.pillCenterY}px)` }}
+        //   LOGIC_ROW_HALF puts that centre on the same line as the logic row
+        //   opposite, which is placed by its top edge instead.
+        style={{
+          top: `calc(${pin.y * 100}% + ${LOGIC_ROW_HALF} - ${ART_H * art.pillCenterY}px)`,
+        }}
       >
         <button
           type="button"
@@ -506,7 +535,11 @@ function PinRow({
             pill's rounded right edge and centred on it. A 24px stub used to
             run between them — removed 2026-08-17. The gap lives on the BUTTON,
             so the icon keeps its spacing while this pair stays joined. */}
-        <span className={`flex items-center ${COL[pin.side].align}`}>
+        {/* `relative` so the tagline can hang under the pill without taking
+            part in the row's height — the row is centred on its icon, and a
+            second line of text in flow would drag the icon, the pill and every
+            measured anchor down with it. */}
+        <span className={`relative flex items-center ${COL[pin.side].align}`}>
         {/* The label keeps its pill geometry throughout — only the treatment
             flips. (It used to go square-and-round on open, which ballooned it
             into a circle wide enough to collide with the pill below.) */}
@@ -533,8 +566,12 @@ function PinRow({
           </span>
         )}
 
+        {/* ⚠ `data-pin-circle` is read by BrainTraces, which measures this
+            circle's right edge as the start of the pin's run into the brain.
+            Only the logic side is tagged; it is the only side with a run. */}
         <span
           aria-hidden
+          data-pin-circle={logic ? pin.id : undefined}
           className={`relative grid shrink-0 place-items-center rounded-full ${
             logic
               // Open no longer FILLS the circle — the ring stays and a flat
@@ -569,6 +606,20 @@ function PinRow({
             style={{ width: CIRCLE * 0.42, height: CIRCLE * 0.42 }}
           />
         </span>
+
+        {/* The tagline — three words under the pill, flush with its left edge.
+            Absolutely placed, so it never moves the row (see the wrapper).
+            `aria-hidden` because it would otherwise join the button's name and
+            every section would be announced with its three words attached;
+            the open panel carries the full description for everyone. */}
+        {pin.tagline && (
+          <span
+            aria-hidden
+            className={`${typeVoiceClass("logic", "meta")} absolute left-0 top-full mt-1.5 whitespace-nowrap text-[0.56rem] leading-none text-neutral-500`}
+          >
+            {pin.tagline}
+          </span>
+        )}
         </span>
       </button>
     </motion.div>

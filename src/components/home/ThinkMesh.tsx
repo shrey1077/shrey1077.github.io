@@ -301,10 +301,27 @@ export function ThinkMesh({
       const m = ctx.measureText(word);
       const asc = m.actualBoundingBoxAscent;
       const desc = m.actualBoundingBoxDescent;
+      // ⚠ The BASELINE goes where CSS puts it, not the ink at the canvas centre.
+      // Centring the ink put it on the middle of the element's BOX, and CSS does
+      // not: it centres the face's DECLARED ascent+descent in the line box and
+      // hangs the ink off that baseline. On THINK's tight 0.82 leading the two
+      // disagreed by ~0.11em — the mesh drew the word ~9px below the span it
+      // stands in for, so HeroName's ink-centre alignment (2026-09-17) held for
+      // the DOM and missed by ~6px on screen. Same rule as HeroName's metrics:
+      //   box top (PAD of the box down the canvas) + half-leading + ascent.
+      // The canvas is laid out at top: -PAD of the box, and all of this is in
+      // device pixels, so the box height is scaled by dpr too.
+      const fAsc = m.fontBoundingBoxAscent;
+      const fDesc = m.fontBoundingBoxDescent;
+      const baseline =
+        Number.isFinite(fAsc) && Number.isFinite(fDesc)
+          ? PAD * box.h * dpr + (box.h * dpr - (fAsc + fDesc)) / 2 + fAsc
+          : // Older engines without font metrics: the previous ink-centring.
+            c2.height / 2 + (asc - desc) / 2;
       ctx.fillText(
         word,
         (c2.width - (m.actualBoundingBoxRight + m.actualBoundingBoxLeft)) / 2,
-        c2.height / 2 + (asc - desc) / 2,
+        baseline,
       );
       gl.bindTexture(gl.TEXTURE_2D, tex);
       gl.pixelStorei(gl.UNPACK_PREMULTIPLY_ALPHA_WEBGL, true);
