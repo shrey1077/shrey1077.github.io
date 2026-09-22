@@ -109,12 +109,17 @@ const orbitron = Orbitron({
   display: "swap",
 });
 
-/** Azoth's hero voice — the italic display face the client's own hero comp
- *  was built around ("Inspired by Nature"). Italic only; nothing else on the
- *  site uses it. */
+/** Azoth's hero voice — the italic display face the client's own hero comp was
+ *  built around ("Inspired by Nature").
+ *
+ *  ⚠ THE ROMAN CUT IS HERE FOR TATA IIS (2026-09-22). The owner's mockup for
+ *  that page sets every band headline in an upright high-contrast serif, and
+ *  this family is already loaded — see `.tata-display`. Azoth still asks for
+ *  the italic only, and a browser downloads just the cuts a page actually
+ *  uses, so neither page pays for the other's. */
 const playfair = Playfair_Display({
   subsets: ["latin"],
-  style: ["italic"],
+  style: ["normal", "italic"],
   weight: ["400", "500"],
   variable: "--font-playfair",
   display: "swap",
