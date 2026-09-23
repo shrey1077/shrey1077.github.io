@@ -241,6 +241,24 @@ canvas {
  * the media viewer, sliders) holds to the page's two typefaces. Two-class
  * specificity outranks the single-class utility; `@theme inline` bakes the
  * utility value, so a CSS-variable override alone would not reach it. */
+/* ⚠ THE THIRD FACE ON THE TATA PAGE, AND IT IS DELIBERATE (2026-09-22).
+ * Everything above says that page speaks in exactly two typefaces — Copperplate
+ * Gothic for headings, Helvetica for the rest — because that is Tata IIS's own
+ * brand law, and `.tata-scope` below still enforces it on every shared
+ * component. This class is the ONE exception: the owner's redesign sets the
+ * numbered bands' headlines in an upright serif, and that voice is the
+ * PORTFOLIO speaking about the work, not the institute speaking. The brand's
+ * own two faces still carry everything inside the rooms.
+ *
+ * It is a plain class, not a voice token, so `.tata-scope`'s collapse (which
+ * only touches the three `font-*-brand` utilities) leaves it alone. */
+.tata-display {
+  font-family: var(--font-playfair), ui-serif, Georgia, "Times New Roman", serif;
+  font-weight: 400;
+  font-style: normal;
+  letter-spacing: -0.015em;
+}
+
 .tata-scope .font-mono-brand,
 .tata-scope .font-serif-brand,
 .tata-scope .font-hand-brand {

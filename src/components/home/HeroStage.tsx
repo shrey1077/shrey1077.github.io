@@ -31,6 +31,7 @@ import { useInViewport } from "@/hooks/useInViewport";
 import { DURATION, EASE_IN_OUT, EASE_OUT } from "@/constants/motion";
 import { CircuitBackdrop } from "@/components/home/CircuitBackdrop";
 import { BrainPins, PIN_OPEN_EVENT } from "@/components/home/BrainPins";
+import { BrainTraces } from "@/components/home/BrainTraces";
 import { useIsPhone } from "@/hooks/useMediaQuery";
 import { SITE } from "@/constants/site";
 import { NAV_SECTIONS } from "@/constants/navigation";
@@ -157,6 +158,17 @@ export function HeroStage() {
           brain crosses in FRONT of the letters. */}
       <HeroName />
 
+      {/* The logic pins' runs into the brain. ⚠ HERE, immediately before the
+          footage and with no z-index, so the brain paints OVER the last stretch
+          of each line — that is how they end "behind" it. Moving this after the
+          footage, or into BrainPins (z-20), puts the ends on top. It is handed
+          the footage's own resting transform so it can find the brain. */}
+      <BrainTraces
+        scale={CENTER_SCALE}
+        shiftX={BRAIN_SHIFT_X}
+        rise={BRAIN_RISE}
+      />
+
       {/* Video background — settles in on mount. */}
       <motion.div
         className="absolute inset-0"
@@ -208,9 +220,8 @@ export function HeroStage() {
         {/* ⚠ ThoughtBox stood here — the creative mirror of the code window —
             and was removed on 2026-08-21 by the owner's instruction. The
             component file was deleted 2026-09-10; git history has it.
-            BrainPins still carries the offset that was added to clear it
-            (COL.creative.top, 0.22 -> 0.30); that space is now simply free, so
-            the pins can move back up if the box stays gone. */}
+            The right pins' offset that cleared it is gone too: since
+            2026-09-17 both columns share one set of rows (BrainPins ROW_TOP). */}
         <div className="absolute bottom-[9vh] left-[8vw]">
           <AboutFacts />
         </div>
@@ -225,11 +236,10 @@ export function HeroStage() {
         {/* The hand-drawn bubbles sat here until 2026-08-10. Removed once the
             film went full strength — the corner belongs to the artwork now.
             SpeechBubbles was deleted 2026-09-10; git history has it. */}
-        {/* Tagged because HeroName clamps Imagine's descender above whatever
-            sits in this corner — it measures this box rather than assuming a
-            height, so moving the rotator moves the word's floor with it. */}
+        {/* ⚠ Untagged since 2026-09-17. This carried `data-hero-furniture`
+            because HeroName clamped imagine's descender above it; imagine now
+            sits up beside THINK, the clamp is gone, and nothing reads the tag. */}
         <div
-          data-hero-furniture="right-bottom"
           className="absolute bottom-[9vh] right-10 flex justify-end"
         >
           <HobbiesRotator />

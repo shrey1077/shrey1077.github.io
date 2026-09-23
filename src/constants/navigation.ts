@@ -21,6 +21,7 @@ export const NAV_SECTIONS: readonly NavSection[] = [
     kind: "clients",
     description:
       "Brands and organizations I've collaborated with to build meaningful identities and impactful experiences.",
+    tagline: "People / Brands / Impact",
   },
   {
     id: "projects",
@@ -30,6 +31,7 @@ export const NAV_SECTIONS: readonly NavSection[] = [
     kind: "clients",
     description:
       "Self-directed and academic work — where the brief was my own, end to end.",
+    tagline: "Ideas / Execution / Outcomes",
   },
   {
     id: "logofolio",
@@ -38,6 +40,7 @@ export const NAV_SECTIONS: readonly NavSection[] = [
     order: 2,
     kind: "coming-soon",
     description: "Marks, monograms, and identity systems in one place.",
+    tagline: "Marks / Identities / Systems",
   },
   {
     id: "career-path",
@@ -46,6 +49,7 @@ export const NAV_SECTIONS: readonly NavSection[] = [
     order: 3,
     kind: "coming-soon",
     description: "The route so far — roles, milestones, and turns.",
+    tagline: "Journey / Milestones / Growth",
   },
 
   // Right — creativity / art.

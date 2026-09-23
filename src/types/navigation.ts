@@ -45,6 +45,10 @@ export interface NavSection {
   kind: PreviewKind;
   /** One-sentence introduction shown in the preview pane's rail. */
   description: string;
+  /** Three words set small under the pin on the landing, e.g. "People / Brands
+   *  / Impact". Optional: the creative column is artwork with its label baked
+   *  in, so only the logic pins carry one. */
+  tagline?: string;
 }
 
 /** The brain's live hover target, shared so the 3D brain can acknowledge it. */

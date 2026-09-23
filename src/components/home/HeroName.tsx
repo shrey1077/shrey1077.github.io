@@ -7,8 +7,9 @@
  * it reads as a watermark the brain sits IN FRONT OF rather than a headline
  * over it. Its final K is right-aligned to the brain's midline, so the word
  * ends exactly where the logic hemisphere does and the brain laps over its
- * last letter. imagine answers it at the base in Juturu bold, starting from
- * a little past that midline and running right.
+ * last letter. imagine answers it on the SAME line (since 2026-09-17 — it sat
+ * at the base until then), starting a little past that midline and running
+ * right, its ink centre locked to THINK's.
  *
  * BOTH WORDS ARE MESHES NOW (2026-08-25). Each is rasterised to a texture that
  * a grid of vertices drags through and springs back from — THINK in its flat
@@ -116,8 +117,15 @@ const THINK_RIGHT = "57%";
  *  edge, so its left edge travels inward as it shrinks instead of holding. */
 const IMAGINE_LEFT = "62%";
 
-/** Vertical anchors, as a fraction of the viewport, measured to each word's
- *  INK top rather than its box — the boxes sit well off the ink on both faces.
+/** Vertical anchor, as a fraction of the viewport, measured to THINK's INK top
+ *  rather than its box — the box sits well off the ink.
+ *
+ *  ⚠ THERE IS NO imagine ANCHOR ANY MORE. imagine sat at the base at 0.716 until
+ *  2026-09-17, when the owner asked for the two words to be centre-aligned at
+ *  THINK's level. It is now DERIVED from THINK in `measure` — its ink centre is
+ *  put on THINK's ink centre — so the pair cannot come unaligned by editing one
+ *  number. The furniture floor imagine used to clamp against went with it: the
+ *  word no longer comes anywhere near the bottom-right corner.
  *
  *  ⚠ This replaces the live brain measurement. Placement used to be derived
  *  from the footage's own alpha so the words tucked against its real crown and
@@ -125,7 +133,6 @@ const IMAGINE_LEFT = "62%";
  *  measurement is gone. `measureBrainV` went with it — recover it from git if
  *  the brain-relative behaviour is ever wanted back. */
 const THINK_INK_TOP = 0.168;
-const IMAGINE_INK_TOP = 0.716;
 
 /** One font-size does not give one height, so `imagine` is scaled to match
  *  THINK's ASCENT rather than its size — equal ascent is what reads as equal.
@@ -197,20 +204,15 @@ const THINK_INK_ASCENT = 0.715;
 const IMAGINE_LEADING = UNIFY_FACES_ON_HOME ? 1.08 : 1.45;
 const THINK_LEADING = 0.82;
 
-/** Where a word's lowest / highest ink sits relative to the top of its box.
- *  Both follow the same rule: half-leading is measured against the DECLARED
- *  box, the baseline sits one declared ascent below that, and the ink hangs
- *  off the baseline. */
-function inkBelowBoxTop(fs: number, boxH: number): number {
-  const halfLeading = (boxH - (IMAGINE_FONT_ASCENT + IMAGINE_FONT_DESCENT) * fs) / 2;
-  return halfLeading + (IMAGINE_FONT_ASCENT + IMAGINE_INK_DESCENT) * fs;
-}
+/** Where a word's highest ink sits relative to the top of its box. Both follow
+ *  the same rule: half-leading is measured against the DECLARED box, the
+ *  baseline sits one declared ascent below that, and the ink hangs off the
+ *  baseline. */
 function inkAboveBoxTop(fs: number, boxH: number): number {
   const halfLeading = (boxH - (THINK_FONT_ASCENT + THINK_FONT_DESCENT) * fs) / 2;
   return halfLeading + (THINK_FONT_ASCENT - THINK_INK_ASCENT) * fs;
 }
-/** Imagine's HIGHEST ink, same rule — needed now that the word is placed by
- *  where its ink starts rather than by where the brain's base happens to be. */
+/** Imagine's HIGHEST ink, same rule. */
 function imagineInkTop(fs: number, boxH: number): number {
   const halfLeading = (boxH - (IMAGINE_FONT_ASCENT + IMAGINE_FONT_DESCENT) * fs) / 2;
   return halfLeading + (IMAGINE_FONT_ASCENT - IMAGINE_INK_ASCENT) * fs;
@@ -228,8 +230,20 @@ const EDGE_MARGIN = 10;
  *  changes. */
 const THINK_GREY = "#c7c7c7";
 
-/** Clear air between Imagine's lowest ink and the furniture below it. */
-const FLOOR_GAP = 18;
+/** The vertical CENTRE of each word's ink, measured down from the top of its
+ *  box. This is both where the two words are aligned and where each one scales
+ *  about — see the transform origins below.
+ *
+ *  ⚠ It is NOT the middle of the box. THINK's 0.82 leading is tighter than
+ *  Digibra's declared 1.0, so its ink sits ~0.11em above the box's centre; and
+ *  imagine's ink includes the g's descender. Align or scale about the box and
+ *  the words drift apart by several pixels as they change size. */
+function thinkInkCentre(fs: number, boxH: number): number {
+  return inkAboveBoxTop(fs, boxH) + (THINK_INK_ASCENT * fs) / 2;
+}
+function imagineInkCentre(fs: number, boxH: number): number {
+  return imagineInkTop(fs, boxH) + ((IMAGINE_INK_ASCENT + IMAGINE_INK_DESCENT) * fs) / 2;
+}
 
 export function HeroName() {
   const reduceMotion = useReducedMotion();
@@ -251,6 +265,11 @@ export function HeroName() {
   // Vertical placement of each word's top edge.
   const thinkY = useMotionValue(0);
   const imagineY = useMotionValue(0);
+  // Each word's scale origin, as a fraction of its own box height — set to its
+  // INK centre in `measure`, so what holds still while it grows and shrinks is
+  // the line the two are aligned on. 0.5 until measured.
+  const thinkOriginY = useMotionValue(0.5);
+  const imagineOriginY = useMotionValue(0.5);
 
   useEffect(() => {
     const measure = () => {
@@ -260,35 +279,28 @@ export function HeroName() {
       // the box sits ~15px above the ink on Digibra, so clamping the box would
       // let the letters leave the stage.
       const thinkEl = thinkRef.current;
-      if (thinkEl) {
-        const fs = parseFloat(getComputedStyle(thinkEl).fontSize) || 0;
-        const inkOffset = inkAboveBoxTop(fs, thinkEl.offsetHeight);
-        const wanted = vh * THINK_INK_TOP - inkOffset;
-        thinkY.set(Math.max(EDGE_MARGIN - inkOffset, wanted));
-      }
+      if (!thinkEl) return;
+      const tFs = parseFloat(getComputedStyle(thinkEl).fontSize) || 0;
+      const tBoxH = thinkEl.offsetHeight;
+      const inkOffset = inkAboveBoxTop(tFs, tBoxH);
+      const tY = Math.max(EDGE_MARGIN - inkOffset, vh * THINK_INK_TOP - inkOffset);
+      const tCentre = thinkInkCentre(tFs, tBoxH);
+      thinkY.set(tY);
+      if (tBoxH) thinkOriginY.set(tCentre / tBoxH);
 
-      // Imagine. Same idea, plus the two floors it has always needed: the
-      // furniture in the bottom-right corner, and the bottom of the stage
-      // regardless — a viewport short enough to put the rotator below the word
-      // leaves the furniture clamp defending nothing.
+      // imagine. Its ink centre goes on THINK's ink centre — the owner's
+      // "centre-aligned at the level of THINK", 2026-09-17. Both scale about
+      // those same centres, so the alignment holds at every size either word
+      // passes through. Still held inside the top edge, in case a short stage
+      // ever pushes THINK up against it.
       const el = imagineRef.current;
       if (el) {
         const fs = parseFloat(getComputedStyle(el).fontSize) || 0;
         const boxH = el.offsetHeight;
-        const inkBelowTop = inkBelowBoxTop(fs, boxH);
-        const inkTopOffset = imagineInkTop(fs, boxH);
-
-        const furniture = document
-          .querySelector('[data-hero-furniture="right-bottom"]')
-          ?.getBoundingClientRect();
-        const stageFloor = vh - EDGE_MARGIN;
-        const floor =
-          furniture && furniture.height > 0
-            ? Math.min(furniture.top - FLOOR_GAP, stageFloor)
-            : stageFloor;
-
-        const wanted = vh * IMAGINE_INK_TOP - inkTopOffset;
-        imagineY.set(Math.min(wanted, floor - inkBelowTop));
+        const iCentre = imagineInkCentre(fs, boxH);
+        const wanted = tY + tCentre - iCentre;
+        imagineY.set(Math.max(EDGE_MARGIN - imagineInkTop(fs, boxH), wanted));
+        if (boxH) imagineOriginY.set(iCentre / boxH);
       }
     };
 
@@ -319,7 +331,7 @@ export function HeroName() {
       window.removeEventListener("resize", measure);
       if (onMove) window.removeEventListener("pointermove", onMove);
     };
-  }, [reduceMotion, thinkZ, imagineZ, thinkY, imagineY]);
+  }, [reduceMotion, thinkZ, imagineZ, thinkY, imagineY, thinkOriginY, imagineOriginY]);
 
   const rise = (delay: number) =>
     reduceMotion
@@ -337,7 +349,7 @@ export function HeroName() {
           keeps the K anchored while the word breathes. */}
       <motion.div
         aria-hidden
-        style={{ y: thinkY, scale: thinkScale, transformOrigin: "50% 50%", right: THINK_RIGHT }}
+        style={{ y: thinkY, scale: thinkScale, originX: 0.5, originY: thinkOriginY, right: THINK_RIGHT }}
         className="absolute top-0 z-30"
       >
         <motion.span {...rise(0.35)} className="relative block">
@@ -362,7 +374,7 @@ export function HeroName() {
           the same reason. */}
       <motion.div
         aria-hidden
-        style={{ y: imagineY, scale: imagineScale, transformOrigin: "50% 50%", left: IMAGINE_LEFT }}
+        style={{ y: imagineY, scale: imagineScale, originX: 0.5, originY: imagineOriginY, left: IMAGINE_LEFT }}
         className="absolute top-0 z-20"
       >
         <motion.span {...rise(0.5)} className="relative block">
