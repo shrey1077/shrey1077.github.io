@@ -20,13 +20,58 @@ const BRAND = "/content/clients/tata-iis/brand";
 export const TATA_DESCRIPTION =
   "Tata Indian Institute of Skills (Tata IIS) is a Tata Group initiative, in partnership with the Ministry of Skill Development and Entrepreneurship (MSDE), established to build world-class skill institutes in Mumbai and Ahmedabad. Backed by Tata values, we deliver industry-grade, outcome-driven training in emerging technical and service skills, transforming India's demographic advantage into workplace excellence.";
 
-/** Endorsement logos beneath the hero. `src` absent → a text lockup. */
-export const TATA_POWERED_BY: { name: string; src?: string }[] = [
-  { name: "Tata Trusts", src: `${BRAND}/powered/tata-trusts.png` },
-  { name: "Skill India", src: `${BRAND}/powered/skill-india.png` },
-  { name: "Government of Gujarat", src: `${BRAND}/powered/govt-gujarat.png` },
-  { name: "Ministry of Skill Development & Entrepreneurship", src: `${BRAND}/powered/msde.png` },
+/** Endorsement logos in the hero. `src` absent → a text lockup.
+ *
+ * ⚠ `ink` IS MEASURED, and it is what makes the four sit together. They are a
+ * wordmark, two emblems and an emblem-plus-text, with ink aspect ratios from
+ * 0.70 to 9.78 and canvases carrying between 0% and 28% padding. Sized by their
+ * files — which is what the page did until 2026-09-23 — Tata Trusts came out
+ * tiny and the Gujarat emblem came out huge. The layout instead gives each one
+ * the same ink AREA, which is how the eye judges "same size" across shapes that
+ * different, and it needs both numbers to do it:
+ *   · `aspect` — the INK's width ÷ height (not the file's)
+ *   · `fillH`  — how much of the file's height the ink actually uses
+ *   · `box`    — the FILE's width ÷ height, which is what `object-contain`
+ *                actually fits, so the element has to be shaped to it
+ * Measured 2026-09-23 off the alpha and luminance of each PNG. ⚠ RE-MEASURE if
+ * a file is replaced; a logo re-exported with different padding will silently
+ * come out the wrong size. */
+export const TATA_POWERED_BY: {
+  name: string;
+  src?: string;
+  ink?: { aspect: number; fillH: number; box: number };
+}[] = [
+  {
+    name: "Tata Trusts",
+    src: `${BRAND}/powered/tata-trusts.png`,
+    ink: { aspect: 9.78, fillH: 0.724, box: 640 / 87 },
+  },
+  {
+    name: "Skill India",
+    src: `${BRAND}/powered/skill-india.png`,
+    ink: { aspect: 1.22, fillH: 0.859, box: 480 / 341 },
+  },
+  {
+    name: "Government of Gujarat",
+    src: `${BRAND}/powered/govt-gujarat.png`,
+    ink: { aspect: 0.7, fillH: 0.9, box: 1 },
+  },
+  {
+    name: "Ministry of Skill Development & Entrepreneurship",
+    src: `${BRAND}/powered/msde.png`,
+    ink: { aspect: 2.76, fillH: 1, box: 640 / 232 },
+  },
 ];
+
+/** px². The ink area every endorsement is scaled to — a 57×57 square's worth.
+ *  Height then falls out as √(AREA / aspect), so a long wordmark comes out
+ *  short and wide and a tall emblem narrow and tall, both weighing the same.
+ *  ⚠ A floor on the height was tried and removed the same day: at 26px the
+ *  9.8:1 Tata Trusts wordmark ran 254px wide and dwarfed the other three, which
+ *  is the very thing this is here to stop. Area, and nothing else. The four
+ *  together come to ~490px, which is what keeps them on one line in the hero's
+ *  column — raising this wraps them. */
+export const POWERED_INK_AREA = 3200;
 
 /** The circuit-grid texture (`gridNEW`) — the page body wash and the whisper
  *  behind the IISA / IISM guideline columns. Source: user's `Grid-min.png`. */

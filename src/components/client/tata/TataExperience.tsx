@@ -33,6 +33,7 @@ import Image from "next/image";
 import { clientExperienceBySlug } from "@/constants/clientExperiences";
 import { readCatalogueCategory } from "@/content/catalogue";
 import {
+  POWERED_INK_AREA,
   TATA_DESCRIPTION,
   TATA_POWERED_BY,
   TATA_PARTNERS,
@@ -217,34 +218,44 @@ export function TataExperience() {
       <div className="relative z-10">
         <ExperienceTransition>
           {/* ── Hero ─────────────────────────────────────────────────────────
-              The 16:9 hero film opened this page until 2026-08-17. It, VideoHero,
-              the old TATA_HERO, hero.mp4, hero-poster.jpg and the pipeline step
-              that built the poster are all gone — recover from git if it ever
-              returns. What sits here now is the owner's campaign artwork. */}
+              ⚠ IT HOLDS THE WHOLE VIEWPORT (owner, 2026-09-23): "the 01, 02…
+              columns should appear only after scrolling". `100svh` — the SMALL
+              viewport height — so a mobile browser's collapsing toolbar cannot
+              push band 01 into view on load and then yank it away.
+
+              The 16:9 hero film opened this page until 2026-08-17. It,
+              VideoHero, the old TATA_HERO, hero.mp4, hero-poster.jpg and the
+              pipeline step that built the poster are all gone — recover from
+              git if it ever returns. What sits here now is the owner's campaign
+              artwork, cut out of its white ground by
+              scripts/prepare-tata-hero.mjs. */}
           <header className="relative">
-            <div className={`${SHELL} pt-8`}>
-              <Link
-                href="/"
-                className="tata-body group inline-flex items-center gap-2 rounded text-[0.7rem] uppercase tracking-[0.18em] text-neutral-500 outline-none transition-colors duration-300 hover:text-neutral-900 focus-visible:text-neutral-900 focus-visible:ring-2 focus-visible:ring-neutral-900/40 focus-visible:ring-offset-2"
-              >
-                <span aria-hidden className="inline-block transition-transform duration-300 group-hover:-translate-x-1">
-                  ←
-                </span>
-                Back
-              </Link>
+            {/* The artwork, BLEEDING to the viewport's right edge — which is why
+                it is a child of the header and not of the shell below, whose
+                max width would have stopped it short. Desktop only; the phone
+                gets it in flow under the copy, further down. */}
+            <div
+              aria-hidden
+              className="pointer-events-none absolute inset-y-0 right-0 hidden w-[54%] lg:block xl:w-[52%]"
+            >
+              <Image
+                src={TATA_HERO.art}
+                alt=""
+                fill
+                priority
+                sizes="54vw"
+                className="object-contain object-right-bottom"
+              />
             </div>
 
-            {/* The rail runs down the outer edge, clear of the shell's inset. */}
-            <div aria-hidden className="pointer-events-none absolute right-6 top-24 hidden xl:block">
-              <p className={`${KICKER} leading-[2.2]`}>
-                {TATA_HERO.rail.map((w) => (
-                  <span key={w} className="block">
-                    {w}
-                  </span>
-                ))}
-              </p>
-            </div>
-            <div aria-hidden className="pointer-events-none absolute bottom-24 right-6 hidden text-right xl:block">
+            {/* ⚠ ONE rail, not two. The comp's "THINK / DESIGN / SKILL /
+                IMPACT" sat at the top right, which is exactly where the
+                artwork's own "PEOPLE SKILLS INDUSTRY INDIA" caption now sits
+                once the art bleeds this far left — they overlapped outright.
+                The artwork's is the owner's own wording, so the page's rail
+                gives way and only the foot one is left. TATA_HERO.rail is kept
+                in the constants for whoever wants to place it elsewhere. */}
+            <div aria-hidden className="pointer-events-none absolute bottom-28 right-5 hidden text-right xl:block">
               <p className={`${KICKER} leading-[1.9]`}>
                 {TATA_HERO.railFoot.map((w) => (
                   <span key={w} className="block">
@@ -254,11 +265,21 @@ export function TataExperience() {
               </p>
             </div>
 
-            <div
-              className={`${SHELL} grid grid-cols-1 items-start gap-10 pb-12 pt-6 lg:grid-cols-[minmax(0,1fr)_minmax(0,1.1fr)] lg:gap-14 lg:pb-16`}
-            >
-              {/* ── The words ── */}
-              <div className="flex flex-col">
+            <div className={`${SHELL} relative flex min-h-[100svh] flex-col pt-8`}>
+              <Link
+                href="/"
+                className="tata-body group inline-flex items-center gap-2 self-start rounded text-[0.7rem] uppercase tracking-[0.18em] text-neutral-500 outline-none transition-colors duration-300 hover:text-neutral-900 focus-visible:text-neutral-900 focus-visible:ring-2 focus-visible:ring-neutral-900/40 focus-visible:ring-offset-2"
+              >
+                <span aria-hidden className="inline-block transition-transform duration-300 group-hover:-translate-x-1">
+                  ←
+                </span>
+                Back
+              </Link>
+
+              {/* ── The words. `flex-1` + `justify-center` sits them in the
+                  middle of whatever height is left, so the hero stays composed
+                  on a 700px laptop and on a 1200px display alike. ── */}
+              <div className="flex flex-1 flex-col justify-center py-10 lg:w-[46%] lg:py-0">
                 <span className={KICKER}>{TATA_HERO.eyebrow.join("   /   ")}</span>
 
                 {/* The real wordmark file — never type set to look like it. */}
@@ -290,11 +311,11 @@ export function TataExperience() {
                 </p>
 
                 {/* What the page holds, named up front. These ARE the rooms, so
-                    the list cannot drift from what opens further down. */}
-                {/* ⚠ The separator TRAILS its item rather than leading the
-                    next one. Leading it puts a stray "/" at the start of any
-                    line the list wraps onto, which is what it did first. */}
-                <ul className="mt-10 flex flex-wrap items-center gap-x-2 gap-y-2">
+                    the list cannot drift from what opens further down.
+                    ⚠ The separator TRAILS its item rather than leading the next
+                    one: leading it puts a stray "/" at the start of any line the
+                    list wraps onto. */}
+                <ul className="mt-9 flex flex-wrap items-center gap-x-2 gap-y-2">
                   {TATA_PINS.map((pin, i) => (
                     <li key={pin.id} className={KICKER}>
                       {pin.label}
@@ -307,47 +328,79 @@ export function TataExperience() {
                   ))}
                 </ul>
 
-                <p aria-hidden className={`${KICKER} mt-10 flex items-center gap-3`}>
-                  <span className="block h-7 w-px bg-neutral-300" />
-                  Scroll
-                </p>
-              </div>
-
-              {/* ── The artwork, and who stands behind the institute ── */}
-              <div className="grid grid-cols-1 gap-8 sm:grid-cols-[minmax(0,1fr)_auto] sm:items-start sm:gap-6">
-                <span className="relative block aspect-[1071/1469] w-full overflow-hidden">
+                {/* The phone's copy of the artwork, in flow. Hidden from the
+                    moment the bleed layer above takes over. */}
+                <div className="relative mt-10 block aspect-[1071/1469] w-full lg:hidden">
                   <Image
                     src={TATA_HERO.art}
                     alt={TATA_HERO.artAlt}
                     fill
-                    priority
-                    sizes="(max-width: 1024px) 92vw, 46vw"
-                    className="object-contain object-top"
+                    sizes="92vw"
+                    className="object-contain"
                   />
-                </span>
+                </div>
+              </div>
 
-                <div className="sm:w-[11rem] sm:pt-6">
+              {/* ── The foot: who stands behind the institute, and the scroll
+                  cue. Moved down here from beside the artwork on 2026-09-23. ── */}
+              <div className="relative mt-10 flex flex-wrap items-end justify-between gap-8 pb-10 lg:w-[46%]">
+                <div>
                   <span className={KICKER}>Powered by</span>
-                  <ul className="mt-6 flex flex-wrap items-center gap-x-8 gap-y-7 sm:flex-col sm:items-start">
-                    {TATA_POWERED_BY.map((p) =>
-                      p.src ? (
+                  {/* ⚠ EQUAL INK AREA, not equal height or equal box. See
+                      TATA_POWERED_BY: each logo's box is derived from its own
+                      measured ink so a wordmark and an emblem carry the same
+                      visual weight. `items-end` sits them all on one baseline
+                      whatever height that works out to. */}
+                  <ul className="mt-5 flex flex-wrap items-end gap-x-9 gap-y-6">
+                    {TATA_POWERED_BY.map((p) => {
+                      if (!p.src) {
+                        return (
+                          <li key={p.name} className="max-w-[8.5rem] leading-tight">
+                            <span className="tata-subhead text-[0.72rem] text-neutral-700">{p.name}</span>
+                          </li>
+                        );
+                      }
+                      const ink = p.ink ?? { aspect: 3, fillH: 1, box: 3 };
+                      const inkH = Math.sqrt(POWERED_INK_AREA / ink.aspect);
+                      // The file's padding, undone: the BOX has to be taller
+                      // than the ink by however much white the export carries —
+                      // and as wide as the FILE, or `object-contain` fits the
+                      // image to a box the wrong shape and shrinks it again.
+                      const boxH = inkH / ink.fillH;
+                      // ⚠ …and then the box is pulled DOWN by the padding under
+                      // the ink, so what lines up along the row is the ink's own
+                      // baseline rather than the edge of four differently padded
+                      // canvases. All four pad symmetrically (measured), so half
+                      // the slack is under the mark.
+                      const padBottom = (boxH * (1 - ink.fillH)) / 2;
+                      return (
                         <li key={p.name}>
-                          <Image
-                            src={p.src}
-                            alt={p.name}
-                            width={220}
-                            height={76}
-                            className="h-14 w-40 object-contain object-left"
-                          />
+                          <span
+                            className="relative block"
+                            style={{
+                              height: `${boxH}px`,
+                              width: `${boxH * ink.box}px`,
+                              marginBottom: `${-padBottom}px`,
+                            }}
+                          >
+                            <Image
+                              src={p.src}
+                              alt={p.name}
+                              fill
+                              sizes="220px"
+                              className="object-contain object-left-bottom"
+                            />
+                          </span>
                         </li>
-                      ) : (
-                        <li key={p.name} className="max-w-[8.5rem] leading-tight">
-                          <span className="tata-subhead text-[0.72rem] text-neutral-700">{p.name}</span>
-                        </li>
-                      ),
-                    )}
+                      );
+                    })}
                   </ul>
                 </div>
+
+                <p aria-hidden className={`${KICKER} flex items-center gap-3 pb-1`}>
+                  <span className="block h-7 w-px bg-neutral-300" />
+                  Scroll
+                </p>
               </div>
             </div>
           </header>
