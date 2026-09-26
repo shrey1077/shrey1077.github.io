@@ -576,7 +576,11 @@ export function TataExperience() {
               </div>
 
               {/* ── How it happened ── */}
-              <ol className="mt-12 grid grid-cols-1 gap-x-8 gap-y-7 sm:grid-cols-2 xl:grid-cols-4">
+              {/* Two columns, not four: the sequence lost half its steps on
+                  2026-09-27 and a four-column grid would have left two empty.
+                  The 42ch measure below is what keeps the lines readable at
+                  the width that leaves. */}
+              <ol className="mt-12 grid grid-cols-1 gap-x-8 gap-y-7 sm:grid-cols-2">
                 {TATA_LOGO_STORY.steps.map((step) => (
                   <li key={step.title} className="border-t border-neutral-300/70 pt-4">
                     <h3 className={`${KICKER} text-neutral-700`}>{step.title}</h3>

@@ -187,16 +187,11 @@ export const TATA_LOGO_STORY = {
     markAlt: "The current Tata IIS wordmark, set in Copperplate Gothic Bold.",
     caption: "Copperplate Gothic Bold — the Tata Trusts face.",
   },
-  /** The argument, in the order it happened. */
+  /** The argument, in the order it happened.
+   *  ⚠ It ran to four until 2026-09-27, when the owner cut "The handover" and
+   *  "The brief". The handover is still in the band's opening paragraph, so
+   *  nothing about the ownership change was lost with them. */
   steps: [
-    {
-      title: "The handover",
-      text: "Ownership passed to Tata Trusts, and the institute's wordmark no longer belonged to the family that now ran it.",
-    },
-    {
-      title: "The brief",
-      text: "Tata Trusts' management wanted what they already had: a text logo, no emblem, nothing to explain.",
-    },
     {
       title: "The proposal",
       text: "Rather than draw a new voice, adopt the parent's. I put Copperplate Gothic Bold — Tata Trusts' own face — to the institute's name.",
