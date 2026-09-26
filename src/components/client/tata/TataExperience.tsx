@@ -663,20 +663,14 @@ export function TataExperience() {
                 </h2>
               </div>
               {/* The owner's own account of the job — long, first-person and
-                  already written. It sits beside the photograph rather than
-                  under the headline because it runs three times a band's
-                  usual paragraph. */}
+                  already written. It sits beside the headline rather than under
+                  it because it runs three times a band's usual paragraph.
+                  ⚠ A photograph sat under it (the trainee at the machine) until
+                  2026-09-28. With the showcase below now carrying a large
+                  display of its own, the band had a picture and then another
+                  picture; the owner asked for it to go. */}
               <div className="min-w-0">
                 <p className="tata-body text-[0.9rem] leading-relaxed text-neutral-700">{TATA_WORK_INTRO}</p>
-                <span className="relative mt-8 block aspect-[16/9] w-full overflow-hidden rounded-sm">
-                  <Image
-                    src={TATA_WORK_BAND.photo}
-                    alt={TATA_WORK_BAND.photoAlt}
-                    fill
-                    sizes="(max-width: 1024px) 92vw, 46vw"
-                    className="object-cover"
-                  />
-                </span>
               </div>
             </div>
 

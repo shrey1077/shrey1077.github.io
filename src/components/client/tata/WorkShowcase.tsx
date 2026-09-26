@@ -32,6 +32,21 @@
  * ⚠ The panel covers are the owner's composites — decoration. The CENTRE is the
  * real work, read from the catalogue. See scripts/prepare-tata-showcase.mjs.
  *
+ * ⚠ THE VEIL IS GREY, NOT COLOURED, and the hovered panel has none at all —
+ * the owner's instruction, 2026-09-28. A resting panel is dimmed and drained
+ * of colour so the five read as one quiet set; the one holding the centre shows
+ * its cover at full strength, which is what says it is chosen. The campus tints
+ * that used to wash the panels are gone from this band (they still carry bands
+ * 01–03).
+ *
+ * ⚠ THE PREVIEW NEVER FILLS THE HEXAGON. Its four corners must sit inside the
+ * shape, so the artwork is drawn in a rounded rectangle INSCRIBED in it — the
+ * largest one of that image's own proportions, which is why it changes size
+ * from piece to piece. `inscribedBox` does the arithmetic; the hexagon's half
+ * width falls off at a known rate from its middle (29.9 − 0.269·d per the grid
+ * above), so the box's aspect and that fall-off solve for its height directly.
+ * The box sits slightly above centre to leave the caption its own air.
+ *
  * ⚠ PHONES GET A PLAIN GRID. Below `md` the five become ordinary rounded cards
  * under a rectangular display: at 380px the angles eat most of the artwork and
  * the side panels become slivers. The interaction is identical, and a tap does
@@ -63,7 +78,6 @@ export interface ShowcasePanelView {
   number: string;
   label: string;
   blurb: string;
-  tint: string;
   /** The panel's own cover art. */
   cover: string;
   images: ShowcaseImage[];
@@ -174,6 +188,34 @@ function roundedPath(points: Point[], w: number, h: number, radius: number): str
   return out.join(" ");
 }
 
+/** Where the preview's centre sits, as a percentage down the block. A little
+ *  above the middle, so the caption below it is not crowded. */
+const PREVIEW_Y = 46;
+/** The tallest a preview may be, as a percentage of half the block — keeps a
+ *  portrait plate from reaching the caption. */
+const PREVIEW_MAX_H = 37;
+
+/** The largest rectangle of `aspect` that fits inside the hexagon, centred on
+ *  PREVIEW_Y — as percentages of the block.
+ *
+ *  The hexagon's half-width shrinks by 0.269 per unit away from its middle (see
+ *  the measured grid above), so with half-height `h` the furthest corner sits
+ *  |PREVIEW_Y − 50| + h away and may be at most 29.9 − 0.269·that. Setting the
+ *  aspect's own half-width equal to it gives `h` in one step. */
+function inscribedBox(aspect: number, blockW: number, blockH: number) {
+  // Half-width in % of width, per unit of half-height in % of height.
+  const k = (aspect * blockH) / blockW;
+  const offset = Math.abs(PREVIEW_Y - 50);
+  const h = Math.min((29.9 - 0.269 * offset) / (k + 0.269), PREVIEW_MAX_H);
+  const w = k * h;
+  return {
+    left: (L_VERTEX + R_VERTEX) / 2 - w,
+    top: PREVIEW_Y - h,
+    width: 2 * w,
+    height: 2 * h,
+  };
+}
+
 /** A shape's bounding box, as percentages — where its cover and label sit. */
 function boxOf(points: Point[]) {
   const xs = points.map((p) => p[0]);
@@ -181,6 +223,72 @@ function boxOf(points: Point[]) {
   const left = Math.min(...xs);
   const top = Math.min(...ys);
   return { left, top, width: Math.max(...xs) - left, height: Math.max(...ys) - top };
+}
+
+/** One piece of artwork, in its own inscribed box.
+ *
+ * ⚠ AT MODULE SCOPE, and it must stay there. Declared inside WorkShowcase it is
+ * a new component type on every render, so React unmounts and remounts it each
+ * time the parent re-renders — which happens on every hover and every rotation
+ * tick. Its measured aspect would reset to the default each time and the
+ * dissolve would restart. (The lint rule that catches this elsewhere did not
+ * fire here; the remount is real either way.)
+ *
+ * ⚠ Each fading layer carries ITS OWN box rather than sharing one: the outgoing
+ * piece keeps the size it was drawn at while the incoming one arrives at its
+ * own, so nothing resizes mid-dissolve. The aspect is read off the file when it
+ * loads; until then it is drawn at 3:2, which is close enough that the settle
+ * is not a jump.
+ */
+function Plate({
+  image,
+  rounded,
+  block,
+  reduceMotion,
+}: {
+  image: ShowcaseImage;
+  /** True on the phone, where the display is a plain rectangle. */
+  rounded: boolean;
+  block: { w: number; h: number };
+  reduceMotion: boolean;
+}) {
+  const [aspect, setAspect] = useState(3 / 2);
+  const box = inscribedBox(aspect, block.w, block.h);
+  return (
+    <motion.div
+      className={`absolute overflow-hidden ${rounded ? "rounded-2xl" : "rounded-3xl"}`}
+      style={
+        rounded
+          ? { inset: "6%" }
+          : {
+              left: `${box.left}%`,
+              top: `${box.top}%`,
+              width: `${box.width}%`,
+              height: `${box.height}%`,
+            }
+      }
+      initial={reduceMotion ? false : { opacity: 0 }}
+      animate={{ opacity: 1 }}
+      exit={{ opacity: 0 }}
+      transition={{ duration: reduceMotion ? 0 : FADE / 1000 }}
+    >
+      <Image
+        src={image.src}
+        alt={image.alt}
+        fill
+        sizes="(max-width: 768px) 88vw, 40vw"
+        // The box is cut to the image's own proportions, so `cover` crops
+        // nothing — it just fills the rounded corners cleanly.
+        className="object-cover"
+        onLoad={(e) => {
+          const img = e.currentTarget;
+          if (img.naturalWidth && img.naturalHeight) {
+            setAspect(img.naturalWidth / img.naturalHeight);
+          }
+        }}
+      />
+    </motion.div>
+  );
 }
 
 export function WorkShowcase({
@@ -254,47 +362,25 @@ export function WorkShowcase({
     >
       <AnimatePresence initial={false}>
         {current && (
-          <motion.div
+          <Plate
             key={current.src}
-            className="absolute inset-0"
-            initial={reduceMotion ? false : { opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            transition={{ duration: reduceMotion ? 0 : FADE / 1000 }}
-          >
-            {/* ⚠ `fit` is per panel. Photographs fill the shape; a portrait
-                brochure page cropped to it is a band of unreadable columns, so
-                printed work is CONTAINED on the dark ground instead. */}
-            {/* ⚠ A contained plate is PADDED INTO THE SAFE AREA. The hexagon
-                takes its corners off, and `object-contain` fits the image to
-                the element's box, not to the visible shape — so a rulebook
-                plate lost the top of its own heading to the diagonal. The
-                padding keeps it inside the widest rectangle the shape allows,
-                with more at the foot to clear the caption. */}
-            <Image
-              src={current.src}
-              alt={current.alt}
-              fill
-              sizes="(max-width: 768px) 92vw, 46vw"
-              className={
-                current.fit === "contain"
-                  ? "object-contain px-[9%] pb-[18%] pt-[6%]"
-                  : "object-cover"
-              }
-            />
-          </motion.div>
+            image={current}
+            rounded={rounded}
+            block={size ?? { w: 1400, h: 560 }}
+            reduceMotion={!!reduceMotion}
+          />
         )}
       </AnimatePresence>
 
       {caption && (
-        <div className="pointer-events-none absolute inset-x-0 bottom-0 bg-gradient-to-t from-neutral-950/85 via-neutral-950/45 to-transparent px-[16%] pb-6 pt-16 text-center sm:pb-9">
-          <p className="tata-body text-[0.58rem] uppercase tracking-[0.22em] text-white/60">
+        <div className="pointer-events-none absolute inset-x-0 bottom-0 px-[18%] pb-5 pt-10 text-center sm:pb-7">
+          <p className="tata-body text-[0.58rem] uppercase tracking-[0.22em] text-white/55">
             {caption.number}
           </p>
-          <h3 className="tata-display mt-1 text-[clamp(1.1rem,1.8vw,1.6rem)] leading-tight text-white">
+          <h3 className="tata-display mt-1 text-[clamp(1.05rem,1.7vw,1.5rem)] leading-tight text-white">
             {caption.label}
           </h3>
-          <p className="tata-body mx-auto mt-1.5 max-w-md text-[0.78rem] leading-relaxed text-white/75">
+          <p className="tata-body mx-auto mt-1.5 max-w-md text-[0.76rem] leading-relaxed text-white/70">
             {caption.blurb}
           </p>
         </div>
@@ -340,18 +426,27 @@ export function WorkShowcase({
             alt=""
             fill
             sizes="(max-width: 768px) 50vw, 34vw"
-            className="object-cover transition-transform duration-700 group-hover:scale-[1.04]"
+            className="object-cover transition-[transform,filter] duration-700 group-hover:scale-[1.04]"
+            style={{ filter: isActive ? "none" : "grayscale(0.85)" }}
           />
         </span>
 
-        {/* The tint: what makes a cover read as a panel rather than as a
-            photograph, and what says which one holds the centre. */}
+        {/* The veil. Grey and translucent at rest, gone entirely on the panel
+            that holds the centre — see the note at the top. */}
         <span
           aria-hidden
-          className="absolute inset-0 transition-[background] duration-300"
+          className="absolute inset-0 transition-opacity duration-300"
           style={{
-            background: `linear-gradient(135deg, ${panel.tint}${isActive ? "40" : "8f"} 0%, ${panel.tint}${isActive ? "63" : "bf"} 100%)`,
+            background: "linear-gradient(135deg, #6b6b6b 0%, #3f3f3f 100%)",
+            opacity: isActive ? 0 : 0.72,
           }}
+        />
+
+        {/* A little dark at the foot so the label holds up over a cover at full
+            strength, where there is no veil to sit on. */}
+        <span
+          aria-hidden
+          className="absolute inset-x-0 bottom-0 h-2/5 bg-gradient-to-t from-neutral-950/55 to-transparent"
         />
 
         {/* Number and label, inside the box and clear of the diagonal. */}

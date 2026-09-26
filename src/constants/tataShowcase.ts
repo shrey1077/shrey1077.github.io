@@ -20,8 +20,10 @@
  * next build. Brand is the exception and uses the rulebook plates, which are
  * not catalogue folders.
  *
- * ⚠ The tints are the campuses' OWN hexes (TATA_GUIDELINES), not sampled from
- * the reference composition the owner sent, whose colours are arbitrary.
+ * ⚠ THE PANELS ARE NO LONGER TINTED. They wore the campus hexes until
+ * 2026-09-28, when the owner asked for a plain grey veil instead, and for the
+ * hovered panel to show its cover at full strength. The palette still carries
+ * bands 01–03; it just has no business washing five covers.
  *
  * ⚠ `cover` IS DECORATION, `folders` IS EVIDENCE, and the difference matters on
  * a client's page. The covers are composites the owner supplied on 2026-09-27 —
@@ -45,8 +47,6 @@ export interface ShowcasePanel {
   label: string;
   /** The line under the heading in the central box. */
   blurb: string;
-  /** Panel tint, from the campus palettes. */
-  tint: string;
   /** The panel's cover art — decoration, not the work. See the note above. */
   cover: string;
   /** How this panel's artwork sits in the central hexagon. Printed matter and
@@ -70,7 +70,6 @@ export const TATA_SHOWCASE: ShowcasePanel[] = [
     number: "01",
     label: "Brand",
     blurb: "The wordmark, its construction and the rules that keep it itself.",
-    tint: "#0d3857", // IISA blue
     cover: `${SHOWCASE}/brand.webp`,
     fit: "contain",
     folders: [],
@@ -81,7 +80,6 @@ export const TATA_SHOWCASE: ShowcasePanel[] = [
     number: "02",
     label: "Print",
     blurb: "Brochures, posters and certificates — ink on every surface the institute owns.",
-    tint: "#ed6f24", // IISA orange
     cover: `${SHOWCASE}/print.webp`,
     fit: "contain",
     folders: ["brochures", "campus-posters", "certificates"],
@@ -91,7 +89,6 @@ export const TATA_SHOWCASE: ShowcasePanel[] = [
     number: "03",
     label: "Digital",
     blurb: "Mockups, socials and screens: the brand as it meets people online.",
-    tint: "#00a2b4", // IISM teal
     cover: `${SHOWCASE}/digital.webp`,
     fit: "cover",
     folders: ["mockups", "socials-and-screens"],
@@ -101,7 +98,6 @@ export const TATA_SHOWCASE: ShowcasePanel[] = [
     number: "04",
     label: "Photography",
     blurb: "Campus, labs and trainees, shot on site. No stock, ever.",
-    tint: "#502f7d", // IISM violet
     cover: `${SHOWCASE}/photography.webp`,
     fit: "cover",
     folders: ["photography"],
@@ -111,7 +107,6 @@ export const TATA_SHOWCASE: ShowcasePanel[] = [
     number: "05",
     label: "Video editing",
     blurb: "Films cut for launches, ceremonies and the feed.",
-    tint: "#504596", // IISM indigo
     cover: `${SHOWCASE}/video.webp`,
     fit: "cover",
     // ⚠ The Films folder holds an .mp4 and a matching .jpg for each film. The

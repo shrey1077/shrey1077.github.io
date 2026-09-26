@@ -28,7 +28,6 @@
 
 import { TATA_GUIDELINES } from "@/constants/tataExperience";
 
-const PHOTO = "/content/clients/tata-iis/catalogue/Photography";
 /** The two campus photographs the owner supplied on 2026-09-26 —
  *  `scripts/prepare-tata-campus.mjs` re-encodes them and keeps the originals. */
 const CAMPUS = "/content/clients/tata-iis/campus";
@@ -244,15 +243,17 @@ export const TATA_DNA_CARDS: {
   },
 ];
 
-export const TATA_WORK_BAND: TataBand & { photo: string; photoAlt: string } = {
+export const TATA_WORK_BAND: TataBand = {
   number: "04",
   kicker: "The work",
   headline: ["From identity", "to impact."],
   // The band's paragraph is TATA_WORK_INTRO (tataSections.ts) — the owner's own
   // account of the job, already written and already true. Nothing here.
   body: "",
-  photo: `${PHOTO}/shot-dsc-7893.webp`,
-  photoAlt: "A trainee at a machine in the campus workshop, in safety glasses.",
+  // ⚠ It carried a photograph (Photography/shot-dsc-7893) until 2026-09-28.
+  // The showcase under the band is a large display in its own right, so the
+  // band was showing a picture and then a picture; the owner dropped it. The
+  // file is untouched and still in its room.
 };
 
 export const TATA_COLLABORATE: TataBand = {
