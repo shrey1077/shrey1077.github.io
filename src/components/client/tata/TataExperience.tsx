@@ -345,45 +345,55 @@ export function TataExperience() {
                 </h1>
 
                 <span aria-hidden className="mt-7 block h-px w-9 bg-neutral-400" />
-
-                <p className="tata-body mt-6 max-w-xl text-[0.92rem] leading-relaxed text-neutral-700">
-                  {TATA_DESCRIPTION}
-                </p>
-
-                {/* What the page holds, named up front. These ARE the rooms, so
-                    the list cannot drift from what opens further down.
-                    ⚠ The separator TRAILS its item rather than leading the next
-                    one: leading it puts a stray "/" at the start of any line the
-                    list wraps onto. */}
-                <ul className="mt-9 flex flex-wrap items-center gap-x-2 gap-y-2">
-                  {TATA_PINS.map((pin, i) => (
-                    <li key={pin.id} className={KICKER}>
-                      {pin.label}
-                      {i < TATA_PINS.length - 1 && (
-                        <span aria-hidden className="ml-2 text-neutral-300">
-                          /
-                        </span>
-                      )}
-                    </li>
-                  ))}
-                </ul>
-
-                {/* The phone's copy of the artwork, in flow. Hidden from the
-                    moment the bleed layer above takes over. */}
-                <div className="relative mt-10 block aspect-[1071/1469] w-full lg:hidden">
-                  <Image
-                    src={TATA_HERO.art}
-                    alt={TATA_HERO.artAlt}
-                    fill
-                    sizes="92vw"
-                    className="object-contain"
-                  />
-                </div>
               </div>
 
               {/* ── The foot: who stands behind the institute, and the scroll
                   cue. Moved down here from beside the artwork on 2026-09-23. ── */}
-              <div className="relative mt-10 flex flex-wrap items-end justify-between gap-8 pb-10 lg:w-[46%]">
+              {/* ⚠ THE BODY COPY LIVES DOWN HERE (owner, 2026-09-27). It sat in
+                  the centred block with the wordmark and the headline, which
+                  left a gap of dead air between the room list and the
+                  endorsements; the copy now closes that gap from below and the
+                  headline keeps the middle of the stage to itself.
+                  On a phone this is all one column anyway, so the reading order
+                  is unchanged: wordmark, headline, copy, rooms, artwork,
+                  endorsements. */}
+              <div className="relative mt-auto pt-10 lg:w-[46%]">
+                  <p className="tata-body mt-6 max-w-xl text-[0.92rem] leading-relaxed text-neutral-700">
+                    {TATA_DESCRIPTION}
+                  </p>
+
+                  {/* What the page holds, named up front. These ARE the rooms, so
+                      the list cannot drift from what opens further down.
+                      ⚠ The separator TRAILS its item rather than leading the next
+                      one: leading it puts a stray "/" at the start of any line the
+                      list wraps onto. */}
+                  <ul className="mt-9 flex flex-wrap items-center gap-x-2 gap-y-2">
+                    {TATA_PINS.map((pin, i) => (
+                      <li key={pin.id} className={KICKER}>
+                        {pin.label}
+                        {i < TATA_PINS.length - 1 && (
+                          <span aria-hidden className="ml-2 text-neutral-300">
+                            /
+                          </span>
+                        )}
+                      </li>
+                    ))}
+                  </ul>
+
+                  {/* The phone's copy of the artwork, in flow. Hidden from the
+                      moment the bleed layer above takes over. */}
+                  <div className="relative mt-10 block aspect-[1071/1469] w-full lg:hidden">
+                    <Image
+                      src={TATA_HERO.art}
+                      alt={TATA_HERO.artAlt}
+                      fill
+                      sizes="92vw"
+                      className="object-contain"
+                    />
+                  </div>
+              </div>
+
+              <div className="relative mt-8 flex flex-wrap items-end justify-between gap-8 pb-10 lg:w-[46%]">
                 <div>
                   <span className={KICKER}>Powered by</span>
                   {/* ⚠ EQUAL INK AREA, not equal height or equal box. See
