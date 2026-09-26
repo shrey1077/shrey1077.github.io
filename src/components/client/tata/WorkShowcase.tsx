@@ -62,7 +62,9 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import Image from "next/image";
 import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
+import Link from "next/link";
 import { useInViewport } from "@/hooks/useInViewport";
+import { TATA_OPEN_ROOM } from "@/components/client/tata/TataRoomLink";
 
 export interface ShowcaseImage {
   src: string;
@@ -73,6 +75,22 @@ export interface ShowcaseImage {
   fit: "cover" | "contain";
 }
 
+/** One subsection card under the composition. Exactly one of `href` and
+ *  `room` says where it goes; a card with neither is work still to come. */
+export interface ShowcaseSubsection {
+  key: string;
+  label: string;
+  thumb?: string;
+  /** `cover` for real work, `contain` for a cutout or a whole plate. */
+  thumbFit: "cover" | "contain";
+  /** The small caps line — "24 pieces", "12 plates", "No plates yet". */
+  meta: string;
+  /** The subsection's own catalogue page. */
+  href?: string;
+  /** …or a room on this page, opened through the board. */
+  room?: string;
+}
+
 export interface ShowcasePanelView {
   id: string;
   number: string;
@@ -81,6 +99,8 @@ export interface ShowcasePanelView {
   /** The panel's own cover art. */
   cover: string;
   images: ShowcaseImage[];
+  /** Laid out under the composition when this panel is clicked. */
+  subsections: ShowcaseSubsection[];
 }
 
 /** ms each piece of artwork holds in the centre. */
@@ -291,6 +311,77 @@ function Plate({
   );
 }
 
+/** One subsection, in the same card the six rooms below use — number, title,
+ *  a plate, a line of small caps and the arrow — so the two rows read as one
+ *  system. At module scope for the same reason as Plate. */
+function SubsectionCard({ sub, number }: { sub: ShowcaseSubsection; number: string }) {
+  const body = (
+    <>
+      <span className="flex items-baseline gap-2">
+        <span className="tata-display text-[1.6rem] leading-none text-neutral-300">{number}</span>
+        <span className="tata-display text-[1.05rem] leading-tight text-neutral-900">{sub.label}</span>
+      </span>
+
+      <span className="relative grid aspect-[4/3] w-full place-items-center overflow-hidden rounded-sm bg-neutral-100">
+        {sub.thumb ? (
+          <Image
+            src={sub.thumb}
+            alt=""
+            fill
+            sizes="(max-width: 640px) 45vw, (max-width: 1024px) 30vw, 18vw"
+            className={`transition-transform duration-500 group-hover:scale-[1.03] ${
+              sub.thumbFit === "contain" ? "object-contain p-3" : "object-cover"
+            }`}
+          />
+        ) : (
+          <span className="tata-body px-2 text-center text-[0.52rem] uppercase tracking-[0.16em] text-neutral-400">
+            No plates yet
+          </span>
+        )}
+      </span>
+
+      <span className="tata-body block text-[0.58rem] uppercase leading-[1.7] tracking-[0.12em] text-neutral-500">
+        {sub.meta}
+      </span>
+
+      {(sub.href || sub.room) && (
+        <span
+          aria-hidden
+          className="mt-auto grid size-7 shrink-0 place-items-center rounded-full border border-neutral-300 text-neutral-700 transition-colors duration-300 group-hover:border-neutral-900"
+        >
+          <span className="block text-[0.7rem] leading-none transition-transform duration-300 group-hover:translate-x-0.5">
+            →
+          </span>
+        </span>
+      )}
+    </>
+  );
+
+  const shell =
+    "group flex h-full w-full flex-col gap-3 rounded-sm border border-neutral-200 bg-white/80 p-3 text-left outline-none backdrop-blur-[2px] transition-colors duration-300 focus-visible:ring-2 focus-visible:ring-neutral-900/40 sm:p-4";
+
+  if (sub.href) {
+    return (
+      <Link href={sub.href} className={`${shell} hover:border-neutral-400`}>
+        {body}
+      </Link>
+    );
+  }
+  if (sub.room) {
+    return (
+      <button
+        type="button"
+        onClick={() => window.dispatchEvent(new CustomEvent(TATA_OPEN_ROOM, { detail: sub.room }))}
+        className={`${shell} hover:border-neutral-400`}
+      >
+        {body}
+      </button>
+    );
+  }
+  // Work still to come: the card keeps its place in the grid, and says so.
+  return <div className={`${shell} opacity-70`}>{body}</div>;
+}
+
 export function WorkShowcase({
   panels,
   gridLines,
@@ -329,6 +420,7 @@ export function WorkShowcase({
 
   const activeId = hovered ?? pinned;
   const active = panels.find((p) => p.id === activeId) ?? null;
+  const pinnedPanel = panels.find((p) => p.id === pinned) ?? null;
 
   const pool = useMemo(
     () => (active ? active.images : panels.flatMap((p) => p.images)),
@@ -528,6 +620,64 @@ export function WorkShowcase({
           </svg>
         )}
       </div>
+
+      {/* ── The chosen panel's subsections ──
+          ⚠ DRIVEN BY THE PIN, NOT THE HOVER. Hovering previews a panel in the
+          centre; clicking one commits to it, and only then does its grid lay
+          itself out below — otherwise every pass of the pointer across the
+          band would rebuild a row of sixteen cards under the reader.
+          ⚠ FIVE ACROSS AT MOST (the owner's limit), and each card rises into
+          place as it scrolls into view, staggered by its COLUMN so every row
+          cascades left to right as it arrives rather than all sixteen timing
+          off the first. */}
+      <AnimatePresence mode="wait">
+        {pinnedPanel && pinnedPanel.subsections.length > 0 && (
+          <motion.div
+            key={pinnedPanel.id}
+            data-showcase-subsections={pinnedPanel.id}
+            initial={reduceMotion ? false : { opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: reduceMotion ? 0 : 0.3 }}
+            className="mx-auto mt-10 w-full max-w-7xl px-4 sm:px-8"
+          >
+            <div className="mb-5 flex flex-wrap items-baseline justify-between gap-3">
+              {/* ⚠ The separators are TEXT, not margin: a margin between inline
+                  spans vanishes from the accessible name and from any copy of
+                  the line, which is how it first read "PRINT16". */}
+              <p className="tata-body text-[0.6rem] uppercase tracking-[0.2em] text-neutral-500">
+                {pinnedPanel.number} · {pinnedPanel.label}
+                <span className="text-neutral-400">
+                  {" · "}
+                  {pinnedPanel.subsections.length}{" "}
+                  {pinnedPanel.subsections.length === 1 ? "subsection" : "subsections"}
+                </span>
+              </p>
+              <button
+                type="button"
+                onClick={() => setPinned(null)}
+                className="tata-body text-[0.6rem] uppercase tracking-[0.2em] text-neutral-500 underline-offset-4 outline-none transition-colors hover:text-neutral-900 hover:underline focus-visible:ring-2 focus-visible:ring-neutral-900/40"
+              >
+                Close ✕
+              </button>
+            </div>
+
+            <ul className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-5">
+              {pinnedPanel.subsections.map((sub, i) => (
+                <motion.li
+                  key={sub.key}
+                  initial={reduceMotion ? false : { opacity: 0, y: 28 }}
+                  whileInView={{ opacity: 1, y: 0 }}
+                  viewport={{ once: true, margin: "-40px" }}
+                  transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1], delay: (i % 5) * 0.07 }}
+                >
+                  <SubsectionCard sub={sub} number={String(i + 1).padStart(2, "0")} />
+                </motion.li>
+              ))}
+            </ul>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </div>
   );
 }

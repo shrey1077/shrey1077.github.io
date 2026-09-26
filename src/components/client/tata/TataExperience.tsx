@@ -61,7 +61,11 @@ import { TATA_PINS } from "@/constants/tataPins";
 import { TataRoomLink } from "@/components/client/tata/TataRoomLink";
 import { CampusTheme } from "@/components/client/tata/CampusTheme";
 import { BrandBook } from "@/components/client/tata/BrandBook";
-import { WorkShowcase, type ShowcasePanelView } from "@/components/client/tata/WorkShowcase";
+import {
+  WorkShowcase,
+  type ShowcasePanelView,
+  type ShowcaseSubsection,
+} from "@/components/client/tata/WorkShowcase";
 import { SHOWCASE_PER_PANEL, TATA_SHOWCASE, TATA_SHOWCASE_GRID } from "@/constants/tataShowcase";
 import { SITE } from "@/constants/site";
 import { TATA_THEMES, THEME_SLIDER_MAX } from "@/constants/tataThemes";
@@ -217,6 +221,71 @@ export function TataExperience() {
     return { ...s, themes: themePool(pool) };
   });
 
+  /* ── Each showcase panel's subsections ──────────────────────────────────
+     Clicking a panel lays its subsections out under the composition (owner,
+     2026-09-27, from Print). ⚠ THEY ARE THE SITE'S OWN SUBSECTIONS, not the raw
+     archive's folders: the Print room already carries the processed catalogue
+     folders the archive's `Print/` subfolders became, so the cards and the room
+     cannot disagree, and every card with work in it has a catalogue page to
+     link to. The archive and the site differ slightly, on purpose — Stickers
+     and Notepad are one subsection here, and Trifolds and Backgrounds join
+     Print from elsewhere in the archive. See TATA_SECTIONS.
+
+     ⚠ Paired with `sections` BY INDEX: both are TATA_SECTIONS mapped in order,
+     and only the raw item knows its folder id while only the resolved one
+     knows its count and assets. */
+  const subsectionsOf = (
+    sectionId: string,
+    keep: (label: string) => boolean = () => true,
+  ): ShowcaseSubsection[] => {
+    const raw = TATA_SECTIONS.find((sec) => sec.id === sectionId);
+    const resolved = sections.find((sec) => sec.id === sectionId);
+    if (!raw || !resolved) return [];
+    return raw.items
+      .map((item, i) => ({ item, res: resolved.items[i] }))
+      .filter(({ item }) => keep(item.label))
+      .map(({ item, res }) => {
+        const image = res.assets.find((a) => a.kind === "image");
+        return {
+          key: res.key,
+          label: item.label,
+          // The work itself when there is any; the product cutout otherwise.
+          thumb: image?.url ?? res.mockup,
+          thumbFit: image ? "cover" : "contain",
+          meta: res.count > 0 ? `${res.count} ${res.count === 1 ? "piece" : "pieces"}` : "No plates yet",
+          href: item.folder && res.count > 0 ? `/clients/${SLUG}/catalogue/${item.folder}` : undefined,
+        } satisfies ShowcaseSubsection;
+      });
+  };
+
+  /** Brand has no work folders — its subsections are the three rulebooks, and
+   *  they open in the Brand Guidelines room rather than on a page of their own. */
+  const rulebooks: ShowcaseSubsection[] = [
+    { label: "Tata IIS", thumb: TATA_GUIDELINES.tataPlates[0], plates: TATA_GUIDELINES.tataPlates.length },
+    { label: "IIS Ahmedabad", thumb: TATA_GUIDELINES.iisa.plates[0], plates: TATA_GUIDELINES.iisa.plates.length },
+    { label: "IIS Mumbai", thumb: TATA_GUIDELINES.iism.plates[0], plates: TATA_GUIDELINES.iism.plates.length },
+  ].map((book) => ({
+    key: `brand:${book.label}`,
+    label: book.label,
+    thumb: book.thumb,
+    thumbFit: "contain" as const,
+    meta: `${book.plates} plates`,
+    room: "brand-guidelines",
+  }));
+
+  const SUBSECTIONS: Record<string, ShowcaseSubsection[]> = {
+    brand: rulebooks,
+    print: subsectionsOf("print"),
+    digital: subsectionsOf("digital"),
+    photography: subsectionsOf("photo-videography", (label) => /photo/i.test(label)),
+    // The films live under two rooms — Videography and Digital's YouTube cut —
+    // and both are editing work, so both belong to this panel.
+    video: [
+      ...subsectionsOf("photo-videography", (label) => /video/i.test(label)),
+      ...subsectionsOf("digital", (label) => /video/i.test(label)),
+    ],
+  };
+
   /* The five showcase panels, filled from the catalogue the page already
      reads. ⚠ A panel with nothing behind it is DROPPED rather than rendered
      empty — the composition is five shapes that interlock, and a blank one
@@ -241,7 +310,7 @@ export function TataExperience() {
         fit: panel.fit,
       })),
     ].slice(0, SHOWCASE_PER_PANEL);
-    return { ...panel, images };
+    return { ...panel, images, subsections: SUBSECTIONS[panel.id] ?? [] };
   }).filter((panel) => panel.images.length > 0);
 
   return (
