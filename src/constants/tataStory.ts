@@ -32,9 +32,6 @@ import { TATA_GUIDELINES } from "@/constants/tataExperience";
  *  `scripts/prepare-tata-campus.mjs` re-encodes them and keeps the originals. */
 const CAMPUS = "/content/clients/tata-iis/campus";
 const BRAND = "/content/clients/tata-iis/brand";
-/** Card-sized crops of the rulebook plates — `scripts/prepare-tata-dna.mjs`
- *  cuts them and says which page each one came out of. */
-const DNA = "/content/clients/tata-iis/brand/dna";
 
 /** The hero: the wordmark, the pitch, and the owner's supplied artwork. */
 export const TATA_HERO = {
@@ -232,12 +229,29 @@ export const TATA_LOCKUP = {
   ],
 } as const;
 
+/** 02's rulebook, as a book.
+ *
+ * ⚠ IT REPLACED FIVE CARDS on 2026-09-27. The band used to show cropped
+ * fragments of the plates — grid, geometry, colour, typography, usage — each
+ * with three keywords under it. The owner asked for a closed brand book
+ * instead, opening into the plates themselves. `TATA_DNA_CARDS`,
+ * `scripts/prepare-tata-dna.mjs` and the four crops it made went with them;
+ * git has all of it if the cards are ever wanted back.
+ *
+ * ⚠ ALL TWELVE PLATES, in the rulebook's own order. Opening a brand book
+ * should show the brand book, not a selection from it. */
+export const TATA_BRAND_BOOK = {
+  wordmark: TATA_GUIDELINES.wordmark,
+  title: "Brand Guidelines",
+  plates: TATA_GUIDELINES.tataPlates,
+};
+
 /** 02's second movement. It was band 03 until 2026-09-28, when the owner asked
  *  for the whole identity story to live in one section. */
 export const TATA_DNA = {
   kicker: "What the rulebook fixes",
   body:
-    "The rest is law, so the mark holds at any size: built on a grid at that 4:1 ratio, the full name aligned under the initials, a 2x exclusion zone it never gives up, two licensed faces, and a colour that survives print, screen and a fifteen-foot ceremony backdrop.",
+    "The rest is law, so the mark holds at any size: built on a grid at that 4:1 ratio, the full name aligned under the initials, a 2x exclusion zone it never gives up, two licensed faces, and a colour that survives print, screen and a fifteen-foot ceremony backdrop. The book is here — open it.",
 };
 
 /** 02's third movement — the parent mark and its two campuses. */
@@ -247,55 +261,6 @@ export const TATA_IDENTITIES = {
     "Two campuses opened under that mark, and each needed a voice of its own without breaking from it. All three rulebooks share the same construction, exclusion zone and behaviour, and part company only on colour and geometry.",
 };
 
-/** The five cards under 03.
- *
- * ⚠ THE FIFTH CARD IS NOT THE COMP'S. The comp's last card is "Iconography"
- * with four drawn icons; the Tata IIS rulebooks contain no icon set, and
- * drawing one to fill the slot would put a system on the page that the client
- * does not have. Usage — the precautions plate, which the rulebooks DO carry —
- * takes its place.
- *
- * `swatches` is for the colour card, which paints its own evidence rather than
- * showing a plate; the hexes are the campus rulebooks', not sampled.
- *
- * ⚠ The plates are CROPS, not the pages. A full rulebook page in a 200px card
- * is a grey smudge — `scripts/prepare-tata-dna.mjs` cuts each one down to the
- * diagram and records where from. Run it if the rulebook is re-exported. */
-export const TATA_DNA_CARDS: {
-  title: string;
-  words: string[];
-  plate?: string;
-  swatches?: { hex: string; name: string }[];
-}[] = [
-  {
-    title: "Grid",
-    words: ["Structure", "Clarity", "Scalability"],
-    plate: `${DNA}/grid.webp`, // cut from plate-03 — construction, with measures
-  },
-  {
-    title: "Geometry",
-    words: ["Unity", "Identity", "Flexibility"],
-    plate: `${DNA}/geometry.webp`, // cut from plate-08 — the alternate T shapes
-  },
-  {
-    title: "Colour",
-    words: ["Trust", "Energy", "Aspiration"],
-    swatches: [
-      ...TATA_GUIDELINES.iisa.colours,
-      ...TATA_GUIDELINES.iism.colours,
-    ],
-  },
-  {
-    title: "Typography",
-    words: ["Modern", "Clean", "Authoritative"],
-    plate: `${DNA}/typography.webp`, // cut from plate-10 — Copperplate + Helvetica
-  },
-  {
-    title: "Usage",
-    words: ["Consistency", "Protection", "Discipline"],
-    plate: `${DNA}/usage.webp`, // cut from plate-11 — precautions
-  },
-];
 
 export const TATA_WORK_BAND: TataBand = {
   // ⚠ 04 until 2026-09-28. Brand DNA folded into 02, so everything after it

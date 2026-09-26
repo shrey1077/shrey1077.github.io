@@ -45,8 +45,8 @@ import {
 import { brandOf, TATA_SECTIONS, TATA_WORK_INTRO } from "@/constants/tataSections";
 import {
   TATA_COLLABORATE,
+  TATA_BRAND_BOOK,
   TATA_DNA,
-  TATA_DNA_CARDS,
   TATA_HERO,
   TATA_CAMPUS_PROFILES,
   TATA_IDENTITIES,
@@ -60,6 +60,7 @@ import {
 import { TATA_PINS } from "@/constants/tataPins";
 import { TataRoomLink } from "@/components/client/tata/TataRoomLink";
 import { CampusTheme } from "@/components/client/tata/CampusTheme";
+import { BrandBook } from "@/components/client/tata/BrandBook";
 import { WorkShowcase, type ShowcasePanelView } from "@/components/client/tata/WorkShowcase";
 import { SHOWCASE_PER_PANEL, TATA_SHOWCASE, TATA_SHOWCASE_GRID } from "@/constants/tataShowcase";
 import { SITE } from "@/constants/site";
@@ -615,47 +616,14 @@ export function TataExperience() {
                   </div>
                 </div>
 
-                <ul className="grid grid-cols-2 gap-2 sm:grid-cols-3 xl:grid-cols-5">
-                  {TATA_DNA_CARDS.map((card) => (
-                    <li key={card.title} className="flex flex-col gap-3 rounded-sm border border-neutral-200 bg-white/80 p-3">
-                      <span className={KICKER}>{card.title}</span>
-
-                      {card.swatches ? (
-                        // The colour card paints itself from the rulebooks'
-                        // hexes — a screenshot of colour would be colour at
-                        // second hand.
-                        <span className="flex aspect-[16/10] flex-wrap content-center items-center gap-2">
-                          {card.swatches.map((c) => (
-                            <span
-                              key={c.hex}
-                              title={`${c.name} ${c.hex}`}
-                              className="block size-7 rounded-full"
-                              style={{ backgroundColor: c.hex }}
-                            />
-                          ))}
-                        </span>
-                      ) : (
-                        <span className="relative block aspect-[16/10] w-full overflow-hidden bg-white">
-                          <Image
-                            src={card.plate!}
-                            alt=""
-                            fill
-                            sizes="(max-width: 640px) 45vw, 18vw"
-                            className="object-contain"
-                          />
-                        </span>
-                      )}
-
-                      <span className="tata-body mt-auto block text-[0.55rem] uppercase leading-[1.9] tracking-[0.14em] text-neutral-500">
-                        {card.words.map((w) => (
-                          <span key={w} className="block">
-                            {w}
-                          </span>
-                        ))}
-                      </span>
-                    </li>
-                  ))}
-                </ul>
+                {/* The rulebook itself, closed. Clicking it plays the plates
+                    — see BrandBook. It stands at twice the height of the five
+                    cards it replaced (186px each, measured). */}
+                <BrandBook
+                  wordmark={TATA_BRAND_BOOK.wordmark}
+                  title={TATA_BRAND_BOOK.title}
+                  plates={TATA_BRAND_BOOK.plates}
+                />
               </div>
             </div>
 
