@@ -58,6 +58,8 @@ import {
 import { TATA_PINS } from "@/constants/tataPins";
 import { TataRoomLink } from "@/components/client/tata/TataRoomLink";
 import { CampusTheme } from "@/components/client/tata/CampusTheme";
+import { WorkShowcase, type ShowcasePanelView } from "@/components/client/tata/WorkShowcase";
+import { SHOWCASE_PER_PANEL, TATA_SHOWCASE } from "@/constants/tataShowcase";
 import { SITE } from "@/constants/site";
 import { TATA_THEMES, THEME_SLIDER_MAX } from "@/constants/tataThemes";
 import type { GuidelineBrand } from "@/components/client/tata/GuidelineSlider";
@@ -211,6 +213,33 @@ export function TataExperience() {
     const pool = s.id === "digital" ? digitalMockups : s.items.flatMap((i) => i.assets);
     return { ...s, themes: themePool(pool) };
   });
+
+  /* The five showcase panels, filled from the catalogue the page already
+     reads. ⚠ A panel with nothing behind it is DROPPED rather than rendered
+     empty — the composition is five shapes that interlock, and a blank one
+     would be a hole in it. */
+  const showcase: ShowcasePanelView[] = TATA_SHOWCASE.map((panel) => {
+    const fromFolders = panel.folders.flatMap((folder) =>
+      (readCatalogueCategory(SLUG, folder)?.assets ?? [])
+        .filter((a) => a.kind === "image")
+        .slice(0, SHOWCASE_PER_PANEL),
+    );
+    const images = [
+      ...(panel.plates ?? []).map((src) => ({
+        src,
+        alt: `${panel.label} — Tata IIS`,
+        panel: panel.id,
+        fit: panel.fit,
+      })),
+      ...fromFolders.map((a) => ({
+        src: a.url,
+        alt: a.caption ?? `${panel.label} — Tata IIS`,
+        panel: panel.id,
+        fit: panel.fit,
+      })),
+    ].slice(0, SHOWCASE_PER_PANEL);
+    return { ...panel, images };
+  }).filter((panel) => panel.images.length > 0);
 
   return (
     <main className="tata-scope tata-body relative min-h-dvh w-full bg-gallery" style={themeVars}>
@@ -649,6 +678,14 @@ export function TataExperience() {
                   />
                 </span>
               </div>
+            </div>
+
+            {/* ⚠ OUTSIDE THE SHELL, deliberately: the owner asked for the
+                composition to run the full width of the screen under the
+                description. Only a hair of padding, so the diagonals reach the
+                edges without touching them. */}
+            <div className="mt-12 w-full px-2 sm:px-3 lg:mt-16">
+              <WorkShowcase panels={showcase} />
             </div>
 
             <div className={`${SHELL} pb-16 pt-12 lg:pb-20`}>
