@@ -102,9 +102,23 @@ export const TATA_CAMPUS_PROFILES = [
     label: "IIS Ahmedabad",
     logo: TATA_GUIDELINES.iisa.logo,
     ink: { aspect: 1.35, fillH: 1, box: 800 / 593 },
-    photo: `${CAMPUS}/iisa-lab-1.webp`,
-    photoAlt:
-      "Lab 1 at the IIS Ahmedabad campus, with the institute's standee at the foot of the steps.",
+    /** ⚠ ORDER IS THE POINT — frontage, lab entrance, workshop floor: outside
+     *  in. Band 01 plays them in this order, three seconds each, after the
+     *  campus film. */
+    photos: [
+      {
+        src: `${CAMPUS}/iisa-frontage.webp`,
+        alt: "The IIS Ahmedabad building, its name lettered across the upper facade.",
+      },
+      {
+        src: `${CAMPUS}/iisa-lab-1.webp`,
+        alt: "Lab 1 at the IIS Ahmedabad campus, with the institute's standee at the foot of the steps.",
+      },
+      {
+        src: `${CAMPUS}/iisa-workshop.webp`,
+        alt: "The workshop floor at IIS Ahmedabad, seen from the gantry: vehicle bays, benches and trainees at work.",
+      },
+    ],
     /** ⚠ THE CAMPUS'S OWN LOGO STING, and only Ahmedabad has one. It plays,
      *  the photograph holds for five seconds, and it plays again — the owner's
      *  ask, 2026-09-26. `scripts/prepare-tata-theme.mjs` makes this web copy
@@ -118,8 +132,14 @@ export const TATA_CAMPUS_PROFILES = [
     label: "IIS Mumbai",
     logo: TATA_GUIDELINES.iism.logo,
     ink: { aspect: 2.98, fillH: 0.32, box: 1 },
-    photo: `${CAMPUS}/iism-facade.webp`,
-    photoAlt: "The glazed frontage of the IIS Mumbai campus at Chunabhatti.",
+    /** One, for now: the owner said to wait for Mumbai's set. The column runs
+     *  the same cycle with a single stop until they arrive. */
+    photos: [
+      {
+        src: `${CAMPUS}/iism-facade.webp`,
+        alt: "The glazed frontage of the IIS Mumbai campus at Chunabhatti.",
+      },
+    ],
     /** Mumbai's own sting — the teal counterpart to Ahmedabad's orange. Same
      *  length, same structure, each ending on its campus URL. */
     film: `${CAMPUS}/iism-theme.mp4`,

@@ -30,8 +30,14 @@ const ORIG = path.join(DIR, "_orig");
  *  a 2× display without carrying a full camera frame around. */
 const WIDTH = 1400;
 
+/** ⚠ AHMEDABAD HAS THREE, AND THE ORDER IS THE POINT: the frontage, then the
+ *  lab entrance, then the workshop floor — outside in. Band 01 plays them in
+ *  this order after the campus film. Mumbai still has one; the owner said to
+ *  wait for its set. */
 const PHOTOS = [
+  { from: "iisa-frontage.jpg", to: "iisa-frontage.webp" },
   { from: "iisa-lab-1.jpg", to: "iisa-lab-1.webp" },
+  { from: "iisa-workshop.jpg", to: "iisa-workshop.webp" },
   { from: "iism-facade.webp", to: "iism-facade.webp" },
 ];
 

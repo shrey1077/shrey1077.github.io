@@ -439,27 +439,15 @@ export function TataExperience() {
             <div className={`${SHELL} grid grid-cols-1 gap-10 pb-14 md:grid-cols-2 md:gap-10 lg:pb-20 lg:pt-6`}>
               {TATA_CAMPUS_PROFILES.map((campus) => (
                 <article key={campus.label}>
-                  {/* Ahmedabad has a logo film and plays it on a loop over its
-                      photograph; Mumbai has no such file, so its column is the
-                      photograph alone. Same box either way. */}
-                  {campus.film ? (
-                    <CampusTheme
-                      film={campus.film}
-                      photo={campus.photo}
-                      photoAlt={campus.photoAlt}
-                      sizes="(max-width: 768px) 92vw, 45vw"
-                    />
-                  ) : (
-                    <span className="relative block aspect-[4/3] w-full overflow-hidden rounded-sm">
-                      <Image
-                        src={campus.photo}
-                        alt={campus.photoAlt}
-                        fill
-                        sizes="(max-width: 768px) 92vw, 45vw"
-                        className="object-cover"
-                      />
-                    </span>
-                  )}
+                  {/* Each column runs its own film, then its own photographs.
+                      Ahmedabad has three, Mumbai one — see
+                      TATA_CAMPUS_PROFILES. CampusTheme handles both, and the
+                      box is the same either way. */}
+                  <CampusTheme
+                    film={campus.film}
+                    photos={campus.photos}
+                    sizes="(max-width: 768px) 92vw, 45vw"
+                  />
 
                   {/* The campus mark, sized so the two cover the same ink —
                       see `inkBox`. The outer box is a fixed height for both;
