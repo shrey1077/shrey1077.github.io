@@ -85,6 +85,10 @@ export const TATA_WHO: TataBand = {
  * that reads better; they are the institute describing itself, and the numbers
  * in them are checkable facts about a real organisation.
  *
+ * ⚠ ONE CAMPUS HAS A FILM AND THE OTHER DOES NOT, which is a fact about the
+ * material rather than a decision: the archive carries an IIS Ahmedabad theme
+ * sting and no Mumbai equivalent. The column reads the same either way.
+ *
  * ⚠ `ink` is measured, and `inkBox` (tataExperience.ts) turns it into a box.
  * iism.png is an 800×800 canvas with its ink in the middle 32%; iisa.png fills
  * its frame. The two marks are also different SHAPES — Ahmedabad stacks its
@@ -99,6 +103,12 @@ export const TATA_CAMPUS_PROFILES = [
     photo: `${CAMPUS}/iisa-lab-1.webp`,
     photoAlt:
       "Lab 1 at the IIS Ahmedabad campus, with the institute's standee at the foot of the steps.",
+    /** ⚠ THE CAMPUS'S OWN LOGO STING, and only Ahmedabad has one. It plays,
+     *  the photograph holds for five seconds, and it plays again — the owner's
+     *  ask, 2026-09-26. `scripts/prepare-tata-theme.mjs` makes this web copy
+     *  from the archive master (6.4MB → 121KB, audio stripped). A campus with
+     *  no `film` simply shows its photograph; see CampusTheme. */
+    film: `${CAMPUS}/iisa-theme.mp4`,
     text:
       "The Indian Institute of Skills (IIS) Ahmedabad, established by Tata IIS (a Section 8 company set up by the Tata Group) in collaboration with the Ministry of Skill Development & Entrepreneurship (MSDE) and the Government of Gujarat (GoG), aims to empower India’s youth. Located on a 20-acre campus in Nasmed village, it features state-of-the-art infrastructure designed for job-oriented learning. With advanced labs and classrooms, IIS Ahmedabad is dedicated to equipping youth with the essential skills needed for professional success.",
   },

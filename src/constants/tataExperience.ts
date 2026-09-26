@@ -111,7 +111,17 @@ export const TATA_GUIDELINES = {
   iisa: {
     logo: `${BRAND}/iisa.png`,
     plates: Array.from({ length: 6 }, (_, i) => `${BRAND}/guidelines-iisa/plate-${String(i + 1).padStart(2, "0")}.webp`),
-    line: "A canopy of growth in navy and orange, rising from machined stems.",
+    // ⚠ THE CAMPUS'S OWN RATIONALE, condensed — not a description of how the
+    // mark looks. The owner supplied Ahmedabad's on 2026-09-26 ("inspired by
+    // the tree of knowledge… interspersed dots representing various skills…
+    // the bark represents individuals with different mindsets coming together
+    // with a common purpose of growth… one can subtly see the acronym IIS,
+    // which also represents students as figurines") and said the line that
+    // stood here before — an invented one about navy and orange stems — was
+    // wrong. Do not reword these into something that scans better: they are
+    // the institute explaining its own mark.
+    line:
+      "The tree of knowledge: dots through the canopy for the skills taught, a bark of individuals grown to one purpose, and the letters IIS standing in it as figures.",
     colours: [
       { hex: "#0d3857", name: "Blue" },
       { hex: "#ed6f24", name: "Orange" },
@@ -121,7 +131,15 @@ export const TATA_GUIDELINES = {
   iism: {
     logo: `${BRAND}/iism.png`,
     plates: Array.from({ length: 6 }, (_, i) => `${BRAND}/guidelines-iism/plate-${String(i + 1).padStart(2, "0")}.webp`),
-    line: "Teal and violet planes, angled like sheet metal in motion.",
+    // ⚠ Condensed from the Rationale plate in Mumbai's OWN rulebook
+    // (guidelines-iism/plate-02): "Two parallelograms with triangles,
+    // incrementally placed alongside an elevated 'S,' symbolize rising
+    // expertise and progression. The bold Poppins font… conveys modernity and
+    // structure… embodies stability, aspiration, and IIS Mumbai's
+    // forward-thinking vision." The line that stood here before was invented
+    // and, like Ahmedabad's, wrong.
+    line:
+      "Two parallelograms and triangles climbing an elevated S: rising expertise and progression, set in bold Poppins for stability and structure.",
     colours: [
       { hex: "#502f7d", name: "Violet" },
       { hex: "#00a2b4", name: "Teal" },

@@ -57,6 +57,7 @@ import {
 } from "@/constants/tataStory";
 import { TATA_PINS } from "@/constants/tataPins";
 import { TataRoomLink } from "@/components/client/tata/TataRoomLink";
+import { CampusTheme } from "@/components/client/tata/CampusTheme";
 import { SITE } from "@/constants/site";
 import { TATA_THEMES, THEME_SLIDER_MAX } from "@/constants/tataThemes";
 import type { GuidelineBrand } from "@/components/client/tata/GuidelineSlider";
@@ -438,15 +439,27 @@ export function TataExperience() {
             <div className={`${SHELL} grid grid-cols-1 gap-10 pb-14 md:grid-cols-2 md:gap-10 lg:pb-20 lg:pt-6`}>
               {TATA_CAMPUS_PROFILES.map((campus) => (
                 <article key={campus.label}>
-                  <span className="relative block aspect-[4/3] w-full overflow-hidden rounded-sm">
-                    <Image
-                      src={campus.photo}
-                      alt={campus.photoAlt}
-                      fill
+                  {/* Ahmedabad has a logo film and plays it on a loop over its
+                      photograph; Mumbai has no such file, so its column is the
+                      photograph alone. Same box either way. */}
+                  {campus.film ? (
+                    <CampusTheme
+                      film={campus.film}
+                      photo={campus.photo}
+                      photoAlt={campus.photoAlt}
                       sizes="(max-width: 768px) 92vw, 45vw"
-                      className="object-cover"
                     />
-                  </span>
+                  ) : (
+                    <span className="relative block aspect-[4/3] w-full overflow-hidden rounded-sm">
+                      <Image
+                        src={campus.photo}
+                        alt={campus.photoAlt}
+                        fill
+                        sizes="(max-width: 768px) 92vw, 45vw"
+                        className="object-cover"
+                      />
+                    </span>
+                  )}
 
                   {/* The campus mark, sized so the two cover the same ink —
                       see `inkBox`. The outer box is a fixed height for both;
