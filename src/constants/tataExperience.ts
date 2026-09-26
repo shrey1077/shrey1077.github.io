@@ -63,15 +63,17 @@ export const TATA_POWERED_BY: {
   },
 ];
 
-/** px². The ink area every endorsement is scaled to — a 57×57 square's worth.
+/** px². The ink area every endorsement is scaled to — a 44×44 square's worth.
  *  Height then falls out as √(AREA / aspect), so a long wordmark comes out
  *  short and wide and a tall emblem narrow and tall, both weighing the same.
  *  ⚠ A floor on the height was tried and removed the same day: at 26px the
  *  9.8:1 Tata Trusts wordmark ran 254px wide and dwarfed the other three, which
  *  is the very thing this is here to stop. Area, and nothing else. The four
- *  together come to ~490px, which is what keeps them on one line in the hero's
- *  column — raising this wraps them. */
-export const POWERED_INK_AREA = 3200;
+ *  together come to ~380px, which is what keeps them on one line in the hero's
+ *  column — raising this wraps them.
+ *  ⚠ 3200 until 2026-09-26, when the owner asked for the row to stay equal-area
+ *  but sit smaller under the enlarged wordmark. */
+export const POWERED_INK_AREA = 1900;
 
 /** The circuit-grid texture (`gridNEW`) — the page body wash and the whisper
  *  behind the IISA / IISM guideline columns. Source: user's `Grid-min.png`. */

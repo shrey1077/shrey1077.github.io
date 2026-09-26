@@ -40,6 +40,23 @@ import { typeVoiceClass } from "@/constants/typography";
 /** Fired when a section is chosen (or cleared); the panel follows it. */
 export const PIN_OPEN_EVENT = "brainpin:open";
 
+/** ⚠ ONE KNOB FOR BOTH COLUMNS. The owner asked on 2026-09-26 for the sections
+ *  and everything in them to come down 30%, both sides.
+ *
+ *  The two sides get there differently, and both are recorded here rather than
+ *  scattered through the file:
+ *   · the LOGIC side is DOM — a pill, an icon, a circle and a tagline, each with
+ *     its own size — so its row takes one transform rather than six re-typed
+ *     numbers that would then drift apart;
+ *   · the CREATIVE side is artwork, where ART_H is already the only size there
+ *     is and every other number in ART is a fraction of it.
+ *  LOGIC_ROW_HALF follows as well, or the artwork stops lining up with the row
+ *  opposite — see the note there.
+ *
+ *  ⚠ THE ROWS DO NOT MOVE. ROW_TOP and ROW_STEP are untouched, so the columns
+ *  keep their positions and simply sit lighter in the same span. */
+const PIN_SCALE = 0.7;
+
 const CIRCLE = 18;
 
 /** Cuts a paint disc down to a 2px ring, leaving the centre fully transparent
@@ -63,8 +80,12 @@ const ROW_STEP = 0.075;
  *  plus `py-1.5` twice is 1.82rem, and the 28px icon is shorter than that, so
  *  the pill sets the row. A logic row is placed by its TOP edge and an artwork
  *  row by its pill's CENTRE, so the artwork adds this to land on the same line.
+ *
+ *  ⚠ IT CARRIES PIN_SCALE. The logic row scales about its TOP-LEFT corner, so
+ *  its top edge stays on ROW_TOP while its centre rises to half its SCALED
+ *  height. Leave this at the unscaled 0.91rem and every artwork sits ~4px low.
  *  ⚠ Re-derive if the logic pill's type size or padding changes. */
-const LOGIC_ROW_HALF = "0.91rem";
+const LOGIC_ROW_HALF = `${0.91 * PIN_SCALE}rem`;
 
 /** Where each column sits. THINK and imagine are both high on the crown now, so
  *  both flanks are clear from 40% down. */
@@ -170,9 +191,10 @@ export const SECTION_ICONS: Partial<Record<NavSectionId, string>> = {
  * Re-measure if any file is replaced.
  */
 /** px. Was 96 (pill ≈ 33px, matching the DOM pills these replaced); the owner
- *  asked for 20% smaller, so 96 × 0.8. Every other number in ART is a FRACTION
- *  of the image, so they all follow this on their own. */
-const ART_H = 76.8;
+ *  asked for 20% smaller, so 96 × 0.8 — and 30% smaller again on 2026-09-26,
+ *  which is PIN_SCALE. Every other number in ART is a FRACTION of the image, so
+ *  they all follow this on their own. */
+const ART_H = 76.8 * PIN_SCALE;
 
 interface PinArt {
   src: string;
@@ -497,6 +519,14 @@ function PinRow({
         />
       )}
 
+      {/* ⚠ THE SCALE IS ONE TRANSFORM ON THE WHOLE ROW, not a size on each part
+          — see PIN_SCALE. Type, icon, circle, tagline and the gaps between them
+          all come down together, and there is one number to change if 30% turns
+          out to be 25%.
+          ⚠ ORIGIN TOP-LEFT, and LOGIC_ROW_HALF is derived from it: the row is
+          positioned by its top edge, so scaling about the centre would walk the
+          pill off its column and leave the artwork opposite misaligned. */}
+      <span className="block" style={{ transform: `scale(${PIN_SCALE})`, transformOrigin: "left top" }}>
       <button
         type="button"
         aria-expanded={open}
@@ -622,6 +652,7 @@ function PinRow({
         )}
         </span>
       </button>
+      </span>
     </motion.div>
   );
 }

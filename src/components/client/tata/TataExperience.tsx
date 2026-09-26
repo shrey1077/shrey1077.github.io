@@ -282,14 +282,19 @@ export function TataExperience() {
               <div className="flex flex-1 flex-col justify-center py-10 lg:w-[46%] lg:py-0">
                 <span className={KICKER}>{TATA_HERO.eyebrow.join("   /   ")}</span>
 
-                {/* The real wordmark file — never type set to look like it. */}
-                <span className="relative mt-6 block h-14 w-full max-w-[21rem] sm:h-[4.5rem]">
+                {/* The real wordmark file — never type set to look like it.
+                    ⚠ TWICE THE SIZE it was (owner, 2026-09-26): h-14/h-[4.5rem]
+                    became h-28/h-[9rem]. The file is 1020×257, so at 144px tall
+                    it wants 571px of width — `max-w-[36rem]` is just past that,
+                    which lets the height lead and keeps the mark off the
+                    artwork bleeding in from the right. */}
+                <span className="relative mt-6 block h-28 w-full max-w-[36rem] sm:h-[9rem]">
                   <Image
                     src={TATA_GUIDELINES.wordmark}
                     alt="TATA IIS — Tata Indian Institute of Skills"
                     fill
                     priority
-                    sizes="336px"
+                    sizes="576px"
                     className="object-contain object-left"
                   />
                 </span>
