@@ -214,7 +214,7 @@ export function TataExperience() {
 
   return (
     <main className="tata-scope tata-body relative min-h-dvh w-full bg-gallery" style={themeVars}>
-      {/* Circuit-grid wash (gridNEW) — a fixed whisper behind the whole page. */}
+      {/* Circuit-grid wash — a fixed whisper behind the whole page. */}
       <div aria-hidden className="pointer-events-none fixed inset-0 z-0">
         <Image src={TATA_GRID} alt="" fill priority sizes="100vw" className="object-cover opacity-70" />
       </div>

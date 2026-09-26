@@ -1,14 +1,21 @@
 /**
- * prepare-tata-theme — the IIS Ahmedabad logo sting, for band 01.
+ * prepare-tata-theme — the two campus logo stings, for band 01.
  *
- * The owner asked on 2026-09-26 for the Ahmedabad column to play the campus's
- * own theme film before showing its building, hold five seconds, and repeat.
- * This makes the web copy of that film.
+ * The owner asked on 2026-09-26 for each campus column to play its own theme
+ * film before showing its building, hold five seconds, and repeat. This makes
+ * the web copies.
  *
- * ⚠ THE SOURCE IS ALREADY IN `_source`, and is byte-identical to the file the
- * owner pointed at (`D:/IIS logos/IISA Theme/Color.mp4`, md5 7cf15ce5…). It was
- * copied in with the rest of the Tata archive, so nothing new had to be staged
- * and there is no second master to keep in step. See sources.mjs.
+ * ⚠ BOTH SOURCES ARE ALREADY IN `_source`, byte-identical to the files on the
+ * owner's drive — Ahmedabad's is the one he pointed at
+ * (`D:/IIS logos/IISA Theme/Color.mp4`, md5 7cf15ce5…), Mumbai's turned up
+ * under `All Logos/Color_1.mp4` (md5 b0a38631…) when he said there was one,
+ * filed by number rather than by campus. Both were copied in with the rest of
+ * the Tata archive, so nothing had to be staged and there is no second master
+ * to keep in step. See sources.mjs.
+ *
+ * ⚠ THE TWO ARE A PAIR, and neither name says so: same 4.83s, same 1920×1080,
+ * same structure, one on Ahmedabad's orange and one on Mumbai's teal, each
+ * ending on its own campus URL. If either is ever replaced, replace both.
  *
  * What the encode does, and why:
  *  · 1280 wide — the panel renders at ~580px, so this covers a 2× display and
@@ -29,37 +36,47 @@ import path from "node:path";
 import fs from "node:fs";
 import { ASSETS, ROOT } from "./sources.mjs";
 
-const SRC = path.join(ASSETS, "Clients/Tata IIS/Digital/Videos/Color.mp4");
-const OUT = path.join(ROOT, "public/content/clients/tata-iis/campus/iisa-theme.mp4");
+const FILMS = [
+  {
+    src: path.join(ASSETS, "Clients/Tata IIS/Digital/Videos/Color.mp4"),
+    out: "iisa-theme.mp4",
+  },
+  {
+    src: path.join(ASSETS, "Clients/Tata IIS/Logos and Guidelines/Tata Logos (2)/Color_1.mp4"),
+    out: "iism-theme.mp4",
+  },
+];
 
-if (!fs.existsSync(SRC)) {
-  console.error(`missing source: ${SRC}`);
-  process.exit(1);
+const DIR = path.join(ROOT, "public/content/clients/tata-iis/campus");
+fs.mkdirSync(DIR, { recursive: true });
+
+for (const film of FILMS) {
+  if (!fs.existsSync(film.src)) {
+    console.error(`missing source: ${film.src}`);
+    process.exit(1);
+  }
+  const out = path.join(DIR, film.out);
+  execFileSync(
+    "ffmpeg",
+    [
+      "-v", "error",
+      "-y",
+      "-i", film.src,
+      "-an",
+      "-vf", "scale=1280:-2",
+      "-c:v", "libx264",
+      "-profile:v", "high",
+      "-crf", "26",
+      "-preset", "slow",
+      "-pix_fmt", "yuv420p",
+      "-movflags", "+faststart",
+      out,
+    ],
+    { stdio: "inherit" },
+  );
+  const before = fs.statSync(film.src).size;
+  const after = fs.statSync(out).size;
+  console.log(
+    `${film.out.padEnd(16)} ${(before / 1024 / 1024).toFixed(1)} MB → ${(after / 1024).toFixed(0)} KB`,
+  );
 }
-
-fs.mkdirSync(path.dirname(OUT), { recursive: true });
-
-execFileSync(
-  "ffmpeg",
-  [
-    "-v", "error",
-    "-y",
-    "-i", SRC,
-    "-an",
-    "-vf", "scale=1280:-2",
-    "-c:v", "libx264",
-    "-profile:v", "high",
-    "-crf", "26",
-    "-preset", "slow",
-    "-pix_fmt", "yuv420p",
-    "-movflags", "+faststart",
-    OUT,
-  ],
-  { stdio: "inherit" },
-);
-
-const before = fs.statSync(SRC).size;
-const after = fs.statSync(OUT).size;
-console.log(
-  `iisa-theme.mp4  ${(before / 1024 / 1024).toFixed(1)} MB → ${(after / 1024).toFixed(0)} KB`,
-);

@@ -100,9 +100,16 @@ export function inkBox(ink: { aspect: number; fillH: number; box: number }, area
   return { height, width: height * ink.box, padBottom: (height * (1 - ink.fillH)) / 2 };
 }
 
-/** The circuit-grid texture (`gridNEW`) — the page body wash and the whisper
- *  behind the IISA / IISM guideline columns. Source: user's `Grid-min.png`. */
-export const TATA_GRID = `${BRAND}/gridNEW.webp`;
+/** The circuit-grid texture behind the whole page.
+ *
+ *  ⚠ REPLACED 2026-09-26 by a file the owner supplied — same circuitry, but
+ *  with a fine graph-paper grid across the full frame rather than only a
+ *  vignette. `gridNEW.webp` (the old one, from `Grid-min.png`) is left on disk
+ *  and is now referenced by nothing; delete it if the new wash sticks.
+ *  ⚠ It is the PAGE wash only. The guideline columns wear `texture-iisa` /
+ *  `texture-iism` instead (LogoSystem) — the note that used to claim this file
+ *  did both was wrong. */
+export const TATA_GRID = `${BRAND}/grid-2026.webp`;
 
 /** The logo-guideline system (dedicated sections above the work). */
 export const TATA_GUIDELINES = {

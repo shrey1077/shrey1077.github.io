@@ -85,9 +85,11 @@ export const TATA_WHO: TataBand = {
  * that reads better; they are the institute describing itself, and the numbers
  * in them are checkable facts about a real organisation.
  *
- * ⚠ ONE CAMPUS HAS A FILM AND THE OTHER DOES NOT, which is a fact about the
- * material rather than a decision: the archive carries an IIS Ahmedabad theme
- * sting and no Mumbai equivalent. The column reads the same either way.
+ * ⚠ BOTH CAMPUSES HAVE A FILM. Ahmedabad's was easy to find; Mumbai's was
+ * filed as `All Logos/Color_1.mp4` — by number, not by campus — and only
+ * turned up on 2026-09-26 when the owner said it existed. A column with no
+ * `film` still renders as the photograph alone (see CampusTheme), so the pair
+ * can lose one without breaking.
  *
  * ⚠ `ink` is measured, and `inkBox` (tataExperience.ts) turns it into a box.
  * iism.png is an 800×800 canvas with its ink in the middle 32%; iisa.png fills
@@ -118,6 +120,9 @@ export const TATA_CAMPUS_PROFILES = [
     ink: { aspect: 2.98, fillH: 0.32, box: 1 },
     photo: `${CAMPUS}/iism-facade.webp`,
     photoAlt: "The glazed frontage of the IIS Mumbai campus at Chunabhatti.",
+    /** Mumbai's own sting — the teal counterpart to Ahmedabad's orange. Same
+     *  length, same structure, each ending on its campus URL. */
+    film: `${CAMPUS}/iism-theme.mp4`,
     text:
       "The Indian Institute of Skills Mumbai, established by Tata IIS (a Section 8 company set up by the Tata Group) in collaboration with the Ministry of Skill Development & Entrepreneurship (MSDE), Government of India, aims to empower India’s youth. Located on a 4+ acre campus in Chunabhatti, it features state-of-the-art infrastructure designed for job-oriented learning. With advanced labs and classrooms, IIS Mumbai is dedicated to equipping youth with the essential skills needed for professional success.",
   },

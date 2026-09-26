@@ -67,9 +67,17 @@ export function CampusTheme({
     if (!video || reduceMotion) return;
     if (phase === "film" && inView) {
       video.currentTime = 0;
-      // A refused autoplay is not a failure to report — the photograph is
-      // already there, so the panel just stays on it.
-      video.play().catch(() => setPhase("photo"));
+      video.play().catch((error: DOMException) => {
+        // ⚠ AbortError IS NOT A REFUSAL. It means something interrupted this
+        // play() — the effect re-running (React's development double-mount
+        // does exactly that), or the panel scrolling away mid-start. Treating
+        // it as a refusal put the panel into its five-second hold for no
+        // reason, which is what knocked the two campuses out of step: one
+        // column started its film while the other sat on its photograph.
+        // A real refusal (NotAllowedError) is not a failure to report either —
+        // the photograph is already there, so the panel just stays on it.
+        if (error?.name !== "AbortError") setPhase("photo");
+      });
     } else {
       video.pause();
     }
