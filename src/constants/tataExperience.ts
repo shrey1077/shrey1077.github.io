@@ -75,6 +75,31 @@ export const TATA_POWERED_BY: {
  *  but sit smaller under the enlarged wordmark. */
 export const POWERED_INK_AREA = 1900;
 
+/** How much ink a logo in the two campus columns of band 01 covers. Bigger
+ *  than the endorsements: these are the subject of that band, not a credit. */
+export const CAMPUS_INK_AREA = 3200;
+
+/** A logo's box, sized so its INK covers `area` px² however the file is padded.
+ *
+ * ⚠ THIS IS THE ONE PLACE THAT MATH LIVES. Three parts of the Tata page show
+ * logos side by side — the hero's endorsements, band 01's two campuses, band
+ * 02's family tree — and every one of them was getting it wrong in its own way
+ * before: a wordmark against an emblem sized by file height comes out four
+ * times too small, and the same pair sized by INK height still reads unequal
+ * because a long mark at the same height covers far more paper.
+ *
+ * Equal ink AREA is what the eye actually reads as "the same size" across
+ * shapes that different, so height falls out as √(area / inkAspect).
+ *   · `aspect` — the INK's width ÷ height
+ *   · `fillH`  — the fraction of the FILE's height the ink uses
+ *   · `box`    — the FILE's width ÷ height, which is what object-contain fits
+ * `padBottom` is the transparent slack under the ink, for pulling a row of
+ * logos onto one baseline. All four Tata files pad symmetrically (measured). */
+export function inkBox(ink: { aspect: number; fillH: number; box: number }, area: number) {
+  const height = Math.sqrt(area / ink.aspect) / ink.fillH;
+  return { height, width: height * ink.box, padBottom: (height * (1 - ink.fillH)) / 2 };
+}
+
 /** The circuit-grid texture (`gridNEW`) — the page body wash and the whisper
  *  behind the IISA / IISM guideline columns. Source: user's `Grid-min.png`. */
 export const TATA_GRID = `${BRAND}/gridNEW.webp`;

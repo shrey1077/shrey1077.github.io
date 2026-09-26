@@ -33,6 +33,8 @@ import Image from "next/image";
 import { clientExperienceBySlug } from "@/constants/clientExperiences";
 import { readCatalogueCategory } from "@/content/catalogue";
 import {
+  CAMPUS_INK_AREA,
+  inkBox,
   POWERED_INK_AREA,
   TATA_DESCRIPTION,
   TATA_POWERED_BY,
@@ -46,8 +48,9 @@ import {
   TATA_DNA,
   TATA_DNA_CARDS,
   TATA_HERO,
-  TATA_INSTITUTE,
+  TATA_CAMPUS_PROFILES,
   TATA_LOCKUP,
+  TATA_WHO,
   TATA_SYSTEM,
   TATA_WORK_BAND,
   type TataBand,
@@ -365,27 +368,19 @@ export function TataExperience() {
                           </li>
                         );
                       }
-                      const ink = p.ink ?? { aspect: 3, fillH: 1, box: 3 };
-                      const inkH = Math.sqrt(POWERED_INK_AREA / ink.aspect);
-                      // The file's padding, undone: the BOX has to be taller
-                      // than the ink by however much white the export carries —
-                      // and as wide as the FILE, or `object-contain` fits the
-                      // image to a box the wrong shape and shrinks it again.
-                      const boxH = inkH / ink.fillH;
-                      // ⚠ …and then the box is pulled DOWN by the padding under
-                      // the ink, so what lines up along the row is the ink's own
-                      // baseline rather than the edge of four differently padded
-                      // canvases. All four pad symmetrically (measured), so half
-                      // the slack is under the mark.
-                      const padBottom = (boxH * (1 - ink.fillH)) / 2;
+                      // ⚠ Equal ink AREA, and the box pulled DOWN by the
+                      // padding under the ink — so what lines up along the row
+                      // is each mark's own baseline rather than the edge of
+                      // four differently padded canvases. See `inkBox`.
+                      const box = inkBox(p.ink ?? { aspect: 3, fillH: 1, box: 3 }, POWERED_INK_AREA);
                       return (
                         <li key={p.name}>
                           <span
                             className="relative block"
                             style={{
-                              height: `${boxH}px`,
-                              width: `${boxH * ink.box}px`,
-                              marginBottom: `${-padBottom}px`,
+                              height: `${box.height}px`,
+                              width: `${box.width}px`,
+                              marginBottom: `${-box.padBottom}px`,
                             }}
                           >
                             <Image
@@ -410,18 +405,79 @@ export function TataExperience() {
             </div>
           </header>
 
-          {/* ── 01 — the institute ── */}
-          <Band band={TATA_INSTITUTE} ground="bg-white/55">
-            <span className="relative block aspect-[16/9] w-full overflow-hidden rounded-sm">
-              <Image
-                src={TATA_INSTITUTE.photo}
-                alt={TATA_INSTITUTE.photoAlt}
-                fill
-                sizes="(max-width: 1024px) 92vw, 46vw"
-                className="object-cover"
-              />
-            </span>
-          </Band>
+          {/* ── 01 — who we are: the two campuses, each with its building ──
+              ⚠ NOT a <Band>. Every other band is a head beside one piece of
+              evidence; this one is a head ABOVE two equal columns, because the
+              owner asked on 2026-09-26 for both campuses to introduce
+              themselves side by side and neither is the other's subordinate.
+              The photographs are the client's own buildings, supplied by the
+              owner — Lab 1 at Ahmedabad, the Chunabhatti frontage at Mumbai. */}
+          <section className="border-t border-neutral-200/70 bg-white/55">
+            <div
+              className={`${SHELL} grid grid-cols-1 items-start gap-y-8 pt-14 lg:grid-cols-[auto_minmax(0,1fr)_auto] lg:gap-x-10 lg:pt-20`}
+            >
+              <p aria-hidden className="tata-display text-[clamp(2.6rem,5.5vw,4.5rem)] leading-[0.85] text-neutral-300">
+                {TATA_WHO.number}
+              </p>
+              <div className="max-w-2xl">
+                <span className={KICKER}>{TATA_WHO.kicker}</span>
+                <h2 className="tata-display mt-4 text-[clamp(1.55rem,2.7vw,2.25rem)] leading-[1.12] text-neutral-900">
+                  {TATA_WHO.headline.map((line) => (
+                    <span key={line} className="block">
+                      {line}
+                    </span>
+                  ))}
+                </h2>
+                <p className="tata-body mt-5 max-w-xl text-[0.9rem] leading-relaxed text-neutral-700">
+                  {TATA_WHO.body}
+                </p>
+              </div>
+              {TATA_WHO.rail ? <Rail words={TATA_WHO.rail} /> : <span aria-hidden />}
+            </div>
+
+            <div className={`${SHELL} grid grid-cols-1 gap-10 pb-14 md:grid-cols-2 md:gap-10 lg:pb-20 lg:pt-6`}>
+              {TATA_CAMPUS_PROFILES.map((campus) => (
+                <article key={campus.label}>
+                  <span className="relative block aspect-[4/3] w-full overflow-hidden rounded-sm">
+                    <Image
+                      src={campus.photo}
+                      alt={campus.photoAlt}
+                      fill
+                      sizes="(max-width: 768px) 92vw, 45vw"
+                      className="object-cover"
+                    />
+                  </span>
+
+                  {/* The campus mark, sized so the two cover the same ink —
+                      see `inkBox`. The outer box is a fixed height for both;
+                      Mumbai's inner box overflows it with transparent padding,
+                      which is what makes the two marks weigh the same without a
+                      second copy of the file on disk. */}
+                  <span className="mt-6 flex h-14 w-full items-center justify-start">
+                    <span
+                      className="relative block"
+                      style={{
+                        height: `${inkBox(campus.ink, CAMPUS_INK_AREA).height}px`,
+                        width: `${inkBox(campus.ink, CAMPUS_INK_AREA).width}px`,
+                      }}
+                    >
+                      <Image
+                        src={campus.logo}
+                        alt={`${campus.label} logo`}
+                        fill
+                        sizes="180px"
+                        className="object-contain object-left"
+                      />
+                    </span>
+                  </span>
+
+                  <p className="tata-body mt-4 text-[0.88rem] leading-relaxed text-neutral-700">
+                    {campus.text}
+                  </p>
+                </article>
+              ))}
+            </div>
+          </section>
 
           {/* ── 02 — one parent mark, two campus dialects ──
               ⚠ The three marks are the SUPPLIED files. The comp's versions are
@@ -477,8 +533,11 @@ export function TataExperience() {
                         without a second copy of the file on disk. */}
                     <span className="flex h-24 w-full items-center justify-center">
                       <span
-                        className="relative block w-full"
-                        style={{ height: `${4 / c.inkFill}rem`, maxWidth: `${13 / c.inkFill}rem` }}
+                        className="relative block"
+                        style={{
+                          height: `${inkBox(c.ink, CAMPUS_INK_AREA).height}px`,
+                          width: `${inkBox(c.ink, CAMPUS_INK_AREA).width}px`,
+                        }}
                       >
                         <Image src={c.logo} alt={`${c.label} logo`} fill sizes="240px" className="object-contain" />
                       </span>

@@ -29,6 +29,9 @@
 import { TATA_GUIDELINES } from "@/constants/tataExperience";
 
 const PHOTO = "/content/clients/tata-iis/catalogue/Photography";
+/** The two campus photographs the owner supplied on 2026-09-26 —
+ *  `scripts/prepare-tata-campus.mjs` re-encodes them and keeps the originals. */
+const CAMPUS = "/content/clients/tata-iis/campus";
 /** Card-sized crops of the rulebook plates — `scripts/prepare-tata-dna.mjs`
  *  cuts them and says which page each one came out of. */
 const DNA = "/content/clients/tata-iis/brand/dna";
@@ -62,16 +65,53 @@ export interface TataBand {
   rail?: string[];
 }
 
-export const TATA_INSTITUTE: TataBand & { photo: string; photoAlt: string } = {
+/** Band 01. It was "The institute" against a single campus photograph until
+ *  2026-09-26, when the owner turned it into the institute introducing ITSELF —
+ *  both campuses, each with its own building and its own paragraph. */
+export const TATA_WHO: TataBand = {
   number: "01",
   kicker: "The institute",
-  headline: ["A national mission", "for a skilled tomorrow."],
+  headline: ["Who we are."],
   body:
-    "Tata IIS trains for the trades industry is hiring into — emerging technical and service skills, taught to industry grade and measured by what a trainee can do at the end of it. Two campuses carry it, Ahmedabad and Mumbai, built with the Ministry of Skill Development and Entrepreneurship and backed by Tata Trusts.",
+    "Tata IIS is a Section 8 company set up by the Tata Group. It runs two campuses — Ahmedabad and Mumbai — each built with the Ministry of Skill Development & Entrepreneurship.",
   rail: ["Skills", "People", "Progress", "Opportunity"],
-  photo: `${PHOTO}/campus-frame-iii.webp`,
-  photoAlt: "The Indian Institute of Skills campus building, Mumbai.",
 };
+
+/** The two campuses, side by side under 01.
+ *
+ * ⚠ THE PARAGRAPHS ARE THE CLIENT'S OWN, supplied verbatim by the owner on
+ * 2026-09-26 — the acreage, the villages, the partner ministries and the
+ * Section 8 status all come from them. Do not paraphrase them into something
+ * that reads better; they are the institute describing itself, and the numbers
+ * in them are checkable facts about a real organisation.
+ *
+ * ⚠ `ink` is measured, and `inkBox` (tataExperience.ts) turns it into a box.
+ * iism.png is an 800×800 canvas with its ink in the middle 32%; iisa.png fills
+ * its frame. The two marks are also different SHAPES — Ahmedabad stacks its
+ * name under the symbol at 1.35:1, Mumbai sets it alongside at 2.98:1 — so
+ * matching their heights still leaves them looking unequal. Equal ink area
+ * does not. */
+export const TATA_CAMPUS_PROFILES = [
+  {
+    label: "IIS Ahmedabad",
+    logo: TATA_GUIDELINES.iisa.logo,
+    ink: { aspect: 1.35, fillH: 1, box: 800 / 593 },
+    photo: `${CAMPUS}/iisa-lab-1.webp`,
+    photoAlt:
+      "Lab 1 at the IIS Ahmedabad campus, with the institute's standee at the foot of the steps.",
+    text:
+      "The Indian Institute of Skills (IIS) Ahmedabad, established by Tata IIS (a Section 8 company set up by the Tata Group) in collaboration with the Ministry of Skill Development & Entrepreneurship (MSDE) and the Government of Gujarat (GoG), aims to empower India’s youth. Located on a 20-acre campus in Nasmed village, it features state-of-the-art infrastructure designed for job-oriented learning. With advanced labs and classrooms, IIS Ahmedabad is dedicated to equipping youth with the essential skills needed for professional success.",
+  },
+  {
+    label: "IIS Mumbai",
+    logo: TATA_GUIDELINES.iism.logo,
+    ink: { aspect: 2.98, fillH: 0.32, box: 1 },
+    photo: `${CAMPUS}/iism-facade.webp`,
+    photoAlt: "The glazed frontage of the IIS Mumbai campus at Chunabhatti.",
+    text:
+      "The Indian Institute of Skills Mumbai, established by Tata IIS (a Section 8 company set up by the Tata Group) in collaboration with the Ministry of Skill Development & Entrepreneurship (MSDE), Government of India, aims to empower India’s youth. Located on a 4+ acre campus in Chunabhatti, it features state-of-the-art infrastructure designed for job-oriented learning. With advanced labs and classrooms, IIS Mumbai is dedicated to equipping youth with the essential skills needed for professional success.",
+  },
+];
 
 export const TATA_SYSTEM: TataBand = {
   number: "02",
@@ -93,20 +133,20 @@ export const TATA_LOCKUP = {
       logo: TATA_GUIDELINES.iisa.logo,
       line: TATA_GUIDELINES.iisa.line,
       colours: TATA_GUIDELINES.iisa.colours,
-      inkFill: 1,
+      ink: { aspect: 1.35, fillH: 1, box: 800 / 593 },
     },
     {
       label: "IIS Mumbai",
       logo: TATA_GUIDELINES.iism.logo,
       line: TATA_GUIDELINES.iism.line,
       colours: TATA_GUIDELINES.iism.colours,
-      // ⚠ MEASURED, not eyeballed. iism.png is an 800×800 canvas whose ink sits
-      // in rows 272–528 — 32% of its height — while iisa.png fills its frame
-      // edge to edge. Given equal boxes the Mumbai mark comes out a third the
-      // size of Ahmedabad's, which is exactly what the old page did. The layout
-      // divides its box height by this, so the two campuses read as equals.
+      // ⚠ MEASURED, not eyeballed, and fed to `inkBox` — iism.png is an 800×800
+      // canvas whose ink sits in rows 272–528 (32% of its height) while
+      // iisa.png fills its frame edge to edge, and the two marks are different
+      // shapes besides. Sized by their files the Mumbai mark came out a third
+      // of Ahmedabad's, which is what the old page did.
       // Re-measure if either file is replaced.
-      inkFill: 0.32,
+      ink: { aspect: 2.98, fillH: 0.32, box: 1 },
     },
   ],
 } as const;
