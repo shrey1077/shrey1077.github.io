@@ -59,7 +59,7 @@ import { TATA_PINS } from "@/constants/tataPins";
 import { TataRoomLink } from "@/components/client/tata/TataRoomLink";
 import { CampusTheme } from "@/components/client/tata/CampusTheme";
 import { WorkShowcase, type ShowcasePanelView } from "@/components/client/tata/WorkShowcase";
-import { SHOWCASE_PER_PANEL, TATA_SHOWCASE } from "@/constants/tataShowcase";
+import { SHOWCASE_PER_PANEL, TATA_SHOWCASE, TATA_SHOWCASE_GRID } from "@/constants/tataShowcase";
 import { SITE } from "@/constants/site";
 import { TATA_THEMES, THEME_SLIDER_MAX } from "@/constants/tataThemes";
 import type { GuidelineBrand } from "@/components/client/tata/GuidelineSlider";
@@ -685,7 +685,7 @@ export function TataExperience() {
                 description. Only a hair of padding, so the diagonals reach the
                 edges without touching them. */}
             <div className="mt-12 w-full px-2 sm:px-3 lg:mt-16">
-              <WorkShowcase panels={showcase} />
+              <WorkShowcase panels={showcase} gridLines={TATA_SHOWCASE_GRID} />
             </div>
 
             <div className={`${SHELL} pb-16 pt-12 lg:pb-20`}>

@@ -1,38 +1,50 @@
 "use client";
 
 /**
- * WorkShowcase — five angled panels around one central display.
+ * WorkShowcase — five panels cut around one central display, band 04.
  *
- * The owner's composition, 2026-09-27: two panels down the left, three down the
- * right, a big hexagon in the middle. The centre rotates through artwork at
- * random; hovering a panel hands the centre over to that panel's work, with a
- * heading and a line about it across the foot. Moving away gives it back.
+ * Hover a panel and the centre shows that panel's work, with a heading and a
+ * line about it across the foot; leave it and the centre goes back to rotating
+ * through everything at random. A tap pins a panel, which is how a touch
+ * visitor drives it.
  *
- * ⚠ THE SHAPES ARE `clip-path` POLYGONS CUT IN PIXELS, NOT PERCENTAGES, and
- * that is the whole trick. Every diagonal has to run at the same angle or the
- * five read as unrelated shapes near each other rather than one cut object. A
- * percentage cut cannot do it: the centre's point spans the full height across
- * 14% of a 720px column while a left panel's spans half the height across 14%
- * of a 340px one — same number, slopes 2:1 apart, which is exactly how the
- * first attempt looked. In pixels the rule is simple: the horizontal run is
- * proportional to the rise the cut covers, so the left column (two rows) cuts
- * CUT, the right column (three rows) two thirds of it, and the middle-right
- * point, which rises only a sixth of the height, a third.
+ * ⚠ THE SHAPES ARE THE OWNER'S OWN DIVISION GRID, not an approximation of it.
+ * He supplied the drawing on 2026-09-27 (`showcase/_orig/division-grid.webp`,
+ * 1672×941) and the numbers below were MEASURED off it by reading where its
+ * heavy strokes fall: the left block's inner edge runs 33.5% → 20% → 33.5%, the
+ * right block's 66.4% → 79.8% → 66.4%, split once at 50% on the left and at
+ * 32.3% / 66.8% on the right. Re-measure rather than re-draw if it is revised.
  *
- * ⚠ PHONES GET A PLAIN GRID. Below `md` the five become ordinary cards under a
- * rectangular display: at 380px wide the hexagon's angles eat most of the
- * artwork and the side panels become slivers. The interaction is identical, and
- * a tap does what a hover does — which is also how a touch visitor drives it on
- * any width, since `hover` is a lie on a touchscreen.
+ * ⚠ EVERY PANEL IS THE FULL BLOCK, CLIPPED. All six shapes are percentages of
+ * the WHOLE composition and every panel is `inset-0`, so the cuts share one
+ * coordinate space and land on each other exactly. The first version made three
+ * columns and cut each panel in its own space; the diagonals came out at
+ * different angles and the five read as unrelated boxes. It is also why a
+ * panel's cover and label are placed against its BOUNDING BOX — the element
+ * itself is the whole band.
+ *
+ * ⚠ ROUNDED CORNERS NEED PIXELS. `clip-path: polygon()` has no radius, so the
+ * paths are generated with quadratic joins once the block has been measured,
+ * and the plain polygons stand in until then (and if the observer never fires).
+ * Each corner's radius is clamped to half its shortest edge, so the sharp
+ * points round as far as they can and no further.
+ *
+ * ⚠ The panel covers are the owner's composites — decoration. The CENTRE is the
+ * real work, read from the catalogue. See scripts/prepare-tata-showcase.mjs.
+ *
+ * ⚠ PHONES GET A PLAIN GRID. Below `md` the five become ordinary rounded cards
+ * under a rectangular display: at 380px the angles eat most of the artwork and
+ * the side panels become slivers. The interaction is identical, and a tap does
+ * what a hover does — which is also how a touch visitor drives it at any width,
+ * since `hover` is a lie on a touchscreen.
  *
  * ⚠ THE FIRST PIECE IS ALWAYS pool[0], and only the ROTATION is random. Random
  * on first render would put one image in the server's HTML and another in the
  * client's, which React flags as a mismatch; drawing the random number inside
- * the interval's callback instead keeps the first paint identical on both sides
- * and still never shows the same order twice.
+ * the interval's callback keeps the first paint identical on both sides.
  */
 
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import Image from "next/image";
 import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
 import { useInViewport } from "@/hooks/useInViewport";
@@ -42,7 +54,7 @@ export interface ShowcaseImage {
   alt: string;
   /** Which panel it belongs to — the caption follows the artwork. */
   panel: string;
-  /** How it sits in the hexagon. See the note where it is used. */
+  /** How it sits in the centre. See where it is used. */
   fit: "cover" | "contain";
 }
 
@@ -52,60 +64,168 @@ export interface ShowcasePanelView {
   label: string;
   blurb: string;
   tint: string;
+  /** The panel's own cover art. */
+  cover: string;
   images: ShowcaseImage[];
 }
 
-/** ms each piece of artwork holds before the centre moves on. */
+/** ms each piece of artwork holds in the centre. */
 const ROTATE = 4000;
 /** ms of cross-fade between two pieces. */
 const FADE = 600;
+/** px. "Big rounded corners", the owner's ask — clamped per corner. */
+const RADIUS = 26;
+/** px. The white rule painted along every cut, which is what reads as a gap. */
+const GUTTER = 7;
 
-/** px. The centre's point: how far it runs in across half the composition's
- *  height. Every other cut is derived from it — see the note above. */
-const CUT = 58;
-/** The right column has three rows to the left column's two, so its cuts cover
- *  less rise and must run in less far to hold the same angle. */
-const CUT_R = (CUT * 2) / 3;
-/** The middle-right panel's point rises half of one of those rows. */
-const CUT_P = CUT_R / 2;
+/* ── The owner's grid, measured ─────────────────────────────────────────── */
+const L_EDGE = 33.5;
+const L_VERTEX = 20;
+const R_EDGE = 66.4;
+const R_VERTEX = 79.8;
+/** The right block's two horizontal cuts. The left block has one, at 50%. */
+const R_SPLIT = [32.3, 66.8] as const;
 
-/** The centre: a hexagon pointed left and right. */
-const HEX = `polygon(${CUT}px 0, calc(100% - ${CUT}px) 0, 100% 50%, calc(100% - ${CUT}px) 100%, ${CUT}px 100%, 0 50%)`;
+/** Each block's inner edge at a given height (0…1 down the composition). Both
+ *  are chevrons: furthest in at the middle, back out at the ends. */
+const leftX = (t: number) => L_EDGE - (L_EDGE - L_VERTEX) * (1 - Math.abs(2 * t - 1));
+const rightX = (t: number) => R_EDGE + (R_VERTEX - R_EDGE) * (1 - Math.abs(2 * t - 1));
 
-/** The five side panels, each cut on the edge that faces the centre. */
-const SHAPES: Record<string, string> = {
-  // Left column — the cut edge is on the right.
-  leftTop: `polygon(0 0, 100% 0, calc(100% - ${CUT}px) 100%, 0 100%)`,
-  leftBottom: `polygon(0 0, calc(100% - ${CUT}px) 0, 100% 100%, 0 100%)`,
-  // Right column — the cut edge is on the left. The middle one takes a point,
-  // which is what makes the right side read as the hexagon's other half.
-  rightTop: `polygon(${CUT_R}px 0, 100% 0, 100% 100%, 0 100%)`,
-  rightMiddle: `polygon(${CUT_P}px 0, 100% 0, 100% 100%, ${CUT_P}px 100%, 0 50%)`,
-  rightBottom: `polygon(0 0, 100% 0, 100% 100%, ${CUT_R}px 100%)`,
+type Point = [number, number];
+
+/** Every shape, in percentages of the whole composition. */
+const SHAPES: Record<string, Point[]> = {
+  brand: [
+    [0, 0],
+    [leftX(0), 0],
+    [leftX(0.5), 50],
+    [0, 50],
+  ],
+  print: [
+    [0, 50],
+    [leftX(0.5), 50],
+    [leftX(1), 100],
+    [0, 100],
+  ],
+  centre: [
+    [leftX(0), 0],
+    [rightX(0), 0],
+    [rightX(0.5), 50],
+    [rightX(1), 100],
+    [leftX(1), 100],
+    [leftX(0.5), 50],
+  ],
+  digital: [
+    [rightX(0), 0],
+    [100, 0],
+    [100, R_SPLIT[0]],
+    [rightX(R_SPLIT[0] / 100), R_SPLIT[0]],
+  ],
+  photography: [
+    [rightX(R_SPLIT[0] / 100), R_SPLIT[0]],
+    [100, R_SPLIT[0]],
+    [100, R_SPLIT[1]],
+    [rightX(R_SPLIT[1] / 100), R_SPLIT[1]],
+    [rightX(0.5), 50],
+  ],
+  video: [
+    [rightX(R_SPLIT[1] / 100), R_SPLIT[1]],
+    [100, R_SPLIT[1]],
+    [100, 100],
+    [rightX(1), 100],
+  ],
 };
 
-export function WorkShowcase({ panels }: { panels: ShowcasePanelView[] }) {
+/** Which side each panel's diagonal is on, so its words keep clear of it. */
+const DIAGONAL: Record<string, "left" | "right"> = {
+  brand: "right",
+  print: "right",
+  digital: "left",
+  photography: "left",
+  video: "left",
+};
+
+const polygonOf = (points: Point[]) =>
+  `polygon(${points.map(([x, y]) => `${x}% ${y}%`).join(", ")})`;
+
+/** The same shape in pixels, every corner rounded as far as its edges allow — a
+ *  quadratic through the corner, which needs no angle maths and behaves at the
+ *  acute points, where an arc would fold over itself. */
+function roundedPath(points: Point[], w: number, h: number, radius: number): string {
+  const px: Point[] = points.map(([x, y]) => [(x / 100) * w, (y / 100) * h]);
+  const n = px.length;
+  const dist = (a: Point, b: Point) => Math.hypot(a[0] - b[0], a[1] - b[1]);
+  const along = (from: Point, to: Point, d: number): Point => {
+    const len = dist(from, to) || 1;
+    return [from[0] + ((to[0] - from[0]) * d) / len, from[1] + ((to[1] - from[1]) * d) / len];
+  };
+  const out: string[] = [];
+  for (let i = 0; i < n; i++) {
+    const cur = px[i];
+    const prev = px[(i - 1 + n) % n];
+    const next = px[(i + 1) % n];
+    const r = Math.min(radius, dist(cur, prev) / 2, dist(cur, next) / 2);
+    const from = along(cur, prev, r);
+    const to = along(cur, next, r);
+    out.push(`${i === 0 ? "M" : "L"} ${from[0].toFixed(2)} ${from[1].toFixed(2)}`);
+    out.push(`Q ${cur[0].toFixed(2)} ${cur[1].toFixed(2)} ${to[0].toFixed(2)} ${to[1].toFixed(2)}`);
+  }
+  out.push("Z");
+  return out.join(" ");
+}
+
+/** A shape's bounding box, as percentages — where its cover and label sit. */
+function boxOf(points: Point[]) {
+  const xs = points.map((p) => p[0]);
+  const ys = points.map((p) => p[1]);
+  const left = Math.min(...xs);
+  const top = Math.min(...ys);
+  return { left, top, width: Math.max(...xs) - left, height: Math.max(...ys) - top };
+}
+
+export function WorkShowcase({
+  panels,
+  gridLines,
+}: {
+  panels: ShowcasePanelView[];
+  /** The owner's grid-line artwork, washed behind the whole composition. */
+  gridLines?: string;
+}) {
   const reduceMotion = useReducedMotion();
   const { ref, inView } = useInViewport<HTMLDivElement>({ rootMargin: "200px" });
+  const blockRef = useRef<HTMLDivElement>(null);
+  const [size, setSize] = useState<{ w: number; h: number } | null>(null);
   const [hovered, setHovered] = useState<string | null>(null);
-  /** A tap pins a panel; hovering another still previews it. */
   const [pinned, setPinned] = useState<string | null>(null);
-  /** Which piece is showing, and which panel it was chosen for. ⚠ The two are
-   *  ONE state: when the active panel changes, the pool changes under the
-   *  index, so an index left over from the last panel would point at somebody
-   *  else's artwork for a frame. Keeping the id alongside lets the index be
-   *  DERIVED back to 0 on a change, with no effect to reset it. */
   const [cursor, setCursor] = useState<{ id: string | null; i: number }>({ id: null, i: 0 });
+
+  /* Measured, so the shapes can be drawn with real radii — see above. */
+  useEffect(() => {
+    const block = blockRef.current;
+    if (!block) return;
+    const ro = new ResizeObserver(() => {
+      const r = block.getBoundingClientRect();
+      if (!r.width || !r.height) return;
+      setSize((prev) =>
+        prev && Math.abs(prev.w - r.width) < 1 && Math.abs(prev.h - r.height) < 1
+          ? prev
+          : { w: r.width, h: r.height },
+      );
+    });
+    ro.observe(block);
+    return () => ro.disconnect();
+  }, []);
+
+  const clipFor = (id: string) =>
+    size ? `path("${roundedPath(SHAPES[id], size.w, size.h, RADIUS)}")` : polygonOf(SHAPES[id]);
 
   const activeId = hovered ?? pinned;
   const active = panels.find((p) => p.id === activeId) ?? null;
 
-  /** What the centre is drawing from: one panel's work, or everything. */
   const pool = useMemo(
     () => (active ? active.images : panels.flatMap((p) => p.images)),
     [active, panels],
   );
-
   const index = cursor.id === activeId ? cursor.i : 0;
 
   useEffect(() => {
@@ -127,8 +247,11 @@ export function WorkShowcase({ panels }: { panels: ShowcasePanelView[] }) {
   // something at random and says which panel it came from.
   const caption = panels.find((p) => p.id === (current?.panel ?? activeId)) ?? active;
 
-  const Display = (
-    <div data-showcase-display className="relative h-full w-full overflow-hidden bg-neutral-900">
+  const display = (rounded: boolean) => (
+    <div
+      data-showcase-display
+      className={`relative h-full w-full overflow-hidden bg-neutral-900 ${rounded ? "rounded-3xl" : ""}`}
+    >
       <AnimatePresence initial={false}>
         {current && (
           <motion.div
@@ -139,25 +262,32 @@ export function WorkShowcase({ panels }: { panels: ShowcasePanelView[] }) {
             exit={{ opacity: 0 }}
             transition={{ duration: reduceMotion ? 0 : FADE / 1000 }}
           >
-            {/* ⚠ `fit` is per panel. Photographs fill the hexagon; a portrait
+            {/* ⚠ `fit` is per panel. Photographs fill the shape; a portrait
                 brochure page cropped to it is a band of unreadable columns, so
-                printed work is CONTAINED on the dark ground instead — the plate
-                whole, like a slide. */}
+                printed work is CONTAINED on the dark ground instead. */}
+            {/* ⚠ A contained plate is PADDED INTO THE SAFE AREA. The hexagon
+                takes its corners off, and `object-contain` fits the image to
+                the element's box, not to the visible shape — so a rulebook
+                plate lost the top of its own heading to the diagonal. The
+                padding keeps it inside the widest rectangle the shape allows,
+                with more at the foot to clear the caption. */}
             <Image
               src={current.src}
               alt={current.alt}
               fill
               sizes="(max-width: 768px) 92vw, 46vw"
-              className={current.fit === "contain" ? "object-contain" : "object-cover"}
+              className={
+                current.fit === "contain"
+                  ? "object-contain px-[9%] pb-[18%] pt-[6%]"
+                  : "object-cover"
+              }
             />
           </motion.div>
         )}
       </AnimatePresence>
 
-      {/* The heading and its line, across the foot. The scrim is what keeps
-          them legible over artwork that might be anything. */}
       {caption && (
-        <div className="pointer-events-none absolute inset-x-0 bottom-0 bg-gradient-to-t from-neutral-950/85 via-neutral-950/45 to-transparent px-[14%] pb-6 pt-16 text-center sm:pb-8">
+        <div className="pointer-events-none absolute inset-x-0 bottom-0 bg-gradient-to-t from-neutral-950/85 via-neutral-950/45 to-transparent px-[16%] pb-6 pt-16 text-center sm:pb-9">
           <p className="tata-body text-[0.58rem] uppercase tracking-[0.22em] text-white/60">
             {caption.number}
           </p>
@@ -172,19 +302,12 @@ export function WorkShowcase({ panels }: { panels: ShowcasePanelView[] }) {
     </div>
   );
 
-  /** `cut` says which edge the polygon eats, so the words keep clear of it.
-   *  ⚠ WITHOUT THIS THE LABELS ARE SLICED: a right-hand panel's diagonal takes
-   *  ANGLE% off its left edge, and text sitting in the normal padding is inside
-   *  the part that gets clipped away — "Video editing" rendered as "deo
-   *  editing". The pad is ANGLE plus a little air. */
-  const panelButton = (panel: ShowcasePanelView, shape?: string, cut?: "left" | "right") => {
+  const panelFace = (panel: ShowcasePanelView, shaped: boolean) => {
     const isActive = activeId === panel.id;
-    const pad =
-      cut === "right"
-        ? { paddingRight: `${CUT + 14}px` }
-        : cut === "left"
-          ? { paddingLeft: `${CUT_R + 14}px` }
-          : undefined;
+    const box = shaped
+      ? boxOf(SHAPES[panel.id])
+      : { left: 0, top: 0, width: 100, height: 100 };
+    const side = DIAGONAL[panel.id];
     return (
       <button
         key={panel.id}
@@ -196,28 +319,58 @@ export function WorkShowcase({ panels }: { panels: ShowcasePanelView[] }) {
         onFocus={() => setHovered(panel.id)}
         onBlur={() => setHovered((h) => (h === panel.id ? null : h))}
         onClick={() => setPinned((p) => (p === panel.id ? null : panel.id))}
-        className="group relative h-full w-full overflow-hidden text-left outline-none focus-visible:ring-2 focus-visible:ring-neutral-900/30"
-        style={{
-          clipPath: shape,
-          // ⚠ The tint has to CARRY the panel: there is no border to define it,
-          // because clip-path cuts any border or shadow off with the corner it
-          // removes. A hairline-and-wash version of this read as nothing at all
-          // on a near-white page. Holding the centre deepens it further.
-          background: `linear-gradient(135deg, ${panel.tint}${isActive ? "70" : "3d"} 0%, ${panel.tint}${isActive ? "38" : "1c"} 58%, ${panel.tint}0f 100%), #ffffff`,
-          transition: "background 300ms ease-out",
-        }}
+        className={`group text-left outline-none focus-visible:brightness-90 ${
+          shaped ? "absolute inset-0" : "relative h-full w-full overflow-hidden rounded-2xl"
+        }`}
+        style={shaped ? { clipPath: clipFor(panel.id) } : undefined}
       >
-        <span className="relative flex h-full flex-col justify-between p-4 sm:p-5" style={pad}>
-          <span
-            className="tata-body text-[0.6rem] uppercase tracking-[0.2em] transition-colors duration-300"
-            style={{ color: isActive ? panel.tint : "#8a8a8a" }}
-          >
+        {/* The cover, fitted to the panel's own bounding box rather than to the
+            whole band — see the note at the top. */}
+        <span
+          className="absolute overflow-hidden"
+          style={{
+            left: `${box.left}%`,
+            top: `${box.top}%`,
+            width: `${box.width}%`,
+            height: `${box.height}%`,
+          }}
+        >
+          <Image
+            src={panel.cover}
+            alt=""
+            fill
+            sizes="(max-width: 768px) 50vw, 34vw"
+            className="object-cover transition-transform duration-700 group-hover:scale-[1.04]"
+          />
+        </span>
+
+        {/* The tint: what makes a cover read as a panel rather than as a
+            photograph, and what says which one holds the centre. */}
+        <span
+          aria-hidden
+          className="absolute inset-0 transition-[background] duration-300"
+          style={{
+            background: `linear-gradient(135deg, ${panel.tint}${isActive ? "40" : "8f"} 0%, ${panel.tint}${isActive ? "63" : "bf"} 100%)`,
+          }}
+        />
+
+        {/* Number and label, inside the box and clear of the diagonal. */}
+        <span
+          className={`absolute flex flex-col justify-end ${side === "left" ? "items-end text-right" : "items-start"}`}
+          style={{
+            left: `${box.left}%`,
+            top: `${box.top}%`,
+            width: `${box.width}%`,
+            height: `${box.height}%`,
+            padding: "clamp(0.9rem, 1.6vw, 1.5rem)",
+            paddingLeft: side === "left" && shaped ? "16%" : undefined,
+            paddingRight: side === "right" && shaped ? "16%" : undefined,
+          }}
+        >
+          <span className="tata-body text-[0.6rem] uppercase tracking-[0.2em] text-white/75">
             {panel.number}
           </span>
-          <span
-            className="tata-display text-[clamp(0.95rem,1.4vw,1.3rem)] leading-tight transition-transform duration-300 group-hover:translate-x-0.5"
-            style={{ color: isActive ? panel.tint : "#1c1c1c" }}
-          >
+          <span className="tata-display text-[clamp(1rem,1.5vw,1.45rem)] leading-tight text-white">
             {panel.label}
           </span>
         </span>
@@ -225,43 +378,60 @@ export function WorkShowcase({ panels }: { panels: ShowcasePanelView[] }) {
     );
   };
 
-  const [one, two, three, four, five] = panels;
-
   return (
-    <div ref={ref} data-showcase className="w-full">
+    <div ref={ref} data-showcase className="relative w-full">
+      {/* The owner's grid-line artwork, behind everything. */}
+      {gridLines && (
+        <div aria-hidden className="pointer-events-none absolute -inset-x-4 -inset-y-8 -z-10 overflow-hidden">
+          <Image src={gridLines} alt="" fill sizes="100vw" className="object-cover opacity-90" />
+        </div>
+      )}
+
       {/* ── Phones: the display, then the five as plain cards ── */}
       <div className="md:hidden">
-        <div className="relative aspect-[4/3] w-full overflow-hidden rounded-sm">{Display}</div>
+        <div className="relative aspect-[4/3] w-full overflow-hidden rounded-3xl">
+          {display(true)}
+        </div>
         <div className="mt-3 grid grid-cols-2 gap-2">
           {panels.map((panel) => (
-            <div key={panel.id} className="h-20">
-              {panelButton(panel)}
+            <div key={panel.id} className="h-24">
+              {panelFace(panel, false)}
             </div>
           ))}
         </div>
       </div>
 
       {/* ── The composition ── */}
-      <div
-        className="hidden h-[clamp(22rem,36vw,34rem)] w-full grid-cols-[minmax(0,1fr)_minmax(0,2.1fr)_minmax(0,1fr)] gap-2 md:grid"
-        // ⚠ Negative margins pull the diagonals into the gaps so the shapes
-        // read as one cut object rather than five boxes near each other.
-        style={{ letterSpacing: "normal" }}
-      >
-        <div className="grid grid-rows-2 gap-2">
-          {one && panelButton(one, SHAPES.leftTop, "right")}
-          {two && panelButton(two, SHAPES.leftBottom, "right")}
+      <div ref={blockRef} className="relative hidden h-[clamp(24rem,40vw,38rem)] w-full md:block">
+        {panels.map((panel) => panelFace(panel, true))}
+
+        <div className="absolute inset-0" style={{ clipPath: clipFor("centre") }}>
+          {display(false)}
         </div>
 
-        <div className="relative h-full w-full" style={{ clipPath: HEX }}>
-          {Display}
-        </div>
-
-        <div className="grid grid-rows-3 gap-2">
-          {three && panelButton(three, SHAPES.rightTop, "left")}
-          {four && panelButton(four, SHAPES.rightMiddle, "left")}
-          {five && panelButton(five, SHAPES.rightBottom, "left")}
-        </div>
+        {/* ⚠ The gutter is a STROKE along every cut, not a gap between boxes.
+            The shapes share their edges — that is what the grid draws — so the
+            only way to part them is to paint the seam. Drawn over everything,
+            and deaf to the pointer so it never steals a hover. */}
+        {size && (
+          <svg
+            aria-hidden
+            className="pointer-events-none absolute inset-0 h-full w-full"
+            viewBox={`0 0 ${size.w} ${size.h}`}
+            preserveAspectRatio="none"
+          >
+            {Object.keys(SHAPES).map((id) => (
+              <path
+                key={id}
+                d={roundedPath(SHAPES[id], size.w, size.h, RADIUS)}
+                fill="none"
+                stroke="#f9f9f9"
+                strokeWidth={GUTTER}
+                strokeLinejoin="round"
+              />
+            ))}
+          </svg>
+        )}
       </div>
     </div>
   );
