@@ -31,6 +31,7 @@ import { TATA_GUIDELINES } from "@/constants/tataExperience";
 /** The two campus photographs the owner supplied on 2026-09-26 —
  *  `scripts/prepare-tata-campus.mjs` re-encodes them and keeps the originals. */
 const CAMPUS = "/content/clients/tata-iis/campus";
+const BRAND = "/content/clients/tata-iis/brand";
 /** Card-sized crops of the rulebook plates — `scripts/prepare-tata-dna.mjs`
  *  cuts them and says which page each one came out of. */
 const DNA = "/content/clients/tata-iis/brand/dna";
@@ -150,11 +151,62 @@ export const TATA_CAMPUS_PROFILES = [
 export const TATA_SYSTEM: TataBand = {
   number: "02",
   kicker: "The system",
-  headline: ["One vision.", "Three identities."],
+  headline: ["A mark", "rewritten."],
   body:
-    "One parent mark and two campus dialects. Each campus needed a voice of its own without breaking from Tata IIS, so all three rulebooks share the same construction, exclusion zone and behaviour, and part company only on colour and geometry.",
+    "The institute already had a wordmark when its ownership moved to Tata Trusts. What it did not have was a reason to look the way it did — so the mark was rebuilt around the one thing the new parent already owned: its typeface.",
   rail: ["Learn", "Practice", "Build", "Belong"],
 };
+
+/** 02's first movement: the wordmark before and after.
+ *
+ * ⚠ WHAT IS ASSERTED HERE IS WHAT THE FILES SAY. The new mark's own artwork
+ * (`logo guidelines/TATA IIS Logo.ai`, `Precaution_logo.pdf`) names Copperplate
+ * Gothic Bold and Helvetica LT Std; the Tata Trusts logo file names Copperplate
+ * Gothic Bold too, which is what makes "the Tata Trusts font" checkable rather
+ * than folklore; and plate 12 of the rulebook states it outright — "Designed in
+ * the signature Tata Trusts font". The 4:1 ratio and its fourfold reading are
+ * quoted from that same plate.
+ *
+ * ⚠ THE OLD WORDMARK'S FACE IS DELIBERATELY NOT NAMED. Its artwork is fully
+ * outlined — no font data survives in it — and the owner's recollection of
+ * Myriad Pro does not hold up against the letterforms: Myriad's cap A has a
+ * pointed apex and the old mark's is flat, which rules it out. Rendered against
+ * the usual suspects it sits closest to Titillium, but "closest" is not a name,
+ * so the page says what can be seen instead. Name it here only when someone can
+ * point at a file. */
+export const TATA_LOGO_STORY = {
+  before: {
+    label: "Before",
+    mark: `${BRAND}/legacy-wordmark.webp`,
+    markAlt: "The institute's earlier wordmark: TATA IIS in blue, over its full name.",
+    caption: "A humanist sans, beside the Tata group mark.",
+  },
+  after: {
+    label: "After",
+    mark: TATA_GUIDELINES.wordmark,
+    markAlt: "The current Tata IIS wordmark, set in Copperplate Gothic Bold.",
+    caption: "Copperplate Gothic Bold — the Tata Trusts face.",
+  },
+  /** The argument, in the order it happened. */
+  steps: [
+    {
+      title: "The handover",
+      text: "Ownership passed to Tata Trusts, and the institute's wordmark no longer belonged to the family that now ran it.",
+    },
+    {
+      title: "The brief",
+      text: "Tata Trusts' management wanted what they already had: a text logo, no emblem, nothing to explain.",
+    },
+    {
+      title: "The proposal",
+      text: "Rather than draw a new voice, adopt the parent's. I put Copperplate Gothic Bold — Tata Trusts' own face — to the institute's name.",
+    },
+    {
+      title: "The rulebook",
+      text: "It carried: \u201cDesigned in the signature Tata Trusts font\u201d, at a fixed 4:1 ratio the guidelines read as fourfold growth \u2014 academic excellence, industry relevance, skill development, sustainability.",
+    },
+  ],
+} as const;
 
 /** The 02 lockup: the parent mark over its two campuses.
  *  ⚠ Every file here is the real supplied artwork — the comp's versions of
@@ -185,12 +237,19 @@ export const TATA_LOCKUP = {
   ],
 } as const;
 
-export const TATA_DNA: TataBand = {
-  number: "03",
-  kicker: "Brand DNA",
-  headline: ["Built on a", "grid of possibility."],
+/** 02's second movement. It was band 03 until 2026-09-28, when the owner asked
+ *  for the whole identity story to live in one section. */
+export const TATA_DNA = {
+  kicker: "What the rulebook fixes",
   body:
-    "A system made to hold at any size: the mark constructed on a grid at a fixed 4:1 ratio, a 2x exclusion zone it never gives up, two licensed faces, and a colour law that survives print, screen and a fifteen-foot ceremony backdrop.",
+    "The rest is law, so the mark holds at any size: built on a grid at that 4:1 ratio, the full name aligned under the initials, a 2x exclusion zone it never gives up, two licensed faces, and a colour that survives print, screen and a fifteen-foot ceremony backdrop.",
+};
+
+/** 02's third movement — the parent mark and its two campuses. */
+export const TATA_IDENTITIES = {
+  kicker: "One vision, three identities",
+  body:
+    "Two campuses opened under that mark, and each needed a voice of its own without breaking from it. All three rulebooks share the same construction, exclusion zone and behaviour, and part company only on colour and geometry.",
 };
 
 /** The five cards under 03.
@@ -244,7 +303,9 @@ export const TATA_DNA_CARDS: {
 ];
 
 export const TATA_WORK_BAND: TataBand = {
-  number: "04",
+  // ⚠ 04 until 2026-09-28. Brand DNA folded into 02, so everything after it
+  // moved up one; the numbers are hand-set, not derived.
+  number: "03",
   kicker: "The work",
   headline: ["From identity", "to impact."],
   // The band's paragraph is TATA_WORK_INTRO (tataSections.ts) — the owner's own
@@ -257,7 +318,7 @@ export const TATA_WORK_BAND: TataBand = {
 };
 
 export const TATA_COLLABORATE: TataBand = {
-  number: "05",
+  number: "04",
   kicker: "Let's build what's next",
   headline: ["Collaborate."],
   body:

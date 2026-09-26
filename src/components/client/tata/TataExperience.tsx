@@ -49,7 +49,9 @@ import {
   TATA_DNA_CARDS,
   TATA_HERO,
   TATA_CAMPUS_PROFILES,
+  TATA_IDENTITIES,
   TATA_LOCKUP,
+  TATA_LOGO_STORY,
   TATA_WHO,
   TATA_SYSTEM,
   TATA_WORK_BAND,
@@ -509,134 +511,218 @@ export function TataExperience() {
             </div>
           </section>
 
-          {/* ── 02 — one parent mark, two campus dialects ──
-              ⚠ The three marks are the SUPPLIED files. The comp's versions are
-              redrawn and wrong in the details; this is the client's identity, so
-              it is the rulebook's own artwork or nothing. */}
-          <Band
-            band={TATA_SYSTEM}
-            ground="bg-neutral-100/40"
-            cta={<TataRoomLink room="brand-guidelines">Explore brand system</TataRoomLink>}
-          >
-            <div className="flex flex-col items-center">
-              <span className="relative block h-14 w-full max-w-[15rem]">
-                <Image
-                  src={TATA_LOCKUP.parent.logo}
-                  alt={`${TATA_LOCKUP.parent.label} logo`}
-                  fill
-                  sizes="240px"
-                  className="object-contain"
-                />
-              </span>
+          {/* ── 02 — the mark's change of voice ─────────────────────────
+              ⚠ ONE SECTION, THREE MOVEMENTS: what happened to the wordmark,
+              what the rulebook fixed afterwards, and the two campus dialects
+              that grew out of it. Brand DNA was its own band (03) until
+              2026-09-28, when the owner asked for the whole identity story to
+              be told in one place; everything after it moved up a number.
 
-              {/* The bracket that makes the three read as one family. */}
-              <svg
-                aria-hidden
-                viewBox="0 0 100 16"
-                preserveAspectRatio="none"
-                className="mt-5 h-5 w-full max-w-2xl text-neutral-300"
-              >
-                <path
-                  d="M50 0 V6 M14 6 H86 M14 6 V16 M86 6 V16"
-                  fill="none"
-                  stroke="currentColor"
-                  strokeWidth="0.6"
-                  vectorEffect="non-scaling-stroke"
-                />
-              </svg>
-
-              <div className="mt-5 grid w-full grid-cols-1 gap-8 sm:grid-cols-2 sm:gap-6">
-                {TATA_LOCKUP.campuses.map((c) => (
-                  <div key={c.label} className="flex flex-col items-center text-center">
-                    {/* ⚠ The BOX is divided by the file's ink fill, so both
-                        marks end up the same height on screen however much
-                        transparent padding their PNG carries. Sizing the box
-                        alone is what left Mumbai a third the size of
-                        Ahmedabad. The extra height is empty pixels, so the
-                        marks still sit on one line. */}
-                    {/* ⚠ The OUTER box is a fixed height for both campuses, so
-                        the two marks sit on one line and their captions start
-                        level; the inner box is the one divided by the ink fill.
-                        Mumbai's inner box overflows this — deliberately. What
-                        overflows is transparent padding, and centring it is
-                        what keeps the two marks optically the same size
-                        without a second copy of the file on disk. */}
-                    <span className="flex h-24 w-full items-center justify-center">
-                      <span
-                        className="relative block"
-                        style={{
-                          height: `${inkBox(c.ink, CAMPUS_INK_AREA).height}px`,
-                          width: `${inkBox(c.ink, CAMPUS_INK_AREA).width}px`,
-                        }}
-                      >
-                        <Image src={c.logo} alt={`${c.label} logo`} fill sizes="240px" className="object-contain" />
-                      </span>
+              ⚠ The claims here are sourced — see TATA_LOGO_STORY. The new
+              mark's artwork names Copperplate Gothic Bold, the Tata Trusts
+              logo file names it too, and plate 12 of the rulebook says
+              "designed in the signature Tata Trusts font" in as many words. The
+              OLD mark's face is deliberately unnamed: its artwork is outlined,
+              and the letterforms rule out the Myriad Pro it is remembered as. */}
+          <section className="border-t border-neutral-200/70 bg-neutral-100/40">
+            <div
+              className={`${SHELL} grid grid-cols-1 items-start gap-y-8 pt-14 lg:grid-cols-[auto_minmax(0,1fr)_auto] lg:gap-x-10 lg:pt-20`}
+            >
+              <p aria-hidden className="tata-display text-[clamp(2.6rem,5.5vw,4.5rem)] leading-[0.85] text-neutral-300">
+                {TATA_SYSTEM.number}
+              </p>
+              <div className="max-w-2xl">
+                <span className={KICKER}>{TATA_SYSTEM.kicker}</span>
+                <h2 className="tata-display mt-4 text-[clamp(1.55rem,2.7vw,2.25rem)] leading-[1.12] text-neutral-900">
+                  {TATA_SYSTEM.headline.map((line) => (
+                    <span key={line} className="block">
+                      {line}
                     </span>
-                    <p className="tata-body mt-4 max-w-xs text-[0.82rem] leading-relaxed text-neutral-600">{c.line}</p>
-                    {/* The campus palette, from its own rulebook. */}
-                    <ul className="mt-4 flex items-center gap-2">
-                      {c.colours.map((col) => (
-                        <li key={col.hex} className="flex items-center gap-1.5">
-                          <span aria-hidden className="block size-3 rounded-full" style={{ backgroundColor: col.hex }} />
-                          <span className="tata-body text-[0.55rem] uppercase tracking-[0.14em] text-neutral-500">
-                            {col.name}
-                          </span>
-                        </li>
-                      ))}
-                    </ul>
-                  </div>
-                ))}
+                  ))}
+                </h2>
+                {/* ⚠ `max-w-[54ch]` on every paragraph in this section, not a
+                    column width: this band runs long, and a measure set in
+                    characters holds the same reading rhythm whether the
+                    paragraph sits under the headline or beside a mark. */}
+                <p className="tata-body mt-5 max-w-[54ch] text-[0.9rem] leading-relaxed text-neutral-700">
+                  {TATA_SYSTEM.body}
+                </p>
               </div>
+              {TATA_SYSTEM.rail ? <Rail words={TATA_SYSTEM.rail} /> : <span aria-hidden />}
             </div>
-          </Band>
 
-          {/* ── 03 — brand DNA, as five cards of real evidence ── */}
-          <Band
-            band={TATA_DNA}
-            ground="bg-white/55"
-            cta={<TataRoomLink room="brand-guidelines">View brand guidelines</TataRoomLink>}
-          >
-            <ul className="grid grid-cols-2 gap-2 sm:grid-cols-3 xl:grid-cols-5">
-              {TATA_DNA_CARDS.map((card) => (
-                <li key={card.title} className="flex flex-col gap-3 rounded-sm border border-neutral-200 bg-white/80 p-3">
-                  <span className={KICKER}>{card.title}</span>
-
-                  {card.swatches ? (
-                    // The colour card paints itself from the rulebooks' hexes —
-                    // a screenshot of colour would be colour at second hand.
-                    <span className="flex aspect-[16/10] flex-wrap content-center items-center gap-2">
-                      {card.swatches.map((c) => (
-                        <span
-                          key={c.hex}
-                          title={`${c.name} ${c.hex}`}
-                          className="block size-7 rounded-full"
-                          style={{ backgroundColor: c.hex }}
-                        />
-                      ))}
-                    </span>
-                  ) : (
-                    <span className="relative block aspect-[16/10] w-full overflow-hidden bg-white">
+            {/* ── Before and after ── */}
+            <div className={`${SHELL} pt-12 lg:pt-16`}>
+              <div className="grid grid-cols-1 gap-10 sm:grid-cols-2 sm:gap-8">
+                {[TATA_LOGO_STORY.before, TATA_LOGO_STORY.after].map((state, i) => (
+                  <figure key={state.label} className={i === 1 ? "sm:border-l sm:border-neutral-300/70 sm:pl-8" : ""}>
+                    <figcaption className={`${KICKER} block`}>{state.label}</figcaption>
+                    {/* Both marks in one box height, so the change of FACE is
+                        what shows rather than a change of size. */}
+                    <span className="relative mt-5 flex h-16 w-full items-center justify-start sm:h-20">
                       <Image
-                        src={card.plate!}
-                        alt=""
+                        src={state.mark}
+                        alt={state.markAlt}
                         fill
-                        sizes="(max-width: 640px) 45vw, 18vw"
-                        className="object-contain"
+                        sizes="(max-width: 640px) 88vw, 40vw"
+                        className="object-contain object-left"
                       />
                     </span>
-                  )}
+                    <p className="tata-body mt-5 max-w-[42ch] text-[0.85rem] leading-relaxed text-neutral-600">
+                      {state.caption}
+                    </p>
+                  </figure>
+                ))}
+              </div>
 
-                  <span className="tata-body mt-auto block text-[0.55rem] uppercase leading-[1.9] tracking-[0.14em] text-neutral-500">
-                    {card.words.map((w) => (
-                      <span key={w} className="block">
-                        {w}
+              {/* ── How it happened ── */}
+              <ol className="mt-12 grid grid-cols-1 gap-x-8 gap-y-7 sm:grid-cols-2 xl:grid-cols-4">
+                {TATA_LOGO_STORY.steps.map((step) => (
+                  <li key={step.title} className="border-t border-neutral-300/70 pt-4">
+                    <h3 className={`${KICKER} text-neutral-700`}>{step.title}</h3>
+                    <p className="tata-body mt-3 max-w-[42ch] text-[0.85rem] leading-relaxed text-neutral-600">
+                      {step.text}
+                    </p>
+                  </li>
+                ))}
+              </ol>
+            </div>
+
+            {/* ── What the rulebook fixes ── */}
+            <div className={`${SHELL} mt-14 border-t border-neutral-200/70 pt-12 lg:mt-16`}>
+              <div className="grid grid-cols-1 items-start gap-y-6 lg:grid-cols-[minmax(0,26rem)_minmax(0,1fr)] lg:gap-x-12">
+                <div>
+                  <span className={KICKER}>{TATA_DNA.kicker}</span>
+                  <p className="tata-body mt-4 max-w-[54ch] text-[0.9rem] leading-relaxed text-neutral-700">
+                    {TATA_DNA.body}
+                  </p>
+                  <div className="mt-7">
+                    <TataRoomLink room="brand-guidelines">View brand guidelines</TataRoomLink>
+                  </div>
+                </div>
+
+                <ul className="grid grid-cols-2 gap-2 sm:grid-cols-3 xl:grid-cols-5">
+                  {TATA_DNA_CARDS.map((card) => (
+                    <li key={card.title} className="flex flex-col gap-3 rounded-sm border border-neutral-200 bg-white/80 p-3">
+                      <span className={KICKER}>{card.title}</span>
+
+                      {card.swatches ? (
+                        // The colour card paints itself from the rulebooks'
+                        // hexes — a screenshot of colour would be colour at
+                        // second hand.
+                        <span className="flex aspect-[16/10] flex-wrap content-center items-center gap-2">
+                          {card.swatches.map((c) => (
+                            <span
+                              key={c.hex}
+                              title={`${c.name} ${c.hex}`}
+                              className="block size-7 rounded-full"
+                              style={{ backgroundColor: c.hex }}
+                            />
+                          ))}
+                        </span>
+                      ) : (
+                        <span className="relative block aspect-[16/10] w-full overflow-hidden bg-white">
+                          <Image
+                            src={card.plate!}
+                            alt=""
+                            fill
+                            sizes="(max-width: 640px) 45vw, 18vw"
+                            className="object-contain"
+                          />
+                        </span>
+                      )}
+
+                      <span className="tata-body mt-auto block text-[0.55rem] uppercase leading-[1.9] tracking-[0.14em] text-neutral-500">
+                        {card.words.map((w) => (
+                          <span key={w} className="block">
+                            {w}
+                          </span>
+                        ))}
                       </span>
-                    ))}
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            </div>
+
+            {/* ── One vision, three identities ──
+                ⚠ The three marks are the SUPPLIED files. The comp's versions
+                are redrawn and wrong in the details; this is the client's
+                identity, so it is the rulebook's own artwork or nothing. */}
+            <div className={`${SHELL} mt-14 border-t border-neutral-200/70 py-12 lg:mt-16 lg:pb-20`}>
+              <div className="grid grid-cols-1 items-start gap-y-8 lg:grid-cols-[minmax(0,26rem)_minmax(0,1fr)] lg:gap-x-12">
+                <div>
+                  <span className={KICKER}>{TATA_IDENTITIES.kicker}</span>
+                  <p className="tata-body mt-4 max-w-[54ch] text-[0.9rem] leading-relaxed text-neutral-700">
+                    {TATA_IDENTITIES.body}
+                  </p>
+                  <div className="mt-7">
+                    <TataRoomLink room="brand-guidelines">Explore brand system</TataRoomLink>
+                  </div>
+                </div>
+
+                <div className="flex flex-col items-center">
+                  <span className="relative block h-14 w-full max-w-[15rem]">
+                    <Image
+                      src={TATA_LOCKUP.parent.logo}
+                      alt={`${TATA_LOCKUP.parent.label} logo`}
+                      fill
+                      sizes="240px"
+                      className="object-contain"
+                    />
                   </span>
-                </li>
-              ))}
-            </ul>
-          </Band>
+
+                  {/* The bracket that makes the three read as one family. */}
+                  <svg
+                    aria-hidden
+                    viewBox="0 0 100 16"
+                    preserveAspectRatio="none"
+                    className="mt-5 h-5 w-full max-w-2xl text-neutral-300"
+                  >
+                    <path
+                      d="M50 0 V6 M14 6 H86 M14 6 V16 M86 6 V16"
+                      fill="none"
+                      stroke="currentColor"
+                      strokeWidth="0.6"
+                      vectorEffect="non-scaling-stroke"
+                    />
+                  </svg>
+
+                  <div className="mt-5 grid w-full grid-cols-1 gap-8 sm:grid-cols-2 sm:gap-6">
+                    {TATA_LOCKUP.campuses.map((c) => (
+                      <div key={c.label} className="flex flex-col items-center text-center">
+                        <span className="flex h-24 w-full items-center justify-center">
+                          <span
+                            className="relative block"
+                            style={{
+                              height: `${inkBox(c.ink, CAMPUS_INK_AREA).height}px`,
+                              width: `${inkBox(c.ink, CAMPUS_INK_AREA).width}px`,
+                            }}
+                          >
+                            <Image src={c.logo} alt={`${c.label} logo`} fill sizes="240px" className="object-contain" />
+                          </span>
+                        </span>
+                        <p className="tata-body mt-4 max-w-[38ch] text-[0.82rem] leading-relaxed text-neutral-600">
+                          {c.line}
+                        </p>
+                        {/* The campus palette, from its own rulebook. */}
+                        <ul className="mt-4 flex items-center gap-2">
+                          {c.colours.map((col) => (
+                            <li key={col.hex} className="flex items-center gap-1.5">
+                              <span aria-hidden className="block size-3 rounded-full" style={{ backgroundColor: col.hex }} />
+                              <span className="tata-body text-[0.55rem] uppercase tracking-[0.14em] text-neutral-500">
+                                {col.name}
+                              </span>
+                            </li>
+                          ))}
+                        </ul>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              </div>
+            </div>
+          </section>
 
           {/* ── 04 — the work, then the six rooms ──
               ⚠ THIS PAGE IS CLICK-TO-VIEW (owner, 2026-08-25). It used to render
