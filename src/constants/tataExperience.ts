@@ -63,19 +63,53 @@ export const TATA_POWERED_BY: {
   },
 ];
 
-/** px². The ink area every endorsement is scaled to — a 57×57 square's worth.
+/** px². The ink area every endorsement is scaled to — a 44×44 square's worth.
  *  Height then falls out as √(AREA / aspect), so a long wordmark comes out
  *  short and wide and a tall emblem narrow and tall, both weighing the same.
  *  ⚠ A floor on the height was tried and removed the same day: at 26px the
  *  9.8:1 Tata Trusts wordmark ran 254px wide and dwarfed the other three, which
  *  is the very thing this is here to stop. Area, and nothing else. The four
- *  together come to ~490px, which is what keeps them on one line in the hero's
- *  column — raising this wraps them. */
-export const POWERED_INK_AREA = 3200;
+ *  together come to ~380px, which is what keeps them on one line in the hero's
+ *  column — raising this wraps them.
+ *  ⚠ 3200 until 2026-09-26, when the owner asked for the row to stay equal-area
+ *  but sit smaller under the enlarged wordmark. */
+export const POWERED_INK_AREA = 1900;
 
-/** The circuit-grid texture (`gridNEW`) — the page body wash and the whisper
- *  behind the IISA / IISM guideline columns. Source: user's `Grid-min.png`. */
-export const TATA_GRID = `${BRAND}/gridNEW.webp`;
+/** How much ink a logo in the two campus columns of band 01 covers. Bigger
+ *  than the endorsements: these are the subject of that band, not a credit. */
+export const CAMPUS_INK_AREA = 3200;
+
+/** A logo's box, sized so its INK covers `area` px² however the file is padded.
+ *
+ * ⚠ THIS IS THE ONE PLACE THAT MATH LIVES. Three parts of the Tata page show
+ * logos side by side — the hero's endorsements, band 01's two campuses, band
+ * 02's family tree — and every one of them was getting it wrong in its own way
+ * before: a wordmark against an emblem sized by file height comes out four
+ * times too small, and the same pair sized by INK height still reads unequal
+ * because a long mark at the same height covers far more paper.
+ *
+ * Equal ink AREA is what the eye actually reads as "the same size" across
+ * shapes that different, so height falls out as √(area / inkAspect).
+ *   · `aspect` — the INK's width ÷ height
+ *   · `fillH`  — the fraction of the FILE's height the ink uses
+ *   · `box`    — the FILE's width ÷ height, which is what object-contain fits
+ * `padBottom` is the transparent slack under the ink, for pulling a row of
+ * logos onto one baseline. All four Tata files pad symmetrically (measured). */
+export function inkBox(ink: { aspect: number; fillH: number; box: number }, area: number) {
+  const height = Math.sqrt(area / ink.aspect) / ink.fillH;
+  return { height, width: height * ink.box, padBottom: (height * (1 - ink.fillH)) / 2 };
+}
+
+/** The circuit-grid texture behind the whole page.
+ *
+ *  ⚠ REPLACED 2026-09-26 by a file the owner supplied — same circuitry, but
+ *  with a fine graph-paper grid across the full frame rather than only a
+ *  vignette. `gridNEW.webp` (the old one, from `Grid-min.png`) is left on disk
+ *  and is now referenced by nothing; delete it if the new wash sticks.
+ *  ⚠ It is the PAGE wash only. The guideline columns wear `texture-iisa` /
+ *  `texture-iism` instead (LogoSystem) — the note that used to claim this file
+ *  did both was wrong. */
+export const TATA_GRID = `${BRAND}/grid-2026.webp`;
 
 /** The logo-guideline system (dedicated sections above the work). */
 export const TATA_GUIDELINES = {
@@ -84,7 +118,17 @@ export const TATA_GUIDELINES = {
   iisa: {
     logo: `${BRAND}/iisa.png`,
     plates: Array.from({ length: 6 }, (_, i) => `${BRAND}/guidelines-iisa/plate-${String(i + 1).padStart(2, "0")}.webp`),
-    line: "A canopy of growth in navy and orange, rising from machined stems.",
+    // ⚠ THE CAMPUS'S OWN RATIONALE, condensed — not a description of how the
+    // mark looks. The owner supplied Ahmedabad's on 2026-09-26 ("inspired by
+    // the tree of knowledge… interspersed dots representing various skills…
+    // the bark represents individuals with different mindsets coming together
+    // with a common purpose of growth… one can subtly see the acronym IIS,
+    // which also represents students as figurines") and said the line that
+    // stood here before — an invented one about navy and orange stems — was
+    // wrong. Do not reword these into something that scans better: they are
+    // the institute explaining its own mark.
+    line:
+      "The tree of knowledge: dots through the canopy for the skills taught, a bark of individuals grown to one purpose, and the letters IIS standing in it as figures.",
     colours: [
       { hex: "#0d3857", name: "Blue" },
       { hex: "#ed6f24", name: "Orange" },
@@ -94,7 +138,15 @@ export const TATA_GUIDELINES = {
   iism: {
     logo: `${BRAND}/iism.png`,
     plates: Array.from({ length: 6 }, (_, i) => `${BRAND}/guidelines-iism/plate-${String(i + 1).padStart(2, "0")}.webp`),
-    line: "Teal and violet planes, angled like sheet metal in motion.",
+    // ⚠ Condensed from the Rationale plate in Mumbai's OWN rulebook
+    // (guidelines-iism/plate-02): "Two parallelograms with triangles,
+    // incrementally placed alongside an elevated 'S,' symbolize rising
+    // expertise and progression. The bold Poppins font… conveys modernity and
+    // structure… embodies stability, aspiration, and IIS Mumbai's
+    // forward-thinking vision." The line that stood here before was invented
+    // and, like Ahmedabad's, wrong.
+    line:
+      "Two parallelograms and triangles climbing an elevated S: rising expertise and progression, set in bold Poppins for stability and structure.",
     colours: [
       { hex: "#502f7d", name: "Violet" },
       { hex: "#00a2b4", name: "Teal" },

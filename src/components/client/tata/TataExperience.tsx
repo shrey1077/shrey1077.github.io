@@ -33,6 +33,8 @@ import Image from "next/image";
 import { clientExperienceBySlug } from "@/constants/clientExperiences";
 import { readCatalogueCategory } from "@/content/catalogue";
 import {
+  CAMPUS_INK_AREA,
+  inkBox,
   POWERED_INK_AREA,
   TATA_DESCRIPTION,
   TATA_POWERED_BY,
@@ -43,17 +45,28 @@ import {
 import { brandOf, TATA_SECTIONS, TATA_WORK_INTRO } from "@/constants/tataSections";
 import {
   TATA_COLLABORATE,
+  TATA_BRAND_BOOK,
   TATA_DNA,
-  TATA_DNA_CARDS,
   TATA_HERO,
-  TATA_INSTITUTE,
+  TATA_CAMPUS_PROFILES,
+  TATA_IDENTITIES,
   TATA_LOCKUP,
+  TATA_LOGO_STORY,
+  TATA_WHO,
   TATA_SYSTEM,
   TATA_WORK_BAND,
   type TataBand,
 } from "@/constants/tataStory";
 import { TATA_PINS } from "@/constants/tataPins";
 import { TataRoomLink } from "@/components/client/tata/TataRoomLink";
+import { CampusTheme } from "@/components/client/tata/CampusTheme";
+import { BrandBook } from "@/components/client/tata/BrandBook";
+import {
+  WorkShowcase,
+  type ShowcasePanelView,
+  type ShowcaseSubsection,
+} from "@/components/client/tata/WorkShowcase";
+import { SHOWCASE_PER_PANEL, TATA_SHOWCASE, TATA_SHOWCASE_GRID } from "@/constants/tataShowcase";
 import { SITE } from "@/constants/site";
 import { TATA_THEMES, THEME_SLIDER_MAX } from "@/constants/tataThemes";
 import type { GuidelineBrand } from "@/components/client/tata/GuidelineSlider";
@@ -208,9 +221,101 @@ export function TataExperience() {
     return { ...s, themes: themePool(pool) };
   });
 
+  /* ── Each showcase panel's subsections ──────────────────────────────────
+     Clicking a panel lays its subsections out under the composition (owner,
+     2026-09-27, from Print). ⚠ THEY ARE THE SITE'S OWN SUBSECTIONS, not the raw
+     archive's folders: the Print room already carries the processed catalogue
+     folders the archive's `Print/` subfolders became, so the cards and the room
+     cannot disagree, and every card with work in it has a catalogue page to
+     link to. The archive and the site differ slightly, on purpose — Stickers
+     and Notepad are one subsection here, and Trifolds and Backgrounds join
+     Print from elsewhere in the archive. See TATA_SECTIONS.
+
+     ⚠ Paired with `sections` BY INDEX: both are TATA_SECTIONS mapped in order,
+     and only the raw item knows its folder id while only the resolved one
+     knows its count and assets. */
+  const subsectionsOf = (
+    sectionId: string,
+    keep: (label: string) => boolean = () => true,
+  ): ShowcaseSubsection[] => {
+    const raw = TATA_SECTIONS.find((sec) => sec.id === sectionId);
+    const resolved = sections.find((sec) => sec.id === sectionId);
+    if (!raw || !resolved) return [];
+    return raw.items
+      .map((item, i) => ({ item, res: resolved.items[i] }))
+      .filter(({ item }) => keep(item.label))
+      .map(({ item, res }) => {
+        const image = res.assets.find((a) => a.kind === "image");
+        return {
+          key: res.key,
+          label: item.label,
+          // The work itself when there is any; the product cutout otherwise.
+          thumb: image?.url ?? res.mockup,
+          thumbFit: image ? "cover" : "contain",
+          meta: res.count > 0 ? `${res.count} ${res.count === 1 ? "piece" : "pieces"}` : "No plates yet",
+          href: item.folder && res.count > 0 ? `/clients/${SLUG}/catalogue/${item.folder}` : undefined,
+        } satisfies ShowcaseSubsection;
+      });
+  };
+
+  /** Brand has no work folders — its subsections are the three rulebooks, and
+   *  they open in the Brand Guidelines room rather than on a page of their own. */
+  const rulebooks: ShowcaseSubsection[] = [
+    { label: "Tata IIS", thumb: TATA_GUIDELINES.tataPlates[0], plates: TATA_GUIDELINES.tataPlates.length },
+    { label: "IIS Ahmedabad", thumb: TATA_GUIDELINES.iisa.plates[0], plates: TATA_GUIDELINES.iisa.plates.length },
+    { label: "IIS Mumbai", thumb: TATA_GUIDELINES.iism.plates[0], plates: TATA_GUIDELINES.iism.plates.length },
+  ].map((book) => ({
+    key: `brand:${book.label}`,
+    label: book.label,
+    thumb: book.thumb,
+    thumbFit: "contain" as const,
+    meta: `${book.plates} plates`,
+    room: "brand-guidelines",
+  }));
+
+  const SUBSECTIONS: Record<string, ShowcaseSubsection[]> = {
+    brand: rulebooks,
+    print: subsectionsOf("print"),
+    digital: subsectionsOf("digital"),
+    photography: subsectionsOf("photo-videography", (label) => /photo/i.test(label)),
+    // The films live under two rooms — Videography and Digital's YouTube cut —
+    // and both are editing work, so both belong to this panel.
+    video: [
+      ...subsectionsOf("photo-videography", (label) => /video/i.test(label)),
+      ...subsectionsOf("digital", (label) => /video/i.test(label)),
+    ],
+  };
+
+  /* The five showcase panels, filled from the catalogue the page already
+     reads. ⚠ A panel with nothing behind it is DROPPED rather than rendered
+     empty — the composition is five shapes that interlock, and a blank one
+     would be a hole in it. */
+  const showcase: ShowcasePanelView[] = TATA_SHOWCASE.map((panel) => {
+    const fromFolders = panel.folders.flatMap((folder) =>
+      (readCatalogueCategory(SLUG, folder)?.assets ?? [])
+        .filter((a) => a.kind === "image")
+        .slice(0, SHOWCASE_PER_PANEL),
+    );
+    const images = [
+      ...(panel.plates ?? []).map((src) => ({
+        src,
+        alt: `${panel.label} — Tata IIS`,
+        panel: panel.id,
+        fit: panel.fit,
+      })),
+      ...fromFolders.map((a) => ({
+        src: a.url,
+        alt: a.caption ?? `${panel.label} — Tata IIS`,
+        panel: panel.id,
+        fit: panel.fit,
+      })),
+    ].slice(0, SHOWCASE_PER_PANEL);
+    return { ...panel, images, subsections: SUBSECTIONS[panel.id] ?? [] };
+  }).filter((panel) => panel.images.length > 0);
+
   return (
     <main className="tata-scope tata-body relative min-h-dvh w-full bg-gallery" style={themeVars}>
-      {/* Circuit-grid wash (gridNEW) — a fixed whisper behind the whole page. */}
+      {/* Circuit-grid wash — a fixed whisper behind the whole page. */}
       <div aria-hidden className="pointer-events-none fixed inset-0 z-0">
         <Image src={TATA_GRID} alt="" fill priority sizes="100vw" className="object-cover opacity-70" />
       </div>
@@ -282,14 +387,19 @@ export function TataExperience() {
               <div className="flex flex-1 flex-col justify-center py-10 lg:w-[46%] lg:py-0">
                 <span className={KICKER}>{TATA_HERO.eyebrow.join("   /   ")}</span>
 
-                {/* The real wordmark file — never type set to look like it. */}
-                <span className="relative mt-6 block h-14 w-full max-w-[21rem] sm:h-[4.5rem]">
+                {/* The real wordmark file — never type set to look like it.
+                    ⚠ TWICE THE SIZE it was (owner, 2026-09-26): h-14/h-[4.5rem]
+                    became h-28/h-[9rem]. The file is 1020×257, so at 144px tall
+                    it wants 571px of width — `max-w-[36rem]` is just past that,
+                    which lets the height lead and keeps the mark off the
+                    artwork bleeding in from the right. */}
+                <span className="relative mt-6 block h-28 w-full max-w-[36rem] sm:h-[9rem]">
                   <Image
                     src={TATA_GUIDELINES.wordmark}
                     alt="TATA IIS — Tata Indian Institute of Skills"
                     fill
                     priority
-                    sizes="336px"
+                    sizes="576px"
                     className="object-contain object-left"
                   />
                 </span>
@@ -305,45 +415,55 @@ export function TataExperience() {
                 </h1>
 
                 <span aria-hidden className="mt-7 block h-px w-9 bg-neutral-400" />
-
-                <p className="tata-body mt-6 max-w-xl text-[0.92rem] leading-relaxed text-neutral-700">
-                  {TATA_DESCRIPTION}
-                </p>
-
-                {/* What the page holds, named up front. These ARE the rooms, so
-                    the list cannot drift from what opens further down.
-                    ⚠ The separator TRAILS its item rather than leading the next
-                    one: leading it puts a stray "/" at the start of any line the
-                    list wraps onto. */}
-                <ul className="mt-9 flex flex-wrap items-center gap-x-2 gap-y-2">
-                  {TATA_PINS.map((pin, i) => (
-                    <li key={pin.id} className={KICKER}>
-                      {pin.label}
-                      {i < TATA_PINS.length - 1 && (
-                        <span aria-hidden className="ml-2 text-neutral-300">
-                          /
-                        </span>
-                      )}
-                    </li>
-                  ))}
-                </ul>
-
-                {/* The phone's copy of the artwork, in flow. Hidden from the
-                    moment the bleed layer above takes over. */}
-                <div className="relative mt-10 block aspect-[1071/1469] w-full lg:hidden">
-                  <Image
-                    src={TATA_HERO.art}
-                    alt={TATA_HERO.artAlt}
-                    fill
-                    sizes="92vw"
-                    className="object-contain"
-                  />
-                </div>
               </div>
 
               {/* ── The foot: who stands behind the institute, and the scroll
                   cue. Moved down here from beside the artwork on 2026-09-23. ── */}
-              <div className="relative mt-10 flex flex-wrap items-end justify-between gap-8 pb-10 lg:w-[46%]">
+              {/* ⚠ THE BODY COPY LIVES DOWN HERE (owner, 2026-09-27). It sat in
+                  the centred block with the wordmark and the headline, which
+                  left a gap of dead air between the room list and the
+                  endorsements; the copy now closes that gap from below and the
+                  headline keeps the middle of the stage to itself.
+                  On a phone this is all one column anyway, so the reading order
+                  is unchanged: wordmark, headline, copy, rooms, artwork,
+                  endorsements. */}
+              <div className="relative mt-auto pt-10 lg:w-[46%]">
+                  <p className="tata-body mt-6 max-w-xl text-[0.92rem] leading-relaxed text-neutral-700">
+                    {TATA_DESCRIPTION}
+                  </p>
+
+                  {/* What the page holds, named up front. These ARE the rooms, so
+                      the list cannot drift from what opens further down.
+                      ⚠ The separator TRAILS its item rather than leading the next
+                      one: leading it puts a stray "/" at the start of any line the
+                      list wraps onto. */}
+                  <ul className="mt-9 flex flex-wrap items-center gap-x-2 gap-y-2">
+                    {TATA_PINS.map((pin, i) => (
+                      <li key={pin.id} className={KICKER}>
+                        {pin.label}
+                        {i < TATA_PINS.length - 1 && (
+                          <span aria-hidden className="ml-2 text-neutral-300">
+                            /
+                          </span>
+                        )}
+                      </li>
+                    ))}
+                  </ul>
+
+                  {/* The phone's copy of the artwork, in flow. Hidden from the
+                      moment the bleed layer above takes over. */}
+                  <div className="relative mt-10 block aspect-[1071/1469] w-full lg:hidden">
+                    <Image
+                      src={TATA_HERO.art}
+                      alt={TATA_HERO.artAlt}
+                      fill
+                      sizes="92vw"
+                      className="object-contain"
+                    />
+                  </div>
+              </div>
+
+              <div className="relative mt-8 flex flex-wrap items-end justify-between gap-8 pb-10 lg:w-[46%]">
                 <div>
                   <span className={KICKER}>Powered by</span>
                   {/* ⚠ EQUAL INK AREA, not equal height or equal box. See
@@ -360,27 +480,19 @@ export function TataExperience() {
                           </li>
                         );
                       }
-                      const ink = p.ink ?? { aspect: 3, fillH: 1, box: 3 };
-                      const inkH = Math.sqrt(POWERED_INK_AREA / ink.aspect);
-                      // The file's padding, undone: the BOX has to be taller
-                      // than the ink by however much white the export carries —
-                      // and as wide as the FILE, or `object-contain` fits the
-                      // image to a box the wrong shape and shrinks it again.
-                      const boxH = inkH / ink.fillH;
-                      // ⚠ …and then the box is pulled DOWN by the padding under
-                      // the ink, so what lines up along the row is the ink's own
-                      // baseline rather than the edge of four differently padded
-                      // canvases. All four pad symmetrically (measured), so half
-                      // the slack is under the mark.
-                      const padBottom = (boxH * (1 - ink.fillH)) / 2;
+                      // ⚠ Equal ink AREA, and the box pulled DOWN by the
+                      // padding under the ink — so what lines up along the row
+                      // is each mark's own baseline rather than the edge of
+                      // four differently padded canvases. See `inkBox`.
+                      const box = inkBox(p.ink ?? { aspect: 3, fillH: 1, box: 3 }, POWERED_INK_AREA);
                       return (
                         <li key={p.name}>
                           <span
                             className="relative block"
                             style={{
-                              height: `${boxH}px`,
-                              width: `${boxH * ink.box}px`,
-                              marginBottom: `${-padBottom}px`,
+                              height: `${box.height}px`,
+                              width: `${box.width}px`,
+                              marginBottom: `${-box.padBottom}px`,
                             }}
                           >
                             <Image
@@ -405,144 +517,263 @@ export function TataExperience() {
             </div>
           </header>
 
-          {/* ── 01 — the institute ── */}
-          <Band band={TATA_INSTITUTE} ground="bg-white/55">
-            <span className="relative block aspect-[16/9] w-full overflow-hidden rounded-sm">
-              <Image
-                src={TATA_INSTITUTE.photo}
-                alt={TATA_INSTITUTE.photoAlt}
-                fill
-                sizes="(max-width: 1024px) 92vw, 46vw"
-                className="object-cover"
-              />
-            </span>
-          </Band>
-
-          {/* ── 02 — one parent mark, two campus dialects ──
-              ⚠ The three marks are the SUPPLIED files. The comp's versions are
-              redrawn and wrong in the details; this is the client's identity, so
-              it is the rulebook's own artwork or nothing. */}
-          <Band
-            band={TATA_SYSTEM}
-            ground="bg-neutral-100/40"
-            cta={<TataRoomLink room="brand-guidelines">Explore brand system</TataRoomLink>}
-          >
-            <div className="flex flex-col items-center">
-              <span className="relative block h-14 w-full max-w-[15rem]">
-                <Image
-                  src={TATA_LOCKUP.parent.logo}
-                  alt={`${TATA_LOCKUP.parent.label} logo`}
-                  fill
-                  sizes="240px"
-                  className="object-contain"
-                />
-              </span>
-
-              {/* The bracket that makes the three read as one family. */}
-              <svg
-                aria-hidden
-                viewBox="0 0 100 16"
-                preserveAspectRatio="none"
-                className="mt-5 h-5 w-full max-w-2xl text-neutral-300"
-              >
-                <path
-                  d="M50 0 V6 M14 6 H86 M14 6 V16 M86 6 V16"
-                  fill="none"
-                  stroke="currentColor"
-                  strokeWidth="0.6"
-                  vectorEffect="non-scaling-stroke"
-                />
-              </svg>
-
-              <div className="mt-5 grid w-full grid-cols-1 gap-8 sm:grid-cols-2 sm:gap-6">
-                {TATA_LOCKUP.campuses.map((c) => (
-                  <div key={c.label} className="flex flex-col items-center text-center">
-                    {/* ⚠ The BOX is divided by the file's ink fill, so both
-                        marks end up the same height on screen however much
-                        transparent padding their PNG carries. Sizing the box
-                        alone is what left Mumbai a third the size of
-                        Ahmedabad. The extra height is empty pixels, so the
-                        marks still sit on one line. */}
-                    {/* ⚠ The OUTER box is a fixed height for both campuses, so
-                        the two marks sit on one line and their captions start
-                        level; the inner box is the one divided by the ink fill.
-                        Mumbai's inner box overflows this — deliberately. What
-                        overflows is transparent padding, and centring it is
-                        what keeps the two marks optically the same size
-                        without a second copy of the file on disk. */}
-                    <span className="flex h-24 w-full items-center justify-center">
-                      <span
-                        className="relative block w-full"
-                        style={{ height: `${4 / c.inkFill}rem`, maxWidth: `${13 / c.inkFill}rem` }}
-                      >
-                        <Image src={c.logo} alt={`${c.label} logo`} fill sizes="240px" className="object-contain" />
-                      </span>
+          {/* ── 01 — who we are: the two campuses, each with its building ──
+              ⚠ NOT a <Band>. Every other band is a head beside one piece of
+              evidence; this one is a head ABOVE two equal columns, because the
+              owner asked on 2026-09-26 for both campuses to introduce
+              themselves side by side and neither is the other's subordinate.
+              The photographs are the client's own buildings, supplied by the
+              owner — Lab 1 at Ahmedabad, the Chunabhatti frontage at Mumbai. */}
+          <section className="border-t border-neutral-200/70 bg-white/55">
+            <div
+              className={`${SHELL} grid grid-cols-1 items-start gap-y-8 pt-14 lg:grid-cols-[auto_minmax(0,1fr)_auto] lg:gap-x-10 lg:pt-20`}
+            >
+              <p aria-hidden className="tata-display text-[clamp(2.6rem,5.5vw,4.5rem)] leading-[0.85] text-neutral-300">
+                {TATA_WHO.number}
+              </p>
+              <div className="max-w-2xl">
+                <span className={KICKER}>{TATA_WHO.kicker}</span>
+                <h2 className="tata-display mt-4 text-[clamp(1.55rem,2.7vw,2.25rem)] leading-[1.12] text-neutral-900">
+                  {TATA_WHO.headline.map((line) => (
+                    <span key={line} className="block">
+                      {line}
                     </span>
-                    <p className="tata-body mt-4 max-w-xs text-[0.82rem] leading-relaxed text-neutral-600">{c.line}</p>
-                    {/* The campus palette, from its own rulebook. */}
-                    <ul className="mt-4 flex items-center gap-2">
-                      {c.colours.map((col) => (
-                        <li key={col.hex} className="flex items-center gap-1.5">
-                          <span aria-hidden className="block size-3 rounded-full" style={{ backgroundColor: col.hex }} />
-                          <span className="tata-body text-[0.55rem] uppercase tracking-[0.14em] text-neutral-500">
-                            {col.name}
-                          </span>
-                        </li>
-                      ))}
-                    </ul>
-                  </div>
-                ))}
+                  ))}
+                </h2>
+                <p className="tata-body mt-5 max-w-xl text-[0.9rem] leading-relaxed text-neutral-700">
+                  {TATA_WHO.body}
+                </p>
               </div>
+              {TATA_WHO.rail ? <Rail words={TATA_WHO.rail} /> : <span aria-hidden />}
             </div>
-          </Band>
 
-          {/* ── 03 — brand DNA, as five cards of real evidence ── */}
-          <Band
-            band={TATA_DNA}
-            ground="bg-white/55"
-            cta={<TataRoomLink room="brand-guidelines">View brand guidelines</TataRoomLink>}
-          >
-            <ul className="grid grid-cols-2 gap-2 sm:grid-cols-3 xl:grid-cols-5">
-              {TATA_DNA_CARDS.map((card) => (
-                <li key={card.title} className="flex flex-col gap-3 rounded-sm border border-neutral-200 bg-white/80 p-3">
-                  <span className={KICKER}>{card.title}</span>
+            <div className={`${SHELL} grid grid-cols-1 gap-10 pb-14 md:grid-cols-2 md:gap-10 lg:pb-20 lg:pt-6`}>
+              {TATA_CAMPUS_PROFILES.map((campus) => (
+                <article key={campus.label}>
+                  {/* Each column runs its own film, then its own photographs.
+                      Ahmedabad has three, Mumbai one — see
+                      TATA_CAMPUS_PROFILES. CampusTheme handles both, and the
+                      box is the same either way. */}
+                  <CampusTheme
+                    film={campus.film}
+                    photos={campus.photos}
+                    sizes="(max-width: 768px) 92vw, 45vw"
+                  />
 
-                  {card.swatches ? (
-                    // The colour card paints itself from the rulebooks' hexes —
-                    // a screenshot of colour would be colour at second hand.
-                    <span className="flex aspect-[16/10] flex-wrap content-center items-center gap-2">
-                      {card.swatches.map((c) => (
-                        <span
-                          key={c.hex}
-                          title={`${c.name} ${c.hex}`}
-                          className="block size-7 rounded-full"
-                          style={{ backgroundColor: c.hex }}
-                        />
-                      ))}
-                    </span>
-                  ) : (
-                    <span className="relative block aspect-[16/10] w-full overflow-hidden bg-white">
+                  {/* The campus mark, sized so the two cover the same ink —
+                      see `inkBox`. The outer box is a fixed height for both;
+                      Mumbai's inner box overflows it with transparent padding,
+                      which is what makes the two marks weigh the same without a
+                      second copy of the file on disk. */}
+                  <span className="mt-6 flex h-14 w-full items-center justify-start">
+                    <span
+                      className="relative block"
+                      style={{
+                        height: `${inkBox(campus.ink, CAMPUS_INK_AREA).height}px`,
+                        width: `${inkBox(campus.ink, CAMPUS_INK_AREA).width}px`,
+                      }}
+                    >
                       <Image
-                        src={card.plate!}
-                        alt=""
+                        src={campus.logo}
+                        alt={`${campus.label} logo`}
                         fill
-                        sizes="(max-width: 640px) 45vw, 18vw"
-                        className="object-contain"
+                        sizes="180px"
+                        className="object-contain object-left"
                       />
                     </span>
-                  )}
-
-                  <span className="tata-body mt-auto block text-[0.55rem] uppercase leading-[1.9] tracking-[0.14em] text-neutral-500">
-                    {card.words.map((w) => (
-                      <span key={w} className="block">
-                        {w}
-                      </span>
-                    ))}
                   </span>
-                </li>
+
+                  <p className="tata-body mt-4 text-[0.88rem] leading-relaxed text-neutral-700">
+                    {campus.text}
+                  </p>
+                </article>
               ))}
-            </ul>
-          </Band>
+            </div>
+          </section>
+
+          {/* ── 02 — the mark's change of voice ─────────────────────────
+              ⚠ ONE SECTION, THREE MOVEMENTS: what happened to the wordmark,
+              what the rulebook fixed afterwards, and the two campus dialects
+              that grew out of it. Brand DNA was its own band (03) until
+              2026-09-28, when the owner asked for the whole identity story to
+              be told in one place; everything after it moved up a number.
+
+              ⚠ The claims here are sourced — see TATA_LOGO_STORY. The new
+              mark's artwork names Copperplate Gothic Bold, the Tata Trusts
+              logo file names it too, and plate 12 of the rulebook says
+              "designed in the signature Tata Trusts font" in as many words. The
+              OLD mark's face is deliberately unnamed: its artwork is outlined,
+              and the letterforms rule out the Myriad Pro it is remembered as. */}
+          <section className="border-t border-neutral-200/70 bg-neutral-100/40">
+            <div
+              className={`${SHELL} grid grid-cols-1 items-start gap-y-8 pt-14 lg:grid-cols-[auto_minmax(0,1fr)_auto] lg:gap-x-10 lg:pt-20`}
+            >
+              <p aria-hidden className="tata-display text-[clamp(2.6rem,5.5vw,4.5rem)] leading-[0.85] text-neutral-300">
+                {TATA_SYSTEM.number}
+              </p>
+              <div className="max-w-2xl">
+                <span className={KICKER}>{TATA_SYSTEM.kicker}</span>
+                <h2 className="tata-display mt-4 text-[clamp(1.55rem,2.7vw,2.25rem)] leading-[1.12] text-neutral-900">
+                  {TATA_SYSTEM.headline.map((line) => (
+                    <span key={line} className="block">
+                      {line}
+                    </span>
+                  ))}
+                </h2>
+                {/* ⚠ `max-w-[54ch]` on every paragraph in this section, not a
+                    column width: this band runs long, and a measure set in
+                    characters holds the same reading rhythm whether the
+                    paragraph sits under the headline or beside a mark. */}
+                <p className="tata-body mt-5 max-w-[54ch] text-[0.9rem] leading-relaxed text-neutral-700">
+                  {TATA_SYSTEM.body}
+                </p>
+              </div>
+              {TATA_SYSTEM.rail ? <Rail words={TATA_SYSTEM.rail} /> : <span aria-hidden />}
+            </div>
+
+            {/* ── Before and after ── */}
+            <div className={`${SHELL} pt-12 lg:pt-16`}>
+              <div className="grid grid-cols-1 gap-10 sm:grid-cols-2 sm:gap-8">
+                {[TATA_LOGO_STORY.before, TATA_LOGO_STORY.after].map((state, i) => (
+                  <figure key={state.label} className={i === 1 ? "sm:border-l sm:border-neutral-300/70 sm:pl-8" : ""}>
+                    <figcaption className={`${KICKER} block`}>{state.label}</figcaption>
+                    {/* Both marks in one box height, so the change of FACE is
+                        what shows rather than a change of size. */}
+                    <span className="relative mt-5 flex h-16 w-full items-center justify-start sm:h-20">
+                      <Image
+                        src={state.mark}
+                        alt={state.markAlt}
+                        fill
+                        sizes="(max-width: 640px) 88vw, 40vw"
+                        className="object-contain object-left"
+                      />
+                    </span>
+                    <p className="tata-body mt-5 max-w-[42ch] text-[0.85rem] leading-relaxed text-neutral-600">
+                      {state.caption}
+                    </p>
+                  </figure>
+                ))}
+              </div>
+
+              {/* ── How it happened ── */}
+              {/* Two columns, not four: the sequence lost half its steps on
+                  2026-09-27 and a four-column grid would have left two empty.
+                  The 42ch measure below is what keeps the lines readable at
+                  the width that leaves. */}
+              <ol className="mt-12 grid grid-cols-1 gap-x-8 gap-y-7 sm:grid-cols-2">
+                {TATA_LOGO_STORY.steps.map((step) => (
+                  <li key={step.title} className="border-t border-neutral-300/70 pt-4">
+                    <h3 className={`${KICKER} text-neutral-700`}>{step.title}</h3>
+                    <p className="tata-body mt-3 max-w-[42ch] text-[0.85rem] leading-relaxed text-neutral-600">
+                      {step.text}
+                    </p>
+                  </li>
+                ))}
+              </ol>
+            </div>
+
+            {/* ── What the rulebook fixes ── */}
+            <div className={`${SHELL} mt-14 border-t border-neutral-200/70 pt-12 lg:mt-16`}>
+              <div className="grid grid-cols-1 items-start gap-y-6 lg:grid-cols-[minmax(0,26rem)_minmax(0,1fr)] lg:gap-x-12">
+                <div>
+                  <span className={KICKER}>{TATA_DNA.kicker}</span>
+                  <p className="tata-body mt-4 max-w-[54ch] text-[0.9rem] leading-relaxed text-neutral-700">
+                    {TATA_DNA.body}
+                  </p>
+                  <div className="mt-7">
+                    <TataRoomLink room="brand-guidelines">View brand guidelines</TataRoomLink>
+                  </div>
+                </div>
+
+                {/* The rulebook itself, closed. Clicking it plays the plates
+                    — see BrandBook. It stands at twice the height of the five
+                    cards it replaced (186px each, measured). */}
+                <BrandBook
+                  wordmark={TATA_BRAND_BOOK.wordmark}
+                  title={TATA_BRAND_BOOK.title}
+                  plates={TATA_BRAND_BOOK.plates}
+                />
+              </div>
+            </div>
+
+            {/* ── One vision, three identities ──
+                ⚠ The three marks are the SUPPLIED files. The comp's versions
+                are redrawn and wrong in the details; this is the client's
+                identity, so it is the rulebook's own artwork or nothing. */}
+            <div className={`${SHELL} mt-14 border-t border-neutral-200/70 py-12 lg:mt-16 lg:pb-20`}>
+              <div className="grid grid-cols-1 items-start gap-y-8 lg:grid-cols-[minmax(0,26rem)_minmax(0,1fr)] lg:gap-x-12">
+                <div>
+                  <span className={KICKER}>{TATA_IDENTITIES.kicker}</span>
+                  <p className="tata-body mt-4 max-w-[54ch] text-[0.9rem] leading-relaxed text-neutral-700">
+                    {TATA_IDENTITIES.body}
+                  </p>
+                  <div className="mt-7">
+                    <TataRoomLink room="brand-guidelines">Explore brand system</TataRoomLink>
+                  </div>
+                </div>
+
+                <div className="flex flex-col items-center">
+                  <span className="relative block h-14 w-full max-w-[15rem]">
+                    <Image
+                      src={TATA_LOCKUP.parent.logo}
+                      alt={`${TATA_LOCKUP.parent.label} logo`}
+                      fill
+                      sizes="240px"
+                      className="object-contain"
+                    />
+                  </span>
+
+                  {/* The bracket that makes the three read as one family. */}
+                  <svg
+                    aria-hidden
+                    viewBox="0 0 100 16"
+                    preserveAspectRatio="none"
+                    className="mt-5 h-5 w-full max-w-2xl text-neutral-300"
+                  >
+                    <path
+                      d="M50 0 V6 M14 6 H86 M14 6 V16 M86 6 V16"
+                      fill="none"
+                      stroke="currentColor"
+                      strokeWidth="0.6"
+                      vectorEffect="non-scaling-stroke"
+                    />
+                  </svg>
+
+                  <div className="mt-5 grid w-full grid-cols-1 gap-8 sm:grid-cols-2 sm:gap-6">
+                    {TATA_LOCKUP.campuses.map((c) => (
+                      <div key={c.label} className="flex flex-col items-center text-center">
+                        <span className="flex h-24 w-full items-center justify-center">
+                          <span
+                            className="relative block"
+                            style={{
+                              height: `${inkBox(c.ink, CAMPUS_INK_AREA).height}px`,
+                              width: `${inkBox(c.ink, CAMPUS_INK_AREA).width}px`,
+                            }}
+                          >
+                            <Image src={c.logo} alt={`${c.label} logo`} fill sizes="240px" className="object-contain" />
+                          </span>
+                        </span>
+                        <p className="tata-body mt-4 max-w-[38ch] text-[0.82rem] leading-relaxed text-neutral-600">
+                          {c.line}
+                        </p>
+                        {/* The campus palette, from its own rulebook. */}
+                        <ul className="mt-4 flex items-center gap-2">
+                          {c.colours.map((col) => (
+                            <li key={col.hex} className="flex items-center gap-1.5">
+                              <span aria-hidden className="block size-3 rounded-full" style={{ backgroundColor: col.hex }} />
+                              <span className="tata-body text-[0.55rem] uppercase tracking-[0.14em] text-neutral-500">
+                                {col.name}
+                              </span>
+                            </li>
+                          ))}
+                        </ul>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              </div>
+            </div>
+          </section>
 
           {/* ── 04 — the work, then the six rooms ──
               ⚠ THIS PAGE IS CLICK-TO-VIEW (owner, 2026-08-25). It used to render
@@ -569,21 +800,23 @@ export function TataExperience() {
                 </h2>
               </div>
               {/* The owner's own account of the job — long, first-person and
-                  already written. It sits beside the photograph rather than
-                  under the headline because it runs three times a band's
-                  usual paragraph. */}
+                  already written. It sits beside the headline rather than under
+                  it because it runs three times a band's usual paragraph.
+                  ⚠ A photograph sat under it (the trainee at the machine) until
+                  2026-09-28. With the showcase below now carrying a large
+                  display of its own, the band had a picture and then another
+                  picture; the owner asked for it to go. */}
               <div className="min-w-0">
                 <p className="tata-body text-[0.9rem] leading-relaxed text-neutral-700">{TATA_WORK_INTRO}</p>
-                <span className="relative mt-8 block aspect-[16/9] w-full overflow-hidden rounded-sm">
-                  <Image
-                    src={TATA_WORK_BAND.photo}
-                    alt={TATA_WORK_BAND.photoAlt}
-                    fill
-                    sizes="(max-width: 1024px) 92vw, 46vw"
-                    className="object-cover"
-                  />
-                </span>
               </div>
+            </div>
+
+            {/* ⚠ OUTSIDE THE SHELL, deliberately: the owner asked for the
+                composition to run the full width of the screen under the
+                description. Only a hair of padding, so the diagonals reach the
+                edges without touching them. */}
+            <div className="mt-12 w-full px-2 sm:px-3 lg:mt-16">
+              <WorkShowcase panels={showcase} gridLines={TATA_SHOWCASE_GRID} />
             </div>
 
             <div className={`${SHELL} pb-16 pt-12 lg:pb-20`}>
