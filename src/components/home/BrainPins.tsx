@@ -53,8 +53,7 @@ export const PIN_OPEN_EVENT = "brainpin:open";
  *  LOGIC_ROW_HALF follows as well, or the artwork stops lining up with the row
  *  opposite — see the note there.
  *
- *  ⚠ THE ROWS DO NOT MOVE. ROW_TOP and ROW_STEP are untouched, so the columns
- *  keep their positions and simply sit lighter in the same span. */
+ *  The rows did not move for THAT change; they moved later — see ROW_STEP. */
 const PIN_SCALE = 0.7;
 
 const CIRCLE = 18;
@@ -66,22 +65,22 @@ const RING_STROKE = 2;
 const RING = `radial-gradient(closest-side, transparent calc(100% - ${RING_STROKE}px), #000 calc(100% - ${RING_STROKE}px))`;
 const RING_MASK = { WebkitMaskImage: RING, maskImage: RING } as const;
 
-/** The rows both columns share, as fractions of the stage.
+/** Rows, as fractions of the stage.
  *
- *  ⚠ ONE SET OF ROWS FOR BOTH SIDES. The right column used to sit higher
- *  (0.30, stepping 0.07) because imagine ran along the base and the column had
- *  to clear it. The owner moved imagine up beside THINK on 2026-09-17 and asked
- *  for the two columns to run parallel, bottom-aligned — so both now read these
- *  two numbers and cannot drift apart again. */
-/** ⚠ 0.46 until 2026-10-02, when the owner moved both columns down to sit just
- *  above the black footing band (the corner rotators that used to hold that
- *  space went to the footer the same day). MEASURED at 1440×900: at 0.46 the
- *  fourth row's ink ended at 648px against the band's top at 837px (93%); +0.18
- *  puts it at ~810px, ~3% of clear air above the band. Rows are placed in %
- *  but are a fixed ~32px tall, so on the shortest stage (640px) that air
- *  closes to ~9px — re-check if ROW_STEP, PIN_SCALE or the band's 7% change. */
-const ROW_TOP = 0.64;
-const ROW_STEP = 0.075;
+ *  ⚠ THE TWO COLUMNS NO LONGER SHARE ROWS (2026-10-02). The owner moved the
+ *  right column to the top-right corner and kept the left one sitting just
+ *  above the black band, and cut both columns' height by 25% — which is
+ *  ROW_STEP, 0.075 → 0.054 (the 32px rows themselves keep their size, so a
+ *  column's span — three steps plus a row — falls ~25% at 900px).
+ *
+ *  LOGIC_ROW_TOP is derived so the LAST logic row stays where it was put that
+ *  morning: 0.64 + 3 × 0.075 = 0.865, ~3% of clear air above the band at
+ *  1440×900 (measured then). Rows are % but a fixed ~32px tall, so on the
+ *  shortest stage (640px) that air closes to ~9px. */
+const ROW_STEP = 0.054;
+const LOGIC_ROW_TOP = 0.865 - 3 * ROW_STEP;
+/** Just under the stage's top edge — clear of PORTFOLIO, which is centred. */
+const CREATIVE_ROW_TOP = 0.05;
 
 /** Half the height of a logic row: the pill's 1.07rem type at `leading-none`
  *  plus `py-1.5` twice is 1.82rem, and the 28px icon is shorter than that, so
@@ -89,72 +88,39 @@ const ROW_STEP = 0.075;
  *  row by its pill's CENTRE, so the artwork adds this to land on the same line.
  *
  *  ⚠ IT CARRIES PIN_SCALE. The logic row scales about its TOP-LEFT corner, so
- *  its top edge stays on ROW_TOP while its centre rises to half its SCALED
+ *  its top edge stays on its row while its centre rises to half its SCALED
  *  height. Leave this at the unscaled 0.91rem and every artwork sits ~4px low.
  *  ⚠ Re-derive if the logic pill's type size or padding changes. */
 const LOGIC_ROW_HALF = `${0.91 * PIN_SCALE}rem`;
 
-/** Where each column sits. THINK and imagine wrap the brain's own flanks now
- *  (2026-10-02), and the lower corners are empty, so both columns sit low. */
+/** Where each column sits: logic low on the left, creative in the top-right
+ *  corner (2026-10-02). */
 const COL = {
-  // 6vw, not 3: the connectors need a gutter to turn in. At 3vw the four
-  // verticals and their corners ate the whole margin and the horizontal run
-  // came out under a pixel — the turn the design asks for was invisible.
-  // CONNECTOR_END must stay equal to this number.
-  logic: { x: "left-[6vw]", top: ROW_TOP, step: ROW_STEP, align: "flex-row" },
-  // ⚠ 6vw, MIRRORING the logic column — and this reverses the earlier `right-0`
-  // ("hard against the screen edge"). The two instructions cannot both hold:
-  // once the artwork is mirrored its lead ring sits at the artwork's RIGHT
-  // edge, so flush-right puts the ring against the viewport edge and the
-  // connector band — CREATIVE_CLEAR plus three CONNECTOR_GAPs, ~4.3% of the
-  // stage — lands off-screen entirely. Measured at 1280px: the rings came out
-  // at 97–98% of the stage with nothing to the right of them.
-  // The owner asked on 2026-08-21 for the column to read as a mirror image, so
-  // it now takes the same gutter the left column has. The four illustrations
-  // are still different widths, so their trailing edges stay ragged by design;
-  // it is the LEADING edge that lines up now.
-  creative: { x: "right-[6vw]", top: ROW_TOP, step: ROW_STEP, align: "flex-row-reverse" },
+  // 6vw — the gutter the old corner connectors turned in; the logic runs into
+  // the brain (BrainTraces) still start from where these pins sit.
+  logic: { x: "left-[6vw]", top: LOGIC_ROW_TOP, step: ROW_STEP, align: "flex-row" },
+  // ⚠ 2.5vw since 2026-10-02 (6vw before): the corner connectors that needed a
+  // gutter to turn in are gone, and the column sits in the top-right corner.
+  // The four illustrations are different widths and right-anchored, so their
+  // LEFT ends — where the lead rings and the pencil strokes now are — stay
+  // ragged by design.
+  creative: { x: "right-[2.5vw]", top: CREATIVE_ROW_TOP, step: ROW_STEP, align: "flex-row-reverse" },
 } as const;
 
 type Side = "logic" | "creative";
 
-/* ── The left column's connectors ──────────────────────────────────────────
+/* ── No corner connectors (2026-10-02) ─────────────────────────────────────
  *
- * Four hairlines drop out of the top-left corner, each turning right into one
- * logic pin. They are drawn as ONE svg over the whole stage in a 0–100 viewBox
- * with `preserveAspectRatio="none"`, so every coordinate below is a percentage
- * of the stage and the geometry needs no measurement at any size. The stroke
- * would smear under that non-uniform scale, so every path carries
- * `vector-effect="non-scaling-stroke"` and stays a true hairline.
- *
- * ⚠ The verticals are ordered OUTSIDE-IN: the line that travels furthest down
- * sits furthest left. Reverse that and the top line's horizontal run crosses
- * the verticals of the three below it, which turns a nested bracket into a
- * grid. `CONNECTOR_X` subtracts, and that is why.
- *
- * `pathLength="100"` normalises every path to the same nominal length, so one
- * dash offset animates all four identically regardless of how long each
- * actually is — the alternative is measuring each with getTotalLength().
+ * Both columns used to hang from hairlines dropping out of the top corners
+ * (PinConnectors). The owner removed them: the logic pins keep only their runs
+ * INTO the brain (BrainTraces), and the creative pins now reach the brain too,
+ * in coloured pencil strokes from their lead rings (also BrainTraces, so the
+ * strokes pass behind the artwork). Recover the old hairlines from git.
  */
 
-/** Fallback only. Every line actually lands on a MEASURED anchor — the centre
- *  of the icon going in, the centre of the stroked circle coming out — so it
- *  touches the thing it connects to rather than the edge of a box near it.
- *  This is used only before the first measurement arrives. */
-const CONNECTOR_END = 6;
-/** Innermost vertical (the topmost pin's), and the step further out per pin. */
-const CONNECTOR_X0 = 4.2;
-const CONNECTOR_GAP = 0.9;
-/** Corner radius, in viewBox units. */
-const CONNECTOR_R = 0.6;
-/** Stroke weights. Open thickens the line rather than adding a second one
- *  beside it — a parallel rail read as a mistake, not as emphasis. */
-const STROKE_REST = 1;
-const STROKE_OPEN = 2;
-
-/** The reveal clock. Four lines draw back to back, and a pin lands the moment
- *  its own line completes its turn — so the last pin arrives at exactly
- *  4 × DRAW = 3s, which is the brief. Exported so BrainTraces can start each
+/** The reveal clock. The logic pins still land one after another on this beat
+ *  — it was the corner hairlines' draw time, a pin landing as its line
+ *  completed its turn, the last at 4 × DRAW = 3s. Exported so BrainTraces can start each
  *  pin's run into the brain the moment that pin has landed. */
 export const CONNECTOR_DRAW = 0.75;
 
@@ -221,30 +187,35 @@ interface PinArt {
   ringColor: string;
 }
 
+/* ⚠ THE SUPPLIED ORIENTATION AGAIN (2026-10-02): lead ring on the LEFT, facing
+ * the brain, so the pencil strokes can run from it into the centre. These are
+ * the `_orig` files — the pristine art scripts/mirror_pin_art.py keeps — with
+ * that script's original ring/circle fractions. The mirrored WebPs beside them
+ * (ring on the right, for the old corner connectors) are no longer referenced. */
 const ART: Partial<Record<NavSectionId, PinArt>> = {
   art: {
-    src: "/content/pins/art.webp",
+    src: "/content/pins/_orig/art.webp",
     aspect: 4.0596, pillCenterY: 0.6762,
-    circleCX: 0.7607, circleCY: 0.6458, circleR: 0.2034,
-    ringCX: 0.9492, ringCY: 0.6266, ringColor: "#ed5f00",
+    circleCX: 0.2393, circleCY: 0.6458, circleR: 0.2034,
+    ringCX: 0.0508, ringCY: 0.6266, ringColor: "#ed5f00",
   },
   publications: {
-    src: "/content/pins/publications.webp",
+    src: "/content/pins/_orig/publications.webp",
     aspect: 4.3422, pillCenterY: 0.5393,
-    circleCX: 0.7850, circleCY: 0.5108, circleR: 0.2034,
-    ringCX: 0.9608, ringCY: 0.4938, ringColor: "#e3274b",
+    circleCX: 0.215, circleCY: 0.5108, circleR: 0.2034,
+    ringCX: 0.0392, ringCY: 0.4938, ringColor: "#e3274b",
   },
   "the-extincts-project": {
-    src: "/content/pins/the-extincts-project.webp",
+    src: "/content/pins/_orig/the-extincts-project.webp",
     aspect: 4.7284, pillCenterY: 0.5425,
-    circleCX: 0.8214, circleCY: 0.5121, circleR: 0.1999,
-    ringCX: 0.9818, ringCY: 0.4984, ringColor: "#af1f9d",
+    circleCX: 0.1786, circleCY: 0.5121, circleR: 0.1999,
+    ringCX: 0.0182, ringCY: 0.4984, ringColor: "#af1f9d",
   },
   "ai-generations": {
-    src: "/content/pins/ai-generations.webp",
+    src: "/content/pins/_orig/ai-generations.webp",
     aspect: 4.8619, pillCenterY: 0.5906,
-    circleCX: 0.8133, circleCY: 0.5583, circleR: 0.2015,
-    ringCX: 0.9711, ringCY: 0.5391, ringColor: "#0096a6",
+    circleCX: 0.1867, circleCY: 0.5583, circleR: 0.2015,
+    ringCX: 0.0289, ringCY: 0.5391, ringColor: "#0096a6",
   },
 };
 
@@ -254,36 +225,10 @@ const ART: Partial<Record<NavSectionId, PinArt>> = {
  * that artwork's circle, since the pill and label are baked into the raster
  * and cannot invert the way the DOM pill did. */
 
-function connectorPath(x: number, y: number, end: number): string {
-  const r = CONNECTOR_R;
-  // Start above the stage so the line reads as arriving from off-screen.
-  return `M ${x} -2 V ${y - r} Q ${x} ${y} ${x + r} ${y} H ${end}`;
-}
-
-/** The creative column's mirror of the same run: drops from the top, then turns
- *  LEFT into the artwork's lead ring, which now sits at the artwork's right
- *  edge. The owner asked for the right column — sections and lines both — to
- *  read as a mirror image on 2026-08-21. */
-function connectorPathMirrored(x: number, y: number, end: number): string {
-  const r = CONNECTOR_R;
-  return `M ${x} -2 V ${y - r} Q ${x} ${y} ${x - r} ${y} H ${end}`;
-}
-
 /* A second run per pin used to leave the stroked circle, turn right and fall to
  * the footing (OUT_CLEAR / OUT_GAP / OUT_BOTTOM / outgoingPath). Removed
  * 2026-08-17 at the owner's request — the circles are now line ENDS, not
  * junctions, so nothing measures them any more either. */
-
-/** The point a pin's line lands on, as a percentage of the stage: the icon on
- *  the logic side, the artwork's small lead ring on the creative side. */
-interface Anchor {
-  x: number;
-  y: number;
-}
-
-/** Clearance between the creative verticals and the leftmost lead ring, so the
- *  four drops sit in the gap rather than on top of the artwork. */
-const CREATIVE_CLEAR = 1.6;
 
 interface Pin {
   id: NavSectionId;
@@ -309,100 +254,6 @@ function buildPins(): Pin[] {
         tagline: s.tagline,
       }));
   return [...make("logic", "left"), ...make("creative", "right")];
-}
-
-/** The four hairlines, drawn once over the whole stage. */
-function PinConnectors({
-  pins,
-  open,
-  reduceMotion,
-  anchors,
-  baseX,
-  fallbackEnd,
-  mirrored = false,
-}: {
-  pins: Pin[];
-  open: NavSectionId | null;
-  reduceMotion: boolean;
-  /** Measured landing points, as % of the stage. */
-  anchors: Record<string, Anchor>;
-  /** Where the TOPMOST pin's vertical sits. Each pin below steps one
-   *  CONNECTOR_GAP further left, so the run that travels furthest down sits
-   *  furthest out and no horizontal crosses another's drop. */
-  baseX: number;
-  /** Used only before the first measurement arrives. */
-  fallbackEnd: number;
-  /** The creative column runs the other way — see connectorPathMirrored. */
-  mirrored?: boolean;
-}) {
-  return (
-    <svg
-      aria-hidden
-      viewBox="0 0 100 100"
-      preserveAspectRatio="none"
-      className="pointer-events-none absolute inset-0 h-full w-full"
-    >
-      {pins.map((pin) => {
-        const isOpen = open === pin.id;
-        const a = anchors[pin.id];
-        const common = {
-          fill: "none" as const,
-          stroke: "currentColor",
-          // Open thickens the line rather than adding a second one beside it.
-          strokeWidth: isOpen ? STROKE_OPEN : STROKE_REST,
-          vectorEffect: "non-scaling-stroke" as const,
-          className: "text-neutral-900/45",
-        };
-        // ⚠ The reveal is a CLIP, not a dash offset, and it must stay that way.
-        //
-        // The old draw set `pathLength=100` with `stroke-dasharray: 100` and
-        // walked the offset to zero. On paper that is one dash covering the
-        // whole path; in practice it rendered DASHED, because
-        // `vector-effect: non-scaling-stroke` strokes (and therefore dashes) in
-        // a different space from the one `pathLength` normalises. Measured: the
-        // paths are ~52.6 and ~57.5 user units long while being told to call
-        // themselves 100, and the viewBox stretches ~14x across and ~9x down.
-        // The pattern tiles at the wrong rate and breaks the line up.
-        //
-        // A clip has no such problem: it is two straight edges, so the stretch
-        // moves them without distorting anything. Phase one opens downward
-        // through the vertical drop, phase two opens rightward along the turn,
-        // which is the "flows from the top, then reaches its icon" the brief
-        // asks for — continuous, with no dashes at any point.
-        const drawAt = (delay: number) =>
-          reduceMotion
-            ? undefined
-            : {
-                // Mirrored, the reveal has to open LEFTWARD, from the
-                // right edge — otherwise the line draws itself away from the
-                // ring it is travelling to.
-                clipPath: mirrored ? "inset(0 0 100% 92%)" : "inset(0 92% 100% 0)",
-                animation: `brainpin-draw ${CONNECTOR_DRAW}s linear ${delay}s forwards`,
-              };
-
-        // The line lands on the icon's centre. Until the first measurement
-        // arrives it stops at the column edge.
-        const inY = a ? a.y : pin.y * 100;
-        const inEnd = a ? a.x : fallbackEnd;
-
-        // One run per pin. A second path used to leave the stroked circle,
-        // turn right and fall to the footing; removed 2026-08-17 at the
-        // owner's request.
-        return (
-          <path
-            key={pin.id}
-            d={
-              mirrored
-                ? connectorPathMirrored(baseX + pin.index * CONNECTOR_GAP, inY, inEnd)
-                : connectorPath(baseX - pin.index * CONNECTOR_GAP, inY, inEnd)
-            }
-            {...common}
-            style={drawAt(pin.index * CONNECTOR_DRAW)}
-          />
-        );
-      })}
-    </svg>
-  );
 }
 
 function PinRow({
@@ -453,12 +304,14 @@ function PinRow({
               name — without this the whole right column is four unlabelled
               buttons to a screen reader. */}
           <span className="sr-only">{pin.label}</span>
-          {/* Zero-size marker on the artwork's own lead ring. The connector is
-              measured to this rather than computed, so it keeps landing on the
-              ring when the frame is resized. */}
+          {/* Zero-size marker on the artwork's own lead ring. BrainTraces
+              measures it (and reads its colour) to start this section's pencil
+              stroke into the brain, so the stroke keeps leaving the ring when
+              the frame is resized. */}
           <span
             aria-hidden
             data-pin-ring={pin.id}
+            data-pin-color={art.ringColor}
             className="absolute"
             style={{ left: `${art.ringCX * 100}%`, top: `${art.ringCY * 100}%` }}
           />
@@ -671,76 +524,11 @@ export function BrainPins() {
   const [open, setOpen] = useState<NavSectionId | null>(null);
   const rootRef = useRef<HTMLDivElement>(null);
 
-  // The two points each logic line has to touch: the centre of the icon it
-  // arrives at, and the centre of the stroked circle it leaves. Measured, not
-  // assumed — the rows are as wide as their labels, so any fixed column would
-  // leave lines ending near the thing rather than on it.
-  //
-  // ⚠ Written only from the ResizeObserver's callback, never from the effect
-  // body — this repo lints `react-hooks/set-state-in-effect` as an error, and
-  // observing fires once immediately, which is the first measure.
-  const [anchors, setAnchors] = useState<Record<string, Anchor>>({});
-
-  useEffect(() => {
-    const root = rootRef.current;
-    if (!root) return;
-    const centre = (el: Element, box: DOMRect) => {
-      const r = el.getBoundingClientRect();
-      return {
-        x: ((r.left + r.width / 2 - box.left) / box.width) * 100,
-        y: ((r.top + r.height / 2 - box.top) / box.height) * 100,
-      };
-    };
-    const ro = new ResizeObserver(() => {
-      const box = root.getBoundingClientRect();
-      if (!box.width || !box.height) return;
-      // Only the icon is measured now. The stroked circle used to be measured
-      // too, as the point the outgoing run left from; that run is gone, so the
-      // circle is a line END and needs no anchor of its own.
-      const next: Record<string, Anchor> = {};
-      root
-        .querySelectorAll<HTMLElement>("[data-pin-icon], [data-pin-ring]")
-        .forEach((el) => {
-          const id = el.dataset.pinIcon ?? el.dataset.pinRing;
-          if (!id) return;
-          next[id] = centre(el, box);
-        });
-      setAnchors((prev) => {
-        const keys = Object.keys(next);
-        const same =
-          keys.length === Object.keys(prev).length &&
-          keys.every((k) => {
-            const a = prev[k];
-            const b = next[k];
-            return (
-              a &&
-              Math.abs(a.x - b.x) < 0.05 &&
-              Math.abs(a.y - b.y) < 0.05
-            );
-          });
-        return same ? prev : next;
-      });
-    });
-    ro.observe(root);
-    return () => ro.disconnect();
-  }, []);
-
   // Below `lg` this whole block is `hidden`, and `SectionNav` is the live nav
   // instead. Yield to it rather than leaving a section open behind pins nobody
   // can see: derived, not synced in an effect, so crossing the breakpoint
   // dispatches `null` on its own and the panel closes with the pins.
   const active = isCompact ? null : open;
-
-  // RIGHTMOST measured lead ring, cleared by CREATIVE_CLEAR — the origin of the
-  // right column's vertical band. ⚠ Was the LEFTmost, backed off to the left;
-  // the column is mirrored now, so the rings sit at each artwork's right edge
-  // and the band has to stand outside them on the RIGHT. Null until measured.
-  const creativeRingX = pins
-    .filter((p) => p.side === "creative")
-    .map((p) => anchors[p.id]?.x)
-    .filter((x): x is number => typeof x === "number");
-  const creativeBase =
-    creativeRingX.length === 4 ? Math.max(...creativeRingX) + CREATIVE_CLEAR : null;
 
   // Tell the rest of the page which section is open, so the panel can follow.
   useEffect(() => {
@@ -769,34 +557,6 @@ export function BrainPins() {
 
   return (
     <div ref={rootRef} className="pointer-events-none absolute inset-0 z-20 hidden lg:block">
-      <PinConnectors
-        pins={pins.filter((p) => p.side === "logic")}
-        open={active}
-        reduceMotion={reduceMotion}
-        anchors={anchors}
-        baseX={CONNECTOR_X0}
-        fallbackEnd={CONNECTOR_END}
-      />
-      {/* The creative column's mirror of the same idea: four drops that turn
-          into the small lead ring on each artwork.
-          ⚠ The band is derived from the MEASURED rings, not a constant. The
-          four illustrations are different widths and right-anchored, so their
-          lead rings sit at four different x — a fixed column would land on the
-          artwork for some and float away from it for others. `creativeBase`
-          takes the RIGHTmost ring and clears it, so the whole bracket stands
-          outside every one of them. It renders only once measured; before that there
-          is nothing sensible to draw. */}
-      {creativeBase !== null && (
-        <PinConnectors
-          pins={pins.filter((p) => p.side === "creative")}
-          open={active}
-          reduceMotion={reduceMotion}
-          anchors={anchors}
-          baseX={creativeBase}
-          fallbackEnd={creativeBase}
-          mirrored
-        />
-      )}
       {pins.map((p) => (
         <PinRow
           key={p.id}

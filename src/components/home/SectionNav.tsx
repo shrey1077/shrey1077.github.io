@@ -22,9 +22,9 @@
  *     `font-graff`, and open inverts each, which is what the pins do.
  *
  * State: the pins own `open` above `lg` and this owns it below, and they never
- * both operate at one width. Both talk to `SectionPanel` over the same
- * `PIN_OPEN_EVENT` bus, so the panel needed no change and there is still only
- * one open section on the page.
+ * both operate at one width. Both talk over the same `PIN_OPEN_EVENT` bus —
+ * since 2026-10-02 it is the Flythrough that answers, flying to the section's
+ * slide (the SectionPanel band this used to open was deleted that day).
  */
 
 import { useEffect, useRef, useState } from "react";

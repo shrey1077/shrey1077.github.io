@@ -29,7 +29,7 @@
  *
  * ⚠ LOGIC ROOMS ONLY. The creative rooms run the paint film at full strength
  * with no scrim, and a white particle field over thrown paint reads as dirt on
- * the lens. SectionPanel only mounts this on the logic branch.
+ * the lens. Flythrough mounts this on the logic ground only.
  *
  * ⚠ IT IS UNMOUNTED WITH THE PANEL, which matters more than it looks: the
  * component runs an unconditional requestAnimationFrame loop AND an O(n²)

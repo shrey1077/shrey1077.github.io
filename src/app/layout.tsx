@@ -6,11 +6,14 @@ import {
   Caveat_Brush,
   Cinzel,
   Fraunces,
+  Great_Vibes,
   IBM_Plex_Mono,
+  Inter_Tight,
   Michroma,
   Orbitron,
   Playfair_Display,
   Syne,
+  Tinos,
 } from "next/font/google";
 import { MemoryTransitionHost } from "@/components/transition/MemoryTransitionHost";
 import { RotateGate } from "@/components/home/RotateGate";
@@ -135,6 +138,34 @@ const barlow = Barlow({
   display: "swap",
 });
 
+/** The landing's "Left brain / Right brain" pair (2026-10-02), set after the
+ *  owner's reference — a heavy Helvetica-style grotesque for "Left", a
+ *  calligraphic script for "Right", a light grotesque for "brain" and a
+ *  Times-style serif for the lines under each. Free stand-ins for the
+ *  reference's commercial faces; used on the landing only, so no other page
+ *  downloads them. Tokens: --font-lr-* in globals.css. */
+const interTight = Inter_Tight({
+  subsets: ["latin"],
+  weight: ["300", "800"],
+  variable: "--font-inter-tight",
+  display: "swap",
+});
+
+const greatVibes = Great_Vibes({
+  subsets: ["latin"],
+  weight: "400",
+  variable: "--font-great-vibes",
+  display: "swap",
+});
+
+const tinos = Tinos({
+  subsets: ["latin"],
+  weight: ["400"],
+  style: ["normal", "italic"],
+  variable: "--font-tinos",
+  display: "swap",
+});
+
 export const metadata: Metadata = {
   title: "Mind — Interactive Brain",
   description:
@@ -171,7 +202,7 @@ export default function RootLayout({
   return (
     <html
       lang="en"
-      className={`${caveat.variable} ${caveatBrush.variable} ${fraunces.variable} ${plexMono.variable} ${cinzel.variable} ${michroma.variable} ${anton.variable} ${orbitron.variable} ${playfair.variable} ${syne.variable} ${barlow.variable}`}
+      className={`${caveat.variable} ${caveatBrush.variable} ${fraunces.variable} ${plexMono.variable} ${cinzel.variable} ${michroma.variable} ${anton.variable} ${orbitron.variable} ${playfair.variable} ${syne.variable} ${barlow.variable} ${interTight.variable} ${greatVibes.variable} ${tinos.variable}`}
     >
       <body className="bg-gallery text-neutral-900 antialiased">
         {children}

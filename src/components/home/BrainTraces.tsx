@@ -88,7 +88,7 @@ interface Trace {
 }
 
 /** A frame pixel → stage pixel, exactly as the footage layer places it.
- *  Exported for HeroName, which wraps THINK round the same brain. */
+ *  Exported for LeftRightBrain, which draws its lines from the brain's centre. */
 export function toStage(
   fx: number,
   fy: number,
@@ -145,6 +145,102 @@ function buildTraces(
   });
 }
 
+/* ── The creative column's pencil strokes (2026-10-02) ───────────────────────
+ *
+ * The owner asked for each right-hand section to be "connected to the centre of
+ * the brain in colourful pencil stroke style lines", from the section's left
+ * side — its lead ring. They live HERE, under the footage like the logic runs,
+ * so they disappear into the brain rather than being drawn across it.
+ *
+ * Pencil, not ink: each section is STRANDS hand-jittered lines laid over each
+ * other, each a little off the last, in the section's own ring colour and a
+ * neighbour from the paint palette, through a turbulence filter that roughens
+ * the edges the way graphite catches paper. The jitter is SEEDED by section id,
+ * so a stroke is the same scribble on every load rather than a new one per
+ * render. */
+
+/** Brain centre, frame pixels — the grey/colour seam at rest (x 594, see
+ *  the hemisphere circle fits made 2026-10-02) on their row. */
+const BRAIN_CENTRE = { x: 594, y: 396 };
+const STRANDS = 3;
+/** Samples per strand; more is smoother, fewer is scratchier. */
+const PENCIL_SAMPLES = 34;
+/** The paint palette (globals' `.brain-paint`), for each stroke's second hue. */
+const PAINT = ["#ff2e8b", "#ff5a3c", "#ff8a00", "#f5c518", "#7fbf2e", "#00a6a6", "#3f6ad8", "#7a3fb0"];
+
+interface Ring {
+  id: NavSectionId;
+  x: number;
+  y: number;
+  color: string;
+}
+
+interface Pencil {
+  id: NavSectionId;
+  strands: { d: string; color: string; width: number; opacity: number }[];
+  index: number;
+}
+
+/** Tiny deterministic PRNG (mulberry32), seeded from a string. */
+function seeded(key: string) {
+  let a = 0;
+  for (let i = 0; i < key.length; i++) a = (Math.imul(a ^ key.charCodeAt(i), 2654435761) >>> 0) || 1;
+  return () => {
+    a = (a + 0x6d2b79f5) >>> 0;
+    let t = a;
+    t = Math.imul(t ^ (t >>> 15), t | 1);
+    t ^= t + Math.imul(t ^ (t >>> 7), t | 61);
+    return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+  };
+}
+
+function buildPencils(
+  rings: Ring[],
+  w: number,
+  h: number,
+  brain: { scale: number; shiftX: number; rise: number },
+): Pencil[] {
+  const end = toStage(BRAIN_CENTRE.x, BRAIN_CENTRE.y, w, h, brain.scale, brain.shiftX, brain.rise);
+  return rings.map((ring, index) => {
+    const rnd = seeded(ring.id);
+    const dx = end.x - ring.x;
+    const dy = end.y - ring.y;
+    const len = Math.hypot(dx, dy) || 1;
+    // Unit normal, pointing up-and-out of the straight line, so every stroke
+    // bows the same way — a loose arc down into the brain, not an S.
+    const nx = -dy / len;
+    const ny = dx / len;
+    const bow = len * (0.1 + rnd() * 0.06);
+    const palette = PAINT[Math.floor(rnd() * PAINT.length)];
+    const strands = Array.from({ length: STRANDS }, (_, k) => {
+      const lean = bow * (0.85 + rnd() * 0.3);
+      const cx = ring.x + dx / 2 + nx * lean;
+      const cy = ring.y + dy / 2 + ny * lean;
+      const amp = 0.8 + k * 0.5;
+      let d = "";
+      for (let i = 0; i <= PENCIL_SAMPLES; i++) {
+        const t = i / PENCIL_SAMPLES;
+        const u = 1 - t;
+        // Quadratic bezier ring → bowed control → brain centre.
+        let x = u * u * ring.x + 2 * u * t * cx + t * t * end.x;
+        let y = u * u * ring.y + 2 * u * t * cy + t * t * end.y;
+        // Hand wobble, strongest mid-stroke, nil at the ring.
+        const wob = (rnd() - 0.5) * 2 * amp * Math.sin(Math.PI * t) ;
+        x += nx * wob;
+        y += ny * wob;
+        d += `${i ? "L" : "M"} ${x.toFixed(1)} ${y.toFixed(1)} `;
+      }
+      return {
+        d,
+        color: k === 1 ? palette : ring.color,
+        width: 1.1 + rnd() * 0.9,
+        opacity: 0.55 + rnd() * 0.3,
+      };
+    });
+    return { id: ring.id, strands, index };
+  });
+}
+
 export function BrainTraces({
   scale,
   shiftX,
@@ -157,7 +253,7 @@ export function BrainTraces({
 }) {
   const reduceMotion = useReducedMotion() ?? false;
   const svgRef = useRef<SVGSVGElement>(null);
-  const [geo, setGeo] = useState<{ w: number; h: number; starts: Start[] } | null>(null);
+  const [geo, setGeo] = useState<{ w: number; h: number; starts: Start[]; rings: Ring[] } | null>(null);
   const [open, setOpen] = useState<NavSectionId | null>(null);
 
   useEffect(() => {
@@ -185,16 +281,32 @@ export function BrainTraces({
         });
       });
       starts.sort((a, b) => a.y - b.y);
+      // The creative lead rings — zero-size markers on each artwork's ring,
+      // carrying the ring's own colour (BrainPins `data-pin-ring`).
+      const rings: Ring[] = [];
+      stage.querySelectorAll<HTMLElement>("[data-pin-ring]").forEach((el) => {
+        const r = el.getBoundingClientRect();
+        // Hidden below `lg`: a display:none ancestor reports a zero box.
+        if (!r.x && !r.y) return;
+        rings.push({
+          id: el.dataset.pinRing as NavSectionId,
+          x: r.left - box.left,
+          y: r.top - box.top,
+          color: el.dataset.pinColor ?? "#ff2e8b",
+        });
+      });
+      rings.sort((a, b) => a.y - b.y);
+      const near = <T extends { x: number; y: number }>(a: T[], b: T[]) =>
+        a.length === b.length &&
+        a.every((p, i) => Math.abs(p.x - b[i].x) < 0.5 && Math.abs(p.y - b[i].y) < 0.5);
       setGeo((prev) => {
         const same =
           prev &&
           prev.w === box.width &&
           prev.h === box.height &&
-          prev.starts.length === starts.length &&
-          prev.starts.every(
-            (p, i) => Math.abs(p.x - starts[i].x) < 0.5 && Math.abs(p.y - starts[i].y) < 0.5,
-          );
-        return same ? prev : { w: box.width, h: box.height, starts };
+          near(prev.starts, starts) &&
+          near(prev.rings, rings);
+        return same ? prev : { w: box.width, h: box.height, starts, rings };
       });
     };
 
@@ -204,13 +316,14 @@ export function BrainTraces({
     // neither of those resizes the stage.
     const ro = new ResizeObserver(measure);
     ro.observe(stage);
-    stage.querySelectorAll("[data-pin-circle]").forEach((el) => {
+    stage.querySelectorAll("[data-pin-circle], [data-pin-ring]").forEach((el) => {
       ro.observe(el.closest("button") ?? el);
     });
     return () => ro.disconnect();
   }, []);
 
   const traces = geo ? buildTraces(geo.starts, geo.w, geo.h, { scale, shiftX, rise }) : [];
+  const pencils = geo ? buildPencils(geo.rings, geo.w, geo.h, { scale, shiftX, rise }) : [];
 
   return (
     <svg
@@ -221,6 +334,39 @@ export function BrainTraces({
       viewBox={geo ? `0 0 ${geo.w} ${geo.h}` : undefined}
       className="pointer-events-none absolute inset-0 hidden h-full w-full lg:block"
     >
+      <defs>
+        {/* Graphite on paper: a fine turbulence nudges every edge a pixel or
+            so, which is what turns a clean vector into a pencil line. */}
+        <filter id="brain-pencil" x="-5%" y="-5%" width="110%" height="110%">
+          <feTurbulence type="fractalNoise" baseFrequency="0.85" numOctaves="2" seed="7" result="grain" />
+          <feDisplacementMap in="SourceGraphic" in2="grain" scale="1.8" />
+        </filter>
+      </defs>
+      {pencils.map((p) => {
+        const isOpen = open === p.id;
+        // The creative pins appear with the stage, so their strokes draw in
+        // just after the logic runs have started, one after another.
+        const delay = reduceMotion ? 0 : 0.6 + p.index * 0.35;
+        return (
+          <g key={p.id} filter="url(#brain-pencil)">
+            {p.strands.map((s, k) => (
+              <motion.path
+                key={k}
+                d={s.d}
+                fill="none"
+                stroke={s.color}
+                strokeWidth={isOpen ? s.width + 0.8 : s.width}
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                opacity={isOpen ? Math.min(1, s.opacity + 0.2) : s.opacity}
+                initial={reduceMotion ? false : { pathLength: 0 }}
+                animate={{ pathLength: 1 }}
+                transition={{ duration: reduceMotion ? 0 : 1.1, ease: EASE_OUT, delay: delay + k * 0.08 }}
+              />
+            ))}
+          </g>
+        );
+      })}
       {traces.map((t) => {
         const isOpen = open === t.id;
         // Starts the moment this pin has landed (see CONNECTOR_DRAW).

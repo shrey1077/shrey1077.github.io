@@ -13,7 +13,8 @@
  *   • the two left corners — faint 3D lattices.
  *
  * There is no click-to-choose pose machine — the sections are the PINS either
- * side of the brain, and clicking one opens it in SectionPanel below.
+ * side of the brain, and clicking one flies the camera to that section's slide
+ * in the Flythrough this stage is slide 0 of (2026-10-02).
  * ⚠ This used to say the sections lived in `SidesShowcase`, revealed by
  * scrolling. That component was never wired into a route and was deleted
  * 2026-09-10; the pins have been the way in for a long time.
@@ -22,7 +23,7 @@
 import { useEffect, useState } from "react";
 import { motion, useReducedMotion } from "framer-motion";
 import { BrainSequence } from "@/components/home/BrainSequence";
-import { HeroName } from "@/components/home/HeroName";
+import { LeftRightBrain } from "@/components/home/LeftRightBrain";
 import { CodeStream } from "@/components/home/CodeStream";
 import { Corner3DGrid } from "@/components/home/Corner3DGrid";
 import { useInViewport } from "@/hooks/useInViewport";
@@ -49,9 +50,8 @@ const CENTER_SCALE_PHONE = 1.37025; // 1.305 × 1.05
 
 /** The brain sits a little high of dead centre (2026-08-17), to open up the
  *  band beneath it where the portrait orb now lives.
- *  Safe to change: nothing measures the brain any more. HeroName places both
- *  words on fixed viewport fractions (`measureBrainV` was deleted), and
- *  BrainPins measures its own icons and circles, not the artwork. */
+ *  ⚠ NOT free to change: LeftRightBrain and BrainTraces both map frame points
+ *  onto the stage through this, BRAIN_SHIFT_X and the centre scale. */
 const BRAIN_RISE = -34; // px
 
 /** …and a touch right, so the brain's own grey/colour division lines up with
@@ -152,9 +152,11 @@ export function HeroStage() {
         </p>
       </div>
 
-      {/* The name — BEFORE the footage in the DOM (no positive z-index), so the
-          brain crosses in FRONT of the letters. */}
-      <HeroName brain={{ scale: centreScale, shiftX: BRAIN_SHIFT_X, rise: BRAIN_RISE }} />
+      {/* Left brain / Right brain — the two voices either side of the brain,
+          brought forward by the pointer (2026-10-02; THINK / imagine before).
+          z-30 of its own, so its lines draw over the footage from the brain's
+          centre. */}
+      <LeftRightBrain brain={{ scale: centreScale, shiftX: BRAIN_SHIFT_X, rise: BRAIN_RISE }} />
 
       {/* The logic pins' runs into the brain. ⚠ HERE, immediately before the
           footage and with no z-index, so the brain paints OVER the last stretch

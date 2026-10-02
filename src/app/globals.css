@@ -42,6 +42,10 @@
      set well above CodeStream's 0.58rem mono: at that size it is unreadable.
      Fallbacks stay cursive, never a sans, or the voice is lost outright. */
   --font-sunset: "Sunset Script", "Segoe Script", "Brush Script MT", cursive;
+  /* The landing's Left brain / Right brain pair (layout.tsx, 2026-10-02). */
+  --font-lr-grotesk: var(--font-inter-tight), "Helvetica Neue", Helvetica, Arial, sans-serif;
+  --font-lr-script: var(--font-great-vibes), "Segoe Script", cursive;
+  --font-lr-serif: var(--font-tinos), "Times New Roman", Times, serif;
   /* The gallery wall — matched to the hero video's own background (#F9F9F9,
    * sampled from its frames) so the footage dissolves into the page with no
    * visible seam. Pure #fff is reserved for cards, which now sit a breath

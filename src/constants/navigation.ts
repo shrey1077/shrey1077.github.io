@@ -53,7 +53,7 @@ export const NAV_SECTIONS: readonly NavSection[] = [
   },
 
   // Right — creativity / art.
-  // ⚠ Art and Publications draw their own bodies (SectionPanel's OWN_RENDERER),
+  // ⚠ Art and Publications draw their own bodies (SectionBody's OWN_RENDERER),
   // so `kind` never reaches `cellsFor` for either. "gallery" is the honest label
   // now that both have real content behind them; leaving them "coming-soon"
   // would only mislead the next reader of this file.

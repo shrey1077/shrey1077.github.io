@@ -43,6 +43,8 @@ export const BRAIN_FRAME_W = 1280;
 export const BRAIN_FRAME_H = 720;
 const W = BRAIN_FRAME_W;
 const H = BRAIN_FRAME_H;
+/** Rows cleared off the foot of every frame — see `draw`. */
+const FRAME_EDGE_ROWS = 3;
 
 /** Critically-damped spring for the scrub follow (the old video's feel). */
 const STIFFNESS = 26;
@@ -72,6 +74,11 @@ export function BrainSequence({ active = true }: { active?: boolean }) {
     const draw = (img: HTMLImageElement) => {
       ctx.clearRect(0, 0, W, H);
       ctx.drawImage(img, 0, 0, W, H);
+      // ⚠ Every frame carries a full-width grey rule in its last two rows (718
+      //   and 719 — an export edge, measured 2026-10-02), which read on the
+      //   landing as a hairline under the brain. The owner asked for it gone;
+      //   nothing of the brain reaches those rows (it ends by ~620).
+      ctx.clearRect(0, H - FRAME_EDGE_ROWS, W, FRAME_EDGE_ROWS);
     };
 
     // Preload every frame; paint the resting frame the instant it arrives.

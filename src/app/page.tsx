@@ -1,13 +1,13 @@
 /**
  * Homepage.
  *
- *   HeroStage    (100svh) the brain, the two words, and the section pins that
- *                float either side of it — the way into the sections at `lg`
- *                and up, where the pins' geometry actually fits.
+ *   Flythrough   the hero (HeroStage — the brain, the two voices, the pins)
+ *                and all eight sections as one flight in depth: each scroll
+ *                flies the camera through to the next full-screen slide, the
+ *                four logic rooms then the four creative (2026-10-02). A pin
+ *                flies straight to its slide.
  *   SectionNav   (<lg)    the same eight sections as a plain board, for the
  *                widths where the pins are hidden. Drives the same panel.
- *   SectionPanel (opens)  what a pin opens: the section's contents as a board,
- *                on circuit board for logic, on thrown paint for creative.
  *   SiteFooter   (~10vh)  minimal contact footer
  *
  * The two-column Designer/Artist showcase that used to sit between the stage
@@ -19,8 +19,8 @@
  */
 
 import { HeroStage } from "@/components/home/HeroStage";
+import { Flythrough } from "@/components/home/Flythrough";
 import { SectionNav } from "@/components/home/SectionNav";
-import { SectionPanel } from "@/components/home/SectionPanel";
 import { UNIFY_FACES_ON_HOME } from "@/constants/faces";
 import { SiteFooter } from "@/components/footer/SiteFooter";
 import {
@@ -70,19 +70,15 @@ export default function Home() {
     <main
       className={`w-full bg-gallery ${UNIFY_FACES_ON_HOME ? "faces-unified" : ""}`}
     >
-      <HeroStage />
+      <Flythrough
+        data={{ logos, extinctsSlides, artCollections, publicationCovers, studyPlates, markPlates }}
+      >
+        <HeroStage />
+      </Flythrough>
       {/* Below `lg` the stage's pins are hidden, which left the eight sections
           — and every client page behind them — with no route in at all. This is
           that route; above `lg` it hides and the pins take over. */}
       <SectionNav />
-      <SectionPanel
-        logos={logos}
-        extinctsSlides={extinctsSlides}
-        artCollections={artCollections}
-        publicationCovers={publicationCovers}
-        studyPlates={studyPlates}
-        markPlates={markPlates}
-      />
       <SiteFooter />
     </main>
   );
