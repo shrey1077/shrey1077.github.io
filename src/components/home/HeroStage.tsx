@@ -24,8 +24,6 @@ import { motion, useReducedMotion } from "framer-motion";
 import { BrainSequence } from "@/components/home/BrainSequence";
 import { HeroName } from "@/components/home/HeroName";
 import { CodeStream } from "@/components/home/CodeStream";
-import { AboutFacts } from "@/components/home/AboutFacts";
-import { HobbiesRotator } from "@/components/home/HobbiesRotator";
 import { Corner3DGrid } from "@/components/home/Corner3DGrid";
 import { useInViewport } from "@/hooks/useInViewport";
 import { DURATION, EASE_IN_OUT, EASE_OUT } from "@/constants/motion";
@@ -156,7 +154,7 @@ export function HeroStage() {
 
       {/* The name — BEFORE the footage in the DOM (no positive z-index), so the
           brain crosses in FRONT of the letters. */}
-      <HeroName />
+      <HeroName brain={{ scale: centreScale, shiftX: BRAIN_SHIFT_X, rise: BRAIN_RISE }} />
 
       {/* The logic pins' runs into the brain. ⚠ HERE, immediately before the
           footage and with no z-index, so the brain paints OVER the last stretch
@@ -222,9 +220,9 @@ export function HeroStage() {
             component file was deleted 2026-09-10; git history has it.
             The right pins' offset that cleared it is gone too: since
             2026-09-17 both columns share one set of rows (BrainPins ROW_TOP). */}
-        <div className="absolute bottom-[9vh] left-[8vw]">
-          <AboutFacts />
-        </div>
+        {/* ⚠ AboutFacts (bottom-left) and HobbiesRotator (bottom-right) sat in
+            the two lower corners here until 2026-10-02, when the owner moved
+            the pair down into SiteFooter, just above the Tools row. */}
 
         {/* The portrait orb lived here until 2026-08-17 — centred under the
             brain, over the footing band. It moved to SiteFooter at the
@@ -236,15 +234,6 @@ export function HeroStage() {
         {/* The hand-drawn bubbles sat here until 2026-08-10. Removed once the
             film went full strength — the corner belongs to the artwork now.
             SpeechBubbles was deleted 2026-09-10; git history has it. */}
-        {/* ⚠ Untagged since 2026-09-17. This carried `data-hero-furniture`
-            because HeroName clamped imagine's descender above it; imagine now
-            sits up beside THINK, the clamp is gone, and nothing reads the tag. */}
-        <div
-          className="absolute bottom-[9vh] right-10 flex justify-end"
-        >
-          <HobbiesRotator />
-        </div>
-
         {/* The four corner aphorisms ("measure twice" and friends) were removed
             2026-08-10. The right-hand pair is to be replaced by the animated
             speech bubbles; CornerText itself is kept for that. */}

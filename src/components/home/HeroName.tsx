@@ -3,17 +3,17 @@
 /**
  * HeroName — the landing's two words, set around the brain.
  *
- * Think sits on the crown at display scale, in Digibra, at a fifth of black —
- * it reads as a watermark the brain sits IN FRONT OF rather than a headline
- * over it. Its final K is right-aligned to the brain's midline, so the word
- * ends exactly where the logic hemisphere does and the brain laps over its
- * last letter. imagine answers it on the SAME line (since 2026-09-17 — it sat
- * at the base until then), starting a little past that midline and running
- * right, its ink centre locked to THINK's.
+ * BOTH WORDS WRAP THE BRAIN (2026-10-02, v2026.1) — THINK round the left
+ * hemisphere reading up from a T at the bottom, imagine round the right reading
+ * down from its i at the top, every letter's foot pointing at the brain's
+ * centre, like type set on a circle. Each letter is its own slot on a circle
+ * concentric with that side's boundary (BRAIN_LEFT_ARC, BRAIN_RIGHT_ARC), its
+ * feet a fixed ARC_GAP off the brain. Until then both sat on one horizontal
+ * line on the crown, THINK's K right-aligned to the midline.
  *
- * BOTH WORDS ARE MESHES NOW (2026-08-25). Each is rasterised to a texture that
- * a grid of vertices drags through and springs back from — THINK in its flat
- * THINK_GREY, imagine in a rainbow that sweeps slowly along the word. imagine
+ * BOTH WORDS ARE MESHES (2026-08-25), now one per LETTER. Each is rasterised
+ * to a texture that a grid of vertices drags through and springs back from —
+ * THINK in black, imagine in a rainbow that sweeps slowly along the word. imagine
  * used to be liquid particles over a static gradient; the owner replaced that
  * with THINK's effect plus moving colour. ImagineParticles was DELETED on
  * 2026-09-10 with the rest of the unreachable tree; recover it from git if the
@@ -50,9 +50,11 @@
  * words tuck against its real crown and base at any size.
  */
 
-import { useEffect, useRef, useState } from "react";
+import { createRef, useEffect, useMemo, useRef, useState } from "react";
 import { motion, useMotionValue, useSpring, useReducedMotion } from "framer-motion";
 import { ThinkMesh } from "@/components/home/ThinkMesh";
+import { toStage } from "@/components/home/BrainTraces";
+import { BRAIN_FRAME_H, BRAIN_FRAME_W } from "@/components/home/BrainSequence";
 import { DURATION, EASE_OUT } from "@/constants/motion";
 import { UNIFY_FACES_ON_HOME } from "@/constants/faces";
 
@@ -98,41 +100,65 @@ const WORD = "block whitespace-nowrap will-change-transform";
  *  the range the owner drew on 2026-08-21. */
 const BASE_SIZE = "clamp(1.5rem, 6vw, 6.9rem)";
 
-/** Horizontal anchors, as CSS offsets: Think's box is pinned by its RIGHT edge
- *  and Imagine's by its LEFT, so the pair keeps its gap at any size.
- *
- *  ⚠ The BOX is pinned there, but each word now scales about its OWN CENTRE
- *  (transformOrigin 50% 50%), so what stays put as the size changes is the
- *  word's centre, not the pinned edge — the owner asked on 2026-08-21 for both
- *  to stay centred, horizontally and vertically, at every size. With the old
- *  edge origins the words grew outward from the middle and their centres slid
- *  as they scaled. */
-const THINK_RIGHT = "57%";
-/** Moved right on the owner's instruction 2026-08-10 so Imagine clears the
- *  brain entirely and sits in the white. Measured, not guessed: at the leftmost
- *  pointer position its right edge sat at 61.99%, and the word now BEGINS where
- *  it used to end.
- *  ⚠ The 0.85/1.15 reasoning that used to be recorded here is void: the word no
- *  longer grows past its box, and it scales about its centre rather than this
- *  edge, so its left edge travels inward as it shrinks instead of holding. */
-const IMAGINE_LEFT = "62%";
-
-/** Vertical anchor, as a fraction of the viewport, measured to THINK's INK top
- *  rather than its box — the box sits well off the ink.
- *
- *  ⚠ THERE IS NO imagine ANCHOR ANY MORE. imagine sat at the base at 0.716 until
- *  2026-09-17, when the owner asked for the two words to be centre-aligned at
- *  THINK's level. It is now DERIVED from THINK in `measure` — its ink centre is
- *  put on THINK's ink centre — so the pair cannot come unaligned by editing one
- *  number. The furniture floor imagine used to clamp against went with it: the
- *  word no longer comes anywhere near the bottom-right corner.
- *
- *  ⚠ This replaces the live brain measurement. Placement used to be derived
- *  from the footage's own alpha so the words tucked against its real crown and
- *  base at any size; the mockup puts them at fixed heights instead, so that
- *  measurement is gone. `measureBrainV` went with it — recover it from git if
- *  the brain-relative behaviour is ever wanted back. */
-const THINK_INK_TOP = 0.168;
+/** ⚠ NEITHER WORD HAS A CSS ANCHOR ANY MORE. Until 2026-10-02 THINK was pinned
+ *  by its right edge at 57% and imagine by its left at 62%, both on one line on
+ *  the crown (THINK_INK_TOP 0.168). Both now wrap the brain, one per side. */
+/** The circle THINK wraps, in FRAME pixels (1280×720, the footage's own).
+ *  ⚠ MEASURED, 2026-10-02: per row, the leftmost 8px block that is ≥97% opaque
+ *  (alpha > 230) AND has three more solid blocks to its right — which rejects
+ *  the thin circuit sketch off the left hemisphere. Taken as the UNION across
+ *  every fourth frame, since the scrub moves the silhouette, so the letters
+ *  clear the brain at every pointer position. Rows 216–600 fit a circle at
+ *  (547, 396) r 216; the radius carries the fit's worst outward miss (+11)
+ *  plus a pixel, so no point of the edge pokes past it. Re-measure if the
+ *  frames are replaced. */
+const BRAIN_LEFT_ARC = { cx: 547, cy: 396, r: 228 };
+/** The circle imagine wraps: BRAIN_LEFT_ARC's radius and row, placed so its
+ *  rightmost point sits on the right hemisphere's outer edge.
+ *  ⚠ NOT measured off alpha — the right hemisphere throws its paint straight
+ *  off its own edge, so no alpha or colour test separates brain from splash.
+ *  The edge (frame x ≈ 795 at rest) was read off the rendered page, 2026-10-02.
+ *  ⚠ And NOT a mirror about the grey→colour seam: that seam (594 at rest) is
+ *  where the hemispheres meet on screen, not the silhouette's centre — the
+ *  brain is turned — and mirroring about it put imagine ~100px out in the
+ *  splash. The seam also travels a long way with the scrub (≈740 on frame 0,
+ *  ≈450 on frame 47); the outer edges move far less. */
+const BRAIN_RIGHT_EDGE_X = 795;
+const BRAIN_RIGHT_ARC = {
+  cx: BRAIN_RIGHT_EDGE_X - BRAIN_LEFT_ARC.r,
+  cy: BRAIN_LEFT_ARC.cy,
+  r: BRAIN_LEFT_ARC.r,
+};
+/** Frame row each word's middle is centred on. A little above the circle's own
+ *  centre, so THINK's lower letters stay clear of the logic pins' traces, which
+ *  enter the brain at rows 490–570 (BrainTraces); imagine mirrors it. */
+const ARC_MID_Y = 370;
+/** px of clear air between the brain's edge and the letters' feet. */
+const ARC_GAP = 12;
+/** Letter spacing along the arc, as a multiple of each letter's own advance.
+ *  ⚠ imagine runs tighter: it is seven letters and ~1.5× THINK's width, and at
+ *  THINK's tracking it wrapped well past the crown at full size. */
+const THINK_TRACKING = 1.18;
+const IMAGINE_TRACKING = 1.02;
+/** imagine's size at which the turning brain starts to cover it, and at which
+ *  it has fully gone behind — the owner's instruction, 2026-10-02: with the
+ *  pointer far left the right hemisphere swings out over the fixed arc, and
+ *  the word should be hidden there, not printed on the brain.
+ *  ⚠ Read in SIZE, not pointer position, because the size spring and the
+ *  brain's scrub are both damped and track each other far better than either
+ *  tracks the raw pointer. Observed 2026-10-02: clear of the brain with the
+ *  pointer at 35% across (size ≈ 0.59), touching at 20% (≈ 0.50), covered by
+ *  0% (0.375). Size = SIZE_MIN_RATIO + (1 − SIZE_MIN_RATIO) × pointer. */
+const IMAGINE_SHOW_AT = 0.56;
+const IMAGINE_HIDE_FROM = 0.47;
+/** ⚠ T FIRST, AT THE BOTTOM: the word reads UPWARD round the brain, every
+ *  letter's foot pointing at the brain's centre — the owner's instruction,
+ *  2026-10-02. Index 0 is the lowest slot. */
+const THINK_LETTERS = "THINK".split("");
+/** imagine mirrors it on the right — "do the same for imagine", 2026-10-02 —
+ *  feet toward the centre again, which on this side makes the word read
+ *  DOWNWARD: index 0 (the i) is the HIGHEST slot. */
+const IMAGINE_LETTERS = "imagine".split("");
 
 /** One font-size does not give one height, so `imagine` is scaled to match
  *  THINK's ASCENT rather than its size — equal ascent is what reads as equal.
@@ -146,9 +172,8 @@ const THINK_INK_TOP = 0.168;
  *  "imagine" is TALLER than "THINK" at the same size and has to come down.
  *
  *  ⚠ It is also much WIDER: 5.289em against Juturu's 3.244em, +63%. At the top
- *  of the size range that takes the word from ~255px to ~397px across. It still
- *  clears the right edge from IMAGINE_LEFT, but there is far less slack than
- *  there was — re-check if either the anchor or the size range moves.
+ *  of the size range that takes the word from ~255px to ~397px across — which,
+ *  wrapped round the brain, is why IMAGINE_TRACKING runs tighter than THINK's.
  *
  *  ⚠ RE-MEASURE whenever a face, a weight, the casing or the string changes. */
 const IMAGINE_RATIO = UNIFY_FACES_ON_HOME ? 0.715 / 0.74 : 143 / 142;
@@ -222,13 +247,19 @@ function imagineInkTop(fs: number, boxH: number): number {
  *  stage is `overflow-hidden`, so ink that reaches an edge is ink that is gone. */
 const EDGE_MARGIN = 10;
 
-/** Think's grey, flattened. It used to be black at 20%, which let the circuit
- *  film and the brain read straight through the letters; on top of everything
- *  it has to be opaque instead. This is that same 20% black composited over the
- *  page's own #f9f9f9 — 0.2x0 + 0.8x249 = 199 — so the word lands on the colour
- *  it already appeared to be, now at full strength. Re-derive if `bg-gallery`
- *  changes. */
-const THINK_GREY = "#c7c7c7";
+/** THINK's ink: pure black, on the hero's top layer (z-40, over the pins and
+ *  PORTFOLIO at z-30) — the owner's instruction, 2026-10-02. It was a flat
+ *  #c7c7c7 (20% black over #f9f9f9) while it sat on the crown as a watermark. */
+const THINK_INK = "#000";
+/** "Bolder", per the same instruction. Digibra has ONE weight and globals.css
+ *  blocks synthetic bold, so the weight comes from a stroke in the ink colour:
+ *  this much per side, in em, in both the mesh and the fallback span. */
+const THINK_EMBOLDEN = 0.035;
+
+/** imagine's ink and shadow — pure white, lifted off the splash by a tight
+ *  dark grey shadow, the owner's instruction, 2026-10-02. */
+const IMAGINE_INK = "#fff";
+const IMAGINE_SHADOW = "drop-shadow(0 2px 3px rgba(38,38,38,0.85)) drop-shadow(0 0 10px rgba(38,38,38,0.45))";
 
 /** The vertical CENTRE of each word's ink, measured down from the top of its
  *  box. This is both where the two words are aligned and where each one scales
@@ -245,14 +276,53 @@ function imagineInkCentre(fs: number, boxH: number): number {
   return imagineInkTop(fs, boxH) + ((IMAGINE_INK_ASCENT + IMAGINE_INK_DESCENT) * fs) / 2;
 }
 
-export function HeroName() {
+/** One wrapped word's DOM handles: a positioned slot and a measured glyph span
+ *  per letter, and which letters' meshes are really drawing. */
+interface ArcLetters {
+  slotRefs: React.RefObject<(HTMLDivElement | null)[]>;
+  letterRefs: React.RefObject<HTMLSpanElement | null>[];
+  onActive: ((active: boolean) => void)[];
+}
+
+/** ⚠ Returns the HANDLES (stable — the layout effect lists them) separately
+ *  from `meshOn` (live — only the render reads it), so a letter's mesh
+ *  reporting in never re-runs the layout effect. */
+function useArcLetters(letters: string[]): { handles: ArcLetters; meshOn: boolean[] } {
+  const slotRefs = useRef<(HTMLDivElement | null)[]>([]);
+  const letterRefs = useMemo(() => letters.map(() => createRef<HTMLSpanElement>()), [letters]);
+  const [meshOn, setMeshOn] = useState<boolean[]>(() => letters.map(() => false));
+  // ⚠ STABLE per letter: ThinkMesh lists onActive in its effect deps, so a fresh
+  //   arrow each render would tear down and rebuild its WebGL context every time.
+  const onActive = useMemo(
+    () =>
+      letters.map((_, i) => (active: boolean) =>
+        setMeshOn((prev) => {
+          if (prev[i] === active) return prev;
+          const next = [...prev];
+          next[i] = active;
+          return next;
+        }),
+      ),
+    [letters],
+  );
+  const handles = useMemo(() => ({ slotRefs, letterRefs, onActive }), [letterRefs, onActive]);
+  return { handles, meshOn };
+}
+
+export function HeroName({
+  brain,
+}: {
+  /** The footage layer's resting transform — HeroStage's own constants, so the
+   *  arc lands on the brain exactly where BrainTraces finds it. */
+  brain: { scale: number; shiftX: number; rise: number };
+}) {
   const reduceMotion = useReducedMotion();
 
-  const thinkRef = useRef<HTMLSpanElement>(null);
-  const imagineRef = useRef<HTMLSpanElement>(null);
-  // True only while each word's mesh is actually drawing; see the spans below.
-  const [imagineMeshOn, setImagineMeshOn] = useState(false);
-  const [meshOn, setMeshOn] = useState(false);
+  const stageRef = useRef<HTMLHeadingElement>(null);
+  // Per word: one slot (positioned) and one glyph span (measured, meshed) per
+  // letter, plus which letters' meshes are really drawing.
+  const { handles: think, meshOn: thinkMeshOn } = useArcLetters(THINK_LETTERS);
+  const { handles: imagine, meshOn: imagineMeshOn } = useArcLetters(IMAGINE_LETTERS);
 
   // The size breath. Springs are slow and soft so this never reads as a jump.
   // ⚠ Both start at the MIDPOINT, which is where a pointer at dead centre puts
@@ -262,49 +332,118 @@ export function HeroName() {
   const thinkScale = useSpring(thinkZ, { stiffness: 50, damping: 20, mass: 0.6 });
   const imagineScale = useSpring(imagineZ, { stiffness: 50, damping: 20, mass: 0.6 });
 
-  // Vertical placement of each word's top edge.
-  const thinkY = useMotionValue(0);
-  const imagineY = useMotionValue(0);
-  // Each word's scale origin, as a fraction of its own box height — set to its
-  // INK centre in `measure`, so what holds still while it grows and shrinks is
-  // the line the two are aligned on. 0.5 until measured.
-  const thinkOriginY = useMotionValue(0.5);
-  const imagineOriginY = useMotionValue(0.5);
-
   useEffect(() => {
-    const measure = () => {
-      const vh = window.innerHeight;
+    /** Lays one word's letters on its arc at size `s`. Imperative, straight
+     *  onto each slot's transform — it runs on every frame of the size spring,
+     *  and the hot-path contract keeps per-frame work out of React state.
+     *
+     *  Set like type on a circle: each letter's baseline is tangent to the
+     *  arc and its foot points at the circle's centre. The arc GROWS AND
+     *  SHRINKS WITH THE LETTERS: spacing scales with `s`, and the radius is the
+     *  brain's plus ARC_GAP plus half the word's scaled ink height, so the
+     *  feet (imagine's: the g's tail) stay on the curve at every size rather
+     *  than the word shrinking into the brain or drifting off it.
+     *
+     *  `side` is −1 for the left hemisphere, +1 for the right. φ is the angle
+     *  above the circle's outermost point on that side. */
+    const layout = (
+      word: ArcLetters,
+      arc: typeof BRAIN_LEFT_ARC,
+      side: -1 | 1,
+      tracking: number,
+      /** The word's ink height and ink centre (down from its box top), in px. */
+      ink: (fs: number, boxH: number) => { height: number; centre: number },
+      s: number,
+    ) => {
+      const stage = stageRef.current;
+      if (!stage) return;
+      const w = stage.offsetWidth;
+      const h = stage.offsetHeight;
+      if (!w || !h) return;
+      const fit = Math.min(w / BRAIN_FRAME_W, h / BRAIN_FRAME_H) * brain.scale;
+      const c = toStage(arc.cx, arc.cy, w, h, brain.scale, brain.shiftX, brain.rise);
+      const rb = arc.r * fit;
+      const midSin = (arc.cy - ARC_MID_Y) / arc.r;
+      const phiMid = Math.asin(Math.max(-1, Math.min(1, midSin)));
 
-      // Think. Placed by where its INK starts, then held inside the top edge —
-      // the box sits ~15px above the ink on Digibra, so clamping the box would
-      // let the letters leave the stage.
-      const thinkEl = thinkRef.current;
-      if (!thinkEl) return;
-      const tFs = parseFloat(getComputedStyle(thinkEl).fontSize) || 0;
-      const tBoxH = thinkEl.offsetHeight;
-      const inkOffset = inkAboveBoxTop(tFs, tBoxH);
-      const tY = Math.max(EDGE_MARGIN - inkOffset, vh * THINK_INK_TOP - inkOffset);
-      const tCentre = thinkInkCentre(tFs, tBoxH);
-      thinkY.set(tY);
-      if (tBoxH) thinkOriginY.set(tCentre / tBoxH);
-
-      // imagine. Its ink centre goes on THINK's ink centre — the owner's
-      // "centre-aligned at the level of THINK", 2026-09-17. Both scale about
-      // those same centres, so the alignment holds at every size either word
-      // passes through. Still held inside the top edge, in case a short stage
-      // ever pushes THINK up against it.
-      const el = imagineRef.current;
-      if (el) {
+      const metrics = word.letterRefs.map((r) => {
+        const el = r.current;
+        if (!el) return null;
         const fs = parseFloat(getComputedStyle(el).fontSize) || 0;
-        const boxH = el.offsetHeight;
-        const iCentre = imagineInkCentre(fs, boxH);
-        const wanted = tY + tCentre - iCentre;
-        imagineY.set(Math.max(EDGE_MARGIN - imagineInkTop(fs, boxH), wanted));
-        if (boxH) imagineOriginY.set(iCentre / boxH);
-      }
+        return { w: el.offsetWidth, h: el.offsetHeight, fs };
+      });
+      if (metrics.some((m) => !m)) return;
+      const ms = metrics as NonNullable<(typeof metrics)[number]>[];
+      // Every letter of a word shares one size and one box, so one ink figure
+      // sets the ring the centres ride on — and, crucially, every letter uses
+      // the WORD's ink centre, not its own, so the baselines line up on the
+      // arc whatever each glyph's own extent (an i's dot, a g's tail).
+      const { height, centre: inkC } = ink(ms[0].fs, ms[0].h);
+      const r = rb + ARC_GAP + (height * s) / 2;
+      // Each letter's centre, as arc length from the word's middle, by its own
+      // advance — an I takes less room than an H.
+      const pitches = ms.map((m) => m.w * tracking * s);
+      const total = pitches.reduce((a, p) => a + p, 0);
+
+      let run = 0;
+      ms.forEach((m, i) => {
+        const slot = word.slotRefs.current[i];
+        if (!slot) return;
+        const along = run + pitches[i] / 2 - total / 2;
+        run += pitches[i];
+        // Left: index 0 lowest, the word climbs. Right: index 0 highest, the
+        // word descends. Both are the same sweep, clockwise round the brain.
+        const phi = phiMid - (side * along) / r;
+        const ext = (height * s) / 2;
+        const px = Math.min(
+          w - EDGE_MARGIN - ext,
+          Math.max(EDGE_MARGIN + ext, c.x + side * r * Math.cos(phi)),
+        );
+        const py = Math.min(
+          h - EDGE_MARGIN - (m.w * s) / 2,
+          Math.max(EDGE_MARGIN + (m.w * s) / 2, c.y - r * Math.sin(phi)),
+        );
+        // ⚠ rotate(side·(90° − φ)). Left at its outermost point that is −90°,
+        //   a letter on its back with its foot toward the brain; right, +90°.
+        //   Off the outermost point each letter tips further so the foot keeps
+        //   pointing at the centre.
+        const deg = side * (90 - (phi * 180) / Math.PI);
+        slot.style.transformOrigin = `${m.w / 2}px ${inkC}px`;
+        slot.style.transform = `translate(${px - m.w / 2}px, ${py - inkC}px) rotate(${deg}deg) scale(${s})`;
+        slot.style.visibility = "visible";
+      });
+    };
+
+    const thinkInk = (fs: number, boxH: number) => ({
+      height: THINK_INK_ASCENT * fs,
+      centre: thinkInkCentre(fs, boxH),
+    });
+    const imagineInk = (fs: number, boxH: number) => ({
+      height: (IMAGINE_INK_ASCENT + IMAGINE_INK_DESCENT) * fs,
+      centre: imagineInkCentre(fs, boxH),
+    });
+    const layThink = (s: number) => layout(think, BRAIN_LEFT_ARC, -1, THINK_TRACKING, thinkInk, s);
+    const layImagine = (s: number) => {
+      layout(imagine, BRAIN_RIGHT_ARC, 1, IMAGINE_TRACKING, imagineInk, s);
+      // Gone behind the brain: as the pointer goes left the brain turns to
+      // show its left side and the right hemisphere swings out over the
+      // fixed arc. Fade over the span where it does, so the word reads as
+      // hidden by the brain rather than printed on it.
+      const t = Math.max(0, Math.min(1, (s - IMAGINE_HIDE_FROM) / (IMAGINE_SHOW_AT - IMAGINE_HIDE_FROM)));
+      const o = String(t * t * (3 - 2 * t));
+      imagine.slotRefs.current.forEach((slot) => {
+        if (slot) slot.style.opacity = o;
+      });
+    };
+
+    const measure = () => {
+      layThink(thinkScale.get());
+      layImagine(imagineScale.get());
     };
 
     measure();
+    const unsubThink = thinkScale.on("change", layThink);
+    const unsubImagine = imagineScale.on("change", layImagine);
     const timers = [setTimeout(measure, 500), setTimeout(measure, 1500)];
     window.addEventListener("resize", measure);
 
@@ -327,11 +466,13 @@ export function HeroName() {
     }
 
     return () => {
+      unsubThink();
+      unsubImagine();
       timers.forEach(clearTimeout);
       window.removeEventListener("resize", measure);
       if (onMove) window.removeEventListener("pointermove", onMove);
     };
-  }, [reduceMotion, thinkZ, imagineZ, thinkY, imagineY, thinkOriginY, imagineOriginY]);
+  }, [reduceMotion, brain.scale, brain.shiftX, brain.rise, think, imagine, thinkScale, imagineScale, thinkZ, imagineZ]);
 
   const rise = (delay: number) =>
     reduceMotion
@@ -343,72 +484,87 @@ export function HeroName() {
         };
 
   return (
-    <h1 aria-label="Think. Imagine." className="pointer-events-none absolute inset-0">
-      {/* Think — right edge pinned to the midline, so the final K lands exactly
-          where the logic hemisphere ends. It scales about that same edge, which
-          keeps the K anchored while the word breathes. */}
-      <motion.div
-        aria-hidden
-        style={{ y: thinkY, scale: thinkScale, originX: 0.5, originY: thinkOriginY, right: THINK_RIGHT }}
-        className="absolute top-0 z-30"
-      >
-        <motion.span {...rise(0.35)} className="relative block">
-          {/* ⚠ The span STAYS, and keeps `thinkRef` — the layout's ink metrics
-              measure it, and it is what a reduced-motion visitor reads. The
-              mesh only takes over its FILL, and only once ThinkMesh reports it
-              is really drawing, so a WebGL2 failure leaves the word rather
-              than a hole. Reverting is deleting the sibling and one class. */}
-          <span
-            ref={thinkRef}
-            style={{ fontSize: BASE_SIZE, lineHeight: THINK_LEADING, color: THINK_GREY }}
-            className={`${WORD} font-digibra ${meshOn ? "opacity-0" : ""}`}
+    <h1 ref={stageRef} aria-label="Think. Imagine." className="pointer-events-none absolute inset-0">
+      {/* THINK — one slot per letter, wrapped round the left hemisphere. Each
+          slot is placed and tilted by `layout`, straight onto its transform;
+          hidden until the first layout so nothing flashes at the corner. */}
+      {THINK_LETTERS.map((ch, i) => (
+        <div
+          key={`t${i}`}
+          aria-hidden
+          ref={(el) => {
+            think.slotRefs.current[i] = el;
+          }}
+          style={{ visibility: "hidden" }}
+          className="absolute left-0 top-0 z-40 will-change-transform"
+        >
+          <motion.span {...rise(0.35 + i * 0.06)} className="relative block">
+            {/* ⚠ The span STAYS — the layout's ink metrics measure it, and it
+                is what a reduced-motion visitor reads. The mesh only takes over
+                its FILL, and only once ThinkMesh reports it is really drawing,
+                so a WebGL2 failure leaves the letter rather than a hole. */}
+            <span
+              ref={think.letterRefs[i]}
+              style={{
+                fontSize: BASE_SIZE,
+                lineHeight: THINK_LEADING,
+                color: THINK_INK,
+                WebkitTextStroke: `${2 * THINK_EMBOLDEN}em ${THINK_INK}`,
+              }}
+              className={`${WORD} font-digibra ${thinkMeshOn[i] ? "opacity-0" : ""}`}
+            >
+              {ch}
+            </span>
+            <ThinkMesh
+              word={ch}
+              from={think.letterRefs[i]}
+              onActive={think.onActive[i]}
+              embolden={THINK_EMBOLDEN}
+            />
+          </motion.span>
+        </div>
+      ))}
+
+      {/* imagine — the mirror of THINK round the right hemisphere, reading
+          down, on the same top layer. PURE WHITE with a dark grey shadow
+          (2026-10-02): on the paint splash it now sits over every colour at
+          once, and white lifted off a grey shadow is the one ink that reads on
+          all of them. It was the moving rainbow until then — ThinkMesh still
+          has `rainbow`/`rainbowStart`/`rainbowSpan` to put it back per letter.
+
+          ⚠ The shadow is a `drop-shadow` FILTER on the wrapper, so it follows
+          the mesh's displaced glyphs as well as the fallback span; a
+          text-shadow would only ever shadow the hidden span. */}
+      {IMAGINE_LETTERS.map((ch, i) => (
+        <div
+          key={`i${i}`}
+          aria-hidden
+          ref={(el) => {
+            imagine.slotRefs.current[i] = el;
+          }}
+          style={{ visibility: "hidden" }}
+          className="absolute left-0 top-0 z-40 will-change-transform"
+        >
+          <motion.span
+            {...rise(0.5 + i * 0.05)}
+            className="relative block"
+            style={{ filter: IMAGINE_SHADOW }}
           >
-            THINK
-          </span>
-          <ThinkMesh word="THINK" from={thinkRef} onActive={setMeshOn} />
-        </motion.span>
-      </motion.div>
-
-      {/* Imagine — starts at that same midline and runs right, so at rest the
-          two words meet at the brain's division. Scales about its left edge for
-          the same reason. */}
-      <motion.div
-        aria-hidden
-        style={{ y: imagineY, scale: imagineScale, originX: 0.5, originY: imagineOriginY, left: IMAGINE_LEFT }}
-        className="absolute top-0 z-20"
-      >
-        <motion.span {...rise(0.5)} className="relative block">
-          {/* ⚠ The span STAYS, and keeps `imagineRef`. It is what the layout
-              measures (see the ink-metrics effect above) and what a
-              reduced-motion or WebGL-less visitor actually reads. The mesh only
-              takes over its FILL: `imagineMeshOn` drops the painted word once
-              ThinkMesh reports it is really drawing, so a failure to start
-              leaves the gradient word intact rather than a hole.
-
-              ⚠ THE LIQUID IS GONE. ImagineParticles ran here until 2026-08-25,
-              when the owner asked for the word to keep changing rainbow colours
-              and to carry THINK's mesh instead. The component was deleted on
-              2026-09-10; git history has it if the liquid is ever wanted back.
-
-              ⚠ The colour now comes from the MESH, not from this span. The
-              `brain-paint` class below is the fallback the mesh replaces —
-              a static gradient for anyone the shader never starts for. The
-              moving rainbow is `rainbow` on ThinkMesh. */}
-          <span
-            ref={imagineRef}
-            style={{
-              fontSize: `calc(${BASE_SIZE} * ${IMAGINE_RATIO})`,
-              lineHeight: IMAGINE_LEADING,
-            }}
-            className={`${WORD} brain-paint bg-clip-text font-graff font-bold text-transparent ${
-              imagineMeshOn ? "opacity-0" : ""
-            }`}
-          >
-            imagine
-          </span>
-          <ThinkMesh word="imagine" from={imagineRef} onActive={setImagineMeshOn} rainbow />
-        </motion.span>
-      </motion.div>
+            <span
+              ref={imagine.letterRefs[i]}
+              style={{
+                fontSize: `calc(${BASE_SIZE} * ${IMAGINE_RATIO})`,
+                lineHeight: IMAGINE_LEADING,
+                color: IMAGINE_INK,
+              }}
+              className={`${WORD} font-graff font-bold ${imagineMeshOn[i] ? "opacity-0" : ""}`}
+            >
+              {ch}
+            </span>
+            <ThinkMesh word={ch} from={imagine.letterRefs[i]} onActive={imagine.onActive[i]} />
+          </motion.span>
+        </div>
+      ))}
     </h1>
   );
 }

@@ -7,8 +7,16 @@
  * it is a static export to GitHub Pages, so a third-party outage or a moved
  * asset would leave the hero blank. All six are downloaded and served locally.
  *
- * `leftPct` places each pin along the forest floor, so the order here is the
- * order they read left to right.
+ * ⚠ THE PINS AND CARDS ARE GONE (2026-10-02). The owner replaced them with the
+ * four species standing ON the ridge of the flowering exposure (`reveal`) —
+ * so a mushroom only exists inside the cursor's spotlight — and with one
+ * full-width info strip along the foot of the hero for whichever is hovered.
+ * The species images are now the owner's own renders (cut out of black by
+ * scripts/prepare-azoth-mushrooms.mjs), not the client's Pexels photographs.
+ *
+ * `at` places each mushroom on the ARTWORK, in percent of the 1280×720 frame,
+ * by the middle of its foot — where its stone meets the ridge — so the
+ * positions hold however `object-cover` crops the scene. Order is left to right.
  */
 
 const HERO = "/content/clients/azoth-biotech/hero";
@@ -18,6 +26,9 @@ export const AZOTH_HERO = {
   base: `${HERO}/bg-day.webp`,
   /** The second exposure, shown only inside the cursor's spotlight. */
   reveal: `${HERO}/bg-reveal.webp`,
+  /** The same exposure with its sky cut away (scripts/prepare-azoth-hero-cut.mjs)
+   *  — laid over the headline so the ridge passes in front of it. */
+  revealCut: `${HERO}/bg-reveal-cut.webp`,
   headline: "Inspired by Nature",
   leftNote:
     "Every fungal species is a living archive of biological intelligence — refined over hundreds of millions of years beneath our feet.",
@@ -29,11 +40,10 @@ export const AZOTH_HERO = {
 export interface AzothSpecies {
   id: string;
   name: string;
-  /** The short form used on the floor label, where space is tight. */
-  short: string;
   subtitle: string;
-  /** Horizontal position along the forest floor, in percent. */
-  leftPct: number;
+  /** Foot of the mushroom on the artwork, in percent of the frame (x, y), and
+   *  its width in percent of the frame's width. */
+  at: { x: number; y: number; w: number };
   color: string;
   accent: string;
   image: string;
@@ -45,12 +55,11 @@ export const AZOTH_SPECIES: AzothSpecies[] = [
   {
     id: "cordyceps",
     name: "Cordyceps Militaris",
-    short: "Cordyceps",
     subtitle: "Energy • Endurance • Vitality",
-    leftPct: 16,
+    at: { x: 17, y: 63, w: 13 },
     color: "#d4620a",
     accent: "#f59e4a",
-    image: `${HERO}/cordyceps.webp`,
+    image: `${HERO}/mushrooms/cordyceps.webp`,
     qualities: [
       "Supports ATP production",
       "Enhances athletic performance",
@@ -62,12 +71,11 @@ export const AZOTH_SPECIES: AzothSpecies[] = [
   {
     id: "lionsmane",
     name: "Lion's Mane",
-    short: "Lion's Mane",
     subtitle: "Focus • Nerve Support • Memory",
-    leftPct: 36,
+    at: { x: 39, y: 55, w: 12.5 },
     color: "#b0a090",
     accent: "#e8ddd0",
-    image: `${HERO}/lionsmane.webp`,
+    image: `${HERO}/mushrooms/lionsmane.webp`,
     qualities: [
       "Supports cognitive function",
       "Promotes nerve regeneration",
@@ -79,12 +87,11 @@ export const AZOTH_SPECIES: AzothSpecies[] = [
   {
     id: "turkeystail",
     name: "Turkey's Tail",
-    short: "Turkey's Tail",
     subtitle: "Immunity • Gut Health • Balance",
-    leftPct: 58,
+    at: { x: 62, y: 41, w: 14 },
     color: "#4a7a38",
     accent: "#86b868",
-    image: `${HERO}/turkeystail.webp`,
+    image: `${HERO}/mushrooms/turkeystail.webp`,
     qualities: [
       "Supports immune system",
       "Rich in antioxidants",
@@ -96,12 +103,11 @@ export const AZOTH_SPECIES: AzothSpecies[] = [
   {
     id: "ganoderma",
     name: "Ganoderma (Reishi)",
-    short: "Ganoderma",
     subtitle: "Calm • Longevity • Stress Support",
-    leftPct: 78,
+    at: { x: 86, y: 38, w: 12.5 },
     color: "#8b3a2a",
     accent: "#c47050",
-    image: `${HERO}/ganoderma.webp`,
+    image: `${HERO}/mushrooms/ganoderma.webp`,
     qualities: [
       "Supports stress relief & relaxation",
       "Promotes restful sleep",

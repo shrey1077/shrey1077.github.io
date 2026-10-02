@@ -73,7 +73,14 @@ const RING_MASK = { WebkitMaskImage: RING, maskImage: RING } as const;
  *  to clear it. The owner moved imagine up beside THINK on 2026-09-17 and asked
  *  for the two columns to run parallel, bottom-aligned — so both now read these
  *  two numbers and cannot drift apart again. */
-const ROW_TOP = 0.46;
+/** ⚠ 0.46 until 2026-10-02, when the owner moved both columns down to sit just
+ *  above the black footing band (the corner rotators that used to hold that
+ *  space went to the footer the same day). MEASURED at 1440×900: at 0.46 the
+ *  fourth row's ink ended at 648px against the band's top at 837px (93%); +0.18
+ *  puts it at ~810px, ~3% of clear air above the band. Rows are placed in %
+ *  but are a fixed ~32px tall, so on the shortest stage (640px) that air
+ *  closes to ~9px — re-check if ROW_STEP, PIN_SCALE or the band's 7% change. */
+const ROW_TOP = 0.64;
 const ROW_STEP = 0.075;
 
 /** Half the height of a logic row: the pill's 1.07rem type at `leading-none`
@@ -87,8 +94,8 @@ const ROW_STEP = 0.075;
  *  ⚠ Re-derive if the logic pill's type size or padding changes. */
 const LOGIC_ROW_HALF = `${0.91 * PIN_SCALE}rem`;
 
-/** Where each column sits. THINK and imagine are both high on the crown now, so
- *  both flanks are clear from 40% down. */
+/** Where each column sits. THINK and imagine wrap the brain's own flanks now
+ *  (2026-10-02), and the lower corners are empty, so both columns sit low. */
 const COL = {
   // 6vw, not 3: the connectors need a gutter to turn in. At 3vw the four
   // verticals and their corners ate the whole margin and the horizontal run

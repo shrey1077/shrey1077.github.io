@@ -14,6 +14,12 @@ export const SITE = {
   monogram: "SS",
   role: "Visual Communication Designer",
   email: "shrey107@gmail.com",
+  /** ⚠ EMPTY until the owner supplies it — the footer hides the row while it
+   *  is. Write it as dialled internationally, e.g. "+91 98765 43210"; the
+   *  tel: link strips the spaces. */
+  phone: "",
+  /** The site's own domain (GoDaddy → GitHub Pages, 2026-10-02). */
+  website: "https://shrey107.com",
   /** Full URLs so they can be used directly as hrefs. */
   linkedin: "https://www.linkedin.com/in/shrey-singh",
   behance: "https://www.behance.net/shrey-singh",

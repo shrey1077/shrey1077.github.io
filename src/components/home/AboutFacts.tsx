@@ -1,16 +1,16 @@
 "use client";
 
 /**
- * AboutFacts — the lower-left "about me" rotator (Phase L1).
+ * AboutFacts — the "about me" rotator (Phase L1). It sat in the landing's
+ * lower-left corner until 2026-10-02 and now opens the footer's facts row,
+ * opposite HobbiesRotator, just above the Tools logos.
  *
- * Four facts, one at a time, each holding ~15s before the next fades in, looped:
+ * Three facts, one at a time, each holding ~15s before the next fades in, looped:
  *   Chess     — highest Rapid rating, as the number and nothing else.
- *   Tools     — the software I work in.
  *   Education — the degrees.
  *   Part-time — a small list whose words cycle one by one.
+ * (Tools was a fourth until the logo row took its place directly below.)
  *
- * Sits just above "Designer", which stays the biggest thing in the corner:
- * headings are 18px, everything under them 10px, quiet neutral tones.
  * Reduced motion holds the first fact.
  */
 
@@ -18,11 +18,7 @@ import { useEffect, useState } from "react";
 import Image from "next/image";
 import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
 import { EASE_OUT } from "@/constants/motion";
-import {
-  EducationMark,
-  PartTimeMark,
-  ToolsMark,
-} from "@/components/home/HomeMarks";
+import { EducationMark, PartTimeMark } from "@/components/home/HomeMarks";
 
 const FACT_MS = 15000;
 const WORD_MS = 1400;
@@ -105,17 +101,9 @@ const FACTS: {
       </p>
     ),
   },
-  {
-    key: "tools",
-    heading: "Tools",
-    mark: <ToolsMark />,
-    body: (
-      <p className={`${BODY} line-clamp-2`}>
-        Adobe&nbsp;CC · Claude
-        <sub className="text-[13px] text-neutral-400"> +more</sub> · Leonardo&nbsp;AI
-      </p>
-    ),
-  },
+  // ⚠ The Tools fact left the rotation on 2026-10-02: this band moved into the
+  // footer directly above the Tools logo row (ToolLogos), and cycling the same
+  // nine marks a few pixels above themselves only repeated them.
   {
     key: "education",
     heading: "Education",
@@ -156,7 +144,7 @@ export function AboutFacts() {
   const fact = FACTS[i % FACTS.length];
 
   return (
-    <div className="w-[min(32vw,28rem)]">
+    <div className="w-full max-w-[28rem]">
       <AnimatePresence mode="wait">
         <motion.div
           key={fact.key}

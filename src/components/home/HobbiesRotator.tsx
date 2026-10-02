@@ -1,7 +1,8 @@
 "use client";
 
 /**
- * HobbiesRotator — the lower-right "hobbies" rotator (Phase 4).
+ * HobbiesRotator — the "hobbies" rotator (Phase 4). Held the landing's lower-right
+ * corner until 2026-10-02; now closes the footer's facts row, above Tools.
  *
  * The creative-side mirror of AboutFacts: a "Hobbies" heading with the pursuits
  * cycling one at a time beneath it. Sits just above "Artist"; right-aligned to
@@ -68,7 +69,7 @@ export function HobbiesRotator() {
   const hobby = HOBBIES[i % HOBBIES.length];
 
   return (
-    <div className="w-[min(32vw,28rem)] text-right">
+    <div className="w-full max-w-[28rem] text-right">
       <h3 className="font-graff text-[34px] font-extrabold leading-tight tracking-[-0.01em] text-neutral-800">
         Hobbies
       </h3>
