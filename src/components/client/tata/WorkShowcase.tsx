@@ -567,9 +567,13 @@ export function WorkShowcase({
 
   return (
     <div ref={ref} data-showcase className="relative w-full">
-      {/* The owner's grid-line artwork, behind everything. */}
+      {/* The owner's grid-line artwork, behind everything.
+          ⚠ No sideways bleed (it was `-inset-x-4` until 2026-10-03): the
+          showcase runs edge to edge of its column at every width, so 16px out
+          either side pushed the page 4–8px wider than the screen — hidden on
+          desktop by body's overflow-x, but a sideways wobble on phones. */}
       {gridLines && (
-        <div aria-hidden className="pointer-events-none absolute -inset-x-4 -inset-y-8 -z-10 overflow-hidden">
+        <div aria-hidden className="pointer-events-none absolute inset-x-0 -inset-y-8 -z-10 overflow-hidden">
           <Image src={gridLines} alt="" fill sizes="100vw" className="object-cover opacity-90" />
         </div>
       )}

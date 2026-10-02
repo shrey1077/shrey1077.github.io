@@ -24,6 +24,9 @@ const HERO = "/content/clients/azoth-biotech/hero";
 export const AZOTH_HERO = {
   /** The scene as it reads by default. */
   base: `${HERO}/bg-day.webp`,
+  /** The same with its sky cut away — laid over the always-visible headline
+   *  so the rock passes in front of it (2026-10-03). */
+  baseCut: `${HERO}/bg-day-cut.webp`,
   /** The second exposure, shown only inside the cursor's spotlight. */
   reveal: `${HERO}/bg-reveal.webp`,
   /** The same exposure with its sky cut away (scripts/prepare-azoth-hero-cut.mjs)
@@ -44,6 +47,12 @@ export interface AzothSpecies {
   /** Foot of the mushroom on the artwork, in percent of the frame (x, y), and
    *  its width in percent of the frame's width. */
   at: { x: number; y: number; w: number };
+  /** The same on a PORTRAIT screen below `lg` (2026-10-03). Upright, the
+   *  cover crop keeps only the frame's middle strip — ~37–63% across on a
+   *  phone, ~29–71% on a tablet — so all four close up along the ridge inside
+   *  it, smaller, rather than two of them standing off-screen. The ridge runs
+   *  from y≈55 at x 39 to y≈41 at x 62; these sit on that line. */
+  atPortrait: { x: number; y: number; w: number };
   color: string;
   accent: string;
   image: string;
@@ -57,6 +66,7 @@ export const AZOTH_SPECIES: AzothSpecies[] = [
     name: "Cordyceps Militaris",
     subtitle: "Energy • Endurance • Vitality",
     at: { x: 17, y: 63, w: 13 },
+    atPortrait: { x: 40, y: 55, w: 5.4 },
     color: "#d4620a",
     accent: "#f59e4a",
     image: `${HERO}/mushrooms/cordyceps.webp`,
@@ -73,8 +83,12 @@ export const AZOTH_SPECIES: AzothSpecies[] = [
     name: "Lion's Mane",
     subtitle: "Focus • Nerve Support • Memory",
     at: { x: 39, y: 55, w: 12.5 },
-    color: "#b0a090",
-    accent: "#e8ddd0",
+    atPortrait: { x: 46, y: 51.5, w: 5.4 },
+    // ⚠ Gold since 2026-10-03, when each mushroom and its strip were
+    // colour-coded: the old greige (#b0a090) barely read as a colour at all
+    // next to orange, green and red. Gold keeps the cream of the real thing.
+    color: "#c99a3a",
+    accent: "#f0d58c",
     image: `${HERO}/mushrooms/lionsmane.webp`,
     qualities: [
       "Supports cognitive function",
@@ -89,6 +103,7 @@ export const AZOTH_SPECIES: AzothSpecies[] = [
     name: "Turkey's Tail",
     subtitle: "Immunity • Gut Health • Balance",
     at: { x: 62, y: 41, w: 14 },
+    atPortrait: { x: 52.5, y: 47.5, w: 5.8 },
     color: "#4a7a38",
     accent: "#86b868",
     image: `${HERO}/mushrooms/turkeystail.webp`,
@@ -105,6 +120,7 @@ export const AZOTH_SPECIES: AzothSpecies[] = [
     name: "Ganoderma (Reishi)",
     subtitle: "Calm • Longevity • Stress Support",
     at: { x: 86, y: 38, w: 12.5 },
+    atPortrait: { x: 59, y: 43.5, w: 5.4 },
     color: "#8b3a2a",
     accent: "#c47050",
     image: `${HERO}/mushrooms/ganoderma.webp`,

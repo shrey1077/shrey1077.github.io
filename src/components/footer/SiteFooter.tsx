@@ -3,7 +3,8 @@
  *
  * Three columns on a wide screen — the owner's name on the left, the portrait
  * orb centred, contact and the rest of the details on the right — collapsing
- * to a single centred stack below `md`.
+ * to a single centred stack below `lg` (`md` until 2026-10-03 — at 768px the
+ * contact column was squeezed past the screen edge).
  *
  * The two halves speak in the two hemisphere faces, which is the same split
  * the landing makes and the same one the orb itself draws:
@@ -25,7 +26,6 @@ import Image from "next/image";
 import { PortraitOrb } from "@/components/home/PortraitOrb";
 import { ToolLogos } from "@/components/home/ToolLogos";
 import { AboutFacts } from "@/components/home/AboutFacts";
-import { HobbiesRotator } from "@/components/home/HobbiesRotator";
 import { SITE } from "@/constants/site";
 
 /** Contact rows. Gmail, phone and website joined on 2026-10-02; a row whose
@@ -55,9 +55,9 @@ export function SiteFooter() {
 
   return (
     <footer className="w-full border-t border-neutral-200 bg-gallery px-6 py-12 sm:px-10">
-      <div className="mx-auto grid w-full max-w-7xl items-center justify-items-center gap-10 md:grid-cols-[1fr_auto_1fr] md:gap-8">
+      <div className="mx-auto grid w-full max-w-7xl items-center justify-items-center gap-10 lg:grid-cols-[1fr_auto_1fr] lg:gap-8">
         {/* Name — logic face, left. */}
-        <div className="font-digibra text-center md:justify-self-start md:text-left">
+        <div className="font-digibra text-center lg:justify-self-start lg:text-left">
           <p className="text-[clamp(1.7rem,3.4vw,2.9rem)] leading-[1.05] text-neutral-900">
             <span className="font-extrabold">{FIRST}</span>{" "}
             <span className="font-normal">{REST.join(" ")}</span>
@@ -74,7 +74,7 @@ export function SiteFooter() {
         </div>
 
         {/* Contact — creative face, right. */}
-        <div className="font-graff w-full max-w-xs text-center md:justify-self-end md:text-right">
+        <div className="font-graff w-full max-w-xs text-center lg:justify-self-end lg:text-right">
           <p className="text-[0.72rem] font-extrabold uppercase tracking-[0.2em] text-neutral-900">
             Get in touch
           </p>
@@ -109,17 +109,12 @@ export function SiteFooter() {
         </div>
       </div>
 
-      {/* The facts row — the two rotators that held the landing's lower
-          corners until 2026-10-02 (owner: "moved down, just above the tools").
-          Logic left, creative right, as they sat either side of the brain;
-          stacked and centred below `md`. */}
-      <div className="mx-auto mt-12 grid w-full max-w-7xl gap-8 border-t border-neutral-200 pt-10 md:grid-cols-2">
-        <div className="flex justify-center md:justify-start">
-          <AboutFacts />
-        </div>
-        <div className="flex justify-center md:justify-end">
-          <HobbiesRotator />
-        </div>
+      {/* The facts — Chess, Education, Part-time, Hobbies, one section.
+          From `lg` it lives on the landing's bottom right (HeroStage, owner
+          2026-10-03); below `lg` that corner is the brain's lines and the
+          scroll cue, so it is carried here instead, centred above the tools. */}
+      <div className="mx-auto mt-12 flex w-full max-w-md justify-center border-t border-neutral-200 pt-10 lg:hidden">
+        <AboutFacts />
       </div>
 
       {/* The tool stack. */}

@@ -1,15 +1,19 @@
 "use client";
 
 /**
- * AboutFacts — the "about me" rotator (Phase L1). It sat in the landing's
- * lower-left corner until 2026-10-02 and now opens the footer's facts row,
- * opposite HobbiesRotator, just above the Tools logos.
+ * AboutFacts — the "about me" rotator (Phase L1). ONE section since 2026-10-03:
+ * the owner asked for Chess, Education, Part-time and Hobbies together at the
+ * landing's bottom right (HeroStage, `align="right"`, from `lg`). Below `lg`
+ * that corner belongs to the brain's lines and the scroll cue, so the footer
+ * carries it there instead. (Until that day it was two blocks — this one and
+ * HobbiesRotator — in the lower corners, and briefly the footer.)
  *
- * Three facts, one at a time, each holding ~15s before the next fades in, looped:
+ * Four facts, one at a time, each holding ~15s before the next fades in, looped:
  *   Chess     — highest Rapid rating, as the number and nothing else.
  *   Education — the degrees.
  *   Part-time — a small list whose words cycle one by one.
- * (Tools was a fourth until the logo row took its place directly below.)
+ *   Hobbies   — the same, each word with its own mark (HobbyWords).
+ * (Tools was a fifth until the footer's logo row took its place.)
  *
  * Reduced motion holds the first fact.
  */
@@ -19,6 +23,7 @@ import Image from "next/image";
 import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
 import { EASE_OUT } from "@/constants/motion";
 import { EducationMark, PartTimeMark } from "@/components/home/HomeMarks";
+import { HobbyWords } from "@/components/home/HobbiesRotator";
 
 const FACT_MS = 15000;
 const WORD_MS = 1400;
@@ -131,8 +136,16 @@ const FACTS: {
   },
 ];
 
-export function AboutFacts() {
+export function AboutFacts({ align = "left" }: { align?: "left" | "right" | "center" }) {
   const reduceMotion = useReducedMotion();
+  const right = align === "right";
+  const center = align === "center";
+  // Hobbies changes its mark with every word, so it brings its own row
+  // (HobbyWords) rather than a fixed mark.
+  const facts = [
+    ...FACTS,
+    { key: "hobbies", heading: "Hobbies", mark: null, body: <HobbyWords align={align} /> },
+  ];
   const [i, setI] = useState(0);
 
   useEffect(() => {
@@ -141,10 +154,10 @@ export function AboutFacts() {
     return () => window.clearInterval(id);
   }, [reduceMotion]);
 
-  const fact = FACTS[i % FACTS.length];
+  const fact = facts[i % facts.length];
 
   return (
-    <div className="w-full max-w-[28rem]">
+    <div className={`w-full max-w-[28rem] ${right ? "text-right" : center ? "text-center" : ""}`}>
       <AnimatePresence mode="wait">
         <motion.div
           key={fact.key}
@@ -160,9 +173,12 @@ export function AboutFacts() {
               mirrored, since this column reads left-to-right. `min-w-0` so the
               body's `truncate` has a width to truncate against; without it the
               flex child sizes to its content and never clips. */}
-          <div className="mt-1 flex items-center gap-2.5">
+          {/* Right- or centre-aligned, the body loses `flex-1` so the row
+              packs to that edge (or the middle) with the mark beside the text,
+              not stranded at the far left of the column. */}
+          <div className={`mt-1 flex items-center gap-2.5 ${right ? "justify-end" : center ? "justify-center" : ""}`}>
             {fact.mark}
-            <div className="min-w-0 flex-1">{fact.body}</div>
+            <div className={right || center ? "min-w-0" : "min-w-0 flex-1"}>{fact.body}</div>
           </div>
         </motion.div>
       </AnimatePresence>

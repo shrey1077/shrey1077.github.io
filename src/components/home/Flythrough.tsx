@@ -27,7 +27,8 @@
  * and anything else scroll natively and are eased onto the nearest slide when
  * they come to rest.
  *
- * PINS. Every pin (and its compact-nav twin) flies to its slide. This replaced
+ * PINS. Every pin (and its compact-nav twin) flies to its slide, and so does
+ * every circle of BrainNav, the three at the top of the stage. This replaced
  * SectionPanel, the band that used to open under the hero; it was deleted on
  * 2026-10-02 once both sides lived here — git has it.
  *
@@ -49,6 +50,7 @@ import { PIN_OPEN_EVENT } from "@/components/home/BrainPins";
 import { SectionParticles } from "@/components/home/SectionParticles";
 import { PaintBurst } from "@/components/home/PaintBurst";
 import { ProjectPreview } from "@/components/home/ProjectPreview";
+import { BrainNav } from "@/components/home/BrainNav";
 import { SectionBody, sectionEntryCount, type SectionData } from "@/components/home/SectionBody";
 import { navSectionsFor } from "@/constants/navigation";
 import { projectStudyById } from "@/constants/projectStudies";
@@ -87,7 +89,7 @@ const SETTLE_MS = 140;
 /** Slide positions this close to a whole number count as on that slide. */
 const EPS = 0.02;
 
-/** Fired to fly to a slide by index (0 = the hero) — the progress rail. */
+/** Fired to fly to a slide by index (0 = the hero) — BrainNav's circles. */
 const GO_EVENT = "flythrough:go";
 
 /** Rooms that size and scroll themselves (SectionBody's own renderers). */
@@ -340,7 +342,6 @@ export function Flythrough({
   }, [reduceMotion]);
 
   const go = (k: number) => window.dispatchEvent(new CustomEvent(GO_EVENT, { detail: k }));
-  const railNames = ["Home", ...SLIDES.map((s) => s.label)];
 
   return (
     <div ref={runRef} className="relative w-full" style={{ height: `${(LAST + 1) * 100}svh` }}>
@@ -401,7 +402,7 @@ export function Flythrough({
             >
               <section
                 aria-label={s.label}
-                className="flex h-full flex-col px-[6vw] pb-[5vh] pt-[8vh] text-white"
+                className="flex h-full flex-col px-5 pb-[5vh] pt-[max(8vh,5rem)] text-white sm:px-10 lg:px-[6vw]"
               >
                 {logic ? (
                   <header className="mb-[3.5vh] flex flex-wrap items-end justify-between gap-x-10 gap-y-3">
@@ -418,7 +419,7 @@ export function Flythrough({
                         </p>
                       )}
                     </div>
-                    <p className="font-helv max-w-md text-sm leading-relaxed text-white/65">
+                    <p className="font-helv max-w-md text-sm leading-relaxed text-white/65 max-sm:line-clamp-3">
                       {s.description}
                     </p>
                   </header>
@@ -434,7 +435,7 @@ export function Flythrough({
                         {s.label}
                       </h2>
                     </div>
-                    <p className={`font-helv max-w-md ${FILM_PLATE} px-5 py-4 text-sm leading-relaxed text-white/80`}>
+                    <p className={`font-helv max-w-md ${FILM_PLATE} px-5 py-4 text-sm leading-relaxed text-white/80 max-sm:line-clamp-3`}>
                       {s.description}
                     </p>
                   </header>
@@ -444,7 +445,10 @@ export function Flythrough({
                     their own renderer (FILLS) size and scroll themselves, so
                     they get the whole body — a centring wrapper would leave
                     their `h-full` resolving to nothing. */}
-                <div className="min-h-0 flex-1 overflow-y-auto overscroll-contain">
+                {/* ⚠ No overscroll-contain: on touch a swipe that runs off the end of
+                    a list must carry on into the page, or a phone could never
+                    leave a room whose body fills the screen. */}
+                <div className="min-h-0 flex-1 overflow-y-auto">
                   <div className={FILLS.has(s.id) ? "h-full" : "flex min-h-full flex-col justify-center"}>
                     <SectionBody section={s} data={data} onStudy={setStudyId} variant="slide" />
                   </div>
@@ -454,48 +458,30 @@ export function Flythrough({
           );
         })}
 
-        {/* The rail — where the camera is in the run, and a way to jump.
-            Hidden over the hero, which has its own pins. */}
-        <nav
-          aria-label="Sections"
-          className={`absolute right-[1.6vw] top-1/2 z-[200] hidden -translate-y-1/2 flex-col items-end gap-3 transition-opacity duration-500 lg:flex ${
-            current === 0 ? "pointer-events-none opacity-0" : "opacity-100"
+        {/* The three circles — left brain, home, right brain — and under each
+            side its four rooms (BrainNav). Hidden over the hero, which has
+            its own pins. This replaced the dot rail on the right edge. */}
+        <BrainNav current={current} logic={LOGIC} creative={CREATIVE} hidden={current === 0} onGo={go} />
+
+        {/* Below `lg` there are no pins on the hero, so say the way on is
+            down. Gone the moment the camera leaves. */}
+        <div
+          aria-hidden
+          className={`pointer-events-none absolute inset-x-0 bottom-[8.5%] z-[150] flex flex-col items-center gap-1 transition-opacity duration-500 lg:hidden ${
+            current === 0 ? "opacity-100" : "opacity-0"
           }`}
         >
-          {railNames.map((name, k) => {
-            // The creative stops are painted, so the rail reads as two halves.
-            const creative = k > CROSSOVER;
-            const on = current === k;
-            return (
-              <button
-                key={name}
-                type="button"
-                onClick={() => go(k)}
-                aria-current={on ? "step" : undefined}
-                className={`group flex items-center gap-3 outline-none ${k === CROSSOVER + 1 ? "mt-2" : ""}`}
-              >
-                <span
-                  className={`${typeVoiceClass("logic", "meta")} rounded px-1.5 py-0.5 text-[0.58rem] tracking-[0.24em] transition-opacity duration-300 ${
-                    creative ? "bg-neutral-950/70" : ""
-                  } ${
-                    on
-                      ? "text-white opacity-100"
-                      : "text-white/70 opacity-0 group-hover:opacity-100 group-focus-visible:opacity-100"
-                  }`}
-                >
-                  {name}
-                </span>
-                <span
-                  className={`block rounded-full transition-all duration-300 ${
-                    creative
-                      ? `brain-paint ${on ? "size-3" : "size-2 opacity-70 group-hover:opacity-100"}`
-                      : `border border-white/70 ${on ? "size-2.5 bg-white" : "size-2 bg-transparent group-hover:bg-white/40"}`
-                  }`}
-                />
-              </button>
-            );
-          })}
-        </nav>
+          <span className={`${typeVoiceClass("logic", "meta")} text-[0.58rem] tracking-[0.3em] text-neutral-500`}>
+            Scroll to explore
+          </span>
+          <motion.span
+            className="block text-neutral-500"
+            animate={reduceMotion ? undefined : { y: [0, 5, 0] }}
+            transition={{ duration: 1.6, repeat: Infinity, ease: "easeInOut" }}
+          >
+            ↓
+          </motion.span>
+        </div>
       </div>
 
       {/* Outside the sticky stage on purpose: the stage's `perspective` (and

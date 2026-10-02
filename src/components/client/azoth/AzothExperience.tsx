@@ -2,7 +2,7 @@
  * AzothExperience — the bespoke Azoth Biotech client page.
  *
  * Flow (per the brief): identity → design foundations (logo · type · colour) →
- * brand architecture (Azoth → its family; Mycoveda apart) → the work, per
+ * the mark (its sketch, inks and lockups) → brand architecture (Azoth → its family; Mycoveda apart) → the work, per
  * brand (Naturalist + its brand artwork, Mushroomworks) → the Azoth parent's
  * own collateral → rejected logos. Server Component; the post grids are the
  * client WorkGallery.
@@ -23,6 +23,8 @@ import {
   AZOTH_PARENT_WORK,
   AZOTH_REJECTED,
   AZOTH_NATURALIST_ARTWORK,
+  AZOTH_MARK,
+  AZOTH_BRAIN_FUEL,
 } from "@/constants/azothExperience";
 
 function readWork(folder: string): string[] {
@@ -123,6 +125,78 @@ export function AzothExperience() {
             </div>
           </section>
 
+          {/* 2b — The mark: the sketch it grew from, the final monogram, its
+              two inks and the three lockups it ships in (owner's files,
+              2026-10-03 — scripts/prepare-azoth-marks.mjs). */}
+          <section className="border-t border-neutral-200 py-16">
+            <SectionKicker color={AZOTH.accent}>The mark — grown, not drawn</SectionKicker>
+            <p className="mt-4 max-w-2xl text-sm leading-relaxed text-neutral-500">
+              The monogram began as a culture: strains of mycelium branching across a petri dish, the letters of
+              Azoth hidden in their forks. The sketch set the rule — hyphae on one diagonal, branches on the level —
+              and the final mark tightened it onto a strict grid, rounded at every tip like living growth.
+            </p>
+
+            <div className="mt-10 grid grid-cols-1 gap-6 md:grid-cols-2">
+              <figure className="flex flex-col overflow-hidden rounded-xl border border-neutral-200 bg-white">
+                <div className="flex flex-1 items-center justify-center p-6 sm:p-10">
+                  <Image
+                    src={AZOTH_MARK.construction.src}
+                    alt="Construction sketch — strains of mycelium inside a petri dish"
+                    width={AZOTH_MARK.construction.w}
+                    height={AZOTH_MARK.construction.h}
+                    sizes="(max-width: 768px) 90vw, 520px"
+                    className="h-auto w-full max-w-md"
+                  />
+                </div>
+                <figcaption className="border-t border-neutral-200 px-4 py-3 text-[0.6rem] uppercase tracking-wide text-neutral-400">
+                  The sketch — strains of mycelium, petri dish
+                </figcaption>
+              </figure>
+              <figure className="flex flex-col overflow-hidden rounded-xl border border-neutral-200 bg-neutral-50">
+                <div className="flex flex-1 items-center justify-center p-10">
+                  <Image
+                    src={AZOTH_MARK.mark.src}
+                    alt="The Azoth monogram"
+                    width={AZOTH_MARK.mark.w}
+                    height={AZOTH_MARK.mark.h}
+                    sizes="(max-width: 768px) 50vw, 260px"
+                    className="h-auto w-1/2 max-w-[240px]"
+                  />
+                </div>
+                <figcaption className="border-t border-neutral-200 px-4 py-3 text-[0.6rem] uppercase tracking-wide text-neutral-400">
+                  The monogram — open strokes, before the lockups clip them
+                </figcaption>
+              </figure>
+            </div>
+
+            <div className="mt-6 flex flex-wrap gap-3">
+              {AZOTH_MARK.inks.map((ink) => (
+                <span
+                  key={ink.hex}
+                  className="inline-flex items-center gap-2 rounded-full border border-neutral-200 px-3 py-1.5 text-[0.62rem] uppercase tracking-wide text-neutral-500"
+                >
+                  <span aria-hidden className="size-3 rounded-full" style={{ backgroundColor: ink.hex }} />
+                  {ink.name} · {ink.hex}
+                </span>
+              ))}
+            </div>
+
+            <div className="mt-10 grid grid-cols-1 gap-6 sm:grid-cols-3">
+              {AZOTH_MARK.lockups.map((l) => (
+                <figure key={l.name} className="overflow-hidden rounded-xl border border-neutral-200">
+                  <div className="flex aspect-[4/3] items-center justify-center p-8 sm:p-10" style={{ backgroundColor: l.plate }}>
+                    <div className="relative h-full w-full">
+                      <Image src={l.src} alt={`Azoth Biotech lockup — ${l.name.toLowerCase()}`} fill sizes="(max-width: 640px) 80vw, 300px" className="object-contain" />
+                    </div>
+                  </div>
+                  <figcaption className="border-t border-neutral-200 bg-white px-4 py-3 text-[0.6rem] uppercase tracking-wide text-neutral-400">
+                    Lockup — {l.name}
+                  </figcaption>
+                </figure>
+              ))}
+            </div>
+          </section>
+
           {/* 3 — Brand architecture. */}
           <section className="border-t border-neutral-200 py-16">
             <SectionKicker color={AZOTH.accent}>Brand architecture</SectionKicker>
@@ -185,6 +259,29 @@ export function AzothExperience() {
                 sizes="(max-width: 1024px) 100vw, 1100px"
                 className="h-auto w-full object-contain"
               />
+            </div>
+
+            {/* The product — Brain Fuel, as packaged (owner, 2026-10-03). */}
+            <div className="mt-10 grid grid-cols-1 items-center gap-8 md:grid-cols-[minmax(0,2fr)_3fr] md:gap-12">
+              <div className="mx-auto w-full max-w-sm overflow-hidden rounded-xl border border-neutral-200 bg-white md:max-w-none">
+                <Image
+                  src={AZOTH_BRAIN_FUEL.src}
+                  alt="Naturalist Brain Fuel — a 100 ml dropper bottle with its label"
+                  width={AZOTH_BRAIN_FUEL.w}
+                  height={AZOTH_BRAIN_FUEL.h}
+                  sizes="(max-width: 768px) 90vw, 440px"
+                  className="h-auto w-full"
+                />
+              </div>
+              <div>
+                <SectionKicker color={AZOTH_BRANDS[0].accent}>Packaging — Brain Fuel</SectionKicker>
+                <p className="mt-4 max-w-md text-sm leading-relaxed text-neutral-500">
+                  The first product to wear the system: a 100 ml nootropic tincture — Cordyceps militaris and
+                  Lion&apos;s Mane with L-Alpha GPC, L-Theanine and Bacopa. The label turns the wordmark on its side
+                  and lets one condensed line, Brain Fuel, do the talking; the rest stays white, like the lab it came
+                  from.
+                </p>
+              </div>
             </div>
 
             <div className="mt-10">

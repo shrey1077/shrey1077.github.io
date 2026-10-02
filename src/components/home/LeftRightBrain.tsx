@@ -30,7 +30,7 @@
  */
 
 import { useEffect, useRef, useState } from "react";
-import { motion, useMotionValue, useReducedMotion, useSpring, useTransform } from "framer-motion";
+import { AnimatePresence, motion, useMotionValue, useReducedMotion, useSpring, useTransform } from "framer-motion";
 import { toStage } from "@/components/home/BrainTraces";
 import { LEFT_BRAIN, RIGHT_BRAIN } from "@/constants/brainCopy";
 import { EASE_OUT } from "@/constants/motion";
@@ -59,14 +59,29 @@ const PAINT = ["#ff2e8b", "#ff5a3c", "#ff8a00", "#f5c518", "#7fbf2e", "#00a6a6",
 /** The same hues taken deep enough to read as small serif type on white. */
 const INK = ["#c2185b", "#d84315", "#c77800", "#558b2f", "#00796b", "#2e50b8", "#6a3aa0"];
 
-/** Where each block stands on the stage. Left sits between the code window
- *  (top-left) and the logic pins (from ~70% down); right sits under the
- *  creative column, which now hangs in the top-right corner, toward the
- *  bottom-right corner the spark heads for. */
+/** Where each block stands on the stage. Both sit between the top of the stage
+ *  and the pin columns, which run from ~70% down on BOTH sides since
+ *  2026-10-03. Right moved up from 38% that day: with the creative pins back at
+ *  the bottom it would have met them on a 640px-tall stage. */
 const LEFT_BLOCK: React.CSSProperties = { left: "3vw", top: "25%", width: "27vw" };
-const RIGHT_BLOCK: React.CSSProperties = { right: "3vw", top: "38%", width: "27vw" };
+const RIGHT_BLOCK: React.CSSProperties = { right: "3vw", top: "28%", width: "27vw" };
 
 type Pt = { x: number; y: number };
+
+/** A body line with its last word set bold — the copy is written to land on
+ *  that word (constants/brainCopy.ts). Trailing punctuation stays regular. */
+function BoldLast({ line }: { line: string }) {
+  const m = line.match(/^(.*\s)?(\S+?)([.,!?;:…]*)$/);
+  if (!m) return <>{line}</>;
+  const [, head = "", word, tail] = m;
+  return (
+    <>
+      {head}
+      <strong className="font-bold">{word}</strong>
+      {tail}
+    </>
+  );
+}
 
 interface Geo {
   w: number;
@@ -233,15 +248,13 @@ export function LeftRightBrain({
     };
   }, [brain.scale, brain.shiftX, brain.rise]);
 
-  // The pointer decides which side is reached.
+  // The pointer decides which side is reached. A mouse does it by MOVING; a
+  // finger has no hover, so on touch a TAP does it instead — the left or right
+  // 30% of the width reaches that side, the centre releases both (2026-10-03,
+  // when the site went fully responsive).
   useEffect(() => {
-    if (reduceMotion) return;
-    const onMove = (e: PointerEvent) => {
-      const half = window.innerWidth / 2;
-      const t = (e.clientX - half) / half; // −1 left edge … +1 right edge
+    const apply = (left: boolean, right: boolean) => {
       const was = onRef.current;
-      const left = was.left ? t < -RELEASE : t <= -REACH;
-      const right = was.right ? t > RELEASE : t >= REACH;
       if (left !== was.left) setLeftOn(left);
       if (right !== was.right) {
         const g = geoRef.current;
@@ -253,8 +266,34 @@ export function LeftRightBrain({
       }
       onRef.current = { left, right };
     };
+    const sideOf = (x: number) => {
+      const half = window.innerWidth / 2;
+      return (x - half) / half; // −1 left edge … +1 right edge
+    };
+    const onMove = (e: PointerEvent) => {
+      // Touch "moves" are scrolls and drags, not hovering.
+      if (reduceMotion || e.pointerType === "touch") return;
+      const t = sideOf(e.clientX);
+      const was = onRef.current;
+      apply(was.left ? t < -RELEASE : t <= -REACH, was.right ? t > RELEASE : t >= REACH);
+    };
+    const onTap = (e: PointerEvent) => {
+      if (e.pointerType === "mouse") return;
+      const root = rootRef.current;
+      if (!root) return;
+      const r = root.getBoundingClientRect();
+      // Only taps on the hero itself, while it is the screen in view.
+      if (r.top < -40 || e.clientY < r.top || e.clientY > r.bottom) return;
+      if ((e.target as Element | null)?.closest?.("a, button")) return;
+      const t = sideOf(e.clientX);
+      apply(t <= -REACH, t >= REACH);
+    };
     window.addEventListener("pointermove", onMove, { passive: true });
-    return () => window.removeEventListener("pointermove", onMove);
+    window.addEventListener("pointerdown", onTap, { passive: true });
+    return () => {
+      window.removeEventListener("pointermove", onMove);
+      window.removeEventListener("pointerdown", onTap);
+    };
   }, [reduceMotion]);
 
   const circuit = geo ? circuitPath(geo.centre, geo.left) : null;
@@ -381,7 +420,7 @@ export function LeftRightBrain({
       {/* LEFT — grotesque, black once reached. */}
       <motion.div
         ref={leftBlockRef}
-        className="absolute hidden text-center lg:block"
+        className="absolute hidden text-left lg:block"
         style={{ ...LEFT_BLOCK, z: leftZ, filter: leftBlur }}
       >
         <motion.p style={{ opacity: leftFade }} className="leading-none">
@@ -403,7 +442,7 @@ export function LeftRightBrain({
             brain
           </motion.span>
         </motion.p>
-        <div className="font-lr-serif mt-4 text-[clamp(0.72rem,0.92vw,0.98rem)] leading-[1.5] text-neutral-800">
+        <div className="font-lr-serif mt-2 text-[clamp(0.8rem,1.02vw,1.08rem)] leading-[1.3] text-neutral-800">
           {LEFT_BRAIN.lines.map((line, i) => (
             <motion.p
               key={i}
@@ -415,7 +454,7 @@ export function LeftRightBrain({
                 delay: leftShown ? after + i * LINE_STAGGER : 0,
               }}
             >
-              {line}
+              <BoldLast line={line} />
             </motion.p>
           ))}
         </div>
@@ -424,7 +463,7 @@ export function LeftRightBrain({
       {/* RIGHT — script, to paint once struck; the lines come in colour. */}
       <motion.div
         ref={rightBlockRef}
-        className="absolute hidden text-center lg:block"
+        className="absolute hidden text-right lg:block"
         style={{ ...RIGHT_BLOCK, z: rightZ, filter: rightBlur }}
       >
         <motion.p style={{ opacity: rightFade }} className="leading-none">
@@ -454,7 +493,7 @@ export function LeftRightBrain({
             brain
           </motion.span>
         </motion.p>
-        <div className="font-lr-serif mt-4 text-[clamp(0.72rem,0.92vw,0.98rem)] leading-[1.5]">
+        <div className="font-lr-serif mt-2 text-[clamp(0.8rem,1.02vw,1.08rem)] leading-[1.3]">
           {RIGHT_BRAIN.lines.map((line, i) => (
             <motion.p
               key={i}
@@ -467,24 +506,82 @@ export function LeftRightBrain({
                 delay: rightShown ? after + i * LINE_STAGGER : 0,
               }}
             >
-              {line}
+              <BoldLast line={line} />
             </motion.p>
           ))}
         </div>
       </motion.div>
 
-      {/* Below `lg`: the two headlines only, quietly either side. */}
-      <div aria-hidden className="absolute inset-x-0 top-[13%] flex justify-between px-5 lg:hidden">
-        <p className="font-lr-grotesk text-center leading-none text-neutral-900">
-          <span className="block text-[2.2rem] font-extrabold tracking-[-0.03em]">{LEFT_BRAIN.word}</span>
-          <span className="block text-sm font-light">brain</span>
-        </p>
-        <p className="text-center leading-none">
-          <span className="brain-paint font-lr-script block bg-clip-text text-[2.8rem] text-transparent">
+      {/* Below `lg` (phones, tablets): the blocks can't stand beside the
+          brain, so the headlines sit above it and the reached side's lines
+          set in the open band beneath it. A tap on a side reaches it. */}
+      {/* ⚠ Placed BELOW the wordmark — its top (3.2%), its size
+          (max(1.9rem, 4.6vw)) and its name line (~2.4rem), all from HeroStage —
+          so the headlines clear it at every width now that it is twice the
+          size it was. */}
+      <div aria-hidden className="absolute inset-x-0 top-[calc(3.2%+max(1.9rem,4.6vw)+2.4rem)] flex justify-between px-5 sm:px-12 lg:hidden">
+        <motion.p
+          className="font-lr-grotesk origin-left text-center leading-none text-neutral-900"
+          initial={false}
+          animate={{ opacity: leftOn ? 1 : rightOn ? 0.3 : 0.75, scale: leftOn ? 1.1 : 1 }}
+          transition={{ duration: 0.4, ease: EASE_OUT }}
+        >
+          <span className="block text-[2.2rem] font-extrabold tracking-[-0.03em] sm:text-[3.4rem]">
+            {LEFT_BRAIN.word}
+          </span>
+          <span className="block text-sm font-light sm:text-lg">brain</span>
+        </motion.p>
+        <motion.p
+          className="origin-right text-center leading-none"
+          initial={false}
+          animate={{ opacity: rightOn ? 1 : leftOn ? 0.3 : 0.75, scale: rightOn ? 1.1 : 1 }}
+          transition={{ duration: 0.4, ease: EASE_OUT }}
+        >
+          <span className="brain-paint font-lr-script block bg-clip-text px-[0.1em] text-[2.8rem] text-transparent sm:text-[4.2rem]">
             {RIGHT_BRAIN.word}
           </span>
-          <span className="font-lr-grotesk block text-sm font-light text-neutral-600">brain</span>
-        </p>
+          <span className="font-lr-grotesk block text-sm font-light text-neutral-600 sm:text-lg">brain</span>
+        </motion.p>
+      </div>
+      {/* ⚠ Anchored to the Flythrough's "Scroll to explore" cue (bottom 8.5%)
+          plus the cue's own height — a plain percentage met it on some
+          heights, and the hint printed over "Scroll". */}
+      <div className="font-lr-serif absolute inset-x-5 bottom-[calc(8.5%+3.5rem)] text-[0.95rem] leading-[1.3] sm:inset-x-12 sm:text-[1.15rem] lg:hidden">
+        <AnimatePresence mode="wait" initial={false}>
+          {leftOn || rightOn ? (
+            <motion.div
+              key={leftOn ? "left" : "right"}
+              // Each side keeps to its own edge, under its own headline.
+              className={leftOn ? "text-left" : "text-right"}
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              transition={{ duration: 0.25 }}
+            >
+              {(leftOn ? LEFT_BRAIN : RIGHT_BRAIN).lines.map((line, i) => (
+                <motion.p
+                  key={i}
+                  style={{ color: leftOn ? "#262626" : INK[i % INK.length] }}
+                  initial={reduceMotion ? false : { opacity: 0, y: 6 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.35, ease: EASE_OUT, delay: i * LINE_STAGGER }}
+                >
+                  <BoldLast line={line} />
+                </motion.p>
+              ))}
+            </motion.div>
+          ) : (
+            <motion.p
+              key="hint"
+              className="font-lr-grotesk text-center text-[0.65rem] font-light uppercase tracking-[0.28em] text-neutral-400"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+            >
+              Tap left or right
+            </motion.p>
+          )}
+        </AnimatePresence>
       </div>
     </div>
   );

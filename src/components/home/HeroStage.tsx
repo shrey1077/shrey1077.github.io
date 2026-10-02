@@ -25,13 +25,14 @@ import { motion, useReducedMotion } from "framer-motion";
 import { BrainSequence } from "@/components/home/BrainSequence";
 import { LeftRightBrain } from "@/components/home/LeftRightBrain";
 import { CodeStream } from "@/components/home/CodeStream";
+import { AboutFacts } from "@/components/home/AboutFacts";
 import { Corner3DGrid } from "@/components/home/Corner3DGrid";
 import { useInViewport } from "@/hooks/useInViewport";
 import { DURATION, EASE_IN_OUT, EASE_OUT } from "@/constants/motion";
 import { CircuitBackdrop } from "@/components/home/CircuitBackdrop";
 import { BrainPins, PIN_OPEN_EVENT } from "@/components/home/BrainPins";
 import { BrainTraces } from "@/components/home/BrainTraces";
-import { useIsPhone } from "@/hooks/useMediaQuery";
+import { useMediaQuery } from "@/hooks/useMediaQuery";
 import { SITE } from "@/constants/site";
 import { NAV_SECTIONS } from "@/constants/navigation";
 import type { NavSectionId } from "@/types/navigation";
@@ -44,7 +45,10 @@ import type { NavSectionId } from "@/types/navigation";
  *  fits it to the WIDTH of a portrait viewport, so at 0.75 the brain shrinks to a
  *  thumbnail in a mostly-empty screen. Push it back up past 1 instead — the
  *  footage carries plenty of margin, so nothing important crops.
- *  Both are the same 5% up, so each keeps the ratio it was tuned to. */
+ *  Both are the same 5% up, so each keeps the ratio it was tuned to.
+ *  ⚠ "Phone" means ANY screen below `lg` held in PORTRAIT since 2026-10-03 —
+ *  a portrait tablet has exactly the phone's problem (the brain fitted to the
+ *  width, a thumbnail in a tall screen). Landscape keeps the desktop scale. */
 const CENTER_SCALE = 0.70875; // 0.675 × 1.05
 const CENTER_SCALE_PHONE = 1.37025; // 1.305 × 1.05
 
@@ -71,8 +75,8 @@ export function HeroStage() {
   // once the visitor has scrolled well past.
   const { ref, inView } = useInViewport<HTMLElement>({ rootMargin: "200px 0px" });
   const reduceMotion = useReducedMotion();
-  const isPhone = useIsPhone();
-  const centreScale = isPhone ? CENTER_SCALE_PHONE : CENTER_SCALE;
+  const tallCompact = useMediaQuery("(max-width: 1023px) and (orientation: portrait)");
+  const centreScale = tallCompact ? CENTER_SCALE_PHONE : CENTER_SCALE;
 
   /* Which section is open, for the footing band. ⚠ Read off the same
      PIN_OPEN_EVENT bus the pins and SectionNav already publish on, rather than
@@ -100,19 +104,27 @@ export function HeroStage() {
           2026-08-10 — pulled off the landing and reused behind the Art
           section's previews (SectionPanel). */}
 
-      {/* PORTFOLIO / 2026, top centre and above the footage.
+      {/* PORTFOLIO / Shrey Singh, top centre and above the footage. The second
+          line was the year, 2026, until the owner swapped in the name
+          (2026-10-03).
           ⚠ Deliberately NOT a heading. The stage already has one h1 ("Think.
           Imagine."), and a second heading here would compete with it in the
           document outline for what is a wordmark, not a section title.
-          The year is right-aligned to the word — `items-end` on the column, so
-          the alignment holds at every size rather than being nudged by hand. */}
+          The name is right-aligned to the word — `items-end` on the column, so
+          the alignment holds at every size rather than being nudged by hand.
+          ⚠ TWICE the old size (owner, 2026-10-03; 3× was tried and was too
+          big): every term of the old clamp doubled, word and year alike. It
+          fits at every width as-is — measured clear of the code box and the
+          top-right pins from 1024 up, and ~280px wide on a 375px phone.
+          LeftRightBrain's compact headlines are placed under it by the same
+          numbers; change one, change both. */}
       <div className="pointer-events-none absolute inset-x-0 top-[3.2%] z-30 flex justify-center">
         <p className="flex flex-col items-end leading-none">
-          <span className="font-digibra text-[clamp(0.95rem,2.3vw,2rem)] font-bold tracking-[0.22em] text-neutral-900">
+          <span className="font-digibra text-[clamp(1.9rem,4.6vw,4rem)] font-bold leading-none tracking-[0.22em] text-neutral-900">
             PORTFOLIO
           </span>
-          <span className="font-graff mt-1 text-[clamp(0.5rem,1vw,0.8rem)] font-bold tracking-[0.14em] text-neutral-500">
-            2026
+          <span className="font-graff mt-1 text-[clamp(1rem,2vw,1.6rem)] font-bold tracking-[0.14em] text-neutral-500">
+            {SITE.name}
           </span>
         </p>
       </div>
@@ -213,7 +225,10 @@ export function HeroStage() {
             which owns 0–6vw down the whole left flank: at left-5 the code ran
             straight through the four hairlines, and the facts sat under their
             tails. */}
-        <div className="absolute left-[8vw] top-5">
+        {/* ⚠ HALF SIZE since 2026-10-03 (owner). One transform on the mount,
+            not re-typed sizes inside, so width, type and line height all halve
+            together and the box keeps its proportions. */}
+        <div className="absolute left-[8vw] top-5 origin-top-left scale-50">
           <CodeStream />
         </div>
 
@@ -222,9 +237,20 @@ export function HeroStage() {
             component file was deleted 2026-09-10; git history has it.
             The right pins' offset that cleared it is gone too: since
             2026-09-17 both columns share one set of rows (BrainPins ROW_TOP). */}
-        {/* ⚠ AboutFacts (bottom-left) and HobbiesRotator (bottom-right) sat in
-            the two lower corners here until 2026-10-02, when the owner moved
-            the pair down into SiteFooter, just above the Tools row. */}
+        {/* The facts — Chess, Education, Part-time and Hobbies as ONE
+            section, centred under the brain just above the black band, and
+            smaller (owner, 2026-10-03 — it sat bottom-right in the same size
+            for an hour first, until the creative pins took that corner back).
+            ⚠ Smaller by ONE transform, origin bottom, so every size inside
+            (heading, number, marks, the cycling words) comes down together and
+            the block stays anchored to the band as its height changes from
+            fact to fact. Below `lg` this whole layer is hidden and the footer
+            carries the section instead. */}
+        <div className="absolute bottom-[8.2vh] left-1/2 w-[28rem] -translate-x-1/2">
+          <div className="origin-bottom scale-[0.6]">
+            <AboutFacts align="center" />
+          </div>
+        </div>
 
         {/* The portrait orb lived here until 2026-08-17 — centred under the
             brain, over the footing band. It moved to SiteFooter at the

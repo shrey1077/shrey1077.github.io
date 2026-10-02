@@ -103,3 +103,27 @@ export const AZOTH_REJECTED = [
 ];
 
 export const AZOTH_NATURALIST_ARTWORK = `${BRAND}/naturalist-artwork.webp`;
+
+const MARKS = `${BRAND}/marks`;
+
+/** The identity files the owner supplied on 2026-10-03, prepared by
+ *  scripts/prepare-azoth-marks.mjs: the monogram, the sketch it was built
+ *  from, and its three lockups. Sizes are the prepared files' own. */
+export const AZOTH_MARK = {
+  mark: { src: `${MARKS}/mark-black.webp`, w: 845, h: 1087 },
+  construction: { src: `${MARKS}/mark-construction.webp`, w: 1100, h: 1038 },
+  /** The logo's two inks, sampled from the colour lockup's flats. */
+  inks: [
+    { name: "Culture teal", hex: "#28A898" },
+    { name: "Lab navy", hex: "#283078" },
+  ],
+  /** Each on the plate it is meant for — the reversed one only reads on navy. */
+  lockups: [
+    { name: "Horizontal", src: `${MARKS}/lockup-horizontal-black.webp`, w: 433, h: 115, plate: "#f5f5f5" },
+    { name: "Horizontal, reversed", src: `${MARKS}/lockup-horizontal-white.webp`, w: 482, h: 123, plate: "#283078" },
+    { name: "Stacked, colour", src: `${MARKS}/lockup-stacked-colour.webp`, w: 647, h: 705, plate: "#ffffff" },
+  ],
+};
+
+/** Naturalist's Brain Fuel — the bottle and its label, as packaged. */
+export const AZOTH_BRAIN_FUEL = { src: `${MARKS}/naturalist-brain-fuel.webp`, w: 800, h: 1422 };

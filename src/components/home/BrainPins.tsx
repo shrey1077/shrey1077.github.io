@@ -35,7 +35,7 @@ import { NAV_SECTIONS } from "@/constants/navigation";
 import type { NavSectionId } from "@/types/navigation";
 import { EASE_OUT } from "@/constants/motion";
 import { useIsCompact } from "@/hooks/useMediaQuery";
-import { typeVoiceClass } from "@/constants/typography";
+import { CreativeIcon, hasCreativeIcon } from "@/components/home/CreativeIcons";
 
 /** Fired when a section is chosen (or cleared); the panel follows it. */
 export const PIN_OPEN_EVENT = "brainpin:open";
@@ -79,8 +79,10 @@ const RING_MASK = { WebkitMaskImage: RING, maskImage: RING } as const;
  *  shortest stage (640px) that air closes to ~9px. */
 const ROW_STEP = 0.054;
 const LOGIC_ROW_TOP = 0.865 - 3 * ROW_STEP;
-/** Just under the stage's top edge — clear of PORTFOLIO, which is centred. */
-const CREATIVE_ROW_TOP = 0.05;
+/** ⚠ Back on the LOGIC rows (owner, 2026-10-03: "right side sections at right
+ *  bottom"), so the two columns sit level, bottom-aligned just above the black
+ *  band. It hung in the top-right corner (0.05) for a day before that. */
+const CREATIVE_ROW_TOP = LOGIC_ROW_TOP;
 
 /** Half the height of a logic row: the pill's 1.07rem type at `leading-none`
  *  plus `py-1.5` twice is 1.82rem, and the 28px icon is shorter than that, so
@@ -100,7 +102,7 @@ const COL = {
   // the brain (BrainTraces) still start from where these pins sit.
   logic: { x: "left-[6vw]", top: LOGIC_ROW_TOP, step: ROW_STEP, align: "flex-row" },
   // ⚠ 2.5vw since 2026-10-02 (6vw before): the corner connectors that needed a
-  // gutter to turn in are gone, and the column sits in the top-right corner.
+  // gutter to turn in are gone. Bottom-right, level with the logic column.
   // The four illustrations are different widths and right-anchored, so their
   // LEFT ends — where the lead rings and the pencil strokes now are — stay
   // ragged by design.
@@ -168,6 +170,8 @@ export const SECTION_ICONS: Partial<Record<NavSectionId, string>> = {
  *  which is PIN_SCALE. Every other number in ART is a FRACTION of the image, so
  *  they all follow this on their own. */
 const ART_H = 76.8 * PIN_SCALE;
+/** How much of the white circle's diameter a creative icon fills. */
+const ICON_FILL = 0.74;
 
 interface PinArt {
   src: string;
@@ -322,6 +326,32 @@ function PinRow({
             sizes={`${Math.round(w)}px`}
             className="object-contain"
           />
+          {/* The section's colour mark, in the artwork's own white circle
+              (owner, 2026-10-03). Centred on the MEASURED disc (circleC*) and
+              sized from its radius, so it sits inside the circle rather than
+              near it; ICON_FILL leaves a margin of white round the glyph. */}
+          {hasCreativeIcon(pin.id) && (
+            <span
+              aria-hidden
+              className="pointer-events-none absolute grid place-items-center"
+              style={{
+                left: `${art.circleCX * 100}%`,
+                top: `${art.circleCY * 100}%`,
+                width: art.circleR * 2 * ART_H * ICON_FILL,
+                height: art.circleR * 2 * ART_H * ICON_FILL,
+                transform: "translate(-50%, -50%)",
+              }}
+            >
+              <motion.span
+                className="block size-full"
+                initial={false}
+                animate={{ scale: hover || open ? 1.12 : 1, rotate: hover || open ? -6 : 0 }}
+                transition={{ duration: reduceMotion ? 0 : 0.25, ease: EASE_OUT }}
+              >
+                <CreativeIcon section={pin.id} className="block size-full" />
+              </motion.span>
+            </span>
+          )}
           {/* The tell. It used to be a black dot dropped into the BIG white
               circle; the owner replaced it on 2026-08-21 with the artwork's own
               small lead ring filling in its own colour. The big circle is left
@@ -497,19 +527,9 @@ function PinRow({
           />
         </span>
 
-        {/* The tagline — three words under the pill, flush with its left edge.
-            Absolutely placed, so it never moves the row (see the wrapper).
-            `aria-hidden` because it would otherwise join the button's name and
-            every section would be announced with its three words attached;
-            the open panel carries the full description for everyone. */}
-        {pin.tagline && (
-          <span
-            aria-hidden
-            className={`${typeVoiceClass("logic", "meta")} absolute left-0 top-full mt-1.5 whitespace-nowrap text-[0.56rem] leading-none text-neutral-500`}
-          >
-            {pin.tagline}
-          </span>
-        )}
+        {/* ⚠ No tagline under the pill since 2026-10-03 — the owner removed the
+            three small-caps words ("People / Brands / Impact") from the pins.
+            Each section's slide in the Flythrough still carries its own. */}
         </span>
       </button>
       </span>

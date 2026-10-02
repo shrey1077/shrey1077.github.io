@@ -16,7 +16,6 @@ import {
   Tinos,
 } from "next/font/google";
 import { MemoryTransitionHost } from "@/components/transition/MemoryTransitionHost";
-import { RotateGate } from "@/components/home/RotateGate";
 import "./globals.css";
 
 /**
@@ -160,7 +159,8 @@ const greatVibes = Great_Vibes({
 
 const tinos = Tinos({
   subsets: ["latin"],
-  weight: ["400"],
+  // 700 carries the last word of each line, which the copy lands on.
+  weight: ["400", "700"],
   style: ["normal", "italic"],
   variable: "--font-tinos",
   display: "swap",
@@ -209,10 +209,10 @@ export default function RootLayout({
         {/* The memory-dive orchestrator — global so any page's client cards
             can begin a retrieval (thread → response → veil → dive). */}
         <MemoryTransitionHost />
-        {/* Asks a phone to turn sideways, then widens the layout viewport so
-            landscape actually gets the desktop composition rather than the
-            same narrow one on its side. Renders nothing anywhere else. */}
-        <RotateGate />
+        {/* RotateGate stood here until 2026-10-03: it asked phones to turn
+            sideways and then laid the page out at 1280px and scaled it down.
+            The owner asked for the site to be fully responsive instead, so
+            every width now gets its own layout. Deleted; git has it. */}
       </body>
     </html>
   );
