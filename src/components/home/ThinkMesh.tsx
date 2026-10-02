@@ -75,6 +75,10 @@ uniform sampler2D uTex;
 uniform float uRainbow;
 /** Drifts 0..1 and wraps, sweeping the gradient along the word. */
 uniform float uPhase;
+/** The slice of the palette this mesh covers: a word split into one mesh per
+ *  letter gives each letter its own slice so the sweep runs on across them. */
+uniform float uStart;
+uniform float uSpan;
 
 const vec3 P0 = vec3(1.000, 0.180, 0.545);
 const vec3 P1 = vec3(1.000, 0.353, 0.235);
@@ -103,7 +107,7 @@ void main() {
   // ⚠ The texture is uploaded with UNPACK_PREMULTIPLY_ALPHA_WEBGL, and the draw
   // blends ONE / ONE_MINUS_SRC_ALPHA — so the gradient must be PREMULTIPLIED
   // too (colour * alpha). Emitting straight colour here haloes every glyph.
-  vec3 lit = paint(vUv.x + uPhase) * t.a;
+  vec3 lit = paint(uStart + vUv.x * uSpan + uPhase) * t.a;
   outColor = vec4(mix(t.rgb, lit, uRainbow), t.a);
 }`;
 
@@ -130,6 +134,9 @@ export function ThinkMesh({
   from,
   onActive,
   rainbow = false,
+  rainbowStart = 0,
+  rainbowSpan = 1,
+  embolden = 0,
 }: {
   word: string;
   /** The element whose box, font and colour the mesh copies. */
@@ -142,6 +149,15 @@ export function ThinkMesh({
    *  the whole texture, so animating a gradient through it would rebuild the
    *  word every frame for something the shader does for free. */
   rainbow?: boolean;
+  /** Where in the palette (0..1) this mesh's left edge starts, and how much
+   *  of it the mesh spans. Defaults paint the whole palette across one word. */
+  rainbowStart?: number;
+  rainbowSpan?: number;
+  /** Thickens the glyphs by this much per side, in em, with a stroke in the
+   *  fill colour. For single-weight faces (Digibra) where `font-weight` can't
+   *  embolden — globals.css declares it 400–700 precisely so the browser never
+   *  synthesises one. The caller's fallback span must match it. */
+  embolden?: number;
 }) {
   const reduceMotion = useReducedMotion();
   const canvasRef = useRef<HTMLCanvasElement>(null);
@@ -245,6 +261,8 @@ export function ThinkMesh({
     const uTex = gl.getUniformLocation(program, "uTex");
     const uRainbow = gl.getUniformLocation(program, "uRainbow");
     const uPhase = gl.getUniformLocation(program, "uPhase");
+    const uStart = gl.getUniformLocation(program, "uStart");
+    const uSpan = gl.getUniformLocation(program, "uSpan");
 
     const vao = gl.createVertexArray();
     gl.bindVertexArray(vao);
@@ -318,11 +336,16 @@ export function ThinkMesh({
           ? PAD * box.h * dpr + (box.h * dpr - (fAsc + fDesc)) / 2 + fAsc
           : // Older engines without font metrics: the previous ink-centring.
             c2.height / 2 + (asc - desc) / 2;
-      ctx.fillText(
-        word,
-        (c2.width - (m.actualBoundingBoxRight + m.actualBoundingBoxLeft)) / 2,
-        baseline,
-      );
+      const tx = (c2.width - (m.actualBoundingBoxRight + m.actualBoundingBoxLeft)) / 2;
+      ctx.fillText(word, tx, baseline);
+      if (embolden > 0) {
+        // A stroke is centred on the outline, so twice the width is `embolden`
+        // outward on each side.
+        ctx.lineWidth = 2 * embolden * px * dpr;
+        ctx.lineJoin = "round";
+        ctx.strokeStyle = ctx.fillStyle;
+        ctx.strokeText(word, tx, baseline);
+      }
       gl.bindTexture(gl.TEXTURE_2D, tex);
       gl.pixelStorei(gl.UNPACK_PREMULTIPLY_ALPHA_WEBGL, true);
       gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, c2);
@@ -392,6 +415,8 @@ export function ThinkMesh({
       gl.uniform1f(uRainbow, rainbow ? 1 : 0);
       // "Gentle and slow", as asked: one full sweep of the palette every ~24s.
       gl.uniform1f(uPhase, rainbow ? (now * 0.001) / RAINBOW_PERIOD : 0);
+      gl.uniform1f(uStart, rainbowStart);
+      gl.uniform1f(uSpan, rainbowSpan);
       gl.enable(gl.BLEND);
       gl.blendFunc(gl.ONE, gl.ONE_MINUS_SRC_ALPHA);
       gl.bindVertexArray(vao);
@@ -415,7 +440,7 @@ export function ThinkMesh({
       gl.deleteShader(fs);
       onActive?.(false);
     };
-  }, [reduceMotion, box.w, box.h, style.font, style.color, word, onActive, rainbow]);
+  }, [reduceMotion, box.w, box.h, style.font, style.color, word, onActive, rainbow, rainbowStart, rainbowSpan, embolden]);
 
   if (reduceMotion) return null;
 

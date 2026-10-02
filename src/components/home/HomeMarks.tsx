@@ -38,28 +38,6 @@ function Mark({ children }: { children: React.ReactNode }) {
   );
 }
 
-/** Tools — a cog. The teeth overlap the ring's outer edge (inner edge at 5.6
- *  from centre against a 6.0 ring outer) so the wheel reads as one solid part
- *  rather than a ring with crumbs floating around it. */
-export function ToolsMark() {
-  return (
-    <Mark>
-      <circle cx="12" cy="12" r="4.6" fill="none" stroke="currentColor" strokeWidth="2.8" />
-      {[0, 45, 90, 135, 180, 225, 270, 315].map((a) => (
-        <rect
-          key={a}
-          x="10.9"
-          y="2.6"
-          width="2.2"
-          height="3.8"
-          rx="0.6"
-          transform={`rotate(${a} 12 12)`}
-        />
-      ))}
-    </Mark>
-  );
-}
-
 /** Education — a mortarboard: the board, the cap band under it, and a tassel. */
 export function EducationMark() {
   return (

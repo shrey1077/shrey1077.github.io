@@ -21,15 +21,29 @@
  * brings its own boundary.
  */
 
+import Image from "next/image";
 import { PortraitOrb } from "@/components/home/PortraitOrb";
+import { ToolLogos } from "@/components/home/ToolLogos";
+import { AboutFacts } from "@/components/home/AboutFacts";
+import { HobbiesRotator } from "@/components/home/HobbiesRotator";
 import { SITE } from "@/constants/site";
 
-const LINKS: { label: string; value: string; href: string; external: boolean }[] = [
-  { label: "Email", value: SITE.email, href: `mailto:${SITE.email}`, external: false },
+/** Contact rows. Gmail, phone and website joined on 2026-10-02; a row whose
+ *  value is empty (the phone, until it is supplied) is left out. */
+const LINKS: { label: string; value: string; href: string; external: boolean; icon?: string }[] = [
+  {
+    label: "Gmail",
+    value: SITE.email,
+    href: `mailto:${SITE.email}`,
+    external: false,
+    icon: "/content/tools/gmail.svg",
+  },
+  { label: "Phone", value: SITE.phone, href: `tel:${SITE.phone.replace(/[^\d+]/g, "")}`, external: false },
+  { label: "Website", value: SITE.website.replace(/^https?:\/\//, ""), href: SITE.website, external: true },
   { label: "LinkedIn", value: "/shrey-singh", href: SITE.linkedin, external: true },
   { label: "Behance", value: "/shrey-singh", href: SITE.behance, external: true },
   { label: "Resume", value: "Download PDF", href: SITE.resume, external: true },
-];
+].filter((l) => l.value);
 
 /** The name is split so each half can take its own weight. */
 const [FIRST, ...REST] = SITE.name.split(" ");
@@ -67,6 +81,15 @@ export function SiteFooter() {
           <ul className="mt-3 space-y-1.5">
             {LINKS.map((link) => (
               <li key={link.label} className="text-[0.95rem] leading-snug">
+                {link.icon && (
+                  <Image
+                    src={link.icon}
+                    alt=""
+                    width={14}
+                    height={14}
+                    className="mr-1.5 inline-block size-3.5 -translate-y-px align-middle"
+                  />
+                )}
                 <span className="font-extrabold text-neutral-800">{link.label}</span>
                 <span aria-hidden className="px-1.5 font-normal text-neutral-300">
                   ·
@@ -84,6 +107,25 @@ export function SiteFooter() {
             ))}
           </ul>
         </div>
+      </div>
+
+      {/* The facts row — the two rotators that held the landing's lower
+          corners until 2026-10-02 (owner: "moved down, just above the tools").
+          Logic left, creative right, as they sat either side of the brain;
+          stacked and centred below `md`. */}
+      <div className="mx-auto mt-12 grid w-full max-w-7xl gap-8 border-t border-neutral-200 pt-10 md:grid-cols-2">
+        <div className="flex justify-center md:justify-start">
+          <AboutFacts />
+        </div>
+        <div className="flex justify-center md:justify-end">
+          <HobbiesRotator />
+        </div>
+      </div>
+
+      {/* The tool stack. */}
+      <div className="font-graff mx-auto mt-10 flex w-full max-w-7xl flex-col items-center gap-3">
+        <p className="text-[0.72rem] font-extrabold uppercase tracking-[0.2em] text-neutral-900">Tools</p>
+        <ToolLogos height={22} className="justify-center gap-x-6 gap-y-3" />
       </div>
 
       <p className="font-graff mx-auto mt-10 w-full max-w-7xl text-center text-[0.7rem] font-normal text-neutral-400">

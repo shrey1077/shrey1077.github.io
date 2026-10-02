@@ -87,8 +87,9 @@ interface Trace {
   index: number;
 }
 
-/** A frame pixel → stage pixel, exactly as the footage layer places it. */
-function toStage(
+/** A frame pixel → stage pixel, exactly as the footage layer places it.
+ *  Exported for HeroName, which wraps THINK round the same brain. */
+export function toStage(
   fx: number,
   fy: number,
   w: number,
