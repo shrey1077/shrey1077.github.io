@@ -145,6 +145,13 @@ export const TATA_CAMPUS_PROFILES = [
   },
 ];
 
+/** The artwork that closes band 01 — blue industrial geometry (a CNC spindle
+ *  throwing sparks at the left, a production line at the right) rising out of
+ *  the page, supplied by the owner on 2026-10-03. A cut-out: transparent above,
+ *  so the campuses sit over its empty middle. The empty sky above the ink was
+ *  trimmed off the supplied 2000×667 file; size is the trimmed file's. */
+export const TATA_WHO_ART = { src: `${CAMPUS}/industry-band.webp`, w: 2000, h: 527 };
+
 export const TATA_SYSTEM: TataBand = {
   number: "02",
   kicker: "The system",
@@ -241,17 +248,30 @@ export const TATA_LOCKUP = {
  * ⚠ ALL TWELVE PLATES, in the rulebook's own order. Opening a brand book
  * should show the brand book, not a selection from it. */
 export const TATA_BRAND_BOOK = {
-  wordmark: TATA_GUIDELINES.wordmark,
   title: "Brand Guidelines",
   plates: TATA_GUIDELINES.tataPlates,
+  /** The closed book — the owner's own mockup (2026-10-03), a cut-out on a
+   *  transparent ground. Size is the trimmed file's. It replaced the cover
+   *  that was drawn in markup. */
+  mockup: { src: `${BRAND}/brand-book-mockup.webp`, w: 1497, h: 961 },
 };
 
 /** 02's second movement. It was band 03 until 2026-09-28, when the owner asked
  *  for the whole identity story to live in one section. */
 export const TATA_DNA = {
   kicker: "What the rulebook fixes",
-  body:
-    "The rest is law, so the mark holds at any size: built on a grid at that 4:1 ratio, the full name aligned under the initials, a 2x exclusion zone it never gives up, two licensed faces, and a colour that survives print, screen and a fifteen-foot ceremony backdrop. The book is here — open it.",
+  /** ⚠ ONE PARAGRAPH, SET AS A LIST (2026-10-03): the owner kept the words and
+   *  asked for the composition to be redone, so the sentence's five clauses
+   *  are its five rules, word for word, between its own lead-in and close. */
+  lead: "The rest is law, so the mark holds at any size:",
+  rules: [
+    "Built on a grid at that 4:1 ratio",
+    "The full name aligned under the initials",
+    "A 2x exclusion zone it never gives up",
+    "Two licensed faces",
+    "A colour that survives print, screen and a fifteen-foot ceremony backdrop",
+  ],
+  close: "The book is here — open it.",
 };
 
 /** 02's third movement — the parent mark and its two campuses. */

@@ -3,21 +3,39 @@
 /**
  * Flythrough — the landing and all eight sections as one flight in depth
  * (2026-10-02, owner: "vertical slides flythrough… travel in z axis to the
- * clients page, then the next scroll to projects, and so on" — left sections
- * first, then the right side the same way).
+ * clients page, then the next scroll to projects, and so on").
  *
  * THE RUN. A tall block, one screen of scroll per slide, holding a sticky
  * full-screen stage. Scroll progress through the block is the camera's depth:
- *   · the hero is slide 0 — scrolling on dives it forward, toward the brain,
- *     until it rushes past the camera and is gone;
- *   · each section waits far back in z, flies forward to fill the screen, then
- *     rushes past in turn — the four LOGIC sections (Clients, Projects,
- *     Logofolio, Career Path) on the circuit board, then the four CREATIVE ones
- *     (Art, Publications, The Extincts Project, AI Generations) on the paint
- *     film; the ground crossfades between the two as the camera crosses over;
+ *   · the landing is slides 0 and 1 (2026-10-03): the portrait orb and the
+ *     tools, then the brain with its pins and the facts, which comes up out of
+ *     the depth as the orb flies by — the wordmark, the code box and the band
+ *     standing still across both (HeroStage, flight.ts); the next scroll flies
+ *     the whole landing past the camera;
+ *   · then the rooms, which wait far back in z, fly forward to fill the screen
+ *     and rush past in turn;
  *   · past the last slide the block simply scrolls away into the footer.
  * The camera is a real translateZ under perspective, written through motion
  * values — no React work per frame.
+ *
+ * TWO PARALLEL TRACKS (owner, 2026-10-03). The rooms are not one line of eight
+ * any more but two of four, side by side, LEVEL with each other:
+ *
+ *        logic (left)        creative (right)
+ *        Clients        ↔    Art
+ *        Projects       ↔    Publications
+ *        Logofolio      ↔    The Extincts Project
+ *        Career Path    ↔    AI Generations & Ideas
+ *
+ * Scrolling flies down whichever track you are on. Switching is SIDEWAYS: the
+ * docked brain's window carries "Click to <the room level with this one>" and
+ * a blinking arrow, and a click pans the stage — this room slides off one way,
+ * its partner slides in from the other, and the brain's window swings from
+ * one edge to the other as the hinge between them (BrainDock). The arrow keys
+ * ← → switch too. The circuit board travels with the logic track and the paint
+ * film with the creative one. The run is therefore the landing plus FOUR
+ * levels, not eight rooms. Back on the landing the track resets to logic, so
+ * the way down always starts at Clients.
  *
  * ONE SCROLL, ONE SLIDE. Inside the run a wheel gesture is taken over and flies
  * exactly one slide, with a lock that outlasts a trackpad's inertia tail so one
@@ -27,61 +45,66 @@
  * and anything else scroll natively and are eased onto the nearest slide when
  * they come to rest.
  *
- * PINS. Every pin (and its compact-nav twin) flies to its slide, and so does
- * every circle of BrainNav, the three at the top of the stage. This replaced
- * SectionPanel, the band that used to open under the hero; it was deleted on
- * 2026-10-02 once both sides lived here — git has it.
+ * PINS. Every pin flies to its room — switching track first if it has to — and
+ * so does every circle of BrainNav, the three at the top of the stage. This
+ * replaced SectionPanel, the band that used to open under the hero; it was
+ * deleted on 2026-10-02 once both sides lived here — git has it.
  *
- * Reduced motion: no take-over, no depth — slides crossfade with the scroll.
+ * Reduced motion: no take-over, no depth — slides crossfade with the scroll,
+ * and a track switch cuts rather than pans.
  */
 
-import { useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import Image from "next/image";
 import {
   animate,
   motion,
+  useMotionValue,
   useMotionValueEvent,
   useReducedMotion,
   useScroll,
   useTransform,
   type MotionValue,
 } from "framer-motion";
+import { FlightContext, HERO_SLIDES, PERSPECTIVE, useDepth } from "@/components/home/flight";
+import { BrainDock } from "@/components/home/BrainDock";
+import { BRAIN_POSE } from "@/components/home/HeroStage";
 import { PIN_OPEN_EVENT } from "@/components/home/BrainPins";
 import { SectionParticles } from "@/components/home/SectionParticles";
-import { PaintBurst } from "@/components/home/PaintBurst";
+import { CircuitBackdrop } from "@/components/home/CircuitBackdrop";
+import { Corner3DGrid } from "@/components/home/Corner3DGrid";
 import { ProjectPreview } from "@/components/home/ProjectPreview";
 import { BrainNav } from "@/components/home/BrainNav";
 import { SectionBody, sectionEntryCount, type SectionData } from "@/components/home/SectionBody";
 import { navSectionsFor } from "@/constants/navigation";
 import { projectStudyById } from "@/constants/projectStudies";
-import { FILM_PLATE } from "@/constants/design";
+import { PAPER_PLATE } from "@/constants/design";
 import { typeVoiceClass } from "@/constants/typography";
+import type { NavSection } from "@/types/navigation";
 
-/** The flight's order: the logic sections top pin first, then the creative. */
+/** The two tracks, each top pin first. Level i is LOGIC[i] beside CREATIVE[i]. */
 const LOGIC = navSectionsFor("left");
 const CREATIVE = navSectionsFor("right");
-const SLIDES = [...LOGIC, ...CREATIVE];
-/** Slide 0 is the hero, so the last slide's index is the slide count. */
-const LAST = SLIDES.length;
-/** The ground turns from circuit to paint between slide LOGIC.length (Career
- *  Path) and the one after it (Art). */
-const CROSSOVER = LOGIC.length;
+const LEVELS = Math.max(LOGIC.length, CREATIVE.length);
+/** The landing takes the first HERO_SLIDES (the orb, then the brain); the
+ *  rooms' levels start after it. */
+const FIRST_ROOM = HERO_SLIDES;
+const LAST = FIRST_ROOM + LEVELS - 1;
 
-const PERSPECTIVE = 1200;
-/** px of depth per slide still to come — the next one waits ~0.4× and faded. */
-const AHEAD_Z = 1700;
-/** px toward the camera per slide gone by — a passed slide swells and fades
- *  out by half a slide, so it reads as flown THROUGH, not slid away. */
-const PASS_Z = 800;
-/** A slide's fade: in over the whole approach, out over half a slide passed. */
-const FADE_OUT = 2.2;
+export type Track = "logic" | "creative";
+const ROOMS: { section: NavSection; level: number; track: Track }[] = [
+  ...LOGIC.map((section, level) => ({ section, level, track: "logic" as const })),
+  ...CREATIVE.map((section, level) => ({ section, level, track: "creative" as const })),
+];
 
 /** Seconds for one slide's flight; each further slide adds FLY_EXTRA, up to
- *  FLY_MAX_SLIDES' worth — a pin from the hero to the last room passes eight. */
+ *  FLY_MAX_SLIDES' worth. */
 const FLY_BASE = 0.8;
 const FLY_EXTRA = 0.24;
 const FLY_MAX_SLIDES = 6;
 const FLY_EASE = [0.65, 0, 0.35, 1] as const;
+/** Seconds for the sideways pan between the two tracks. */
+const PAN = 0.9;
 /** A wheel event this soon after the last belongs to the same gesture. */
 const GESTURE_GAP_MS = 220;
 /** Native scrolling that stops this long counts as at rest. */
@@ -89,11 +112,13 @@ const SETTLE_MS = 140;
 /** Slide positions this close to a whole number count as on that slide. */
 const EPS = 0.02;
 
-/** Fired to fly to a slide by index (0 = the hero) — BrainNav's circles. */
+/** Fired to fly to a slide by index (0 = the orb), optionally switching
+ *  track — BrainNav's circles. */
 const GO_EVENT = "flythrough:go";
+type GoDetail = number | { k: number; track?: Track };
 
 /** Rooms that size and scroll themselves (SectionBody's own renderers). */
-const FILLS: ReadonlySet<string> = new Set(["logofolio", "career-path", "art", "publications"]);
+const FILLS: ReadonlySet<string> = new Set(["logofolio", "career-path", "art", "publications", "the-extincts-project"]);
 
 const pad = (n: number) => String(n).padStart(2, "0");
 
@@ -117,35 +142,36 @@ function canScrollInside(target: EventTarget | null, root: HTMLElement, dir: num
 function Slide({
   index,
   p,
+  pan,
   reduceMotion,
   current,
   origin,
+  hold = false,
   className = "",
   children,
 }: {
   index: number;
   p: MotionValue<number>;
+  /** Sideways offset in screen widths (−1 off left … 1 off right) — the
+   *  track pan. The landing has none. */
+  pan?: MotionValue<number>;
   reduceMotion: boolean;
   /** The slide the camera is on — the only one that takes the pointer. */
   current: boolean;
   origin: string;
+  /** Stand still on the way in (the landing, whose own layers fly inside). */
+  hold?: boolean;
   className?: string;
   children: React.ReactNode;
 }) {
-  const z = useTransform(p, (v) => {
-    if (reduceMotion) return 0;
-    const d = index - v;
-    return d >= 0 ? -d * AHEAD_Z : -d * PASS_Z;
-  });
-  const opacity = useTransform(p, (v) => {
-    const d = index - v;
-    const o = d >= 0 ? 1 - d : 1 + d * FADE_OUT;
-    return Math.max(0, Math.min(1, o));
-  });
-  const visibility = useTransform(opacity, (o) => (o < 0.01 ? "hidden" : "visible"));
-  // Siblings composite by z-index, not by 3D depth (no preserve-3d), so the
-  // slide rushing past has to be stacked over the one arriving behind it.
-  const zIndex = useTransform(p, (v) => 100 - Math.round((index - v) * 10));
+  const { z, opacity, zIndex } = useDepth(p, index, reduceMotion, hold);
+  const still = useMotionValue(0);
+  const offset = pan ?? still;
+  const x = useTransform(offset, (v) => `${v * 100}%`);
+  // Hidden when faded out OR panned fully off screen.
+  const visibility = useTransform([opacity, offset], ([o, v]) =>
+    (o as number) < 0.01 || Math.abs(v as number) > 0.999 ? "hidden" : "visible",
+  );
 
   return (
     <motion.div
@@ -153,6 +179,7 @@ function Slide({
       inert={!current}
       className={`absolute inset-0 ${className}`}
       style={{
+        x,
         z,
         opacity,
         visibility,
@@ -170,7 +197,7 @@ export function Flythrough({
   children,
   data,
 }: {
-  /** The hero — slide 0. */
+  /** The landing — slides 0 and 1. */
   children: React.ReactNode;
   data: SectionData;
 }) {
@@ -179,22 +206,54 @@ export function Flythrough({
   const { scrollYProgress } = useScroll({ target: runRef, offset: ["start start", "end end"] });
   const p = useTransform(scrollYProgress, (v) => v * LAST);
 
+  // ── The track: which line of rooms the camera is on, and the pan between
+  //    them (0 = logic, 1 = creative), which the slides, the grounds and the
+  //    dock all read.
+  const [track, setTrack] = useState<Track>("logic");
+  const trackRef = useRef<Track>("logic");
+  const trackX = useMotionValue(0);
+  const panAnim = useRef<{ stop: () => void } | null>(null);
+  const [panning, setPanning] = useState(false);
+  useMotionValueEvent(trackX, "change", (v) => setPanning(v > 0.001 && v < 0.999));
+  const switchTrack = useCallback(
+    (t: Track, instant = false) => {
+      if (trackRef.current === t) return;
+      trackRef.current = t;
+      setTrack(t);
+      panAnim.current?.stop();
+      const to = t === "creative" ? 1 : 0;
+      if (instant || reduceMotion) trackX.set(to);
+      else panAnim.current = animate(trackX, to, { duration: PAN, ease: FLY_EASE });
+    },
+    [reduceMotion, trackX],
+  );
+  const logicPan = useTransform(trackX, (v) => -v);
+  const creativePan = useTransform(trackX, (v) => 1 - v);
+  const logicGroundX = useTransform(trackX, (v) => `${-v * 100}%`);
+  const creativeGroundX = useTransform(trackX, (v) => `${(1 - v) * 100}%`);
+
+  // Set while a flight is under way, so the landing's track reset below
+  // never undoes a pin's or the nav's own choice of track mid-flight.
+  const flyingRef = useRef(false);
+
   // The slide the camera is nearest — only changes on a crossing.
   const [current, setCurrent] = useState(0);
-  // Which grounds are worth running. The circuit's particles only once the
-  // camera has left the hero and until it is well into the paint; the paint
-  // film only from just before the crossover — a video decoding behind seven
-  // opaque slides is a waste.
-  const [circuitLive, setCircuitLive] = useState(false);
-  const [paintLive, setPaintLive] = useState(false);
+  // Whether the camera has left the landing — the grounds are only worth
+  // running from then on.
+  const [roomsLive, setRoomsLive] = useState(false);
   useMotionValueEvent(p, "change", (v) => {
     setCurrent(Math.min(LAST, Math.max(0, Math.round(v))));
-    setCircuitLive(v > EPS && v < CROSSOVER + 1);
-    setPaintLive(v > CROSSOVER - 0.6);
+    const inRooms = v > FIRST_ROOM - 1 + EPS;
+    setRoomsLive(inRooms);
+    // Back on the landing, the way down starts at Clients again.
+    if (!inRooms && trackRef.current !== "logic" && !flyingRef.current) switchTrack("logic", true);
   });
-  // The crossfade between the two grounds, over the flight Career → Art.
-  const paintFade = useTransform(p, (v) => Math.max(0, Math.min(1, v - CROSSOVER)));
-  const circuitFade = useTransform(paintFade, (o) => 1 - o);
+  // Each ground only runs while its track can be seen — a film decoding off
+  // screen is a waste.
+  const circuitLive = roomsLive && (track === "logic" || panning);
+  const creativeLive = roomsLive && (track === "creative" || panning);
+  const zone = current < FIRST_ROOM ? "landing" : track;
+  const level = Math.max(0, Math.min(LEVELS - 1, current - FIRST_ROOM));
 
   const [studyId, setStudyId] = useState<string | null>(null);
   const dialogOpen = useRef(false);
@@ -206,7 +265,6 @@ export function Flythrough({
     const run = runRef.current;
     if (!run) return;
 
-    let flying = false;
     let anim: { stop: () => void } | null = null;
     let lastWheel = 0;
     let gestureSpent = false;
@@ -223,6 +281,7 @@ export function Flythrough({
       const { top, step } = geom();
       return step > 0 ? (window.scrollY - top) / step : 0;
     };
+    const onLanding = () => position() < FIRST_ROOM - 0.5;
 
     const flyTo = (k: number) => {
       const { top, step } = geom();
@@ -233,14 +292,14 @@ export function Flythrough({
         window.scrollTo({ top: target, behavior: "instant" });
         return;
       }
-      flying = true;
+      flyingRef.current = true;
       const slides = Math.abs(target - from) / (step || 1);
       anim = animate(from, target, {
         duration: FLY_BASE + FLY_EXTRA * Math.max(0, Math.min(FLY_MAX_SLIDES, slides) - 1),
         ease: FLY_EASE,
         onUpdate: (v) => window.scrollTo({ top: v, behavior: "instant" }),
         onComplete: () => {
-          flying = false;
+          flyingRef.current = false;
         },
       });
     };
@@ -257,10 +316,14 @@ export function Flythrough({
       return dir > 0 ? Math.ceil(pos) : Math.floor(pos);
     };
 
+    // A dialog portalled outside the run (the Extincts reader) marks the root
+    // `data-modal` while open; the wheel and the keys are its then.
+    const modal = () => dialogOpen.current || !!document.documentElement.dataset.modal;
+
     const onWheel = (e: WheelEvent) => {
-      if (reduceMotion || e.ctrlKey || dialogOpen.current) return;
+      if (reduceMotion || e.ctrlKey || modal()) return;
       const now = performance.now();
-      if (now - lastWheel > GESTURE_GAP_MS && !flying) gestureSpent = false;
+      if (now - lastWheel > GESTURE_GAP_MS && !flyingRef.current) gestureSpent = false;
       lastWheel = now;
       const dir = Math.sign(e.deltaY);
       if (!dir) return;
@@ -268,15 +331,24 @@ export function Flythrough({
       if (target === null) return;
       if (canScrollInside(e.target, run, dir)) return;
       e.preventDefault();
-      if (flying || gestureSpent) return;
+      if (flyingRef.current || gestureSpent) return;
       gestureSpent = true;
       flyTo(target);
     };
 
     const onKey = (e: KeyboardEvent) => {
-      if (reduceMotion || dialogOpen.current || e.altKey || e.ctrlKey || e.metaKey) return;
+      if (modal() || e.altKey || e.ctrlKey || e.metaKey) return;
       const t = e.target as HTMLElement | null;
       if (t && (t.isContentEditable || /^(INPUT|TEXTAREA|SELECT)$/.test(t.tagName))) return;
+      // ← → switch track, in the rooms only.
+      if ((e.key === "ArrowRight" || e.key === "ArrowLeft") && !onLanding()) {
+        const pos = position();
+        if (pos > LAST + 0.6) return;
+        e.preventDefault();
+        switchTrack(e.key === "ArrowRight" ? "creative" : "logic");
+        return;
+      }
+      if (reduceMotion) return;
       const dir =
         e.key === "ArrowDown" || e.key === "PageDown" || (e.key === " " && !e.shiftKey)
           ? 1
@@ -287,16 +359,16 @@ export function Flythrough({
       const target = stepFrom(position(), dir);
       if (target === null) return;
       e.preventDefault();
-      if (!flying) flyTo(target);
+      if (!flyingRef.current) flyTo(target);
     };
 
     // Native scrolling that comes to rest between two slides is eased onto the
     // nearer one. Never mid-touch: a finger held still is not "at rest".
     const onScroll = () => {
       clearTimeout(settle);
-      if (reduceMotion || flying) return;
+      if (reduceMotion || flyingRef.current) return;
       settle = setTimeout(() => {
-        if (flying || touching) return;
+        if (flyingRef.current || touching) return;
         const pos = position();
         if (pos <= EPS || pos >= LAST - EPS) return;
         if (Math.abs(pos - Math.round(pos)) > EPS) flyTo(Math.round(pos));
@@ -306,20 +378,29 @@ export function Flythrough({
       touching = true;
       // A finger on the glass takes the page back from a flight in progress.
       anim?.stop();
-      flying = false;
+      flyingRef.current = false;
     };
     const onTouchEnd = () => {
       touching = false;
       onScroll();
     };
 
-    // Every pin flies to its slide; null (a pin closing) needs nothing.
+    // Every pin flies to its room, on its own track; null (a pin closing)
+    // needs nothing. From the landing the track is simply set — nothing of
+    // either track is on screen to pan.
     const onPin = (e: Event) => {
       const id = (e as CustomEvent<string | null>).detail;
-      const i = SLIDES.findIndex((s) => s.id === id);
-      if (i >= 0) flyTo(i + 1);
+      const room = ROOMS.find((r) => r.section.id === id);
+      if (!room) return;
+      switchTrack(room.track, onLanding());
+      flyTo(FIRST_ROOM + room.level);
     };
-    const onGo = (e: Event) => flyTo((e as CustomEvent<number>).detail);
+    const onGo = (e: Event) => {
+      const d = (e as CustomEvent<GoDetail>).detail;
+      const { k, track: t } = typeof d === "number" ? { k: d, track: undefined } : d;
+      if (t) switchTrack(t, onLanding());
+      flyTo(k);
+    };
 
     window.addEventListener("wheel", onWheel, { passive: false });
     window.addEventListener("keydown", onKey);
@@ -339,23 +420,31 @@ export function Flythrough({
       window.removeEventListener(PIN_OPEN_EVENT, onPin);
       window.removeEventListener(GO_EVENT, onGo);
     };
-  }, [reduceMotion]);
+  }, [reduceMotion, switchTrack]);
 
-  const go = (k: number) => window.dispatchEvent(new CustomEvent(GO_EVENT, { detail: k }));
+  const go = (k: number, t?: Track) =>
+    window.dispatchEvent(new CustomEvent<GoDetail>(GO_EVENT, { detail: t ? { k, track: t } : k }));
+
+  // The dock's prompt: the room LEVEL with this one, on the other track.
+  const across =
+    track === "logic"
+      ? { label: CREATIVE[level]?.label ?? CREATIVE[0].label, face: "creative" as const, toward: "right" as const }
+      : { label: LOGIC[level]?.label ?? LOGIC[0].label, face: "logic" as const, toward: "left" as const };
 
   return (
+    <FlightContext.Provider value={{ p, current, zone, reduceMotion }}>
     <div ref={runRef} className="relative w-full" style={{ height: `${(LAST + 1) * 100}svh` }}>
       <div
         className="sticky top-0 h-[100svh] w-full overflow-hidden bg-neutral-950"
         style={{ perspective: PERSPECTIVE }}
       >
-        {/* The two grounds the slides fly through. Logic: the circuit board,
-            dim and grey, with the drifting field over it. Creative: the paint
-            film at full strength — no scrim, as the creative rooms have always
-            had it (legibility comes from FILM_PLATE behind the text). They
-            crossfade over the flight from Career Path to Art. Behind the hero
-            both are covered entirely. */}
-        <motion.div aria-hidden className="pointer-events-none absolute inset-0" style={{ opacity: circuitFade }}>
+        {/* The two grounds, one per track, side by side: the circuit board
+            (dim and grey, with the drifting field over it) under the logic
+            rooms, and under the creative ones the LANDING'S OWN ground —
+            white, the faint circuit film, a lattice in each corner (owner,
+            2026-10-03; it was the paint-burst film until then). Each pans with
+            its track. Behind the landing both are covered entirely. */}
+        <motion.div aria-hidden className="pointer-events-none absolute inset-0" style={{ x: logicGroundX }}>
           <Image
             src="/videos/circuit-bg-poster.jpg"
             alt=""
@@ -366,91 +455,122 @@ export function Flythrough({
           <div className="absolute inset-0 bg-neutral-950/60" />
           {circuitLive && <SectionParticles />}
         </motion.div>
-        <motion.div aria-hidden className="pointer-events-none absolute inset-0" style={{ opacity: paintFade }}>
-          {paintLive && <PaintBurst />}
+        <motion.div aria-hidden className="pointer-events-none absolute inset-0 bg-white" style={{ x: creativeGroundX }}>
+          {creativeLive && <CircuitBackdrop />}
+          <div className="absolute inset-0 hidden lg:block">
+            <Corner3DGrid corner="tl" />
+            <Corner3DGrid corner="bl" />
+            <Corner3DGrid corner="tr" />
+            <Corner3DGrid corner="br" />
+          </div>
         </motion.div>
 
-        {/* Slide 0 — the hero. Dives toward the brain (origin on it). */}
+        {/* The landing — slides 0 and 1 in one: it stands still while its
+            own two layers (the orb, then the brain) trade places inside it,
+            and flies off on the step after. See HeroStage and flight.ts. */}
         <Slide
-          index={0}
+          index={FIRST_ROOM - 1}
+          hold
           p={p}
           reduceMotion={reduceMotion}
-          current={current === 0}
+          current={current < FIRST_ROOM}
           origin="50% 45%"
           className="bg-gallery"
         >
           {children}
         </Slide>
 
-        {SLIDES.map((s, i) => {
+        {ROOMS.map(({ section: s, level: lv, track: t }) => {
+          const index = FIRST_ROOM + lv;
           const count = sectionEntryCount(s, data);
-          const logic = s.hemisphere === "left";
-          // Numbered within its own hemisphere: Logic 01–04, Creative 01–04.
+          const logic = t === "logic";
           const side = logic ? LOGIC : CREATIVE;
-          const n = side.indexOf(s) + 1;
-          const meta = `${logic ? "Logic" : "Creative"} · ${pad(n)} / ${pad(side.length)} · ${count} ${
+          const meta = `${logic ? "Logic" : "Creative"} · ${pad(lv + 1)} / ${pad(side.length)} · ${count} ${
             count === 1 ? "entry" : "entries"
           }`;
           return (
             <Slide
               key={s.id}
-              index={i + 1}
+              index={index}
               p={p}
+              pan={logic ? logicPan : creativePan}
               reduceMotion={reduceMotion}
-              current={current === i + 1}
+              current={current === index && track === t}
               origin="50% 50%"
             >
+              {/* Logic: the room keeps clear of the dock's half-window on the
+                  right edge (40vh wide at its widest, plus air); creative:
+                  mirrored, with its header right-aligned. */}
               <section
                 aria-label={s.label}
-                className="flex h-full flex-col px-5 pb-[5vh] pt-[max(8vh,5rem)] text-white sm:px-10 lg:px-[6vw]"
+                className={`flex h-full px-5 pb-[5vh] pt-[max(8vh,5rem)] sm:px-10 ${
+                  logic
+                    ? "text-white lg:pl-[5vw] lg:pr-[calc(40vh+3vw)]"
+                    : "text-neutral-900 lg:pl-[calc(40vh+3vw)] lg:pr-[5vw]"
+                }`}
               >
-                {logic ? (
-                  <header className="mb-[3.5vh] flex flex-wrap items-end justify-between gap-x-10 gap-y-3">
-                    <div>
-                      <p className={`${typeVoiceClass("logic", "meta")} text-[0.62rem] tracking-[0.32em] text-white/45`}>
-                        {meta}
+                <div className="flex min-w-0 flex-1 flex-col">
+                  {logic ? (
+                    // Below `lg` the dock sits beside this header, half off the
+                    // edge — the padding keeps the title clear of it.
+                    <header className="mb-[3.5vh] flex flex-wrap items-end justify-between gap-x-10 gap-y-3 max-lg:pr-[calc(min(25vw,7.5rem)+0.5rem)]">
+                      <div className="flex w-full items-center justify-between gap-4 lg:w-auto">
+                        <div className="min-w-0">
+                          <p className={`${typeVoiceClass("logic", "meta")} text-[0.62rem] tracking-[0.32em] text-white/45`}>
+                            {meta}
+                          </p>
+                          <h2 className="font-digibra mt-2 text-[clamp(2.4rem,5.4vw,5.2rem)] leading-[0.95]">
+                            {s.label}
+                          </h2>
+                          {s.tagline && (
+                            <p className={`${typeVoiceClass("logic", "meta")} mt-3 text-[0.62rem] tracking-[0.3em] text-white/55`}>
+                              {s.tagline}
+                            </p>
+                          )}
+                        </div>
+                      </div>
+                      <p className="font-helv max-w-md text-sm leading-relaxed text-white/65 max-sm:line-clamp-3">
+                        {s.description}
                       </p>
-                      <h2 className="font-digibra mt-2 text-[clamp(2.4rem,5.4vw,5.2rem)] leading-[0.95]">
-                        {s.label}
-                      </h2>
-                      {s.tagline && (
-                        <p className={`${typeVoiceClass("logic", "meta")} mt-3 text-[0.62rem] tracking-[0.3em] text-white/55`}>
-                          {s.tagline}
-                        </p>
-                      )}
-                    </div>
-                    <p className="font-helv max-w-md text-sm leading-relaxed text-white/65 max-sm:line-clamp-3">
-                      {s.description}
-                    </p>
-                  </header>
-                ) : (
-                  // Creative: the creative face, and every block of text on its
-                  // own plate — the paint film behind has no scrim.
-                  <header className="mb-[3.5vh] flex flex-wrap items-end justify-between gap-x-10 gap-y-3">
-                    <div className={`${FILM_PLATE} px-6 py-4`}>
-                      <p className={`${typeVoiceClass("logic", "meta")} text-[0.62rem] tracking-[0.32em] text-white/60`}>
-                        {meta}
+                    </header>
+                  ) : (
+                    // Creative: the creative face, dark on the landing's light
+                    // ground, each block on a paper plate over the circuit film,
+                    // and all of it right-aligned, on the right.
+                    <header className="mb-[3.5vh] flex flex-col items-end gap-3 text-right max-lg:pl-[calc(min(25vw,7.5rem)+0.5rem)]">
+                      <div className="flex w-full items-center justify-end gap-4">
+                        <div className={`${PAPER_PLATE} min-w-0 px-6 py-4`}>
+                          <p className={`${typeVoiceClass("logic", "meta")} text-[0.62rem] tracking-[0.32em] text-neutral-500`}>
+                            {meta}
+                          </p>
+                          <h2 className="font-graff mt-2 text-[clamp(2.2rem,5vw,4.8rem)] font-bold leading-[0.95]">
+                            {s.label}
+                          </h2>
+                        </div>
+                      </div>
+                      <p className={`font-helv max-w-md ${PAPER_PLATE} px-5 py-4 text-sm leading-relaxed text-neutral-700 max-sm:line-clamp-3`}>
+                        {s.description}
                       </p>
-                      <h2 className="font-graff mt-2 text-[clamp(2.2rem,5vw,4.8rem)] font-bold leading-[0.95]">
-                        {s.label}
-                      </h2>
+                    </header>
+                  )}
+                  {/* Boards are centred in what is left of the screen when short
+                      (five client cards) and scroll when not. The rooms with
+                      their own renderer (FILLS) size and scroll themselves, so
+                      they get the whole body — a centring wrapper would leave
+                      their `h-full` resolving to nothing. */}
+                  {/* ⚠ No overscroll-contain: on touch a swipe that runs off the end of
+                      a list must carry on into the page, or a phone could never
+                      leave a room whose body fills the screen. */}
+                  <div className="min-h-0 flex-1 overflow-y-auto">
+                    <div className={FILLS.has(s.id) ? "h-full" : "flex min-h-full flex-col justify-center"}>
+                      <SectionBody
+                        section={s}
+                        data={data}
+                        onStudy={setStudyId}
+                        variant="slide"
+                        align={logic ? "left" : "right"}
+                      />
                     </div>
-                    <p className={`font-helv max-w-md ${FILM_PLATE} px-5 py-4 text-sm leading-relaxed text-white/80 max-sm:line-clamp-3`}>
-                      {s.description}
-                    </p>
-                  </header>
-                )}
-                {/* Boards are centred in what is left of the screen when short
-                    (five client cards) and scroll when not. The rooms with
-                    their own renderer (FILLS) size and scroll themselves, so
-                    they get the whole body — a centring wrapper would leave
-                    their `h-full` resolving to nothing. */}
-                {/* ⚠ No overscroll-contain: on touch a swipe that runs off the end of
-                    a list must carry on into the page, or a phone could never
-                    leave a room whose body fills the screen. */}
-                <div className="min-h-0 flex-1 overflow-y-auto">
-                  <div className={FILLS.has(s.id) ? "h-full" : "flex min-h-full flex-col justify-center"}>
-                    <SectionBody section={s} data={data} onStudy={setStudyId} variant="slide" />
                   </div>
                 </div>
               </section>
@@ -458,17 +578,38 @@ export function Flythrough({
           );
         })}
 
-        {/* The three circles — left brain, home, right brain — and under each
-            side its four rooms (BrainNav). Hidden over the hero, which has
-            its own pins. This replaced the dot rail on the right edge. */}
-        <BrainNav current={current} logic={LOGIC} creative={CREATIVE} hidden={current === 0} onGo={go} />
+        {/* The landing's brain, docked at the edge through the rooms — and the
+            way across to the other track. */}
+        <BrainDock
+          p={p}
+          trackX={trackX}
+          enter={FIRST_ROOM - 1}
+          pose={BRAIN_POSE}
+          reduceMotion={reduceMotion}
+          across={across}
+          onAcross={() => switchTrack(track === "logic" ? "creative" : "logic")}
+        />
 
-        {/* Below `lg` there are no pins on the hero, so say the way on is
-            down. Gone the moment the camera leaves. */}
+        {/* The three circles — left brain, home, right brain — and under each
+            side its four rooms (BrainNav). Hidden over the landing, which has
+            its own pins. This replaced the dot rail on the right edge. */}
+        <BrainNav
+          current={current}
+          track={track}
+          firstRoom={FIRST_ROOM}
+          logic={LOGIC}
+          creative={CREATIVE}
+          hidden={current < FIRST_ROOM}
+          onGo={go}
+        />
+
+        {/* Say the way on is down: over the orb at every size, and over the
+            brain too below `lg`, where it has no pins (on a desktop the facts
+            sit there). Gone the moment the camera reaches the rooms. */}
         <div
           aria-hidden
-          className={`pointer-events-none absolute inset-x-0 bottom-[8.5%] z-[150] flex flex-col items-center gap-1 transition-opacity duration-500 lg:hidden ${
-            current === 0 ? "opacity-100" : "opacity-0"
+          className={`pointer-events-none absolute inset-x-0 bottom-[8.5%] z-[150] flex flex-col items-center gap-1 transition-opacity duration-500 ${
+            current === 0 ? "opacity-100" : current < FIRST_ROOM ? "opacity-100 lg:opacity-0" : "opacity-0"
           }`}
         >
           <span className={`${typeVoiceClass("logic", "meta")} text-[0.58rem] tracking-[0.3em] text-neutral-500`}>
@@ -493,5 +634,6 @@ export function Flythrough({
         onClose={() => setStudyId(null)}
       />
     </div>
+    </FlightContext.Provider>
   );
 }

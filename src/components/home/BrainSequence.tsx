@@ -12,12 +12,19 @@
  * spring the old scrub used (smooth ease-in and ease-out, no overshoot); at rest
  * it holds the middle frame. Reduced motion parks on the middle frame.
  *
- * ⚠ The canvas is tagged `data-brain`, and NOTHING READS IT any more. It was
- * how HeroName found the brain's vertical extent from the alpha, the same way
- * it read the old <video>; that measurement was replaced by fixed mockup
- * heights (see THINK_INK_TOP) and `measureBrainV` went with it. The attribute
- * is kept as the hook a future measurement would use, but it is currently
- * written and never read.
+ * ⚠ The canvas is tagged `data-brain`, and BrainDock READS IT (2026-10-03):
+ * the brain that docks at the edge of every room is a live copy of this
+ * canvas, so the landing's brain and the rooms' one are the same footage and
+ * the hand-over between them is seamless. `data-frame` carries the frame on
+ * screen, so the dock only copies when it changes.
+ *
+ * MODES. On the landing the pointer scrubs the turn ("pointer"). In the rooms
+ * nobody can see this canvas, only the dock's copy, and the brain rocks on
+ * its own through the end of the turn that faces the dock's side: frames
+ * 0–20, the grey half turned to the viewer, beside the logic rooms ("left");
+ * 27–47, the colour half, beside the creative ones ("right"). The same
+ * spring carries every change, so a switch of mode turns the brain rather
+ * than cutting it.
  *
  * ⚠ THE ALPHA DOES MATTER TO ONE THING, offline. BrainTraces ends the logic
  * pins' runs inside a band of these frames that was measured to be opaque in
@@ -53,12 +60,24 @@ const DAMPING = 2 * Math.sqrt(STIFFNESS);
 /** Opaque until the far right, then a short fade — see the note on the canvas. */
 const FEATHER = "linear-gradient(to right, #000 0%, #000 88%, transparent 100%)";
 
-export function BrainSequence({ active = true }: { active?: boolean }) {
+export type BrainMode = "pointer" | "left" | "right";
+
+/** Seconds for one rock there and back, in the rooms. */
+const ROCK_PERIOD = 7;
+/** The frames each room side rocks through (see MODES). */
+const ROCK: Record<Exclude<BrainMode, "pointer">, [number, number]> = {
+  left: [0, 20],
+  right: [47, 27],
+};
+
+export function BrainSequence({ active = true, mode = "pointer" }: { active?: boolean; mode?: BrainMode }) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const activeRef = useRef(active);
+  const modeRef = useRef(mode);
   useLayoutEffect(() => {
     activeRef.current = active;
-  }, [active]);
+    modeRef.current = mode;
+  }, [active, mode]);
   const reduceMotion = useReducedMotion();
 
   useEffect(() => {
@@ -103,9 +122,12 @@ export function BrainSequence({ active = true }: { active?: boolean }) {
       raf = 0,
       cur = -1;
 
+    // Where the pointer would put the turn — the target whenever the mode is
+    // "pointer", remembered while it is not.
+    let pointerTarget = rest;
     const onMove = (e: PointerEvent) => {
       const f = Math.min(1, Math.max(0, e.clientX / window.innerWidth));
-      target = f * (FRAME_COUNT - 1);
+      pointerTarget = f * (FRAME_COUNT - 1);
     };
     if (!reduceMotion) window.addEventListener("pointermove", onMove, { passive: true });
 
@@ -115,8 +137,21 @@ export function BrainSequence({ active = true }: { active?: boolean }) {
       last = t;
       if (!activeRef.current) return;
 
-      if (reduceMotion) {
+      const m = modeRef.current;
+      if (m !== "pointer") {
+        // Rocking in a room: from the end that shows the most of this side,
+        // eased there and back (cosine), the spring smoothing any switch.
+        const [a, b] = ROCK[m];
+        const u = reduceMotion ? 0 : (1 - Math.cos(((t / 1000) % ROCK_PERIOD) / ROCK_PERIOD * Math.PI * 2)) / 2;
+        target = a + (b - a) * u;
+      } else if (target !== pointerTarget) {
+        target = pointerTarget;
+      }
+
+      if (reduceMotion && m === "pointer") {
         pos = rest;
+      } else if (reduceMotion) {
+        pos = target;
       } else {
         // Critically-damped spring — smooth ease-in and ease-out, no overshoot.
         const accel = STIFFNESS * (target - pos) - DAMPING * vel;
@@ -131,6 +166,7 @@ export function BrainSequence({ active = true }: { active?: boolean }) {
           draw(img);
           painted = true;
           cur = idx;
+          canvas.dataset.frame = String(idx);
         }
       }
     };

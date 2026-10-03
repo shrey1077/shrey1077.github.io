@@ -8,6 +8,8 @@
  *     hemispheres meet (black on the left as in the logic circle, paint on
  *     the right as in the creative one, the way the brain itself is split);
  *   · full colour — the RIGHT brain: flies to the first creative room.
+ * The two sides are parallel tracks since 2026-10-03 (Flythrough): a number
+ * flies to that level AND switches to that side's track if need be.
  * Hovering either side circle drops four smaller ones under it, numbered 1–4,
  * one per room on that side, each flying straight to its slide. The room's
  * name shows under the row.
@@ -111,9 +113,12 @@ function SideCircle({
 
       {/* The four rooms. `pt` bridges the gap so the pointer can travel from
           the circle down to them without leaving the group. */}
+      {/* ⚠ The row's own plate fades too, not just the numbers on it — it
+          used to stay put when closed and leave a faint dark pill under each
+          side circle. */}
       <div
-        className={`absolute left-1/2 top-full flex -translate-x-1/2 flex-col items-center gap-1.5 pt-3.5 ${
-          open ? "" : "pointer-events-none"
+        className={`absolute left-1/2 top-full flex -translate-x-1/2 flex-col items-center gap-1.5 pt-3.5 transition-opacity duration-200 ${
+          open ? "opacity-100" : "pointer-events-none opacity-0"
         }`}
       >
         <ul className="flex gap-1.5 rounded-full bg-neutral-950/45 p-1 backdrop-blur-sm">
@@ -199,18 +204,27 @@ function SideCircle({
 
 export function BrainNav({
   current,
+  track,
+  firstRoom,
   logic,
   creative,
   hidden,
   onGo,
 }: {
-  /** The slide the camera is on (0 = the landing). */
+  /** The slide the camera is on (0 = the landing's first slide, the orb). */
   current: number;
+  /** Which of the two parallel tracks the camera is on (Flythrough). Only
+   *  that side marks the room you are in. */
+  track: Side;
+  /** The slide index of the first room on EITHER track — the two run level
+   *  with each other from here (2026-10-03). Home flies to 0. */
+  firstRoom: number;
   logic: NavSection[];
   creative: NavSection[];
   /** Over the landing, which has its own pins. */
   hidden: boolean;
-  onGo: (k: number) => void;
+  /** Fly to slide k, on the given track. */
+  onGo: (k: number, track?: Side) => void;
 }) {
   const [openState, setOpen] = useState<Side | null>(null);
   // Over the landing nothing is open, whatever was left open before.
@@ -240,11 +254,11 @@ export function BrainNav({
         <SideCircle
           side="logic"
           rooms={logic}
-          first={1}
-          current={current}
+          first={firstRoom}
+          current={track === "logic" ? current : -1}
           open={open === "logic"}
           setOpen={setOpen}
-          onGo={onGo}
+          onGo={(k) => onGo(k, "logic")}
         />
 
         <div className="group relative flex flex-col items-center">
@@ -267,11 +281,11 @@ export function BrainNav({
         <SideCircle
           side="creative"
           rooms={creative}
-          first={1 + logic.length}
-          current={current}
+          first={firstRoom}
+          current={track === "creative" ? current : -1}
           open={open === "creative"}
           setOpen={setOpen}
-          onGo={onGo}
+          onGo={(k) => onGo(k, "creative")}
         />
       </div>
     </nav>

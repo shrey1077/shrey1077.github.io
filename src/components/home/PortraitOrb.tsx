@@ -6,8 +6,9 @@
  * Two supplied ring artworks with the owner's two portraits inside them: the
  * circuit-line ring around the mono frame, the paint-splatter ring around the
  * colour one. At rest the circle is half of each — the same left-logic /
- * right-creative split the brain above it makes — and the pointer slides the
- * seam: right of centre opens the paint side, left of centre the line side.
+ * right-creative split the brain above it makes — and the seam FOLLOWS the
+ * pointer (owner, 2026-10-03; it ran against it before): move right and the
+ * line goes right with you, opening the line side; move left, the paint side.
  *
  * ⚠ The two frames are pre-composited and ALIGNED at build time, not stacked
  * by CSS. The supplied rings do not agree with each other: the line ring's
@@ -25,7 +26,7 @@
  * well as a zoom, and only the shift closes the jaw and glasses across the
  * join.
  *
- * The seam is a FEATHERED gradient mask, not a hard clip, and the two masks
+ * The seam is a gradient mask — a crisp line since 2026-10-03, see FEATHER — and the two masks
  * are exact complements — where one is opaque the other is transparent — so a
  * side that is fully open leaves the other genuinely invisible rather than
  * merely covered. That matters because both frames have transparent
@@ -45,8 +46,11 @@ const ASPECT = 1200 / 606;
  *  edge of the viewport; a little over 1 saturates before the edge, which makes
  *  the ends actually reachable. */
 const GAIN = 1.35;
-/** Half-width of the feathered seam, as a percentage of the frame's width. */
-const FEATHER = 2;
+/** Half-width of the seam, as a percentage of the frame's width. ⚠ A HAIR, not
+ *  a feather, since 2026-10-03 (owner: "the transition line should not have the
+ *  fade effect") — 2% softened it over ~20px. Kept a hair above zero so the two
+ *  complementary masks overlap by a fraction of a pixel and never leave a gap. */
+const FEATHER = 0.05;
 
 /* Where the disc sits inside the frame, as percentages of frame width. Emitted
  * by the build step (cxFrac 0.4674, rFracW 0.1688) — re-read them if the rings
@@ -76,8 +80,18 @@ const seam = (v: number) => CIRCLE_R + (CIRCLE_L - CIRCLE_R) * v;
  *  will ever cover. So the beaten side is faded out outright, over the first
  *  slice of travel, while the seam is still inside the disc — the paint fades
  *  up as it takes the circle rather than popping in at the edge. */
-const FADE = 0.18;
+const FADE = 0.25;
 const fade = (v: number) => Math.min(1, Math.max(0, v / FADE));
+
+/** ⚠ The ENDS HOLD (owner, 2026-10-03: "this position should be the point
+ *  where the black picture is completely visible and the colour totally
+ *  invisible, and vice versa"). The last END of the pointer's travel at each
+ *  side is spent AT the end — seam on the disc's edge, the beaten side gone —
+ *  instead of creeping the last few pixels while the other side's splatter
+ *  still showed at half strength beyond the disc. `travel` is the split with
+ *  those two dead zones taken out; the seam and both fades read it. */
+const END = 0.1;
+const travel = (v: number) => Math.min(1, Math.max(0, (v - END) / (1 - 2 * END)));
 
 export function PortraitOrb({ className = "" }: { className?: string }) {
   const reduceMotion = useReducedMotion();
@@ -88,20 +102,21 @@ export function PortraitOrb({ className = "" }: { className?: string }) {
 
   const maskLine = useTransform(
     src,
-    (v) => `linear-gradient(to right, #000 ${seam(v) - FEATHER}%, transparent ${seam(v) + FEATHER}%)`,
+    (v) => `linear-gradient(to right, #000 ${seam(travel(v)) - FEATHER}%, transparent ${seam(travel(v)) + FEATHER}%)`,
   );
   const maskPaint = useTransform(
     src,
-    (v) => `linear-gradient(to right, transparent ${seam(v) - FEATHER}%, #000 ${seam(v) + FEATHER}%)`,
+    (v) => `linear-gradient(to right, transparent ${seam(travel(v)) - FEATHER}%, #000 ${seam(travel(v)) + FEATHER}%)`,
   );
   // Beaten side goes fully away — tracery and splatter included.
-  const opacityLine = useTransform(src, (v) => fade(1 - v));
-  const opacityPaint = useTransform(src, fade);
+  const opacityLine = useTransform(src, (v) => fade(1 - travel(v)));
+  const opacityPaint = useTransform(src, (v) => fade(travel(v)));
 
   useEffect(() => {
     const onMove = (e: PointerEvent) => {
       const t = (e.clientX / window.innerWidth - 0.5) * GAIN + 0.5;
-      split.set(Math.min(1, Math.max(0, t)));
+      // ⚠ Inverted, so the seam travels WITH the pointer (see the header).
+      split.set(1 - Math.min(1, Math.max(0, t)));
     };
     window.addEventListener("pointermove", onMove, { passive: true });
     return () => window.removeEventListener("pointermove", onMove);

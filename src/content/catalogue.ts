@@ -223,16 +223,6 @@ export function readArtCollections(): ArtCollection[] {
     .filter((c) => c.images.length > 0);
 }
 
-/** The Extincts jury deck, rendered slide by slide into
- *  `public/content/extincts`. Empty until those images exist. */
-export function readExtinctsSlides(): string[] {
-  const dir = path.join(process.cwd(), "public", "content", "extincts");
-  return listFiles(dir)
-    .filter((f) => assetKind(f) === "image")
-    .sort()
-    .map((f) => publicUrl("content", "extincts", f));
-}
-
 /** Board marks, trimmed to their ink and sized to match one another.
  *
  *  Keyed by the mark's ORIGINAL url, so nothing that references a logo has to

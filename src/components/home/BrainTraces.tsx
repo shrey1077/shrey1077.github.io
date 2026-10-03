@@ -6,7 +6,10 @@
  * Each left-hand section leaves its stroked circle as a circuit trace: straight
  * out, one 45° jog, then straight on until it disappears INTO the artwork. The
  * owner asked for this on 2026-09-17, from a mockup where the pins were wired
- * to the brain and the wires ended behind it.
+ * to the brain and the wires ended behind it. Since 2026-10-03 the right-hand
+ * sections' pencil strokes take the SAME shape, mirrored (see buildPencils),
+ * and neither side's straight run carries on past its jog any more — the
+ * short spur and ring that used to overshoot each corner are gone (owner).
  *
  * ⚠ THIS IS A SEPARATE LAYER FROM BrainPins, AND MUST STAY ONE. "Ends behind the
  * brain" is a stacking requirement: the line has to paint UNDER the footage so
@@ -48,6 +51,10 @@ const SOLID_BOTTOM = 570;
 /** Where every line stops. Well inside the band, so the tip is covered even
  *  when the brain turns. */
 const END_X = 520;
+/** The creative strokes' stop: END_X mirrored across the seam (BRAIN_CENTRE.x,
+ *  594). The same rows are opaque there in all 48 frames — measured
+ *  2026-10-03: rows 480–580 hold from x ≈ 390 to ≈ 840. */
+const END_X_RIGHT = 2 * 594 - END_X;
 
 /** px. Straight run out of the widest pin's circle before any line may turn,
  *  so the four jogs line up as a column rather than starting wherever each
@@ -58,10 +65,8 @@ const LEAD = 34;
  *  crosses another. This must stay below the row spacing (~48px at the
  *  smallest desktop stage) or the ordering stops protecting it. */
 const STAGGER = 22;
-/** px. The short spur that carries on straight past each jog, and its end
- *  ring — the branch-and-node detail the mockup's traces have. */
-const SPUR = 18;
-const SPUR_RING = 2.5;
+/** px. The dot on each jog's corner. (A short spur and ring used to carry
+ *  the straight run on past the corner; the owner removed them 2026-10-03.) */
 const NODE = 2;
 /** px. Below this a line is treated as straight and gets no jog detail. */
 const MIN_JOG = 8;
@@ -80,9 +85,8 @@ interface Start {
 interface Trace {
   id: NavSectionId;
   d: string;
-  /** The jog's corner — where the node dot and the spur sit. Null when the
-   *  line barely moves: a spur laid along a near-flat run would sit on top of
-   *  the line itself and read as a thicker patch, not a branch. */
+  /** The jog's corner — where the node dot sits. Null when the line barely
+   *  moves: there is no corner to mark. */
   jog: { x: number; y: number } | null;
   index: number;
 }
@@ -133,9 +137,9 @@ function buildTraces(
     const rank = drop >= 0 ? i : n - 1 - i;
     const jx = colX + rank * STAGGER;
     const diagEnd = jx + Math.abs(drop);
-    // The end must be past the jog. On any desktop stage it is by a wide margin;
-    // the guard only stops a malformed path if the brain is ever moved hard left.
-    const endX = Math.max(top.x, diagEnd + SPUR + 12);
+    // The end must be past the jog — with the pins on an arc, the top and
+    // bottom ones have far to fall and their diagonals can run past END_X.
+    const endX = Math.max(top.x, diagEnd + 12);
     return {
       id: s.id,
       d: `M ${s.x} ${s.y} H ${jx} L ${diagEnd} ${ty} H ${endX}`,
@@ -152,6 +156,12 @@ function buildTraces(
  * side — its lead ring. They live HERE, under the footage like the logic runs,
  * so they disappear into the brain rather than being drawn across it.
  *
+ * ⚠ THE LOGIC RUNS' SHAPE, MIRRORED (owner, 2026-10-03): straight in from the
+ * ring, one 45° jog, straight on into the brain — the same column of jogs, the
+ * same stagger so no diagonal crosses another, ending in the same opaque band
+ * on the other side of the seam (END_X_RIGHT). They were loose bowed arcs to
+ * the brain's centre before.
+ *
  * Pencil, not ink: each section is STRANDS hand-jittered lines laid over each
  * other, each a little off the last, in the section's own ring colour and a
  * neighbour from the paint palette, through a turbulence filter that roughens
@@ -161,10 +171,10 @@ function buildTraces(
 
 /** Brain centre, frame pixels — the grey/colour seam at rest (x 594, see
  *  the hemisphere circle fits made 2026-10-02) on their row. */
-const BRAIN_CENTRE = { x: 594, y: 396 };
+export const BRAIN_CENTRE = { x: 594, y: 396 };
 const STRANDS = 3;
-/** Samples per strand; more is smoother, fewer is scratchier. */
-const PENCIL_SAMPLES = 34;
+/** px between samples along a stroke; smaller is smoother, larger scratchier. */
+const PENCIL_STEP = 7;
 /** The paint palette (globals' `.brain-paint`), for each stroke's second hue. */
 const PAINT = ["#ff2e8b", "#ff5a3c", "#ff8a00", "#f5c518", "#7fbf2e", "#00a6a6", "#3f6ad8", "#7a3fb0"];
 
@@ -194,50 +204,72 @@ function seeded(key: string) {
   };
 }
 
+/** One hand-drawn strand along a polyline: sampled every PENCIL_STEP px, each
+ *  sample nudged off the line along its segment's normal — a constant
+ *  `offset` (so strands sit a hair apart) plus a wobble of up to `amp`. Both
+ *  ease in over the first stretch, so every strand leaves the ring cleanly. */
+function pencilStrand(pts: { x: number; y: number }[], rnd: () => number, amp: number, offset: number) {
+  let total = 0;
+  for (let i = 1; i < pts.length; i++) total += Math.hypot(pts[i].x - pts[i - 1].x, pts[i].y - pts[i - 1].y);
+  let d = "";
+  let run = 0;
+  for (let i = 1; i < pts.length; i++) {
+    const a = pts[i - 1];
+    const b = pts[i];
+    const len = Math.hypot(b.x - a.x, b.y - a.y);
+    if (!len) continue;
+    const nx = -(b.y - a.y) / len;
+    const ny = (b.x - a.x) / len;
+    const steps = Math.max(1, Math.round(len / PENCIL_STEP));
+    for (let j = d ? 1 : 0; j <= steps; j++) {
+      const t = j / steps;
+      const ease = Math.min(1, ((run + len * t) / (total || 1)) * 8);
+      const off = (offset + (rnd() - 0.5) * 2 * amp) * ease;
+      const x = a.x + (b.x - a.x) * t + nx * off;
+      const y = a.y + (b.y - a.y) * t + ny * off;
+      d += `${d ? "L" : "M"} ${x.toFixed(1)} ${y.toFixed(1)} `;
+    }
+    run += len;
+  }
+  return d;
+}
+
 function buildPencils(
   rings: Ring[],
   w: number,
   h: number,
   brain: { scale: number; shiftX: number; rise: number },
 ): Pencil[] {
-  const end = toStage(BRAIN_CENTRE.x, BRAIN_CENTRE.y, w, h, brain.scale, brain.shiftX, brain.rise);
-  return rings.map((ring, index) => {
+  const n = rings.length;
+  if (!n) return [];
+  const { scale, shiftX, rise } = brain;
+  const top = toStage(END_X_RIGHT, SOLID_TOP, w, h, scale, shiftX, rise);
+  const bottom = toStage(END_X_RIGHT, SOLID_BOTTOM, w, h, scale, shiftX, rise);
+  // buildTraces, mirrored: the jogs line up as a column LEAD short of the
+  // left-most ring, and the strokes run LEFT into the brain.
+  const colX = Math.min(...rings.map((r) => r.x)) - LEAD;
+  return rings.map((ring, i) => {
+    const ty = n === 1 ? (top.y + bottom.y) / 2 : top.y + ((bottom.y - top.y) * i) / (n - 1);
+    const drop = ty - ring.y;
+    const rank = drop >= 0 ? i : n - 1 - i;
+    const jx = colX - rank * STAGGER;
+    const diagEnd = jx - Math.abs(drop);
+    const endX = Math.min(top.x, diagEnd - 12);
+    const pts = [
+      { x: ring.x, y: ring.y },
+      { x: jx, y: ring.y },
+      { x: diagEnd, y: ty },
+      { x: endX, y: ty },
+    ];
     const rnd = seeded(ring.id);
-    const dx = end.x - ring.x;
-    const dy = end.y - ring.y;
-    const len = Math.hypot(dx, dy) || 1;
-    // Unit normal, pointing up-and-out of the straight line, so every stroke
-    // bows the same way — a loose arc down into the brain, not an S.
-    const nx = -dy / len;
-    const ny = dx / len;
-    const bow = len * (0.1 + rnd() * 0.06);
     const palette = PAINT[Math.floor(rnd() * PAINT.length)];
-    const strands = Array.from({ length: STRANDS }, (_, k) => {
-      const lean = bow * (0.85 + rnd() * 0.3);
-      const cx = ring.x + dx / 2 + nx * lean;
-      const cy = ring.y + dy / 2 + ny * lean;
-      const amp = 0.8 + k * 0.5;
-      let d = "";
-      for (let i = 0; i <= PENCIL_SAMPLES; i++) {
-        const t = i / PENCIL_SAMPLES;
-        const u = 1 - t;
-        // Quadratic bezier ring → bowed control → brain centre.
-        let x = u * u * ring.x + 2 * u * t * cx + t * t * end.x;
-        let y = u * u * ring.y + 2 * u * t * cy + t * t * end.y;
-        // Hand wobble, strongest mid-stroke, nil at the ring.
-        const wob = (rnd() - 0.5) * 2 * amp * Math.sin(Math.PI * t) ;
-        x += nx * wob;
-        y += ny * wob;
-        d += `${i ? "L" : "M"} ${x.toFixed(1)} ${y.toFixed(1)} `;
-      }
-      return {
-        d,
-        color: k === 1 ? palette : ring.color,
-        width: 1.1 + rnd() * 0.9,
-        opacity: 0.55 + rnd() * 0.3,
-      };
-    });
-    return { id: ring.id, strands, index };
+    const strands = Array.from({ length: STRANDS }, (_, k) => ({
+      d: pencilStrand(pts, rnd, 0.5 + k * 0.35, (k - 1) * 0.9),
+      color: k === 1 ? palette : ring.color,
+      width: 1.1 + rnd() * 0.9,
+      opacity: 0.55 + rnd() * 0.3,
+    }));
+    return { id: ring.id, strands, index: i };
   });
 }
 
@@ -269,6 +301,14 @@ export function BrainTraces({
     const measure = () => {
       const box = stage.getBoundingClientRect();
       if (!box.width || !box.height) return;
+      // ⚠ The stage may be mid-flight in depth when this runs (the landing's
+      // brain layer waits far back behind the orb, scaled to ~0.4 — see
+      // flight.ts), and screen boxes include that scale. Layout size does
+      // not, so everything is divided back by the ratio of the two. A
+      // translateZ under perspective is a uniform scale, so one number does it.
+      const W = stage.offsetWidth || box.width;
+      const H = stage.offsetHeight || box.height;
+      const k = box.width / W;
       const starts: Start[] = [];
       stage.querySelectorAll<HTMLElement>("[data-pin-circle]").forEach((el) => {
         const r = el.getBoundingClientRect();
@@ -276,8 +316,8 @@ export function BrainTraces({
         if (!r.width) return;
         starts.push({
           id: el.dataset.pinCircle as NavSectionId,
-          x: r.right - box.left,
-          y: r.top + r.height / 2 - box.top,
+          x: (r.right - box.left) / k,
+          y: (r.top + r.height / 2 - box.top) / k,
         });
       });
       starts.sort((a, b) => a.y - b.y);
@@ -290,8 +330,8 @@ export function BrainTraces({
         if (!r.x && !r.y) return;
         rings.push({
           id: el.dataset.pinRing as NavSectionId,
-          x: r.left - box.left,
-          y: r.top - box.top,
+          x: (r.left - box.left) / k,
+          y: (r.top - box.top) / k,
           color: el.dataset.pinColor ?? "#ff2e8b",
         });
       });
@@ -302,11 +342,11 @@ export function BrainTraces({
       setGeo((prev) => {
         const same =
           prev &&
-          prev.w === box.width &&
-          prev.h === box.height &&
+          prev.w === W &&
+          prev.h === H &&
           near(prev.starts, starts) &&
           near(prev.rings, rings);
-        return same ? prev : { w: box.width, h: box.height, starts, rings };
+        return same ? prev : { w: W, h: H, starts, rings };
       });
     };
 
@@ -392,20 +432,6 @@ export function BrainTraces({
               animate={{ opacity: 1 }}
               transition={{ duration: 0.3, ease: EASE_OUT, delay: delay + DRAW * 0.4 }}
             >
-              <path
-                d={`M ${t.jog.x} ${t.jog.y} H ${t.jog.x + SPUR}`}
-                fill="none"
-                stroke="currentColor"
-                strokeWidth={STROKE_REST}
-              />
-              <circle
-                cx={t.jog.x + SPUR + SPUR_RING}
-                cy={t.jog.y}
-                r={SPUR_RING}
-                fill="none"
-                stroke="currentColor"
-                strokeWidth={STROKE_REST}
-              />
               <circle cx={t.jog.x} cy={t.jog.y} r={NODE} fill="currentColor" />
             </motion.g>
             )}

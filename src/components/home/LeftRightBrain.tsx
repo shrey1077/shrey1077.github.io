@@ -27,6 +27,14 @@
  *
  * Reduced motion shows both blocks forward and fully set, with no lines. Below
  * `lg` the blocks would collide with the brain, so only the two headlines show.
+ *
+ * ⚠ BRAIN SLIDE ONLY, AND SPLIT IN TWO (owner, 2026-10-03). HeroStage mounts
+ * this inside the brain's layer, so the voices come and go with the brain and
+ * are not on the orb slide. It renders two siblings: the LINES, with no
+ * z-index, which HeroStage places BEFORE the footage so the brain paints over
+ * them (they leave from behind it, like the pins' runs); and the TEXT at z-30,
+ * over everything. Each block stands at mid-height in the gap between the
+ * brain and its arc of pins (BrainPins ARC) — see LEFT_SLOT / RIGHT_SLOT.
  */
 
 import { useEffect, useRef, useState } from "react";
@@ -59,12 +67,22 @@ const PAINT = ["#ff2e8b", "#ff5a3c", "#ff8a00", "#f5c518", "#7fbf2e", "#00a6a6",
 /** The same hues taken deep enough to read as small serif type on white. */
 const INK = ["#c2185b", "#d84315", "#c77800", "#558b2f", "#00796b", "#2e50b8", "#6a3aa0"];
 
-/** Where each block stands on the stage. Both sit between the top of the stage
- *  and the pin columns, which run from ~70% down on BOTH sides since
- *  2026-10-03. Right moved up from 38% that day: with the creative pins back at
- *  the bottom it would have met them on a 640px-tall stage. */
-const LEFT_BLOCK: React.CSSProperties = { left: "3vw", top: "25%", width: "27vw" };
-const RIGHT_BLOCK: React.CSSProperties = { right: "3vw", top: "28%", width: "27vw" };
+/** Where each block stands: a full-height slot, the block centred in it, in
+ *  the gap between the brain and its arc of pins (owner, 2026-10-03: "between
+ *  brain and sections area, in middle height of screen").
+ *  The slot starts just clear of the arc's two middle pins — 3vw in, and as
+ *  wide as the widest of them plus air (the logic pills reach ~202px, the
+ *  artworks ~254px) — or at 18.5vw, whichever is further in; that keeps it
+ *  off the brain's body (which starts ~34vw in from either side) on any
+ *  stage from 1280 up. Below that the text runs onto the brain's edge. */
+const SLOT_W = "clamp(11rem, 14vw, 16rem)";
+const LEFT_SLOT: React.CSSProperties = { left: "max(18.5vw, calc(3vw + 14.5rem))", width: SLOT_W };
+const RIGHT_SLOT: React.CSSProperties = { right: "max(18.5vw, calc(3vw + 17.5rem))", width: SLOT_W };
+/** A soft ground-coloured halo, so the small lines read over the brain's
+ *  circuitry, the splash and the pins' runs behind them. ⚠ Never on the
+ *  painted "Right" — `bg-clip-text` type is transparent, and a shadow would
+ *  show through and wash the paint out. */
+const HALO = "[text-shadow:0_0_10px_rgba(249,249,249,0.95),0_0_3px_rgba(249,249,249,0.9)]";
 
 type Pt = { x: number; y: number };
 
@@ -93,12 +111,20 @@ interface Geo {
   right: Pt;
 }
 
-/** A side's word, in layout coordinates (offset*, so the z transform doesn't
- *  enter into it — the line is drawn to where the word sits when FORWARD). */
-function anchorOf(block: HTMLElement, word: HTMLElement, edge: "left" | "right"): Pt {
-  const x = block.offsetLeft + word.offsetLeft + (edge === "right" ? word.offsetWidth : 0);
-  const y = block.offsetTop + word.offsetTop + word.offsetHeight * 0.55;
-  return { x, y };
+/** A side's word, in layout coordinates (offset*, so neither the block's z
+ *  nor the brain layer's flight enters into it — the line is drawn to where
+ *  the word sits when FORWARD). Summed up the offsetParent chain to the root,
+ *  since the block now sits inside a centring slot. */
+function anchorOf(root: HTMLElement, word: HTMLElement, edge: "left" | "right"): Pt {
+  let x = 0;
+  let y = 0;
+  let el: HTMLElement | null = word;
+  while (el && el !== root) {
+    x += el.offsetLeft;
+    y += el.offsetTop;
+    el = el.offsetParent as HTMLElement | null;
+  }
+  return { x: x + (edge === "right" ? word.offsetWidth : 0), y: y + word.offsetHeight * 0.55 };
 }
 
 /** The logic side's line: a circuit trace — straight out of the brain, one 45°
@@ -220,8 +246,8 @@ export function LeftRightBrain({
         w,
         h,
         centre: c,
-        left: anchorOf(lb, lw, "right"),
-        right: anchorOf(rb, rw, "left"),
+        left: anchorOf(root, lw, "right"),
+        right: anchorOf(root, rw, "left"),
       };
       geoRef.current = next;
       setGeo((prev) =>
@@ -302,19 +328,15 @@ export function LeftRightBrain({
   const after = reduceMotion ? 0 : LINE_DRAW;
 
   return (
-    <div
-      ref={rootRef}
-      className="pointer-events-none absolute inset-0 z-30"
-      style={{ perspective: PERSPECTIVE }}
-    >
-      <h1 className="sr-only">Left brain, right brain — Shrey Singh</h1>
-
-      {/* The lines, drawn over the brain from its centre. */}
+    <>
+      {/* The lines, from the brain's centre — BEHIND it: no z-index, and
+          HeroStage puts this component before the footage, so the brain
+          paints over their first stretch and they leave from behind it. */}
       {geo && !reduceMotion && (
         <svg
           aria-hidden
           viewBox={`0 0 ${geo.w} ${geo.h}`}
-          className="absolute inset-0 hidden h-full w-full overflow-visible lg:block"
+          className="pointer-events-none absolute inset-0 hidden h-full w-full overflow-visible lg:block"
         >
           <defs>
             {spark && (
@@ -417,11 +439,19 @@ export function LeftRightBrain({
         </svg>
       )}
 
+    <div
+      ref={rootRef}
+      className="pointer-events-none absolute inset-0 z-30"
+      style={{ perspective: PERSPECTIVE }}
+    >
+      <h1 className="sr-only">Left brain, right brain — Shrey Singh</h1>
+
       {/* LEFT — grotesque, black once reached. */}
+      <div className="absolute inset-y-0 hidden flex-col justify-center lg:flex" style={LEFT_SLOT}>
       <motion.div
         ref={leftBlockRef}
-        className="absolute hidden text-left lg:block"
-        style={{ ...LEFT_BLOCK, z: leftZ, filter: leftBlur }}
+        className="relative text-left"
+        style={{ z: leftZ, filter: leftBlur }}
       >
         <motion.p style={{ opacity: leftFade }} className="leading-none">
           <motion.span
@@ -442,7 +472,7 @@ export function LeftRightBrain({
             brain
           </motion.span>
         </motion.p>
-        <div className="font-lr-serif mt-2 text-[clamp(0.8rem,1.02vw,1.08rem)] leading-[1.3] text-neutral-800">
+        <div className={`font-lr-serif mt-2 text-[clamp(0.74rem,0.95vw,1rem)] leading-[1.3] text-neutral-800 ${HALO}`}>
           {LEFT_BRAIN.lines.map((line, i) => (
             <motion.p
               key={i}
@@ -459,12 +489,14 @@ export function LeftRightBrain({
           ))}
         </div>
       </motion.div>
+      </div>
 
       {/* RIGHT — script, to paint once struck; the lines come in colour. */}
+      <div className="absolute inset-y-0 hidden flex-col justify-center lg:flex" style={RIGHT_SLOT}>
       <motion.div
         ref={rightBlockRef}
-        className="absolute hidden text-right lg:block"
-        style={{ ...RIGHT_BLOCK, z: rightZ, filter: rightBlur }}
+        className="relative text-right"
+        style={{ z: rightZ, filter: rightBlur }}
       >
         <motion.p style={{ opacity: rightFade }} className="leading-none">
           <span ref={rightWordRef} className="relative inline-block">
@@ -493,7 +525,7 @@ export function LeftRightBrain({
             brain
           </motion.span>
         </motion.p>
-        <div className="font-lr-serif mt-2 text-[clamp(0.8rem,1.02vw,1.08rem)] leading-[1.3]">
+        <div className={`font-lr-serif mt-2 text-[clamp(0.74rem,0.95vw,1rem)] leading-[1.3] ${HALO}`}>
           {RIGHT_BRAIN.lines.map((line, i) => (
             <motion.p
               key={i}
@@ -511,6 +543,7 @@ export function LeftRightBrain({
           ))}
         </div>
       </motion.div>
+      </div>
 
       {/* Below `lg` (phones, tablets): the blocks can't stand beside the
           brain, so the headlines sit above it and the reached side's lines
@@ -584,5 +617,6 @@ export function LeftRightBrain({
         </AnimatePresence>
       </div>
     </div>
+    </>
   );
 }

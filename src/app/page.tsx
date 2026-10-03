@@ -26,7 +26,6 @@ import { UNIFY_FACES_ON_HOME } from "@/constants/faces";
 import { SiteFooter } from "@/components/footer/SiteFooter";
 import {
   readArtCollections,
-  readExtinctsSlides,
   readLogofolio,
   readCasePlates,
   readMarkPlates,
@@ -38,9 +37,6 @@ import { PROJECT_STUDIES, STUDY_CONTENT_SLUG } from "@/constants/projectStudies"
 export default function Home() {
   // Every mark, for the Logofolio board.
   const logos = readLogofolio();
-
-  // The Extincts jury deck.
-  const extinctsSlides = readExtinctsSlides();
 
   // The Art room's collections — Art draws its own body, not board cells.
   const artCollections = readArtCollections();
@@ -72,7 +68,7 @@ export default function Home() {
       className={`w-full bg-gallery ${UNIFY_FACES_ON_HOME ? "faces-unified" : ""}`}
     >
       <Flythrough
-        data={{ logos, extinctsSlides, artCollections, publicationCovers, studyPlates, markPlates }}
+        data={{ logos, artCollections, publicationCovers, studyPlates, markPlates }}
       >
         <HeroStage />
       </Flythrough>

@@ -57,44 +57,20 @@ export const Z_INDEX = {
   viewer: 50,
 } as const;
 
-/**
- * The plate that carries text over the paint film.
+/** The plate the creative rooms set their text on.
  *
- * Every creative section is grounded in `paint-burst.mp4` at FULL strength —
- * no scrim, by the owner's instruction on 2026-08-20. That footage is bright,
- * high-contrast and MOVING, so white type laid straight onto it is unreadable
- * at some point in every loop. The scrim used to buy that legibility; removing
- * it moves the job onto the type's own ground.
- *
- * So each block of text sits on its own dark, translucent, rounded plate. The
- * blur matters as much as the alpha — it destroys the high-frequency detail
- * that makes moving footage so hard to read small type against, which is why
- * this is not simply `bg-black/60`. Browsers without `backdrop-filter` fall
- * back to the higher opacity, since there they get alpha alone.
- *
- * ⚠ Put the plate on TEXT, never on the panel as a whole. One plate spanning
- * the panel is just the scrim again, and the point of the change is that the
- * film reads at full strength between the blocks.
- *
- * ⚠ The alphas are MEASURED, not chosen by eye. Sampling paint-burst.mp4 at
- * 2fps and blurring each frame to match `backdrop-blur-md`, the brightest 1%
- * of the footage sits at relative luminance 0.553. Against that worst case,
- * white-at-75% text scores:
- *
- *     plate 0.60 -> 3.13:1     plate 0.78 -> 4.75:1
- *     plate 0.68 -> 3.68:1     plate 0.82 -> 5.39:1
- *
- * 0.60 was the first guess and it FAILS WCAG AA for body text (4.5:1) over the
- * bright frames. 0.78 clears it, and the tight variant runs at 0.82 because the
- * type on it is smaller. Re-measure before lowering either.
- */
-export const FILM_PLATE =
-  "rounded-2xl bg-neutral-950/88 supports-[backdrop-filter]:bg-neutral-950/78 backdrop-blur-md";
+ * ⚠ PAPER, NOT FILM, since 2026-10-03 (owner): the creative rooms used to fly
+ * over the paint-burst film with no scrim, and every block of text sat on a
+ * dark translucent "film plate" tuned (and contrast-measured) against the
+ * film's brightest frames. The film is gone — the creative track now stands on
+ * the landing's own ground (white, the faint circuit film, the corner
+ * lattices) — so the plate is a light one and the type on it is dark. git has
+ * the film plates and their measurements. */
+export const PAPER_PLATE = "rounded-2xl bg-white/85 ring-1 ring-neutral-200/90 backdrop-blur-sm";
 
 /** The same plate for small, dense surfaces (cards, chips) — tighter radius,
  *  a touch more opacity because the type on them is smaller. */
-export const FILM_PLATE_TIGHT =
-  "rounded-xl bg-neutral-950/90 supports-[backdrop-filter]:bg-neutral-950/82 backdrop-blur-md";
+export const PAPER_PLATE_TIGHT = "rounded-xl bg-white/90 ring-1 ring-neutral-200 backdrop-blur-sm";
 
 /** Viewport breakpoints (px) — Tailwind's scale, named for JS consumers
  *  (matchMedia, canvas math). Keep in lockstep with Tailwind usage. */

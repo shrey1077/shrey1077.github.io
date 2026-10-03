@@ -1,15 +1,17 @@
 "use client";
 
 /**
- * Corner3DGrid — a faint isometric lattice tucked into a left screen corner.
+ * Corner3DGrid — a faint isometric lattice tucked into a screen corner. The
+ * right-hand corners (tr, br) are the left ones mirrored, added 2026-10-03
+ * (owner: the lines on the right side as well).
  *
  * Three families of lines (x / y / z) tile the area at a large cell size and
  * fade out toward the edges, so each corner reads as a small window onto a grid
  * that extends endlessly. ~20%-black, decorative, pointer-inert for clicks.
  *
  * Hovering disturbs the NEAREST line: it ripples with a brief wave and settles
- * back over ~1s (no tilt). The two left corners share a field — a line
- * disturbed in one also ripples the matching line in the other, more faintly.
+ * back over ~1s (no tilt). The corners share a field — a line disturbed in
+ * one also ripples the matching line in the others, more faintly.
  *
  * Static under reduced motion.
  */
@@ -25,7 +27,7 @@ const WAVE_AMP = 11;
 const PROP_AMP = 0.45;
 const THRESH = 16; // how near (local units) counts as "on" a line
 
-type Corner = "tl" | "bl";
+type Corner = "tl" | "bl" | "tr" | "br";
 type Seg = { x0: number; y0: number; x1: number; y1: number };
 
 /** Three isometric directions: 30°, 150°, vertical. */
@@ -143,9 +145,12 @@ export function Corner3DGrid({ corner }: { corner: Corner }) {
       if (!el) return;
       const rect = el.getBoundingClientRect();
       const scale = rect.width / V;
-      const lx = (e.clientX - rect.left) / scale;
+      let lx = (e.clientX - rect.left) / scale;
       let ly = (e.clientY - rect.top) / scale;
-      if (corner === "bl") ly = V - ly; // the bl grid is flipped vertically
+      // The grids are the tl one flipped: vertically at the bottom, and
+      // horizontally on the right.
+      if (corner === "bl" || corner === "br") ly = V - ly;
+      if (corner === "tr" || corner === "br") lx = V - lx;
       // Ignore the pointer when it's well outside this corner's window.
       if (lx < -THRESH || lx > V + THRESH || ly < -THRESH || ly > V + THRESH) {
         lastHit.current = -1;
@@ -179,13 +184,13 @@ export function Corner3DGrid({ corner }: { corner: Corner }) {
     <div
       ref={ref}
       aria-hidden
-      className={`pointer-events-none absolute left-0 h-[min(34vw,26rem)] w-[min(34vw,26rem)] opacity-[0.11] ${
-        corner === "tl" ? "top-0" : "bottom-0"
-      }`}
+      className={`pointer-events-none absolute h-[min(34vw,26rem)] w-[min(34vw,26rem)] opacity-[0.11] ${
+        corner[0] === "t" ? "top-0" : "bottom-0"
+      } ${corner[1] === "l" ? "left-0" : "right-0"}`}
       style={{
         maskImage: fade,
         WebkitMaskImage: fade,
-        transform: corner === "bl" ? "scaleY(-1)" : undefined,
+        transform: `scale(${corner[1] === "r" ? -1 : 1}, ${corner[0] === "b" ? -1 : 1})`,
       }}
     >
       <svg viewBox={`0 0 ${V} ${V}`} width="100%" height="100%">

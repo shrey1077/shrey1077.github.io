@@ -18,10 +18,12 @@ import { CAREER_STOP_COUNT, CareerTimeline } from "@/components/home/CareerTimel
 import { ArtCollections } from "@/components/home/ArtCollections";
 import { PublicationShelf } from "@/components/home/PublicationShelf";
 import { LogofolioWall } from "@/components/home/LogofolioWall";
+import { ExtinctsRoom } from "@/components/home/ExtinctsRoom";
+import { EXTINCTS_REPORTS, EXTINCTS_STORIES } from "@/constants/extincts";
 import type { StudyPlate } from "@/components/home/ProjectPreview";
 import { PUBLICATIONS } from "@/constants/publications";
 import { PROJECT_STUDIES } from "@/constants/projectStudies";
-import { FILM_PLATE } from "@/constants/design";
+import { PAPER_PLATE } from "@/constants/design";
 import { clientsInSection } from "@/constants/clients";
 import type { NavSection, NavSectionId } from "@/types/navigation";
 import type { ArtCollection, LogoMark, MarkPlate } from "@/content/catalogue";
@@ -29,7 +31,6 @@ import type { ArtCollection, LogoMark, MarkPlate } from "@/content/catalogue";
 /** Everything the sections draw from, read server-side in app/page.tsx. */
 export interface SectionData {
   logos: LogoMark[];
-  extinctsSlides: string[];
   artCollections: ArtCollection[];
   /** slug → first rendered page. */
   publicationCovers: Record<string, string | undefined>;
@@ -76,7 +77,6 @@ const BOARD_CAP = 12;
 function cellsFor(
   id: NavSectionId,
   logos: LogoMark[],
-  extinctsSlides: string[],
   studyPlates: Record<string, StudyPlate[]>,
 ): Cell[] {
   if (id === "clients" || id === "projects") {
@@ -122,13 +122,6 @@ function cellsFor(
   if (id === "logofolio") {
     return logos.map((m) => ({ key: m.slug, label: m.name, image: m.url, tone: m.tone }));
   }
-  if (id === "the-extincts-project") {
-    return extinctsSlides.map((src, i) => ({
-      key: src,
-      label: `Slide ${i + 1}`,
-      image: src,
-    }));
-  }
   return [];
 }
 
@@ -148,6 +141,11 @@ const OWN_RENDERER: ReadonlySet<NavSectionId> = new Set([
   // 12-cell cap meant thirteen were simply not shown, and a wall of marks
   // wants to be a wall rather than a page of cards.
   "logofolio",
+  // The Extincts Project went to four sections on 2026-10-03 (owner) —
+  // research reports to read, stories, script, character sheets — which a
+  // board of cells cannot hold. The jury deck it showed before is a subset of
+  // the third report.
+  "the-extincts-project",
 ] satisfies NavSectionId[]);
 
 function ownCount(id: NavSectionId, data: SectionData): number {
@@ -155,6 +153,7 @@ function ownCount(id: NavSectionId, data: SectionData): number {
   if (id === "art") return data.artCollections.length;
   if (id === "publications") return PUBLICATIONS.length;
   if (id === "logofolio") return data.logos.length;
+  if (id === "the-extincts-project") return EXTINCTS_REPORTS.length + EXTINCTS_STORIES.length;
   return 0;
 }
 
@@ -162,7 +161,7 @@ function ownCount(id: NavSectionId, data: SectionData): number {
 export function sectionEntryCount(section: NavSection, data: SectionData): number {
   const own = ownCount(section.id, data);
   if (OWN_RENDERER.has(section.id) && own > 0) return own;
-  return cellsFor(section.id, data.logos, data.extinctsSlides, data.studyPlates).length;
+  return cellsFor(section.id, data.logos, data.studyPlates).length;
 }
 
 export function SectionBody({
@@ -170,12 +169,17 @@ export function SectionBody({
   data,
   onStudy,
   variant = "panel",
+  align = "left",
 }: {
   section: NavSection;
   data: SectionData;
   /** Opens a study's preview. The caller owns the dialog. */
   onStudy: (id: string) => void;
   variant?: "panel" | "slide";
+  /** "right" for the creative rooms, which sit right-aligned on the right of
+   *  their slide (2026-10-03): the board's captions and the empty-state plate
+   *  follow. The rooms with their own renderer are unaffected. */
+  align?: "left" | "right";
 }) {
   const logic = section.hemisphere === "left";
   const slide = variant === "slide";
@@ -194,6 +198,8 @@ export function SectionBody({
           <PublicationShelf publications={PUBLICATIONS} covers={data.publicationCovers} />
         ) : section.id === "logofolio" ? (
           <LogofolioWall logos={data.logos} markPlates={data.markPlates} />
+        ) : section.id === "the-extincts-project" ? (
+          <ExtinctsRoom />
         ) : (
           <ArtCollections collections={data.artCollections} />
         )}
@@ -201,7 +207,7 @@ export function SectionBody({
     );
   }
 
-  const board = cellsFor(section.id, data.logos, data.extinctsSlides, data.studyPlates).slice(
+  const board = cellsFor(section.id, data.logos, data.studyPlates).slice(
     0,
     BOARD_CAP,
   );
@@ -210,8 +216,8 @@ export function SectionBody({
     return (
       <p
         className={`font-helv text-sm ${
-          logic ? "text-white/55" : `w-fit max-w-xl ${FILM_PLATE} px-5 py-4 text-white/75`
-        }`}
+          logic ? "text-white/55" : `w-fit max-w-xl ${PAPER_PLATE} px-5 py-4 text-neutral-700`
+        } ${align === "right" ? "ml-auto text-right" : ""}`}
       >
         Nothing to show here yet — this section is still being put together.
       </p>
@@ -224,7 +230,11 @@ export function SectionBody({
         slide
           ? // A slide has one screen: past ten cells (the Extincts deck's 12)
             // a third row of five no longer fits, two rows of six do.
-            `grid grid-cols-2 gap-4 sm:grid-cols-3 ${board.length > 10 ? "lg:grid-cols-6" : "lg:grid-cols-5"}`
+            // ⚠ One column fewer below `xl` since 2026-10-03: the brain's
+            // window takes 30% of the slide's width beside the board.
+            `grid grid-cols-2 gap-4 sm:grid-cols-3 ${
+              board.length > 10 ? "lg:grid-cols-5 xl:grid-cols-6" : "lg:grid-cols-4 xl:grid-cols-5"
+            } ${align === "right" ? "text-right" : ""}`
           : "grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-4"
       }
     >
@@ -283,14 +293,14 @@ export function SectionBody({
               )}
             </span>
             <span
-              className={`block text-base leading-tight text-white ${
-                logic ? "font-digibra" : "font-graff font-bold"
+              className={`block text-base leading-tight ${
+                logic ? "font-digibra text-white" : "font-graff font-bold text-neutral-900"
               }`}
             >
               {c.label}
             </span>
             {c.sub && (
-              <span className="font-helv mt-1 block text-[0.68rem] leading-snug text-white/55">
+              <span className={`font-helv mt-1 block text-[0.68rem] leading-snug ${logic ? "text-white/55" : "text-neutral-500"}`}>
                 {c.sub}
               </span>
             )}
@@ -298,11 +308,10 @@ export function SectionBody({
         );
 
         // Squares, not pills — a grid of these reads as a board.
-        // ⚠ On creative the cell IS the text's plate: a 6%-white wash over the
-        // un-scrimmed film left the label competing with the footage.
+        // On creative the cell is a paper plate, as every creative block is.
         const shell = logic
           ? `group block rounded-2xl border border-white/15 bg-white/[0.06] ${slide ? "p-3" : "p-4"} outline-none transition-colors duration-300 hover:border-white/45 hover:bg-white/[0.12] focus-visible:ring-2 focus-visible:ring-white/60`
-          : `group block ${FILM_PLATE} border border-white/15 p-4 outline-none transition-colors duration-300 hover:border-white/45 focus-visible:ring-2 focus-visible:ring-white/60`;
+          : `group block ${PAPER_PLATE} p-4 outline-none transition-shadow duration-300 hover:shadow-[0_10px_30px_-12px_rgba(0,0,0,0.25)] focus-visible:ring-2 focus-visible:ring-neutral-900/40`;
 
         return (
           <li key={c.key}>

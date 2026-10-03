@@ -1,10 +1,10 @@
 /**
- * SiteFooter — the closing band: name, portrait, contact.
+ * SiteFooter — the closing band: name and contact.
  *
- * Three columns on a wide screen — the owner's name on the left, the portrait
- * orb centred, contact and the rest of the details on the right — collapsing
- * to a single centred stack below `lg` (`md` until 2026-10-03 — at 768px the
- * contact column was squeezed past the screen edge).
+ * Two columns on a wide screen — the owner's name on the left, contact and
+ * the rest of the details on the right — collapsing to a single centred stack
+ * below `lg`. The portrait orb and the tool stack that sat between them moved
+ * UP to the landing's first slide on 2026-10-03 (owner; HeroStage).
  *
  * The two halves speak in the two hemisphere faces, which is the same split
  * the landing makes and the same one the orb itself draws:
@@ -18,13 +18,10 @@
  * reaching for a heavier weight that does not exist in the file. Juturu is a
  * 100–900 variable, so its 800 is real.
  *
- * Still a Server Component. `PortraitOrb` is the only client part, and it
- * brings its own boundary.
+ * A Server Component.
  */
 
 import Image from "next/image";
-import { PortraitOrb } from "@/components/home/PortraitOrb";
-import { ToolLogos } from "@/components/home/ToolLogos";
 import { AboutFacts } from "@/components/home/AboutFacts";
 import { SITE } from "@/constants/site";
 
@@ -55,7 +52,7 @@ export function SiteFooter() {
 
   return (
     <footer className="w-full border-t border-neutral-200 bg-gallery px-6 py-12 sm:px-10">
-      <div className="mx-auto grid w-full max-w-7xl items-center justify-items-center gap-10 lg:grid-cols-[1fr_auto_1fr] lg:gap-8">
+      <div className="mx-auto grid w-full max-w-7xl items-center justify-items-center gap-10 lg:grid-cols-2 lg:gap-8">
         {/* Name — logic face, left. */}
         <div className="font-digibra text-center lg:justify-self-start lg:text-left">
           <p className="text-[clamp(1.7rem,3.4vw,2.9rem)] leading-[1.05] text-neutral-900">
@@ -65,12 +62,6 @@ export function SiteFooter() {
           <p className="mt-2 text-[0.72rem] font-normal uppercase tracking-[0.2em] text-neutral-400">
             {SITE.role}
           </p>
-        </div>
-
-        {/* The portrait, centred. Follows the pointer exactly as it did on the
-            landing — it is the same component, only re-homed. */}
-        <div className="w-[clamp(15rem,30vw,22rem)]">
-          <PortraitOrb />
         </div>
 
         {/* Contact — creative face, right. */}
@@ -110,17 +101,11 @@ export function SiteFooter() {
       </div>
 
       {/* The facts — Chess, Education, Part-time, Hobbies, one section.
-          From `lg` it lives on the landing's bottom right (HeroStage, owner
-          2026-10-03); below `lg` that corner is the brain's lines and the
-          scroll cue, so it is carried here instead, centred above the tools. */}
+          From `lg` they live under the landing's brain (HeroStage); below
+          `lg` that band is the brain's lines and the scroll cue, so they are
+          carried here instead. */}
       <div className="mx-auto mt-12 flex w-full max-w-md justify-center border-t border-neutral-200 pt-10 lg:hidden">
         <AboutFacts />
-      </div>
-
-      {/* The tool stack. */}
-      <div className="font-graff mx-auto mt-10 flex w-full max-w-7xl flex-col items-center gap-3">
-        <p className="text-[0.72rem] font-extrabold uppercase tracking-[0.2em] text-neutral-900">Tools</p>
-        <ToolLogos height={22} className="justify-center gap-x-6 gap-y-3" />
       </div>
 
       <p className="font-graff mx-auto mt-10 w-full max-w-7xl text-center text-[0.7rem] font-normal text-neutral-400">

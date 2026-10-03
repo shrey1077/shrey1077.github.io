@@ -53,7 +53,7 @@ export const PIN_OPEN_EVENT = "brainpin:open";
  *  LOGIC_ROW_HALF follows as well, or the artwork stops lining up with the row
  *  opposite — see the note there.
  *
- *  The rows did not move for THAT change; they moved later — see ROW_STEP. */
+ *  The rows did not move for THAT change; they moved later — see ARC. */
 const PIN_SCALE = 0.7;
 
 const CIRCLE = 18;
@@ -65,24 +65,32 @@ const RING_STROKE = 2;
 const RING = `radial-gradient(closest-side, transparent calc(100% - ${RING_STROKE}px), #000 calc(100% - ${RING_STROKE}px))`;
 const RING_MASK = { WebkitMaskImage: RING, maskImage: RING } as const;
 
-/** Rows, as fractions of the stage.
- *
- *  ⚠ THE TWO COLUMNS NO LONGER SHARE ROWS (2026-10-02). The owner moved the
- *  right column to the top-right corner and kept the left one sitting just
- *  above the black band, and cut both columns' height by 25% — which is
- *  ROW_STEP, 0.075 → 0.054 (the 32px rows themselves keep their size, so a
- *  column's span — three steps plus a row — falls ~25% at 900px).
- *
- *  LOGIC_ROW_TOP is derived so the LAST logic row stays where it was put that
- *  morning: 0.64 + 3 × 0.075 = 0.865, ~3% of clear air above the band at
- *  1440×900 (measured then). Rows are % but a fixed ~32px tall, so on the
- *  shortest stage (640px) that air closes to ~9px. */
-const ROW_STEP = 0.054;
-const LOGIC_ROW_TOP = 0.865 - 3 * ROW_STEP;
-/** ⚠ Back on the LOGIC rows (owner, 2026-10-03: "right side sections at right
- *  bottom"), so the two columns sit level, bottom-aligned just above the black
- *  band. It hung in the top-right corner (0.05) for a day before that. */
-const CREATIVE_ROW_TOP = LOGIC_ROW_TOP;
+/** THE TWO ARCS (owner, 2026-10-03: "sections on both sides in circular
+ *  alignment along the brain artwork"). Each column curves round the brain
+ *  like the rim of a circle — the top and bottom pins tucked in, the middle
+ *  two out at the screen's edge — and the two columns mirror each other:
+ *    · logic, top to bottom: Clients just under the code box, top left, down
+ *      to Career Path at the bottom left;
+ *    · creative: Art at the top right, down to AI Generations at the bottom
+ *      right, level with Career Path — just above the facts (Chess…).
+ *  `x` is the column's OUTER edge in vw from its own side of the screen (the
+ *  logic pins' left edge, the artworks' right edge); `y` is the row, as a
+ *  fraction of the stage. The rows are spaced as points on a circle (60° and
+ *  20° either side of the middle), so the gaps narrow toward the ends.
+ *  Replaced the two bottom-aligned columns (ROW_STEP / LOGIC_ROW_TOP) — git
+ *  has those.
+ *  ⚠ The first row never rises above FIRST_ROW_MIN: on a short stage 15% would
+ *  put Clients into the code box (top 1.25rem, ~5.5rem tall at half size). */
+const ARC: readonly { x: number; y: number }[] = [
+  { x: 8, y: 0.152 },
+  { x: 3, y: 0.357 },
+  { x: 3, y: 0.623 },
+  { x: 8, y: 0.828 },
+];
+const FIRST_ROW_MIN = "7.75rem";
+/** A row's top, as CSS. */
+const rowTop = (i: number) =>
+  i === 0 ? `max(${ARC[0].y * 100}%, ${FIRST_ROW_MIN})` : `${ARC[i].y * 100}%`;
 
 /** Half the height of a logic row: the pill's 1.07rem type at `leading-none`
  *  plus `py-1.5` twice is 1.82rem, and the 28px icon is shorter than that, so
@@ -95,18 +103,13 @@ const CREATIVE_ROW_TOP = LOGIC_ROW_TOP;
  *  ⚠ Re-derive if the logic pill's type size or padding changes. */
 const LOGIC_ROW_HALF = `${0.91 * PIN_SCALE}rem`;
 
-/** Where each column sits: logic low on the left, creative in the top-right
- *  corner (2026-10-02). */
+/** How each column runs. Logic pins are anchored by their LEFT edge, the
+ *  creative artworks by their RIGHT — the four illustrations are different
+ *  widths, so their left ends (the lead rings, where the pencil strokes start)
+ *  stay ragged by design. */
 const COL = {
-  // 6vw — the gutter the old corner connectors turned in; the logic runs into
-  // the brain (BrainTraces) still start from where these pins sit.
-  logic: { x: "left-[6vw]", top: LOGIC_ROW_TOP, step: ROW_STEP, align: "flex-row" },
-  // ⚠ 2.5vw since 2026-10-02 (6vw before): the corner connectors that needed a
-  // gutter to turn in are gone. Bottom-right, level with the logic column.
-  // The four illustrations are different widths and right-anchored, so their
-  // LEFT ends — where the lead rings and the pencil strokes now are — stay
-  // ragged by design.
-  creative: { x: "right-[2.5vw]", top: CREATIVE_ROW_TOP, step: ROW_STEP, align: "flex-row-reverse" },
+  logic: { align: "flex-row" },
+  creative: { align: "flex-row-reverse" },
 } as const;
 
 type Side = "logic" | "creative";
@@ -237,7 +240,10 @@ const ART: Partial<Record<NavSectionId, PinArt>> = {
 interface Pin {
   id: NavSectionId;
   label: string;
-  y: number;
+  /** Outer edge, vw from its own side of the screen. See ARC. */
+  x: number;
+  /** The row's top, as CSS. */
+  top: string;
   side: Side;
   /** Position within its own column — drives the connector and its delay. */
   index: number;
@@ -252,7 +258,8 @@ function buildPins(): Pin[] {
       .map((s, i) => ({
         id: s.id,
         label: s.label,
-        y: COL[side].top + i * COL[side].step,
+        x: ARC[i % ARC.length].x,
+        top: rowTop(i % ARC.length),
         side,
         index: i,
         tagline: s.tagline,
@@ -285,12 +292,13 @@ function PinRow({
     const ringDot = ART_H * 0.085;
     return (
       <div
-        className={`absolute ${COL[pin.side].x} flex items-center`}
+        className="absolute flex items-center"
         // ⚠ Positioned by the pill's centre, not the image's top. See ART.
         //   LOGIC_ROW_HALF puts that centre on the same line as the logic row
         //   opposite, which is placed by its top edge instead.
         style={{
-          top: `calc(${pin.y * 100}% + ${LOGIC_ROW_HALF} - ${ART_H * art.pillCenterY}px)`,
+          right: `${pin.x}vw`,
+          top: `calc(${pin.top} + ${LOGIC_ROW_HALF} - ${ART_H * art.pillCenterY}px)`,
         }}
       >
         <button
@@ -392,8 +400,8 @@ function PinRow({
       initial={wait ? { opacity: 0 } : false}
       animate={{ opacity: 1 }}
       transition={{ duration: 0.28, ease: EASE_OUT, delay: wait }}
-      className={`absolute ${COL[pin.side].x} flex items-center ${COL[pin.side].align}`}
-      style={{ top: `${pin.y * 100}%` }}
+      className={`absolute flex items-center ${COL[pin.side].align}`}
+      style={{ [logic ? "left" : "right"]: `${pin.x}vw`, top: pin.top }}
     >
       {/* Outer rule — only the creative side keeps one. The logic side's run to
           the edge is now the drawn connector (PinConnectors), which arrives

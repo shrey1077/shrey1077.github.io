@@ -7,10 +7,10 @@
  *
  *   hero          wordmark, the pitch, the campaign artwork, endorsements
  *   01 institute  what Tata IIS is, against a campus photograph
- *   02 system     the parent mark over its two campus dialects
- *   03 brand DNA  five cards, each a real plate from the rulebooks
- *   04 the work   the owner's account, then the six rooms as cards
- *   05 collaborate
+ *   02 system     the mark's change of voice, the rulebook, the three
+ *                 identities (SystemBand)
+ *   03 the work   the owner's account, then the six rooms as cards
+ *   04 collaborate
  *   marquee + TataFooter
  *
  * The copy and the pointers live in `tataStory.ts`; this file is the layout.
@@ -45,22 +45,16 @@ import {
 import { brandOf, TATA_SECTIONS, TATA_WORK_INTRO } from "@/constants/tataSections";
 import {
   TATA_COLLABORATE,
-  TATA_BRAND_BOOK,
-  TATA_DNA,
   TATA_HERO,
   TATA_CAMPUS_PROFILES,
-  TATA_IDENTITIES,
-  TATA_LOCKUP,
-  TATA_LOGO_STORY,
   TATA_WHO,
-  TATA_SYSTEM,
+  TATA_WHO_ART,
   TATA_WORK_BAND,
   type TataBand,
 } from "@/constants/tataStory";
 import { TATA_PINS } from "@/constants/tataPins";
-import { TataRoomLink } from "@/components/client/tata/TataRoomLink";
 import { CampusTheme } from "@/components/client/tata/CampusTheme";
-import { BrandBook } from "@/components/client/tata/BrandBook";
+import { SystemBand } from "@/components/client/tata/SystemBand";
 import {
   WorkShowcase,
   type ShowcasePanelView,
@@ -547,7 +541,7 @@ export function TataExperience() {
               {TATA_WHO.rail ? <Rail words={TATA_WHO.rail} /> : <span aria-hidden />}
             </div>
 
-            <div className={`${SHELL} grid grid-cols-1 gap-10 pb-14 md:grid-cols-2 md:gap-10 lg:pb-20 lg:pt-6`}>
+            <div className={`${SHELL} grid grid-cols-1 gap-10 pb-4 md:grid-cols-2 md:gap-10 lg:pb-6 lg:pt-6`}>
               {TATA_CAMPUS_PROFILES.map((campus) => (
                 <article key={campus.label}>
                   {/* Each column runs its own film, then its own photographs.
@@ -589,191 +583,27 @@ export function TataExperience() {
                 </article>
               ))}
             </div>
-          </section>
 
-          {/* ── 02 — the mark's change of voice ─────────────────────────
-              ⚠ ONE SECTION, THREE MOVEMENTS: what happened to the wordmark,
-              what the rulebook fixed afterwards, and the two campus dialects
-              that grew out of it. Brand DNA was its own band (03) until
-              2026-09-28, when the owner asked for the whole identity story to
-              be told in one place; everything after it moved up a number.
-
-              ⚠ The claims here are sourced — see TATA_LOGO_STORY. The new
-              mark's artwork names Copperplate Gothic Bold, the Tata Trusts
-              logo file names it too, and plate 12 of the rulebook says
-              "designed in the signature Tata Trusts font" in as many words. The
-              OLD mark's face is deliberately unnamed: its artwork is outlined,
-              and the letterforms rule out the Myriad Pro it is remembered as. */}
-          <section className="border-t border-neutral-200/70 bg-neutral-100/40">
+            {/* The band's close: the owner's industrial artwork, edge to
+                edge (2026-10-03). Decorative. Its foot fades out, so it
+                dissolves into band 02 rather than ending on a hard edge. */}
             <div
-              className={`${SHELL} grid grid-cols-1 items-start gap-y-8 pt-14 lg:grid-cols-[auto_minmax(0,1fr)_auto] lg:gap-x-10 lg:pt-20`}
+              aria-hidden
+              className="pointer-events-none relative w-full"
+              style={{
+                aspectRatio: `${TATA_WHO_ART.w} / ${TATA_WHO_ART.h}`,
+                maskImage: "linear-gradient(to bottom, #000 78%, transparent 100%)",
+                WebkitMaskImage: "linear-gradient(to bottom, #000 78%, transparent 100%)",
+              }}
             >
-              <p aria-hidden className="tata-display text-[clamp(2.6rem,5.5vw,4.5rem)] leading-[0.85] text-neutral-300">
-                {TATA_SYSTEM.number}
-              </p>
-              <div className="max-w-2xl">
-                <span className={KICKER}>{TATA_SYSTEM.kicker}</span>
-                <h2 className="tata-display mt-4 text-[clamp(1.55rem,2.7vw,2.25rem)] leading-[1.12] text-neutral-900">
-                  {TATA_SYSTEM.headline.map((line) => (
-                    <span key={line} className="block">
-                      {line}
-                    </span>
-                  ))}
-                </h2>
-                {/* ⚠ `max-w-[54ch]` on every paragraph in this section, not a
-                    column width: this band runs long, and a measure set in
-                    characters holds the same reading rhythm whether the
-                    paragraph sits under the headline or beside a mark. */}
-                <p className="tata-body mt-5 max-w-[54ch] text-[0.9rem] leading-relaxed text-neutral-700">
-                  {TATA_SYSTEM.body}
-                </p>
-              </div>
-              {TATA_SYSTEM.rail ? <Rail words={TATA_SYSTEM.rail} /> : <span aria-hidden />}
-            </div>
-
-            {/* ── Before and after ── */}
-            <div className={`${SHELL} pt-12 lg:pt-16`}>
-              <div className="grid grid-cols-1 gap-10 sm:grid-cols-2 sm:gap-8">
-                {[TATA_LOGO_STORY.before, TATA_LOGO_STORY.after].map((state, i) => (
-                  <figure key={state.label} className={i === 1 ? "sm:border-l sm:border-neutral-300/70 sm:pl-8" : ""}>
-                    <figcaption className={`${KICKER} block`}>{state.label}</figcaption>
-                    {/* Both marks in one box height, so the change of FACE is
-                        what shows rather than a change of size. */}
-                    <span className="relative mt-5 flex h-16 w-full items-center justify-start sm:h-20">
-                      <Image
-                        src={state.mark}
-                        alt={state.markAlt}
-                        fill
-                        sizes="(max-width: 640px) 88vw, 40vw"
-                        className="object-contain object-left"
-                      />
-                    </span>
-                    <p className="tata-body mt-5 max-w-[42ch] text-[0.85rem] leading-relaxed text-neutral-600">
-                      {state.caption}
-                    </p>
-                  </figure>
-                ))}
-              </div>
-
-              {/* ── How it happened ── */}
-              {/* Two columns, not four: the sequence lost half its steps on
-                  2026-09-27 and a four-column grid would have left two empty.
-                  The 42ch measure below is what keeps the lines readable at
-                  the width that leaves. */}
-              <ol className="mt-12 grid grid-cols-1 gap-x-8 gap-y-7 sm:grid-cols-2">
-                {TATA_LOGO_STORY.steps.map((step) => (
-                  <li key={step.title} className="border-t border-neutral-300/70 pt-4">
-                    <h3 className={`${KICKER} text-neutral-700`}>{step.title}</h3>
-                    <p className="tata-body mt-3 max-w-[42ch] text-[0.85rem] leading-relaxed text-neutral-600">
-                      {step.text}
-                    </p>
-                  </li>
-                ))}
-              </ol>
-            </div>
-
-            {/* ── What the rulebook fixes ── */}
-            <div className={`${SHELL} mt-14 border-t border-neutral-200/70 pt-12 lg:mt-16`}>
-              <div className="grid grid-cols-1 items-start gap-y-6 lg:grid-cols-[minmax(0,26rem)_minmax(0,1fr)] lg:gap-x-12">
-                <div>
-                  <span className={KICKER}>{TATA_DNA.kicker}</span>
-                  <p className="tata-body mt-4 max-w-[54ch] text-[0.9rem] leading-relaxed text-neutral-700">
-                    {TATA_DNA.body}
-                  </p>
-                  <div className="mt-7">
-                    <TataRoomLink room="brand-guidelines">View brand guidelines</TataRoomLink>
-                  </div>
-                </div>
-
-                {/* The rulebook itself, closed. Clicking it plays the plates
-                    — see BrandBook. It stands at twice the height of the five
-                    cards it replaced (186px each, measured). */}
-                <BrandBook
-                  wordmark={TATA_BRAND_BOOK.wordmark}
-                  title={TATA_BRAND_BOOK.title}
-                  plates={TATA_BRAND_BOOK.plates}
-                />
-              </div>
-            </div>
-
-            {/* ── One vision, three identities ──
-                ⚠ The three marks are the SUPPLIED files. The comp's versions
-                are redrawn and wrong in the details; this is the client's
-                identity, so it is the rulebook's own artwork or nothing. */}
-            <div className={`${SHELL} mt-14 border-t border-neutral-200/70 py-12 lg:mt-16 lg:pb-20`}>
-              <div className="grid grid-cols-1 items-start gap-y-8 lg:grid-cols-[minmax(0,26rem)_minmax(0,1fr)] lg:gap-x-12">
-                <div>
-                  <span className={KICKER}>{TATA_IDENTITIES.kicker}</span>
-                  <p className="tata-body mt-4 max-w-[54ch] text-[0.9rem] leading-relaxed text-neutral-700">
-                    {TATA_IDENTITIES.body}
-                  </p>
-                  <div className="mt-7">
-                    <TataRoomLink room="brand-guidelines">Explore brand system</TataRoomLink>
-                  </div>
-                </div>
-
-                <div className="flex flex-col items-center">
-                  <span className="relative block h-14 w-full max-w-[15rem]">
-                    <Image
-                      src={TATA_LOCKUP.parent.logo}
-                      alt={`${TATA_LOCKUP.parent.label} logo`}
-                      fill
-                      sizes="240px"
-                      className="object-contain"
-                    />
-                  </span>
-
-                  {/* The bracket that makes the three read as one family. */}
-                  <svg
-                    aria-hidden
-                    viewBox="0 0 100 16"
-                    preserveAspectRatio="none"
-                    className="mt-5 h-5 w-full max-w-2xl text-neutral-300"
-                  >
-                    <path
-                      d="M50 0 V6 M14 6 H86 M14 6 V16 M86 6 V16"
-                      fill="none"
-                      stroke="currentColor"
-                      strokeWidth="0.6"
-                      vectorEffect="non-scaling-stroke"
-                    />
-                  </svg>
-
-                  <div className="mt-5 grid w-full grid-cols-1 gap-8 sm:grid-cols-2 sm:gap-6">
-                    {TATA_LOCKUP.campuses.map((c) => (
-                      <div key={c.label} className="flex flex-col items-center text-center">
-                        <span className="flex h-24 w-full items-center justify-center">
-                          <span
-                            className="relative block"
-                            style={{
-                              height: `${inkBox(c.ink, CAMPUS_INK_AREA).height}px`,
-                              width: `${inkBox(c.ink, CAMPUS_INK_AREA).width}px`,
-                            }}
-                          >
-                            <Image src={c.logo} alt={`${c.label} logo`} fill sizes="240px" className="object-contain" />
-                          </span>
-                        </span>
-                        <p className="tata-body mt-4 max-w-[38ch] text-[0.82rem] leading-relaxed text-neutral-600">
-                          {c.line}
-                        </p>
-                        {/* The campus palette, from its own rulebook. */}
-                        <ul className="mt-4 flex items-center gap-2">
-                          {c.colours.map((col) => (
-                            <li key={col.hex} className="flex items-center gap-1.5">
-                              <span aria-hidden className="block size-3 rounded-full" style={{ backgroundColor: col.hex }} />
-                              <span className="tata-body text-[0.55rem] uppercase tracking-[0.14em] text-neutral-500">
-                                {col.name}
-                              </span>
-                            </li>
-                          ))}
-                        </ul>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              </div>
+              <Image src={TATA_WHO_ART.src} alt="" fill sizes="100vw" className="object-cover" />
             </div>
           </section>
+
+          {/* ── 02 — the mark's change of voice: before and after, what the
+              rulebook fixes, the three identities. One section, three
+              movements; re-set 2026-10-03 — see SystemBand. ── */}
+          <SystemBand />
 
           {/* ── 04 — the work, then the six rooms ──
               ⚠ THIS PAGE IS CLICK-TO-VIEW (owner, 2026-08-25). It used to render
