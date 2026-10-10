@@ -1,23 +1,20 @@
 /**
- * The homepage's face policy — one switch.
+ * The homepage's face policy (owner, 2026-10-04).
  *
- * The site's Typography Constitution gives the two hemispheres their own faces:
- * Digibra for the logic side, Juturu (`font-graff`) for the creative one. The
- * owner asked on 2026-08-25 to try the landing with EVERYTHING in Digibra, and
- * to keep the revert cheap.
+ * `page.tsx` puts HOME_TYPE on the home page's <main>, and globals.css (search
+ * `.type-home`) sets the page in three faces from there:
  *
- * ⚠ FLIP THIS ONE BOOLEAN TO GO BACK. It drives all three moving parts:
- *   · `page.tsx` puts `.faces-unified` on <main>, which globals.css uses to
- *     override every `.font-graff` on the landing to Digibra;
- *   · `HeroName` picks the matching ink metrics — they are per-FACE and per-
- *     STRING, so they cannot be shared between the two states;
- *   · nothing else needs touching. Client pages, the section panels' own faces
- *     and the rest of the site are unaffected, because the override is scoped
- *     to that one class on the landing.
+ *   · Helvetica for everything — subheadings, body, labels;
+ *   · Digibra only on `.face-logic`: the PORTFOLIO 2026 mark and the LEFT
+ *     section names (the logic pins and their rooms' titles);
+ *   · Syne only on `.face-creative`: the RIGHT section names (the creative
+ *     pins and their rooms' titles) and "Right".
  *
- * ⚠ COLOUR IS NOT PART OF THIS. The owner was explicit: the faces change, the
- * colours do not. `imagine` keeps its rainbow, the paint gradient stays, and
- * `.font-graff` elements keep whatever colour they already had — the override
- * sets `font-family` and nothing else.
+ * Scoped to the home page: the Tata page and every other page keep their own
+ * faces.
+ *
+ * ⚠ It replaced UNIFY_FACES_ON_HOME (2026-08-25), which turned every
+ * `font-graff` on the landing into Digibra — Digibra had become the landing's
+ * everything-face. git has it.
  */
-export const UNIFY_FACES_ON_HOME = true;
+export const HOME_TYPE = "type-home";

@@ -19,6 +19,7 @@ import { ArtCollections } from "@/components/home/ArtCollections";
 import { PublicationShelf } from "@/components/home/PublicationShelf";
 import { LogofolioWall } from "@/components/home/LogofolioWall";
 import { ExtinctsRoom } from "@/components/home/ExtinctsRoom";
+import { MyStack, STACK_COUNT } from "@/components/home/MyStack";
 import { EXTINCTS_REPORTS, EXTINCTS_STORIES } from "@/constants/extincts";
 import type { StudyPlate } from "@/components/home/ProjectPreview";
 import { PUBLICATIONS } from "@/constants/publications";
@@ -146,6 +147,8 @@ const OWN_RENDERER: ReadonlySet<NavSectionId> = new Set([
   // board of cells cannot hold. The jury deck it showed before is a subset of
   // the third report.
   "the-extincts-project",
+  // My Stack (2026-10-10): the tools, grouped by what they are for.
+  "my-stack",
 ] satisfies NavSectionId[]);
 
 function ownCount(id: NavSectionId, data: SectionData): number {
@@ -154,6 +157,7 @@ function ownCount(id: NavSectionId, data: SectionData): number {
   if (id === "publications") return PUBLICATIONS.length;
   if (id === "logofolio") return data.logos.length;
   if (id === "the-extincts-project") return EXTINCTS_REPORTS.length + EXTINCTS_STORIES.length;
+  if (id === "my-stack") return STACK_COUNT;
   return 0;
 }
 
@@ -185,6 +189,10 @@ export function SectionBody({
   const slide = variant === "slide";
   const ownRenderer = OWN_RENDERER.has(section.id) && ownCount(section.id, data) > 0;
 
+  // My Stack is a short board of its own — it sits in the room's centred
+  // column like the boards do, rather than filling it.
+  if (ownRenderer && section.id === "my-stack") return <MyStack />;
+
   if (ownRenderer) {
     /* Both renderers size to their parent (`h-full min-h-0`). The panel animates
        to `height: auto`, so it gives them a real height; a slide's body is
@@ -211,15 +219,18 @@ export function SectionBody({
     0,
     BOARD_CAP,
   );
+  // The Clients cards are black glass (owner, 2026-10-10: "a black
+  // translucent bg") — the white logo plates sit in them, captions in white.
+  const dark = section.id === "clients";
 
   if (!board.length) {
     return (
       <p
         className={`font-helv text-sm ${
-          logic ? "text-white/55" : `w-fit max-w-xl ${PAPER_PLATE} px-5 py-4 text-neutral-700`
+          logic ? "text-neutral-500" : `w-fit max-w-xl ${PAPER_PLATE} px-5 py-4 text-neutral-700`
         } ${align === "right" ? "ml-auto text-right" : ""}`}
       >
-        Nothing to show here yet — this section is still being put together.
+        {section.kind === "coming-soon" ? "Coming soon." : "Nothing to show here yet — this section is still being put together."}
       </p>
     );
   }
@@ -255,7 +266,7 @@ export function SectionBody({
                 style: artwork that is white on transparent is invisible on
                 white — `mycoveda-symbol` in the Logofolio is 100% white ink. */}
             <span
-              className={`relative block w-full overflow-hidden rounded-xl ${
+              className={`relative block w-full overflow-hidden rounded-xl ring-1 ring-neutral-900/[0.06] ${
                 slide ? "mb-3 aspect-[16/10]" : "mb-4 aspect-[4/3]"
               } ${c.fill || c.tone === "light" ? "bg-neutral-900" : "bg-white"}`}
             >
@@ -293,14 +304,14 @@ export function SectionBody({
               )}
             </span>
             <span
-              className={`block text-base leading-tight ${
-                logic ? "font-digibra text-white" : "font-graff font-bold text-neutral-900"
+              className={`block text-base leading-tight ${logic ? "font-digibra" : "font-graff font-bold"} ${
+                dark ? "text-white" : "text-neutral-900"
               }`}
             >
               {c.label}
             </span>
             {c.sub && (
-              <span className={`font-helv mt-1 block text-[0.68rem] leading-snug ${logic ? "text-white/55" : "text-neutral-500"}`}>
+              <span className={`font-helv mt-1 block text-[0.68rem] leading-snug ${dark ? "text-white/60" : "text-neutral-500"}`}>
                 {c.sub}
               </span>
             )}
@@ -309,8 +320,14 @@ export function SectionBody({
 
         // Squares, not pills — a grid of these reads as a board.
         // On creative the cell is a paper plate, as every creative block is.
-        const shell = logic
-          ? `group block rounded-2xl border border-white/15 bg-white/[0.06] ${slide ? "p-3" : "p-4"} outline-none transition-colors duration-300 hover:border-white/45 hover:bg-white/[0.12] focus-visible:ring-2 focus-visible:ring-white/60`
+        // On logic a hairline-edged glass square — dark on the landing's light
+        // ground since 2026-10-05 (light on the dark circuit board before), so
+        // the white logo plate inside it still has an edge.
+        // Clients: the same square in black glass.
+        const shell = dark
+          ? `group block rounded-2xl border border-white/10 bg-neutral-950/70 shadow-[0_14px_40px_-18px_rgba(0,0,0,0.55)] backdrop-blur-md ${slide ? "p-3" : "p-4"} outline-none transition-colors duration-300 hover:border-white/25 hover:bg-neutral-950/80 focus-visible:ring-2 focus-visible:ring-neutral-900/40`
+          : logic
+          ? `group block rounded-2xl border border-neutral-900/12 bg-white/55 backdrop-blur-[2px] ${slide ? "p-3" : "p-4"} outline-none transition-colors duration-300 hover:border-neutral-900/35 hover:bg-white/85 focus-visible:ring-2 focus-visible:ring-neutral-900/40`
           : `group block ${PAPER_PLATE} p-4 outline-none transition-shadow duration-300 hover:shadow-[0_10px_30px_-12px_rgba(0,0,0,0.25)] focus-visible:ring-2 focus-visible:ring-neutral-900/40`;
 
         return (

@@ -12,15 +12,15 @@
  * spring the old scrub used (smooth ease-in and ease-out, no overshoot); at rest
  * it holds the middle frame. Reduced motion parks on the middle frame.
  *
- * ⚠ The canvas is tagged `data-brain`, and BrainDock READS IT (2026-10-03):
- * the brain that docks at the edge of every room is a live copy of this
- * canvas, so the landing's brain and the rooms' one are the same footage and
- * the hand-over between them is seamless. `data-frame` carries the frame on
- * screen, so the dock only copies when it changes.
+ * The canvas is tagged `data-brain`, with `data-frame` carrying the frame on
+ * screen. From 2026-10-03 to 2026-10-10 BrainDock read it — the brain docked
+ * beside every room was a live copy of this canvas; the rooms' circles hold
+ * stills of the first and last frames now (BrainDock).
  *
- * MODES. On the landing the pointer scrubs the turn ("pointer"). In the rooms
- * nobody can see this canvas, only the dock's copy, and the brain rocks on
- * its own through the end of the turn that faces the dock's side: frames
+ * MODES. On the landing the pointer scrubs the turn ("pointer"). The others
+ * are unused since 2026-10-10 (HeroStage passes "pointer" only): they rocked
+ * the brain for the rooms' live dock through the end of the turn that faced
+ * the dock's side: frames
  * 0–20, the grey half turned to the viewer, beside the logic rooms ("left");
  * 27–47, the colour half, beside the creative ones ("right"). The same
  * spring carries every change, so a switch of mode turns the brain rather

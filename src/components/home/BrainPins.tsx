@@ -56,41 +56,30 @@ export const PIN_OPEN_EVENT = "brainpin:open";
  *  The rows did not move for THAT change; they moved later — see ARC. */
 const PIN_SCALE = 0.7;
 
-const CIRCLE = 18;
+/* The trailing circle (CIRCLE, and the paint RING_MASK that cut the creative
+ * one to a ring) went with the stacks, 2026-10-05; git has both. */
 
-/** Cuts a paint disc down to a 2px ring, leaving the centre fully transparent
- *  so the stage still reads through it. `closest-side` pins the gradient's
- *  radius to the element's own half-width, so this holds at any CIRCLE. */
-const RING_STROKE = 2;
-const RING = `radial-gradient(closest-side, transparent calc(100% - ${RING_STROKE}px), #000 calc(100% - ${RING_STROKE}px))`;
-const RING_MASK = { WebkitMaskImage: RING, maskImage: RING } as const;
-
-/** THE TWO ARCS (owner, 2026-10-03: "sections on both sides in circular
- *  alignment along the brain artwork"). Each column curves round the brain
- *  like the rim of a circle — the top and bottom pins tucked in, the middle
- *  two out at the screen's edge — and the two columns mirror each other:
- *    · logic, top to bottom: Clients just under the code box, top left, down
- *      to Career Path at the bottom left;
- *    · creative: Art at the top right, down to AI Generations at the bottom
- *      right, level with Career Path — just above the facts (Chess…).
- *  `x` is the column's OUTER edge in vw from its own side of the screen (the
- *  logic pins' left edge, the artworks' right edge); `y` is the row, as a
- *  fraction of the stage. The rows are spaced as points on a circle (60° and
- *  20° either side of the middle), so the gaps narrow toward the ends.
- *  Replaced the two bottom-aligned columns (ROW_STEP / LOGIC_ROW_TOP) — git
- *  has those.
- *  ⚠ The first row never rises above FIRST_ROW_MIN: on a short stage 15% would
- *  put Clients into the code box (top 1.25rem, ~5.5rem tall at half size). */
-const ARC: readonly { x: number; y: number }[] = [
-  { x: 8, y: 0.152 },
-  { x: 3, y: 0.357 },
-  { x: 3, y: 0.623 },
-  { x: 8, y: 0.828 },
-];
-const FIRST_ROW_MIN = "7.75rem";
-/** A row's top, as CSS. */
-const rowTop = (i: number) =>
-  i === 0 ? `max(${ARC[0].y * 100}%, ${FIRST_ROW_MIN})` : `${ARC[i].y * 100}%`;
+/** THE TWO STACKS (owner, 2026-10-05). Each column's four sections stand in
+ *  a tight stack at the foot of the stage, just above the black band, each
+ *  hanging off its side's trunk on a short stub — the trunk the one line that
+ *  drops out of that hemisphere (BrainTraces draws it). The two columns mirror
+ *  each other: the trunks run down the OUTER sides, a stub's length outside the
+ *  sections. Top to bottom: Clients, Projects, Logofolio, Career Path on the
+ *  left; Art, Publications, The Extincts Project, AI Generations on the right.
+ *  (They were two arcs round the brain until then — ARC; git has it.)
+ *
+ *  A row is placed by its CENTRE: the last ROW_BOTTOM rem above the band (the
+ *  band is the stage's bottom 7%), each one above it ROW_PITCH higher. */
+const ROW_BOTTOM = 2.6;
+const ROW_PITCH = 2.2;
+const rowCentre = (i: number, n: number) => `calc(93% - ${ROW_BOTTOM}rem - ${(n - 1 - i) * ROW_PITCH}rem)`;
+/** Where the trunks stand (in from the screen's sides) and how long the stubs
+ *  are, per breakpoint — as CSS variables on the pins' root, so the rows and
+ *  the trunk markers BrainTraces measures read the same numbers. At `lg` they
+ *  tuck in: the right column's artwork is a fixed ~260px wide and has to clear
+ *  the facts' tab in the middle. */
+const STACK_VARS = "[--trunk:5vw] [--stub:1.25rem] xl:[--trunk:10.5vw] xl:[--stub:3.5vw]";
+const ROW_INSET = "calc(var(--trunk) + var(--stub))";
 
 /** Half the height of a logic row: the pill's 1.07rem type at `leading-none`
  *  plus `py-1.5` twice is 1.82rem, and the 28px icon is shorter than that, so
@@ -143,8 +132,11 @@ export const CONNECTOR_DRAW = 0.75;
 export const SECTION_ICONS: Partial<Record<NavSectionId, string>> = {
   clients: "/content/icons/clients.png", // handshake
   projects: "/content/icons/projects.png", // briefcase
-  logofolio: "/content/icons/logofolio.png", // open book
-  "career-path": "/content/icons/career-path.png", // summit
+  // A stack of layers — drawn 2026-10-10 to match the three above, for the
+  // My Stack room (the tools moved off the landing into it).
+  "my-stack": "/content/icons/my-stack.png",
+  logofolio: "/content/icons/logofolio.png", // open book — off the landing since 2026-10-10
+  "career-path": "/content/icons/career-path.png", // summit — off the landing since 2026-10-10
 };
 
 /* ── The right column is artwork ───────────────────────────────────────────
@@ -192,6 +184,11 @@ interface PinArt {
    *  this into the ring so each section answers in its own hue. Measured by
    *  scripts/analyze_pin_art.py; re-sample if a file is replaced. */
   ringColor: string;
+  /** The white pill the label sits in, as fractions of the frame — MEASURED
+   *  (the largest white region beside the circle). The baked label is covered
+   *  with the pill's own white and the name re-set over it in the creative
+   *  face, Syne (owner, 2026-10-04: the right side's type was to change). */
+  pill: { x0: number; x1: number; y0: number; y1: number };
 }
 
 /* ⚠ THE SUPPLIED ORIENTATION AGAIN (2026-10-02): lead ring on the LEFT, facing
@@ -205,24 +202,37 @@ const ART: Partial<Record<NavSectionId, PinArt>> = {
     aspect: 4.0596, pillCenterY: 0.6762,
     circleCX: 0.2393, circleCY: 0.6458, circleR: 0.2034,
     ringCX: 0.0508, ringCY: 0.6266, ringColor: "#ed5f00",
+    pill: { x0: 0.2879, x1: 0.5089, y0: 0.4938, y1: 0.8469 },
   },
   publications: {
     src: "/content/pins/_orig/publications.webp",
     aspect: 4.3422, pillCenterY: 0.5393,
     circleCX: 0.215, circleCY: 0.5108, circleR: 0.2034,
     ringCX: 0.0392, ringCY: 0.4938, ringColor: "#e3274b",
+    pill: { x0: 0.2604, x1: 0.5662, y0: 0.3438, y1: 0.7094 },
   },
   "the-extincts-project": {
     src: "/content/pins/_orig/the-extincts-project.webp",
     aspect: 4.7284, pillCenterY: 0.5425,
     circleCX: 0.1786, circleCY: 0.5121, circleR: 0.1999,
     ringCX: 0.0182, ringCY: 0.4984, ringColor: "#af1f9d",
+    pill: { x0: 0.226, x1: 0.6457, y0: 0.3469, y1: 0.7125 },
+  },
+  // AI Videos (2026-10-10) wears the AI Generations artwork it replaced — its
+  // own name is set over the baked one, as every pill's is.
+  "ai-videos": {
+    src: "/content/pins/_orig/ai-generations.webp",
+    aspect: 4.8619, pillCenterY: 0.5906,
+    circleCX: 0.1867, circleCY: 0.5583, circleR: 0.2015,
+    ringCX: 0.0289, ringCY: 0.5391, ringColor: "#0096a6",
+    pill: { x0: 0.2326, x1: 0.6697, y0: 0.3969, y1: 0.7594 },
   },
   "ai-generations": {
     src: "/content/pins/_orig/ai-generations.webp",
     aspect: 4.8619, pillCenterY: 0.5906,
     circleCX: 0.1867, circleCY: 0.5583, circleR: 0.2015,
     ringCX: 0.0289, ringCY: 0.5391, ringColor: "#0096a6",
+    pill: { x0: 0.2326, x1: 0.6697, y0: 0.3969, y1: 0.7594 },
   },
 };
 
@@ -240,10 +250,8 @@ const ART: Partial<Record<NavSectionId, PinArt>> = {
 interface Pin {
   id: NavSectionId;
   label: string;
-  /** Outer edge, vw from its own side of the screen. See ARC. */
-  x: number;
-  /** The row's top, as CSS. */
-  top: string;
+  /** The row's centre, as CSS. See ROW_BOTTOM. */
+  centre: string;
   side: Side;
   /** Position within its own column — drives the connector and its delay. */
   index: number;
@@ -255,11 +263,10 @@ function buildPins(): Pin[] {
   const make = (side: Side, hemisphere: "left" | "right"): Pin[] =>
     NAV_SECTIONS.filter((s) => s.hemisphere === hemisphere)
       .sort((a, b) => a.order - b.order)
-      .map((s, i) => ({
+      .map((s, i, all) => ({
         id: s.id,
         label: s.label,
-        x: ARC[i % ARC.length].x,
-        top: rowTop(i % ARC.length),
+        centre: rowCentre(i, all.length),
         side,
         index: i,
         tagline: s.tagline,
@@ -297,8 +304,8 @@ function PinRow({
         //   LOGIC_ROW_HALF puts that centre on the same line as the logic row
         //   opposite, which is placed by its top edge instead.
         style={{
-          right: `${pin.x}vw`,
-          top: `calc(${pin.top} + ${LOGIC_ROW_HALF} - ${ART_H * art.pillCenterY}px)`,
+          right: ROW_INSET,
+          top: `calc(${pin.centre} - ${ART_H * art.pillCenterY}px)`,
         }}
       >
         <button
@@ -325,15 +332,38 @@ function PinRow({
             data-pin-ring={pin.id}
             data-pin-color={art.ringColor}
             className="absolute"
-            style={{ left: `${art.ringCX * 100}%`, top: `${art.ringCY * 100}%` }}
+            style={{ left: `${(1 - art.ringCX) * 100}%`, top: `${art.ringCY * 100}%` }}
           />
           <Image
             src={art.src}
             alt=""
             fill
             sizes={`${Math.round(w)}px`}
-            className="object-contain"
+            // ⚠ MIRRORED (2026-10-05): the lead ring was on the artwork's left,
+            // facing the brain; the trunk is on the right now. Every fraction
+            // below is read as (1 − x) for the same reason.
+            className="-scale-x-100 object-contain"
           />
+          {/* The label, re-set in the creative face over the baked one: the
+              pill's own white, inset a pixel so the pill's edge stays the
+              artwork's, and the name centred in it, sized to fit. */}
+          <span
+            aria-hidden
+            className="face-creative pointer-events-none absolute grid place-items-center whitespace-nowrap rounded-full font-semibold leading-none text-neutral-900"
+            style={{
+              left: `calc(${(1 - art.pill.x1) * 100}% + 1px)`,
+              width: `calc(${(art.pill.x1 - art.pill.x0) * 100}% - 2px)`,
+              top: `calc(${art.pill.y0 * 100}% + 1px)`,
+              height: `calc(${(art.pill.y1 - art.pill.y0) * 100}% - 2px)`,
+              backgroundColor: "#fefefe",
+              fontSize: Math.min(
+                ART_H * (art.pill.y1 - art.pill.y0) * 0.5,
+                (w * (art.pill.x1 - art.pill.x0) * 0.84) / (pin.label.length * 0.62),
+              ),
+            }}
+          >
+            {pin.label}
+          </span>
           {/* The section's colour mark, in the artwork's own white circle
               (owner, 2026-10-03). Centred on the MEASURED disc (circleC*) and
               sized from its radius, so it sits inside the circle rather than
@@ -343,7 +373,7 @@ function PinRow({
               aria-hidden
               className="pointer-events-none absolute grid place-items-center"
               style={{
-                left: `${art.circleCX * 100}%`,
+                left: `${(1 - art.circleCX) * 100}%`,
                 top: `${art.circleCY * 100}%`,
                 width: art.circleR * 2 * ART_H * ICON_FILL,
                 height: art.circleR * 2 * ART_H * ICON_FILL,
@@ -376,7 +406,7 @@ function PinRow({
             animate={{ scale: hover || open ? 1 : 0 }}
             transition={{ duration: reduceMotion ? 0 : 0.22, ease: EASE_OUT }}
             style={{
-              left: `${art.ringCX * 100}%`,
+              left: `${(1 - art.ringCX) * 100}%`,
               top: `${art.ringCY * 100}%`,
               width: ringDot,
               height: ringDot,
@@ -401,7 +431,7 @@ function PinRow({
       animate={{ opacity: 1 }}
       transition={{ duration: 0.28, ease: EASE_OUT, delay: wait }}
       className={`absolute flex items-center ${COL[pin.side].align}`}
-      style={{ [logic ? "left" : "right"]: `${pin.x}vw`, top: pin.top }}
+      style={{ [logic ? "left" : "right"]: ROW_INSET, top: `calc(${pin.centre} - ${LOGIC_ROW_HALF})` }}
     >
       {/* Outer rule — only the creative side keeps one. The logic side's run to
           the edge is now the drawn connector (PinConnectors), which arrives
@@ -446,6 +476,9 @@ function PinRow({
           <span
             aria-hidden
             data-pin-icon={pin.id}
+            // ⚠ The stub from the trunk ends here — BrainTraces measures this
+            // circle's left edge.
+            data-pin-anchor={pin.id}
             className="relative mr-1 grid size-7 shrink-0 place-items-center overflow-hidden rounded-full"
           >
             <Image
@@ -477,7 +510,7 @@ function PinRow({
           // flips the inner fill to the paint and the type to white.
           <span className="brain-paint grid place-items-center rounded-full p-[2px]">
             <span
-              className={`font-graff grid place-items-center whitespace-nowrap rounded-full px-3.5 py-1.5 text-center text-[1.07rem] font-bold leading-none transition-colors duration-300 ${
+              className={`face-creative grid place-items-center whitespace-nowrap rounded-full px-3.5 py-1.5 text-center text-[1.07rem] font-semibold leading-none transition-colors duration-300 ${
                 open ? "brain-paint text-white" : "bg-white text-neutral-900"
               }`}
             >
@@ -486,7 +519,7 @@ function PinRow({
           </span>
         ) : (
           <span
-            className={`font-digibra grid place-items-center whitespace-nowrap rounded-full px-3.5 py-1.5 text-center text-[1.07rem] leading-none transition-colors duration-300 ${
+            className={`face-logic grid place-items-center whitespace-nowrap rounded-full px-3.5 py-1.5 text-center text-[1.07rem] leading-none transition-colors duration-300 ${
               open ? "border-2 border-neutral-950 bg-transparent text-neutral-950" : `text-white ${fill}`
             }`}
           >
@@ -494,46 +527,10 @@ function PinRow({
           </span>
         )}
 
-        {/* ⚠ `data-pin-circle` is read by BrainTraces, which measures this
-            circle's right edge as the start of the pin's run into the brain.
-            Only the logic side is tagged; it is the only side with a run. */}
-        <span
-          aria-hidden
-          data-pin-circle={logic ? pin.id : undefined}
-          className={`relative grid shrink-0 place-items-center rounded-full ${
-            logic
-              // Open no longer FILLS the circle — the ring stays and a flat
-              // black disc drops inside it, which is the hover tell held.
-              ? "border-2 border-neutral-950 bg-transparent"
-              : ""
-          }`}
-          style={{ width: CIRCLE, height: CIRCLE }}
-        >
-          {/* The creative circle's stroke is paint, and a CSS border cannot
-              hold a gradient any more than the pill's could. The pill solves it
-              with a 2px paint wrapper around an opaque inner, but that trick
-              needs a fill — this circle's centre has to stay genuinely
-              transparent so the stage reads through it. So the disc is paint
-              and a radial mask cuts everything but the outer 2px. Open drops
-              the mask and the whole disc fills, which is the same inversion the
-              pill does. */}
-          {!logic && (
-            <span
-              className="brain-paint absolute inset-0 rounded-full"
-              style={open ? undefined : RING_MASK}
-            />
-          )}
-
-          {/* Hover tell: a small flat dot drops into the empty circle. Sits
-              above the ring layer, so it needs its own stacking context. */}
-          <motion.span
-            className={`relative block rounded-full ${logic ? "bg-neutral-950" : "brain-paint"}`}
-            initial={false}
-            animate={{ scale: hover || open ? 1 : 0 }}
-            transition={{ duration: reduceMotion ? 0 : 0.22, ease: EASE_OUT }}
-            style={{ width: CIRCLE * 0.42, height: CIRCLE * 0.42 }}
-          />
-        </span>
+        {/* ⚠ No trailing circle since 2026-10-05: the pin's line used to
+            leave from a ring at the pill's end; it arrives at the icon now,
+            off the trunk (BrainTraces). The open state is the pill's own
+            inversion. git has the ring and its hover dot. */}
 
         {/* ⚠ No tagline under the pill since 2026-10-03 — the owner removed the
             three small-caps words ("People / Brands / Impact") from the pins.
@@ -584,7 +581,10 @@ export function BrainPins() {
   }, [active]);
 
   return (
-    <div ref={rootRef} className="pointer-events-none absolute inset-0 z-20 hidden lg:block">
+    <div ref={rootRef} className={`pointer-events-none absolute inset-0 z-20 hidden lg:block ${STACK_VARS}`}>
+      {/* The trunks' x, for BrainTraces to read — zero-size, one per side. */}
+      <span aria-hidden data-pin-trunk="logic" className="absolute top-0" style={{ left: "var(--trunk)" }} />
+      <span aria-hidden data-pin-trunk="creative" className="absolute top-0" style={{ right: "var(--trunk)" }} />
       {pins.map((p) => (
         <PinRow
           key={p.id}

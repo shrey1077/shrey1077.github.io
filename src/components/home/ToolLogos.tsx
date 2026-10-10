@@ -17,18 +17,21 @@ export function ToolLogos({
 }) {
   return (
     <ul aria-label="Tools" className={`flex flex-wrap items-center ${className}`}>
-      {TOOLS.map((t) => (
-        <li key={t.id} title={t.name} className="shrink-0">
-          <Image
-            src={t.src}
-            alt={t.name}
-            width={Math.round(height * t.aspect)}
-            height={height}
-            className="block opacity-90 transition-opacity duration-200 hover:opacity-100"
-            style={{ height, width: "auto" }}
-          />
-        </li>
-      ))}
+      {TOOLS.map((t) => {
+        const h = Math.round(height * (t.scale ?? 1));
+        return (
+          <li key={t.id} title={t.name} className="shrink-0">
+            <Image
+              src={t.src}
+              alt={t.name}
+              width={Math.round(h * t.aspect)}
+              height={h}
+              className="block opacity-90 transition-opacity duration-200 hover:opacity-100"
+              style={{ height: h, width: "auto" }}
+            />
+          </li>
+        );
+      })}
     </ul>
   );
 }

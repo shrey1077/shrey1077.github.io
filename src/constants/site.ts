@@ -10,6 +10,11 @@
 
 export const SITE = {
   name: "Shrey Singh",
+  /** The one word under the name on the landing's first slide (owner,
+   *  2026-10-03) — `role` is the long form. */
+  title: "Designer",
+  /** The edition on the landing's PORTFOLIO mark. */
+  edition: "2026",
   /** Script monogram shown in the hero identity mark. */
   monogram: "SS",
   role: "Visual Communication Designer",

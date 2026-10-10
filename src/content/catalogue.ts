@@ -29,7 +29,7 @@ import { AUTHORED_MARKS } from "@/constants/logofolio";
 
 const CONTENT_ROOT = path.join(process.cwd(), "public", "content", "clients");
 
-/* ── Types (the stable data contract) ─────────────────────────────────── */
+/* -- Types (the stable data contract) ------------------------------------ */
 
 export interface CatalogueCategory {
   /** URL-safe id derived from the folder name (used in the route). */
@@ -90,7 +90,7 @@ interface FolderMeta {
   showCaptions?: boolean;
 }
 
-/* ── Filesystem helpers ───────────────────────────────────────────────── */
+/* -- Filesystem helpers -------------------------------------------------- */
 
 const IMAGE_EXT = new Set([".jpg", ".jpeg", ".png", ".webp", ".avif", ".gif", ".svg"]);
 const VIDEO_EXT = new Set([".mp4", ".webm", ".mov"]);
@@ -167,7 +167,7 @@ function clientDir(slug: string, ...rest: string[]): string {
   return path.join(CONTENT_ROOT, slug, ...rest);
 }
 
-/* ── Readers ──────────────────────────────────────────────────────────── */
+/* -- Readers ------------------------------------------------------------- */
 
 /** All catalogue categories for a client, ordered by meta then name. */
 export function readCatalogue(slug: string): CatalogueCategory[] {
@@ -437,7 +437,7 @@ export function readPhotography(slug: string): PhotoCollection[] {
     }));
 }
 
-/* ── Folder-driven sections (Tata IIS build) ──────────────────────────── */
+/* -- Folder-driven sections (Tata IIS build) ----------------------------- */
 
 import type {
   CollectionAsset,

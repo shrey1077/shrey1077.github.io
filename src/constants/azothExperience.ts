@@ -4,32 +4,96 @@
  * Azoth Biotech was the parent client (complete branding, collateral, social
  * and web design). Beneath it we built a family of brands; Mycoveda was a
  * separate client, still in development (logo only). This file holds the copy,
- * the derived palette and the brand taxonomy; assets come from
- * `scripts/prepare-azoth-experience.mjs`.
+ * the palette and the brand taxonomy; AzothExperience is the layout.
+ *
+ * ⚠ RE-COMPOSED 2026-10-06 (owner: "redo the azoth page… use the new color
+ * logo, and recompose all info on the page"). Everything under the hero was
+ * laid out again, around the COLOUR LOCKUP — the teal monogram over the navy
+ * wordmark, supplied 2026-10-03 — and its two inks, which replaced the
+ * "derived" four-colour palette (#147d6e / #4eb8af / #1c2b28 / #f2971e) that
+ * stood here before: that palette was read off the built work, not the logo,
+ * and the logo is the authority. git has the old palette and layout.
+ *
+ * ⚠ The words are the repo's own: the tagline, scope and brand blurbs as they
+ * stood; the master-mark story and the sub-brand captions are the catalogue's
+ * (catalogue/Brand Identity and catalogue/Sub-brands, _meta.json); the role,
+ * years, city and site are clients.ts's and CareerTimeline's. Nothing here
+ * states a new fact about the client.
  */
 
 const BASE = "/content/clients/azoth-biotech";
 const BRAND = `${BASE}/brand`;
+const MARKS = `${BRAND}/marks`;
+const CATALOGUE = `${BASE}/catalogue`;
+
+/** The logo's two inks, sampled from the colour lockup's flats. */
+export const AZOTH_INK = {
+  teal: "#28A898",
+  navy: "#283078",
+} as const;
 
 export const AZOTH = {
-  logo: `${BRAND}/logo.png`,
-  /** The ecosystem colour — a deep mycelial teal-green. */
-  accent: "#147d6e",
-  ink: "#1c2b28",
-  tagline:
-    "A biotech house growing medicine, materials and market-ready brands out of mushrooms.",
+  /** The colour lockup — the page's logo since 2026-10-06. */
+  logo: { src: `${MARKS}/lockup-stacked-colour.webp`, w: 647, h: 705 },
+  accent: AZOTH_INK.teal,
+  ink: AZOTH_INK.navy,
+  tagline: "A biotech house growing medicine, materials and market-ready brands out of mushrooms.",
   scope:
     "Azoth Biotech was the parent client — the full remit: brand identity, print & packaging collateral, a running social-media system, and website design. Under that umbrella we grew a family of brands, each with its own voice.",
+  /** The masthead's facts — clients.ts and CareerTimeline. */
+  facts: [
+    { label: "Role", value: "Web & Graphic Designer" },
+    { label: "Years", value: "2020 — 2023" },
+    { label: "Based", value: "Noida, Uttar Pradesh" },
+    { label: "Site", value: "azothbiotech.com", href: "https://azothbiotech.com" },
+  ],
 };
 
-/** Design foundations — derived from the built identity. */
-export const AZOTH_FOUNDATIONS = {
-  colours: [
-    { hex: "#147d6e", name: "Mycelial Teal" },
-    { hex: "#4eb8af", name: "Spore" },
-    { hex: "#1c2b28", name: "Ink" },
-    { hex: "#f2971e", name: "Fruiting Orange" },
+/** The page's chapters, in order — the masthead's index links down to each. */
+export const AZOTH_CHAPTERS = [
+  { id: "mark", n: "01", label: "The mark" },
+  { id: "system", n: "02", label: "The system" },
+  { id: "family", n: "03", label: "The family" },
+  { id: "naturalist", n: "04", label: "Naturalist" },
+  { id: "mushroomworks", n: "05", label: "Mushroomworks" },
+  { id: "house", n: "06", label: "The house" },
+  { id: "explorations", n: "07", label: "Explorations" },
+] as const;
+
+/** 01 — the mark: the brief (catalogue), and how it was built (the page's own). */
+export const AZOTH_MARK_STORY = {
+  headline: "Make biology feel engineered.",
+  brief:
+    "Twelve directions were drawn — helixes, flasks, monograms — before the answer arrived from the organism itself: a mycelial network, clipped by a perfect circle, precise enough for a pharma label and alive enough for a festival post.",
+  build:
+    "The monogram began as a culture: strains of mycelium branching across a petri dish, the letters of Azoth hidden in their forks. The sketch set the rule — hyphae on one diagonal, branches on the level — and the final mark tightened it onto a strict grid, rounded at every tip like living growth.",
+};
+
+/** The identity files the owner supplied on 2026-10-03, prepared by
+ *  scripts/prepare-azoth-marks.mjs: the monogram, the sketch it was built
+ *  from, and its three lockups. Sizes are the prepared files' own. */
+export const AZOTH_MARK = {
+  mark: { src: `${MARKS}/mark-black.webp`, w: 845, h: 1087 },
+  /** The master mark — the monogram CLIPPED by its circle (catalogue, Brand
+   *  Identity). Black on transparent, so the page masks it to teal. */
+  seal: { src: `${CATALOGUE}/Brand Identity/azoth-master-mark.webp`, w: 739, h: 739 },
+  construction: { src: `${MARKS}/mark-construction.webp`, w: 1100, h: 1038 },
+  inks: [
+    { name: "Culture teal", hex: AZOTH_INK.teal, role: "The signal — the mark, and one accent per surface." },
+    { name: "Lab navy", hex: AZOTH_INK.navy, role: "The voice — the wordmark, headlines, the reversed ground." },
   ],
+  /** Each on the plate it is meant for — the reversed one only reads on navy. */
+  lockups: {
+    horizontal: { name: "Horizontal", src: `${MARKS}/lockup-horizontal-black.webp`, w: 433, h: 115, plate: "#f4f5f7" },
+    reversed: { name: "Horizontal, reversed", src: `${MARKS}/lockup-horizontal-white.webp`, w: 482, h: 123, plate: AZOTH_INK.navy },
+    stacked: { name: "Stacked, colour", src: `${MARKS}/lockup-stacked-colour.webp`, w: 647, h: 705, plate: "#ffffff" },
+  },
+};
+
+/** 02 — the system's own line (catalogue), and its type, as the page has
+ *  always described it (no face is named: the files do not say). */
+export const AZOTH_SYSTEM = {
+  line: "The chrome stays neutral so one teal reads as the signal.",
   type: {
     display: "Geometric grotesque",
     displayNote:
@@ -45,12 +109,14 @@ export interface AzothBrand {
   descriptor: string;
   accent: string;
   logo: string;
-  blurb: string;
-  /** Folder under work/ holding this brand's social posts (if any). */
-  work?: string;
+  /** The catalogue's one-line caption for the brand's mark. */
+  caption: string;
+  blurb?: string;
 }
 
-/** The family of brands grown under Azoth. */
+/** 03 — the family: the five lines proposed under the house (catalogue,
+ *  Sub-brands: "Mushroomworks, MycoActives, Kavaka, Lion's Mane, The
+ *  Naturalist"). Lion's Mane has no standalone mark — its node is its name. */
 export const AZOTH_BRANDS: AzothBrand[] = [
   {
     id: "naturalist",
@@ -58,27 +124,43 @@ export const AZOTH_BRANDS: AzothBrand[] = [
     descriptor: "Functional-mushroom nutraceuticals",
     accent: "#f2971e",
     logo: `${BRAND}/brands/naturalist.png`,
+    caption: "The field-notes voice.",
     blurb:
       "Cordyceps and lion's mane, reframed as everyday performance — an editorial social system that teaches the science while it sells.",
-    work: "naturalist",
   },
   {
     id: "mushroomworks",
     name: "Mushroomworks",
     descriptor: "Mycelium materials — packaging & vegan leather",
-    accent: "#147d6e",
+    accent: AZOTH_INK.teal,
     logo: `${BRAND}/brands/mushroomworks.png`,
+    caption: "The cap that grows into an arrow.",
     blurb:
       "Growing packaging and leather from mycelium — a brand for a material that replaces plastic and hide, told with hard numbers and clean product frames.",
-    work: "mushroomworks",
   },
   {
     id: "mycoactive",
-    name: "MycoActive",
+    name: "MycoActives",
     descriptor: "Active mushroom supplements",
-    accent: "#2f9e44",
+    accent: "#111111",
     logo: `${BRAND}/brands/mycoactive.png`,
-    blurb: "The supplement line of the family — identity set, social system in progress.",
+    caption: "Bolt-stemmed, energy-first.",
+  },
+  {
+    id: "kavaka",
+    name: "Kavaka",
+    descriptor: "Proposed line",
+    accent: "#111111",
+    logo: `${BRAND}/brands/kavaka.png`,
+    caption: "The Sanskrit name, drawn as a mark.",
+  },
+  {
+    id: "lions-mane",
+    name: "Lion's Mane",
+    descriptor: "Proposed line",
+    accent: "#5b2a86",
+    logo: "",
+    caption: "The nootropic line.",
   },
 ];
 
@@ -87,43 +169,36 @@ export const AZOTH_MYCOVEDA = {
   name: "Mycoveda",
   logo: `${BRAND}/brands/mycoveda.png`,
   note:
-    "Mycoveda sits apart — a separate client, for whom the brand is still in development. So far the identity is where the story starts and stops: the logo below is the finished piece; the rest of the world is still being built.",
+    "Mycoveda sits apart — a separate client, for whom the brand is still in development. So far the identity is where the story starts and stops: the logo is the finished piece; the rest of the world is still being built.",
 };
 
-/** The Azoth parent's own collateral (a curated glimpse). */
-export const AZOTH_PARENT_WORK = {
-  training: `${BASE}/work/azoth/training.webp`,
-};
-
-/** The rejected-logo exploration sheets — "there were a lot." */
-export const AZOTH_REJECTED = [
-  { name: "Azoth Biotech", src: `${BRAND}/rejected/azoth.webp` },
-  { name: "Mushroomworks", src: `${BRAND}/rejected/mushroomworks.webp` },
-  { name: "Mycoveda", src: `${BRAND}/rejected/mycoveda.webp` },
-];
-
-export const AZOTH_NATURALIST_ARTWORK = `${BRAND}/naturalist-artwork.webp`;
-
-const MARKS = `${BRAND}/marks`;
-
-/** The identity files the owner supplied on 2026-10-03, prepared by
- *  scripts/prepare-azoth-marks.mjs: the monogram, the sketch it was built
- *  from, and its three lockups. Sizes are the prepared files' own. */
-export const AZOTH_MARK = {
-  mark: { src: `${MARKS}/mark-black.webp`, w: 845, h: 1087 },
-  construction: { src: `${MARKS}/mark-construction.webp`, w: 1100, h: 1038 },
-  /** The logo's two inks, sampled from the colour lockup's flats. */
-  inks: [
-    { name: "Culture teal", hex: "#28A898" },
-    { name: "Lab navy", hex: "#283078" },
-  ],
-  /** Each on the plate it is meant for — the reversed one only reads on navy. */
-  lockups: [
-    { name: "Horizontal", src: `${MARKS}/lockup-horizontal-black.webp`, w: 433, h: 115, plate: "#f5f5f5" },
-    { name: "Horizontal, reversed", src: `${MARKS}/lockup-horizontal-white.webp`, w: 482, h: 123, plate: "#283078" },
-    { name: "Stacked, colour", src: `${MARKS}/lockup-stacked-colour.webp`, w: 647, h: 705, plate: "#ffffff" },
-  ],
-};
-
-/** Naturalist's Brain Fuel — the bottle and its label, as packaged. */
+/** 04 — Naturalist's brand board, and Brain Fuel as packaged. */
+export const AZOTH_NATURALIST_ARTWORK = { src: `${BRAND}/naturalist-artwork.webp`, w: 1600, h: 1688 };
 export const AZOTH_BRAIN_FUEL = { src: `${MARKS}/naturalist-brain-fuel.webp`, w: 800, h: 1422 };
+export const AZOTH_BRAIN_FUEL_NOTE =
+  "The first product to wear the system: a 100 ml nootropic tincture — Cordyceps militaris and Lion's Mane with L-Alpha GPC, L-Theanine and Bacopa. The label turns the wordmark on its side and lets one condensed line, Brain Fuel, do the talking; the rest stays white, like the lab it came from.";
+
+/** 05 — Mushroomworks' system sheet (catalogue). */
+export const AZOTH_MUSHROOMWORKS_SHEET = { src: `${CATALOGUE}/Sub-brands/mushroomworks-system.webp`, w: 2000, h: 2828 };
+
+/** 06 — the parent's own programme: training, and its festival moment. */
+export const AZOTH_HOUSE = {
+  line:
+    "Beyond the family brands, the parent ran its own programme — research, training and certification, held together by the same identity.",
+  pieces: [
+    { src: `${BASE}/work/azoth/training.webp`, w: 1080, h: 1350, caption: "Research projects & dissertation — the training programme." },
+    {
+      src: `${CATALOGUE}/Brand Identity/dusshera-campaign-post.webp`,
+      w: 1600,
+      h: 2000,
+      caption: "Dusshera, said in brand language: strike out your daemons.",
+    },
+  ],
+};
+
+/** 07 — the exploration sheets — "there were a lot." */
+export const AZOTH_REJECTED = [
+  { name: "Azoth Biotech", src: `${BRAND}/rejected/azoth.webp`, w: 1400, h: 1980 },
+  { name: "Mushroomworks", src: `${BRAND}/rejected/mushroomworks.webp`, w: 1400, h: 1980 },
+  { name: "Mycoveda", src: `${BRAND}/rejected/mycoveda.webp`, w: 1400, h: 1980 },
+];

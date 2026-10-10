@@ -143,24 +143,73 @@ canvas {
   font-family: var(--font-barlow), "Helvetica Neue", Arial, ui-sans-serif, sans-serif;
 }
 
-/* ⚠ THE LANDING'S FACE OVERRIDE — one rule, switched by UNIFY_FACES_ON_HOME
- * (src/constants/faces.ts), which decides whether <main> carries this class.
- * The owner asked on 2026-08-25 to see the landing with every Juturu word in
- * Digibra, and to be able to go back cheaply.
+/* The Azoth page's three voices (2026-10-06), written out longhand like
+ * .font-abs above so the scanner cannot drop them:
+ *   · .az-wide — Michroma, the wide technical sans the site gives Azoth
+ *     (layout.tsx): chapter numbers and labels, echoing the extended AZOTH
+ *     wordmark. One weight; short lines only.
+ *   · .az-text — Barlow, a low-contrast grotesk, for headlines and body.
+ *   · .az-mono — IBM Plex Mono for the lab data: hexes, counts, captions.
+ * Grotesque and mono fallbacks only — a serif would re-voice the page while
+ * the webfonts load. */
+.az-wide {
+  font-family: var(--font-michroma), "Helvetica Neue", Arial, sans-serif;
+}
+.az-text {
+  font-family: var(--font-barlow), "Helvetica Neue", Arial, ui-sans-serif, sans-serif;
+}
+.az-mono {
+  font-family: var(--font-plex-mono), ui-monospace, "SFMono-Regular", monospace;
+}
+
+/* ⚠ THE HOME PAGE'S TYPE — three faces, and where each one lives (owner,
+ * 2026-10-04). Scoped to the home page by `.type-home` on its <main> (see
+ * src/constants/faces.ts); the Tata page and every other page keep their own.
  *
- * ⚠ It sets FONT-FAMILY ONLY. Colour was explicitly excluded — `imagine` keeps
- * its rainbow and every other `.font-graff` element keeps the colour it had.
+ *   · HELVETICA for everything — subheadings, body, labels, the name.
+ *   · DIGIBRA only where `.face-logic` says so: the PORTFOLIO 2026 mark and
+ *     the LEFT section names (the logic pins, their rooms' titles).
+ *   · SYNE only where `.face-creative` says so: the RIGHT section names (the
+ *     creative pins, their rooms' titles) and "Right". Chosen to replace the
+ *     right side's script and its Digibra stand-in: Syne keeps Digibra's wide
+ *     geometric frame but draws it with an artist's hand, so the two halves
+ *     read as twins — square for logic, quirky for creative.
  *
- * ⚠ Scoped to the landing on purpose. `font-graff` is used on client pages and
- * inside the section panels too; overriding the token itself would re-voice the
- * whole site rather than the one page that was asked about.
+ * ⚠ Unlayered on purpose: Tailwind's utilities (`font-digibra`, `font-graff`,
+ * the voice classes) live in a cascade layer, and an unlayered rule beats any
+ * layered one, so this needs no !important and no class surgery to win.
+ * `:where(*)` keeps the blanket rule at one class of specificity, so the two
+ * face classes (two) always beat it, on the element and inside it.
  *
- * ⚠ This also reaches the HERO WORD, which is the point but is worth knowing:
- * ThinkMesh rasterises from `getComputedStyle(el).font`, so the mesh follows
- * this automatically — and the ink metrics in HeroName have to follow it too,
- * which is why the same flag drives both. */
-.faces-unified .font-graff {
+ * ⚠ Helvetica is not installed on most Windows machines, and Chrome does not
+ * map "Helvetica" to an installed "Helvetica LT Std" — so that family is named
+ * too. Visitors with neither see Arial; serving Helvetica to them would need a
+ * web licence for the files. */
+.type-home,
+.type-home :where(*) {
+  font-family: Helvetica, "Helvetica Neue", "Helvetica LT Std", Arial, ui-sans-serif, sans-serif;
+}
+.type-home .face-logic,
+.type-home .face-logic :where(*) {
   font-family: "Digibra", ui-sans-serif, system-ui, sans-serif;
+}
+.type-home .face-creative,
+.type-home .face-creative :where(*) {
+  font-family: var(--font-syne), "Helvetica Neue", Helvetica, Arial, sans-serif;
+}
+/* The name on the orb slide, in Digibra — "Shrey" in Black, "Singh" in Light
+ * (owner, 2026-10-05). ⚠ DIGIBRA HAS ONE WEIGHT (one file, /fonts/digibra.woff2),
+ * so both are drawn from it, as vectors and in em, so they hold at any size:
+ *   · Black — the glyphs stroked in their own colour, which thickens every
+ *     line by the stroke on each side.
+ *   · Light — the face as drawn: Digibra is a thin monoline already.
+ * The browser's own fake bold is switched off; it smears rather than builds. */
+.type-home .digibra-black {
+  -webkit-text-stroke: 0.06em currentColor;
+  font-synthesis: none;
+}
+.type-home .digibra-light {
+  font-synthesis: none;
 }
 
 /*
@@ -268,6 +317,29 @@ canvas {
 .tata-scope .font-hand-brand {
   font-family: "Helvetica Cond", "Helvetica LT Std Cond", "Arial Narrow", Helvetica,
     Arial, ui-sans-serif, sans-serif;
+}
+
+/* The Tata page's moving walls (MockupWall, 2026-10-05): a track of two
+ * identical runs slid one run's width, forever, so the second lands exactly
+ * where the first began. `--drift` is the loop's length, set per row. The
+ * whole wall stops while it is pointed at or focused inside, so a piece can
+ * be read and clicked; reduced motion stops it outright. */
+@keyframes tata-drift {
+  from { transform: translate3d(0, 0, 0); }
+  to { transform: translate3d(-50%, 0, 0); }
+}
+.tata-drift {
+  animation: tata-drift var(--drift, 90s) linear infinite;
+}
+.tata-drift[data-reverse="true"] {
+  animation-direction: reverse;
+}
+.tata-drift-wall:hover .tata-drift,
+.tata-drift-wall:focus-within .tata-drift {
+  animation-play-state: paused;
+}
+@media (prefers-reduced-motion: reduce) {
+  .tata-drift { animation: none; }
 }
 
 /* RIGHT nav — a slow painted gradient in the creative palette that never sits
@@ -418,4 +490,65 @@ canvas {
   0%   { clip-path: inset(0 92% 100% 0); }
   55%  { clip-path: inset(0 92% 0 0); }
   100% { clip-path: inset(0 0 0 0); }
+}
+
+/* ── ScreenGuard (owner, 2026-10-05: "disable screenshotting on my website
+ * throughout"). A page cannot stop a screenshot — see the component — so
+ * these are deterrents, site-wide:
+ *   · html[data-shield] — raised by ScreenGuard on the screenshot keys the
+ *     browser hears: the whole page goes dark, with one line on it, so the
+ *     capture comes out black. Instant: no transition, or the capture could
+ *     land mid-fade.
+ *   · Printing comes out blank but for one line.
+ *   · No selecting text (fields and the email link excepted), no dragging an
+ *     image out, no long-press "save image" on a phone. */
+/* ⚠ An OPAQUE LAYER over everything, not the page hidden: parts of the page
+ * set their own `visibility` (the landing's motion layers do, inline), which
+ * would show straight through a hidden parent. Nothing escapes a fixed layer
+ * painted last at the top z-index; opacity 0 underneath is belt and braces. */
+html[data-shield] body > * {
+  opacity: 0 !important;
+}
+html[data-shield] body::after {
+  content: "Screenshots are disabled on this site";
+  position: fixed;
+  inset: 0;
+  z-index: 2147483647;
+  background: #050505;
+  display: grid;
+  place-items: center;
+  color: #e5e5e5;
+  font: 500 0.72rem/1.4 Helvetica, Arial, sans-serif;
+  letter-spacing: 0.24em;
+  text-transform: uppercase;
+}
+@media print {
+  body > * {
+    display: none !important;
+  }
+  body::after {
+    content: "Printing is disabled on this site — shrey107.com";
+    display: block;
+    padding: 4rem;
+    font: 500 12pt Helvetica, Arial, sans-serif;
+  }
+}
+body {
+  -webkit-user-select: none;
+  user-select: none;
+  -webkit-touch-callout: none;
+}
+input,
+textarea,
+select,
+[contenteditable],
+a[href^="mailto:"] {
+  -webkit-user-select: text;
+  user-select: text;
+}
+img,
+video,
+svg {
+  -webkit-user-drag: none;
+  -webkit-touch-callout: none;
 }

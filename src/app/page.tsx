@@ -22,7 +22,7 @@
 
 import { HeroStage } from "@/components/home/HeroStage";
 import { Flythrough } from "@/components/home/Flythrough";
-import { UNIFY_FACES_ON_HOME } from "@/constants/faces";
+import { HOME_TYPE } from "@/constants/faces";
 import { SiteFooter } from "@/components/footer/SiteFooter";
 import {
   readArtCollections,
@@ -65,7 +65,7 @@ export default function Home() {
 
   return (
     <main
-      className={`w-full bg-gallery ${UNIFY_FACES_ON_HOME ? "faces-unified" : ""}`}
+      className={`w-full bg-gallery ${HOME_TYPE}`}
     >
       <Flythrough
         data={{ logos, artCollections, publicationCovers, studyPlates, markPlates }}

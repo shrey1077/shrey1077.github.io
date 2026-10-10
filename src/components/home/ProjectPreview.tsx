@@ -113,18 +113,18 @@ export function ProjectPreview({
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
           transition={{ duration: DURATION.fast, ease: EASE_OUT }}
-          className="fixed inset-0 flex flex-col bg-neutral-950/97 backdrop-blur-sm"
+          className="fixed inset-0 flex flex-col bg-gallery"
           style={{ zIndex: Z_INDEX.viewer }}
           onClick={onClose}
         >
           <div className="flex shrink-0 items-center justify-between px-6 pt-5 sm:px-10">
-            <span className={`${META} text-[0.6rem] text-white/40`}>Projects — independent</span>
+            <span className={`${META} text-[0.6rem] text-neutral-500`}>Projects — independent</span>
             <button
               ref={closeRef}
               type="button"
               onClick={onClose}
               aria-label="Close preview"
-              className={`${META} rounded px-2 py-1 text-xs text-white/55 outline-none transition-colors duration-300 hover:text-white focus-visible:text-white focus-visible:ring-2 focus-visible:ring-white/40`}
+              className={`${META} rounded px-2 py-1 text-xs text-neutral-500 outline-none transition-colors duration-300 hover:text-neutral-900 focus-visible:text-neutral-900 focus-visible:ring-2 focus-visible:ring-neutral-900/30`}
             >
               Close ✕
             </button>
@@ -145,7 +145,7 @@ export function ProjectPreview({
                 // line of type. At `lg` the column is already ~283 so the cap
                 // never bites there.
                 className={`relative flex aspect-[3/2] w-full max-w-[300px] items-center justify-center overflow-hidden rounded-2xl lg:max-w-none ${
-                  study.logoTone === "light" ? "bg-neutral-900" : "bg-white/92"
+                  study.logoTone === "light" ? "bg-neutral-900" : "bg-white ring-1 ring-neutral-900/[0.07]"
                 }`}
               >
                 {study.logo ? (
@@ -169,7 +169,7 @@ export function ProjectPreview({
                 <span className={`${META} block text-[0.6rem]`} style={{ color: study.accent }}>
                   {study.kind}
                 </span>
-                <h2 className="mt-2 text-[clamp(1.35rem,2.4vw,1.9rem)] font-semibold leading-[1.08] tracking-[-0.02em] text-white">
+                <h2 className="mt-2 text-[clamp(1.35rem,2.4vw,1.9rem)] font-semibold leading-[1.08] tracking-[-0.02em] text-neutral-900">
                   {study.name}
                 </h2>
                 <span
@@ -181,18 +181,18 @@ export function ProjectPreview({
 
               <dl className="flex flex-col gap-2 text-[0.72rem]">
                 <div className="flex gap-3">
-                  <dt className={`${META} w-16 shrink-0 text-white/35`}>Pieces</dt>
-                  <dd className="text-white/70 tabular-nums">{plates.length}</dd>
+                  <dt className={`${META} w-16 shrink-0 text-neutral-400`}>Pieces</dt>
+                  <dd className="text-neutral-700 tabular-nums">{plates.length}</dd>
                 </div>
                 {study.site && (
                   <div className="flex gap-3">
-                    <dt className={`${META} w-16 shrink-0 text-white/35`}>Site</dt>
+                    <dt className={`${META} w-16 shrink-0 text-neutral-400`}>Site</dt>
                     <dd>
                       <a
                         href={`https://${study.site}`}
                         target="_blank"
                         rel="noreferrer noopener"
-                        className="text-white/70 underline decoration-white/25 underline-offset-4 transition-colors duration-200 hover:text-white"
+                        className="text-neutral-700 underline decoration-neutral-900/25 underline-offset-4 transition-colors duration-200 hover:text-neutral-900"
                       >
                         {study.site}
                       </a>
@@ -204,18 +204,18 @@ export function ProjectPreview({
 
             {/* ── RIGHT: the words (floated third) ──────────────────────── */}
             <div className="mb-6 flex flex-col gap-5 lg:mb-4 lg:ml-8 lg:float-right lg:w-[30%]">
-              <p className="text-[clamp(1.05rem,1.9vw,1.4rem)] font-medium leading-[1.25] tracking-[-0.01em] text-white">
+              <p className="text-[clamp(1.05rem,1.9vw,1.4rem)] font-medium leading-[1.25] tracking-[-0.01em] text-neutral-900">
                 {study.headline}
               </p>
               <div>
-                <span className={`${META} block text-[0.58rem] text-white/35`}>The challenge</span>
-                <p className="mt-2 text-[0.85rem] leading-relaxed text-white/70">
+                <span className={`${META} block text-[0.58rem] text-neutral-400`}>The challenge</span>
+                <p className="mt-2 text-[0.85rem] leading-relaxed text-neutral-700">
                   {study.challenge}
                 </p>
               </div>
               <div>
-                <span className={`${META} block text-[0.58rem] text-white/35`}>What was made</span>
-                <p className="mt-2 text-[0.85rem] leading-relaxed text-white/70">
+                <span className={`${META} block text-[0.58rem] text-neutral-400`}>What was made</span>
+                <p className="mt-2 text-[0.85rem] leading-relaxed text-neutral-700">
                   {study.description}
                 </p>
               </div>
@@ -257,7 +257,7 @@ export function ProjectPreview({
                 ))}
               </div>
             ) : (
-              <p className={`${META} py-10 text-center text-white/40`}>
+              <p className={`${META} py-10 text-center text-neutral-400`}>
                 No pieces for this one yet.
               </p>
             )}

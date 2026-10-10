@@ -21,11 +21,12 @@
  * brief is "slightly visible", meaning the ground should keep the upper hand.
  * PARTICLE_OPACITY is the one number to turn if it wants to be stronger.
  *
- * ⚠ WHITE, NOT YELLOW — the owner's instruction. Both `baseColor` and
- * `accentColor` are white now. The two are not redundant: `accentColor` is what
- * a dot mixes toward when the pointer is near it, and the shader ALSO ramps
- * alpha (0.4 at rest to 1.0 lit), so the pointer still reads as a brightening
- * even with no hue difference between the two.
+ * ⚠ DARK GREY since 2026-10-05, when the logic rooms took the landing's white
+ * ground (owner: "color of falling nodes and lines will be dark grey"). White,
+ * not yellow, before that, over the dark circuit board. `accentColor` is what
+ * a dot mixes toward when the pointer is near it — a shade darker — and the
+ * shader ALSO ramps alpha (0.4 at rest to 1.0 lit), so the pointer still
+ * reads as a darkening.
  *
  * ⚠ LOGIC ROOMS ONLY. The creative rooms run the paint film at full strength
  * with no scrim, and a white particle field over thrown paint reads as dirt on
@@ -50,8 +51,12 @@ const ParticleDrift = dynamic(() => import("@/components/originkit/ParticleDrift
   ssr: false,
 });
 
-/** How far the field is held back so the circuit ground still leads. */
-const PARTICLE_OPACITY = 0.45;
+/** How far the field is held back so the ground still leads. A touch more than
+ *  the 0.45 it was over the dark board: grey on white carries less. */
+const PARTICLE_OPACITY = 0.6;
+/** The field's greys (neutral-600, and neutral-800 near the pointer). */
+const NODE = "#525252";
+const NODE_LIT = "#262626";
 
 export function SectionParticles() {
   const reduceMotion = useReducedMotion();
@@ -65,8 +70,8 @@ export function SectionParticles() {
     >
       <ParticleDrift
         background="transparent"
-        baseColor="#FFFFFF"
-        accentColor="#FFFFFF"
+        baseColor={NODE}
+        accentColor={NODE_LIT}
       />
     </div>
   );

@@ -23,6 +23,9 @@ export interface TataSubsection {
   pick?: string[];
   /** Shown on a pending tile in place of a preview. */
   note?: string;
+  /** Where the work itself lives, when it is live outside the site (opens in
+   *  a new tab). */
+  href?: string;
 }
 
 export interface TataSection {
@@ -138,8 +141,10 @@ export const TATA_SECTIONS: TataSection[] = [
     blurb: "Tools built to take the repetitive work off the studio's hands.",
     accent: "#1F5FA8",
     items: [
-      { label: "Cerci — Certificate Maker", note: "No source files supplied yet." },
-      { label: "H3LEN — Hyper 3D Landscape Environment", note: "No source files supplied yet." },
+      // Shown in 08 (ToolsWall, TATA_TOOL_SHOTS), 2026-10-05.
+      { label: "Cerci — Certificate Maker" },
+      // The 3D campus viewer, deployed on its own (owner, 2026-10-05).
+      { label: "H3LEN — Hyper 3D Landscape Environment", href: "https://h3len.netlify.app/" },
       { label: "Screensaver", note: "No source files supplied yet." },
     ],
   },

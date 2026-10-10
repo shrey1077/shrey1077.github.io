@@ -33,8 +33,25 @@
  * are not on the orb slide. It renders two siblings: the LINES, with no
  * z-index, which HeroStage places BEFORE the footage so the brain paints over
  * them (they leave from behind it, like the pins' runs); and the TEXT at z-30,
- * over everything. Each block stands at mid-height in the gap between the
- * brain and its arc of pins (BrainPins ARC) — see LEFT_SLOT / RIGHT_SLOT.
+ * over everything.
+ *
+ * ⚠ FACES (owner, 2026-10-04): "Left", its "brain"s and every line are in
+ * the home page's Helvetica; "Right" is in Syne, the creative side's face —
+ * it was a script (Great Vibes) until then. See .type-home in globals.css.
+ *
+ * ⚠ SET IN A ROW, IN THE PINS' COLUMN (owner, 2026-10-04): the pins moved
+ * apart to open the middle of each column, and each voice stands there as
+ * "Left brain" | a vertical rule | its lines — mirrored on the right, lines |
+ * rule | "Right brain". The lines are sized so the five of them stand EXACTLY
+ * as tall as the headline beside them: the headline is measured, and the body
+ * size is that height ÷ (lines × line-height). The circuit trace and the spark
+ * now land on the block's inner edge, not on the word, so they never cross
+ * the lines. Until then each block was a stacked column between the brain and
+ * the pins (LEFT_SLOT / RIGHT_SLOT had a width); git has it.
+ *
+ * ⚠ SMALLER since 2026-10-10 (owner): "Left" / "Right" at about 70% of the
+ * size they were (clamp 2.6–6rem → 1.85–4.2rem), "brain" with them. The
+ * lines follow on their own — they are sized off the headline's height.
  */
 
 import { useEffect, useRef, useState } from "react";
@@ -67,17 +84,15 @@ const PAINT = ["#ff2e8b", "#ff5a3c", "#ff8a00", "#f5c518", "#7fbf2e", "#00a6a6",
 /** The same hues taken deep enough to read as small serif type on white. */
 const INK = ["#c2185b", "#d84315", "#c77800", "#558b2f", "#00796b", "#2e50b8", "#6a3aa0"];
 
-/** Where each block stands: a full-height slot, the block centred in it, in
- *  the gap between the brain and its arc of pins (owner, 2026-10-03: "between
- *  brain and sections area, in middle height of screen").
- *  The slot starts just clear of the arc's two middle pins — 3vw in, and as
- *  wide as the widest of them plus air (the logic pills reach ~202px, the
- *  artworks ~254px) — or at 18.5vw, whichever is further in; that keeps it
- *  off the brain's body (which starts ~34vw in from either side) on any
- *  stage from 1280 up. Below that the text runs onto the brain's edge. */
-const SLOT_W = "clamp(11rem, 14vw, 16rem)";
-const LEFT_SLOT: React.CSSProperties = { left: "max(18.5vw, calc(3vw + 14.5rem))", width: SLOT_W };
-const RIGHT_SLOT: React.CSSProperties = { right: "max(18.5vw, calc(3vw + 17.5rem))", width: SLOT_W };
+/** Where each block stands: a full-height slot, the block centred in it, on
+ *  the outer edge of the pins' column — 3vw, the edge the arc's two middle
+ *  pins share — in the gap BrainPins' ARC leaves between them. */
+const LEFT_SLOT: React.CSSProperties = { left: "3vw" };
+const RIGHT_SLOT: React.CSSProperties = { right: "3vw" };
+/** The body's line height; the lines' size is derived from it (see above). */
+const BODY_LEADING = 1.3;
+/** Until the headline is measured: the size the lines were set at before. */
+const BODY_FALLBACK = "clamp(0.74rem, 0.95vw, 1rem)";
 /** A soft ground-coloured halo, so the small lines read over the brain's
  *  circuitry, the splash and the pins' runs behind them. ⚠ Never on the
  *  painted "Right" — `bg-clip-text` type is transparent, and a shadow would
@@ -124,7 +139,7 @@ function anchorOf(root: HTMLElement, word: HTMLElement, edge: "left" | "right"):
     y += el.offsetTop;
     el = el.offsetParent as HTMLElement | null;
   }
-  return { x: x + (edge === "right" ? word.offsetWidth : 0), y: y + word.offsetHeight * 0.55 };
+  return { x: x + (edge === "right" ? word.offsetWidth : 0), y: y + word.offsetHeight * 0.5 };
 }
 
 /** The logic side's line: a circuit trace — straight out of the brain, one 45°
@@ -197,6 +212,27 @@ export function LeftRightBrain({
   const rightBlockRef = useRef<HTMLDivElement>(null);
   const leftWordRef = useRef<HTMLSpanElement>(null);
   const rightWordRef = useRef<HTMLSpanElement>(null);
+  const leftHeadRef = useRef<HTMLParagraphElement>(null);
+  const rightHeadRef = useRef<HTMLParagraphElement>(null);
+  /** Each headline's height, px — the lines beside it are sized to match. */
+  const [headH, setHeadH] = useState<{ left: number; right: number }>({ left: 0, right: 0 });
+
+  useEffect(() => {
+    const l = leftHeadRef.current;
+    const r = rightHeadRef.current;
+    if (!l || !r) return;
+    const read = () =>
+      setHeadH((prev) =>
+        prev.left === l.offsetHeight && prev.right === r.offsetHeight
+          ? prev
+          : { left: l.offsetHeight, right: r.offsetHeight },
+      );
+    const ro = new ResizeObserver(read);
+    ro.observe(l);
+    ro.observe(r);
+    return () => ro.disconnect();
+  }, []);
+  const bodySize = (h: number, n: number) => (h ? `${h / (n * BODY_LEADING)}px` : BODY_FALLBACK);
 
   const [geo, setGeo] = useState<Geo | null>(null);
   const [leftOn, setLeftOn] = useState(false);
@@ -246,8 +282,10 @@ export function LeftRightBrain({
         w,
         h,
         centre: c,
-        left: anchorOf(root, lw, "right"),
-        right: anchorOf(root, rw, "left"),
+        // The blocks' INNER edges — the lines stand between the word and the
+        // brain now, and the trace must not cross them.
+        left: anchorOf(root, lb, "right"),
+        right: anchorOf(root, rb, "left"),
       };
       geoRef.current = next;
       setGeo((prev) =>
@@ -450,13 +488,23 @@ export function LeftRightBrain({
       <div className="absolute inset-y-0 hidden flex-col justify-center lg:flex" style={LEFT_SLOT}>
       <motion.div
         ref={leftBlockRef}
-        className="relative text-left"
+        className="relative flex items-stretch gap-4 text-left xl:gap-5"
         style={{ z: leftZ, filter: leftBlur }}
       >
-        <motion.p style={{ opacity: leftFade }} className="leading-none">
+        {/* A 50% white band behind the voice, from the screen's edge to just
+            past its lines, so they read over the brain's tracery — there only
+            while the lines are (owner, 2026-10-04). */}
+        <motion.span
+          aria-hidden
+          className="pointer-events-none absolute -inset-y-4 -z-10 block bg-white/50 -left-[3vw] -right-6"
+          initial={false}
+          animate={{ opacity: leftShown ? 1 : 0 }}
+          transition={{ duration: 0.45, ease: EASE_OUT, delay: leftShown ? after : 0 }}
+        />
+        <motion.p ref={leftHeadRef} style={{ opacity: leftFade }} className="shrink-0 self-center leading-none">
           <motion.span
             ref={leftWordRef}
-            className="font-lr-grotesk inline-block text-[clamp(2.6rem,5.4vw,6rem)] font-extrabold leading-[0.9] tracking-[-0.035em]"
+            className="font-lr-grotesk inline-block text-[clamp(1.85rem,3.8vw,4.2rem)] font-extrabold leading-[0.9] tracking-[-0.035em]"
             initial={false}
             animate={{ color: leftShown ? "#0a0a0a" : "#9ca3af" }}
             transition={{ duration: 0.4, delay: leftShown ? after : 0 }}
@@ -464,7 +512,7 @@ export function LeftRightBrain({
             {LEFT_BRAIN.word}
           </motion.span>
           <motion.span
-            className="font-lr-grotesk mt-1 block text-[clamp(1rem,1.75vw,1.9rem)] font-light leading-none"
+            className="font-lr-grotesk mt-1 block text-[clamp(0.75rem,1.25vw,1.35rem)] font-light leading-none"
             initial={false}
             animate={{ color: leftShown ? "#262626" : "#a3a3a3" }}
             transition={{ duration: 0.4, delay: leftShown ? after : 0 }}
@@ -472,7 +520,18 @@ export function LeftRightBrain({
             brain
           </motion.span>
         </motion.p>
-        <div className={`font-lr-serif mt-2 text-[clamp(0.74rem,0.95vw,1rem)] leading-[1.3] text-neutral-800 ${HALO}`}>
+        {/* The rule between the word and its lines. */}
+        <motion.span
+          aria-hidden
+          className="block w-px shrink-0 origin-top bg-neutral-900"
+          initial={false}
+          animate={{ scaleY: leftShown ? 1 : 0.35, opacity: leftShown ? 1 : 0.25 }}
+          transition={{ duration: 0.45, ease: EASE_OUT, delay: leftShown ? after : 0 }}
+        />
+        <div
+          className={`font-lr-serif self-center whitespace-nowrap text-neutral-800 ${HALO}`}
+          style={{ fontSize: bodySize(headH.left, LEFT_BRAIN.lines.length), lineHeight: BODY_LEADING }}
+        >
           {LEFT_BRAIN.lines.map((line, i) => (
             <motion.p
               key={i}
@@ -495,37 +554,23 @@ export function LeftRightBrain({
       <div className="absolute inset-y-0 hidden flex-col justify-center lg:flex" style={RIGHT_SLOT}>
       <motion.div
         ref={rightBlockRef}
-        className="relative text-right"
+        className="relative flex items-stretch gap-4 text-right xl:gap-5"
         style={{ z: rightZ, filter: rightBlur }}
       >
-        <motion.p style={{ opacity: rightFade }} className="leading-none">
-          <span ref={rightWordRef} className="relative inline-block">
-            <span className="font-lr-script block px-[0.15em] text-[clamp(3.2rem,6.6vw,7.4rem)] leading-[0.95] text-neutral-400">
-              {RIGHT_BRAIN.word}
-            </span>
-            {/* The painted word, crossfaded over the grey one. ⚠ Opacity on
-                this layer, never an alpha on its text colour — `bg-clip-text`
-                text is transparent, and dimming it that way kills the clip. */}
-            <motion.span
-              aria-hidden
-              className="brain-paint font-lr-script absolute inset-0 block bg-clip-text px-[0.15em] text-[clamp(3.2rem,6.6vw,7.4rem)] leading-[0.95] text-transparent"
-              initial={false}
-              animate={{ opacity: rightShown ? 1 : 0 }}
-              transition={{ duration: 0.45, delay: rightShown ? after : 0 }}
-            >
-              {RIGHT_BRAIN.word}
-            </motion.span>
-          </span>
-          <motion.span
-            className="font-lr-grotesk -mt-1 block text-[clamp(1rem,1.75vw,1.9rem)] font-light leading-none"
-            initial={false}
-            animate={{ color: rightShown ? "#3f6ad8" : "#a3a3a3" }}
-            transition={{ duration: 0.4, delay: rightShown ? after : 0 }}
-          >
-            brain
-          </motion.span>
-        </motion.p>
-        <div className={`font-lr-serif mt-2 text-[clamp(0.74rem,0.95vw,1rem)] leading-[1.3] ${HALO}`}>
+        {/* A 50% white band behind the voice, from the screen's edge to just
+            past its lines, so they read over the brain's tracery — there only
+            while the lines are (owner, 2026-10-04). */}
+        <motion.span
+          aria-hidden
+          className="pointer-events-none absolute -inset-y-4 -z-10 block bg-white/50 -right-[3vw] -left-6"
+          initial={false}
+          animate={{ opacity: rightShown ? 1 : 0 }}
+          transition={{ duration: 0.45, ease: EASE_OUT, delay: rightShown ? after : 0 }}
+        />
+        <div
+          className={`font-lr-serif self-center whitespace-nowrap ${HALO}`}
+          style={{ fontSize: bodySize(headH.right, RIGHT_BRAIN.lines.length), lineHeight: BODY_LEADING }}
+        >
           {RIGHT_BRAIN.lines.map((line, i) => (
             <motion.p
               key={i}
@@ -542,6 +587,41 @@ export function LeftRightBrain({
             </motion.p>
           ))}
         </div>
+        {/* The rule between the lines and the word — in paint once struck. */}
+        <motion.span
+          aria-hidden
+          className={`block w-px shrink-0 origin-top ${rightShown ? "brain-paint" : "bg-neutral-900"}`}
+          initial={false}
+          animate={{ scaleY: rightShown ? 1 : 0.35, opacity: rightShown ? 1 : 0.25 }}
+          transition={{ duration: 0.45, ease: EASE_OUT, delay: rightShown ? after : 0 }}
+        />
+        <motion.p ref={rightHeadRef} style={{ opacity: rightFade }} className="shrink-0 self-center leading-none">
+          <span ref={rightWordRef} className="relative inline-block">
+            <span className="face-creative block text-[clamp(1.85rem,3.8vw,4.2rem)] font-bold leading-[0.9] tracking-[-0.03em] text-neutral-400">
+              {RIGHT_BRAIN.word}
+            </span>
+            {/* The painted word, crossfaded over the grey one. ⚠ Opacity on
+                this layer, never an alpha on its text colour — `bg-clip-text`
+                text is transparent, and dimming it that way kills the clip. */}
+            <motion.span
+              aria-hidden
+              className="brain-paint face-creative absolute inset-0 block bg-clip-text text-[clamp(1.85rem,3.8vw,4.2rem)] font-bold leading-[0.9] tracking-[-0.03em] text-transparent"
+              initial={false}
+              animate={{ opacity: rightShown ? 1 : 0 }}
+              transition={{ duration: 0.45, delay: rightShown ? after : 0 }}
+            >
+              {RIGHT_BRAIN.word}
+            </motion.span>
+          </span>
+          <motion.span
+            className="font-lr-grotesk mt-1 block text-[clamp(0.75rem,1.25vw,1.35rem)] font-light leading-none"
+            initial={false}
+            animate={{ color: rightShown ? "#3f6ad8" : "#a3a3a3" }}
+            transition={{ duration: 0.4, delay: rightShown ? after : 0 }}
+          >
+            brain
+          </motion.span>
+        </motion.p>
       </motion.div>
       </div>
 
@@ -549,7 +629,7 @@ export function LeftRightBrain({
           brain, so the headlines sit above it and the reached side's lines
           set in the open band beneath it. A tap on a side reaches it. */}
       {/* ⚠ Placed BELOW the wordmark — its top (3.2%), its size
-          (max(1.9rem, 4.6vw)) and its name line (~2.4rem), all from HeroStage —
+          (max(1.9rem, 4.6vw)) and its edition line (~2.4rem), all from HeroStage —
           so the headlines clear it at every width now that it is twice the
           size it was. */}
       <div aria-hidden className="absolute inset-x-0 top-[calc(3.2%+max(1.9rem,4.6vw)+2.4rem)] flex justify-between px-5 sm:px-12 lg:hidden">
@@ -559,7 +639,7 @@ export function LeftRightBrain({
           animate={{ opacity: leftOn ? 1 : rightOn ? 0.3 : 0.75, scale: leftOn ? 1.1 : 1 }}
           transition={{ duration: 0.4, ease: EASE_OUT }}
         >
-          <span className="block text-[2.2rem] font-extrabold tracking-[-0.03em] sm:text-[3.4rem]">
+          <span className="block text-[1.6rem] font-extrabold tracking-[-0.03em] sm:text-[2.4rem]">
             {LEFT_BRAIN.word}
           </span>
           <span className="block text-sm font-light sm:text-lg">brain</span>
@@ -570,7 +650,7 @@ export function LeftRightBrain({
           animate={{ opacity: rightOn ? 1 : leftOn ? 0.3 : 0.75, scale: rightOn ? 1.1 : 1 }}
           transition={{ duration: 0.4, ease: EASE_OUT }}
         >
-          <span className="brain-paint font-lr-script block bg-clip-text px-[0.1em] text-[2.8rem] text-transparent sm:text-[4.2rem]">
+          <span className="brain-paint face-creative block bg-clip-text text-[1.6rem] font-bold leading-none tracking-[-0.03em] text-transparent sm:text-[2.4rem]">
             {RIGHT_BRAIN.word}
           </span>
           <span className="font-lr-grotesk block text-sm font-light text-neutral-600 sm:text-lg">brain</span>

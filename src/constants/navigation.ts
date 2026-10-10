@@ -6,7 +6,19 @@
  * (PreviewPane), and the section titles. Adding/reordering a section is a
  * one-line change here; no component needs editing.
  *
- * Left hemisphere = logic. Right hemisphere = creativity. Four sections each.
+ * Left hemisphere = logic. Right hemisphere = creativity.
+ *
+ * ⚠ THREE SECTIONS A SIDE since 2026-10-10 (owner). It was four:
+ *   left   Clients · Projects · My Stack          (Logofolio and Career Path out;
+ *                                                   My Stack in — the tools that
+ *                                                   stood on the landing's first
+ *                                                   slide moved into it)
+ *   right  AI Videos · Arts & Crafts · The Extincts Project
+ *                                                  (Publications and AI
+ *                                                   Generations & Ideas out; AI
+ *                                                   Videos in, its films to come)
+ * The rooms that went keep their renderers (LogofolioWall, CareerTimeline,
+ * PublicationShelf) and their ids in NavSectionId; git has their entries.
  */
 
 import type { NavSection, NavSectionId } from "@/types/navigation";
@@ -34,46 +46,34 @@ export const NAV_SECTIONS: readonly NavSection[] = [
     tagline: "Ideas / Execution / Outcomes",
   },
   {
-    id: "logofolio",
-    label: "Logofolio",
+    id: "my-stack",
+    label: "My Stack",
     hemisphere: "left",
     order: 2,
-    kind: "coming-soon",
-    description: "Marks, monograms, and identity systems in one place.",
-    tagline: "Marks / Identities / Systems",
-  },
-  {
-    id: "career-path",
-    label: "Career Path",
-    hemisphere: "left",
-    order: 3,
-    kind: "coming-soon",
-    description: "The route so far — roles, milestones, and turns.",
-    tagline: "Journey / Milestones / Growth",
+    kind: "gallery",
+    description: "The tools behind the work — for design, for generating images and film, and for building.",
+    tagline: "Design / Generate / Build",
   },
 
   // Right — creativity / art.
-  // ⚠ Art and Publications draw their own bodies (SectionBody's OWN_RENDERER),
-  // so `kind` never reaches `cellsFor` for either. "gallery" is the honest label
-  // now that both have real content behind them; leaving them "coming-soon"
-  // would only mislead the next reader of this file.
+  // ⚠ Arts & Crafts (id `art`) and the Extincts draw their own bodies
+  // (SectionBody's OWN_RENDERER), so `kind` never reaches `cellsFor` for them.
   {
-    id: "art",
-    label: "Art",
+    id: "ai-videos",
+    label: "AI Videos",
     hemisphere: "right",
     order: 0,
-    kind: "gallery",
-    description:
-      "Drawings, paintings and studies away from the screen — sketchbooks, observational work, and things made by hand.",
+    kind: "coming-soon",
+    description: "Films and motion made with AI. The reel is on its way.",
   },
   {
-    id: "publications",
-    label: "Publications",
+    id: "art",
+    label: "Arts & Crafts",
     hemisphere: "right",
     order: 1,
     kind: "gallery",
     description:
-      "The written work — field studies, a colloquium paper, process books and a newsroom's weekly bylines. These are meant to be read.",
+      "Drawings, paintings and studies away from the screen — sketchbooks, observational work, and things made by hand.",
   },
   {
     id: "the-extincts-project",
@@ -82,14 +82,6 @@ export const NAV_SECTIONS: readonly NavSection[] = [
     order: 2,
     kind: "gallery",
     description: "An ongoing personal series on what we've lost.",
-  },
-  {
-    id: "ai-generations",
-    label: "AI Generations & Ideas",
-    hemisphere: "right",
-    order: 3,
-    kind: "coming-soon",
-    description: "Experiments, prompts, and machine-made sketches.",
   },
 ] as const;
 

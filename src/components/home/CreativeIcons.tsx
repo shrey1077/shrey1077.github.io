@@ -14,6 +14,8 @@
  *   Publications           an open book, warm page and cool page
  *   The Extincts Project   a rainbow feather — the birds the world lost
  *   AI Generations & Ideas the sparkles that have come to mean "AI"
+ *   AI Videos              a play mark in the paint, with the AI sparkle
+ *                          (2026-10-10 — the right side's first room now)
  *
  * Gradient ids come from useId, so several icons on one page never collide.
  */
@@ -113,7 +115,26 @@ function AiGenerations({ id }: { id: string }) {
   );
 }
 
+/** AI Videos (2026-10-10): a play mark in the paint, the AI sparkle on it. */
+function AiVideos({ id }: { id: string }) {
+  return (
+    <>
+      <defs>
+        <linearGradient id={`${id}v`} x1="4" y1="4" x2="18" y2="20" gradientUnits="userSpaceOnUse">
+          <stop stopColor={P.coral} />
+          <stop offset="0.5" stopColor={P.pink} />
+          <stop offset="1" stopColor={P.purple} />
+        </linearGradient>
+      </defs>
+      <path d="M6.2 4.6c0-1.1 1.2-1.8 2.2-1.2l10.7 6.6c.9.6.9 1.9 0 2.5L8.4 19.1c-1 .6-2.2-.1-2.2-1.2V4.6z" fill={`url(#${id}v)`} />
+      <path d="M19.2 15.2c.3 1.8 1 2.5 2.8 2.8-1.8.3-2.5 1-2.8 2.8-.3-1.8-1-2.5-2.8-2.8 1.8-.3 2.5-1 2.8-2.8z" fill={P.yellow} />
+      <circle cx="3.6" cy="19.6" r="1.3" fill={P.teal} />
+    </>
+  );
+}
+
 const ICONS: Partial<Record<NavSectionId, (p: { id: string }) => React.ReactElement>> = {
+  "ai-videos": AiVideos,
   art: Art,
   publications: Publications,
   "the-extincts-project": Extincts,

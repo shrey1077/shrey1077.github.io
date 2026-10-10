@@ -3,18 +3,24 @@
 /**
  * HeroStage — the landing, as TWO slides of the Flythrough (2026-10-03, owner).
  *
- *   slide 0  the portrait orb and the tools — moved up from the footer, the
- *            orb still following the pointer;
+ *   slide 0  the portrait orb — following the pointer — big, with the name
+ *            and its one word (Shrey Singh / Designer) over it. The tools stood
+ *            under it until 2026-10-10, when the owner moved them into a room
+ *            of their own, My Stack (MyStack.tsx);
  *   slide 1  the brain, with its pins on two arcs round it, the pins'
  *            circuit and pencil lines, the two voices (Left brain / Right
  *            brain) between the brain and the arcs, and the facts (Chess,
  *            Education, Part-time, Hobbies) under it.
- * The first scroll flies the orb past the camera and brings the brain up out
- * of the depth behind it, by the same numbers every room flies by (flight.ts).
+ * The first scroll moves DOWN the page (owner, 2026-10-04): the orb slide
+ * rides up out of the top while the brain slide rises into place from below,
+ * the PORTFOLIO mark climbing and growing with it. Every step after that moves
+ * across the same plane (Flythrough, 2026-10-10): the next one down and to the
+ * side, into the rooms — the whole landing slides off together.
  *
  * Common to both, standing still while the two trade places, then flying off
  * together on the next scroll:
- *   · the PORTFOLIO / Shrey Singh wordmark, top centre;
+ *   · the PORTFOLIO / 2026 mark — at half size at the foot of the orb slide,
+ *     rising to full size at the top as the brain comes up (owner, 2026-10-03);
  *   · the code window, top left (half size), and the two corner lattices;
  *   · the black band along the foot, with the name.
  * The voices were common too for an hour; the owner moved them to the brain
@@ -26,21 +32,20 @@
  * deleted 2026-09-10; the pins have been the way in for a long time.
  */
 
-import { useEffect, useLayoutEffect, useState } from "react";
+import { useEffect, useLayoutEffect, useRef, useState } from "react";
 import { motion, useMotionValue, useReducedMotion, useTransform } from "framer-motion";
 import { BrainSequence } from "@/components/home/BrainSequence";
 import { LeftRightBrain } from "@/components/home/LeftRightBrain";
 import { CodeStream } from "@/components/home/CodeStream";
-import { AboutFacts } from "@/components/home/AboutFacts";
+import { FactsTab } from "@/components/home/FactsTab";
 import { Corner3DGrid } from "@/components/home/Corner3DGrid";
 import { PortraitOrb } from "@/components/home/PortraitOrb";
-import { ToolLogos } from "@/components/home/ToolLogos";
 import { useInViewport } from "@/hooks/useInViewport";
 import { DURATION, EASE_IN_OUT, EASE_OUT } from "@/constants/motion";
 import { CircuitBackdrop } from "@/components/home/CircuitBackdrop";
 import { BrainPins, PIN_OPEN_EVENT } from "@/components/home/BrainPins";
-import { BRAIN_CENTRE, BrainTraces, toStage } from "@/components/home/BrainTraces";
-import { HERO_SLIDES, PERSPECTIVE, useDepth, useFlight } from "@/components/home/flight";
+import { BrainTraces } from "@/components/home/BrainTraces";
+import { useFlight } from "@/components/home/flight";
 import { useMediaQuery } from "@/hooks/useMediaQuery";
 import { SITE } from "@/constants/site";
 import { NAV_SECTIONS } from "@/constants/navigation";
@@ -71,35 +76,49 @@ const BRAIN_RISE = -34; // px
  *  the portrait orb's seam does.
  *  ⚠ MEASURED, not judged by eye: the boundary was sampled off the brain
  *  canvas across four scanlines (587, 591, 594, 595 — it leans slightly) and
- *  its median sat at x=594 against the orb's seam at x=621. Since 2026-10-03
- *  the orb is placed ON the brain's seam (slide 0 → 1), so the two agree by
- *  construction wherever this goes. */
+ *  its median sat at x=594 against the orb's seam at x=621. (For part of
+ *  2026-10-03 the orb was placed ON the brain's seam; it is placed by its own
+ *  margins now — see ORB_TOP.) */
 const BRAIN_SHIFT_X = 27; // px
 
-/** The footage's resting transform, for BrainDock, which lifts the brain off
- *  this exact spot when the camera leaves for the rooms. */
-export const BRAIN_POSE = {
-  scale: CENTER_SCALE,
-  scalePhone: CENTER_SCALE_PHONE,
-  shiftX: BRAIN_SHIFT_X,
-  rise: BRAIN_RISE,
-} as const;
-
-/** Where the orb's DISC sits inside its frame, as fractions of the frame (see
- *  PortraitOrb: the disc spans 29.86–63.62% of the width, centred on 46.74%;
- *  the frame is 1200×606). The frame is mostly tracery and splatter, so it is
- *  the disc that is put on the brain's seam, not the frame's middle. */
+/** The orb's frame (see PortraitOrb), 1200×606. */
 const ORB_ASPECT = 1200 / 606;
-const ORB_DISC_X = 0.4674;
-/** Portrait phones: what the tools need under the orb (the gap, the label,
- *  up to two rows of marks), and how far above the 8.5% line they must stop
- *  to clear the Flythrough's "Scroll to explore" cue that stands there. */
-const PHONE_TOOLS_H = 96;
-const PHONE_CUE_CLEAR = 48;
+
+/** The orb slide, top down (owner, 2026-10-03; reordered 2026-10-04): the name,
+ *  its top 10% of the height off the top (20% until 2026-10-05, when the owner
+ *  asked for the three to sit higher and closer together); the orb, BIG,
+ *  under it, 20% of the width off each side; and PORTFOLIO / 2026 at the
+ *  foot. (The tools stood between the orb and the mark until 2026-10-10.) (The name sat under the orb until
+ *  2026-10-04.)
+ *  ⚠ The orb stopped sitting on the brain's seam then — it is placed by these
+ *  margins now, and flies off before the brain is up behind it anyway.
+ *  ⚠ The side margins are a target, not a promise: on a screen too short for
+ *  the whole stack (16:9 laptops) the orb shrinks until it clears the mark,
+ *  and its sides grow past 20%. Portrait phones keep it near the full
+ *  width — 20% each side would make it smaller than it was, not bigger. */
+const ORB_TOP = 0.1;
+const ORB_SIDE = 0.2;
+/** The least room between the orb and the mark waiting at the foot. */
+const CAPTION_CLEAR = 28;
+
+/** The black footing, as a share of the stage's height (the band below). */
+const BAND_H = 0.07;
+
+/** The PORTFOLIO / 2026 mark: full size at the top of the brain slide (where
+ *  the wordmark always stood), HALF size at the foot of the orb slide, sitting
+ *  on the band (owner, 2026-10-03). It travels between the two with the
+ *  camera.
+ *  ⚠ The Flythrough stands its scroll cue on the same foot over the orb slide
+ *  (bottom: 7% + 14px); change one, change both. */
+const MARK_TOP = 0.032;
+const MARK_SMALL = 0.5;
+const MARK_GAP_BELOW = 14;
 
 /** ⚠ Split from SITE.name rather than hard-coded, the same way SiteFooter does
  *  it — the two halves take different faces, so they cannot be one string. */
 const [NAME_FIRST, ...NAME_REST] = SITE.name.split(" ");
+
+const clamp01 = (v: number) => Math.min(1, Math.max(0, v));
 
 /** The stage's own size, from layout — never from a screen box, which would
  *  include the flight's scale. */
@@ -117,6 +136,21 @@ function useStageSize(ref: React.RefObject<HTMLElement | null>) {
   return size;
 }
 
+/** An element's layout height (transforms ignored), kept current. */
+function useLayoutHeight(ref: React.RefObject<HTMLElement | null>) {
+  const [h, setH] = useState(0);
+  useLayoutEffect(() => {
+    const el = ref.current;
+    if (!el) return;
+    const read = () => setH(el.offsetHeight);
+    read();
+    const ro = new ResizeObserver(read);
+    ro.observe(el);
+    return () => ro.disconnect();
+  }, [ref]);
+  return h;
+}
+
 export function HeroStage() {
   // Keep the scrub loop running while the hero is near the viewport; idle it
   // once the visitor has scrolled well past.
@@ -130,30 +164,60 @@ export function HeroStage() {
   const restOnBrain = useMotionValue(1);
   const p = flight?.p ?? restOnBrain;
   const current = flight?.current ?? 1;
-  const orbDepth = useDepth(p, 0, reduceMotion);
-  const brainDepth = useDepth(p, 1, reduceMotion);
+
+  /* ⚠ THE FIRST STEP SCROLLS, IT DOES NOT FLY (owner, 2026-10-04): from the
+     orb slide to the brain the whole stage moves DOWN the page — the orb
+     slide rides up and out of the top while the brain slide rises from below
+     into place, and the PORTFOLIO mark climbs with it, growing (markY,
+     markScale). Past p = 1 the brain layer stands still in the slide: the
+     Flythrough carries the whole landing off across the plane (2026-10-10 —
+     it flew through the depth on brainDepth until then).
+     For reduced motion it is a cross-fade instead of a slide. */
+  const orbY = useTransform(p, (v) => (reduceMotion ? "0%" : `${-clamp01(v) * 100}%`));
+  const orbOpacity = useTransform(p, (v) => (reduceMotion ? 1 - clamp01(v) : v >= 1 ? 0 : 1));
+  const orbVisibility = useTransform(orbOpacity, (o) => (o < 0.01 ? "hidden" : "visible"));
+  const brainY = useTransform(p, (v) => (reduceMotion ? "0%" : `${(1 - clamp01(v)) * 100}%`));
+  const brainOpacity = useTransform(p, (v) => (v < 1 ? (reduceMotion ? clamp01(v) : v > 0.001 ? 1 : 0) : 1));
+  const brainVisibility = useTransform(brainOpacity, (o) => (o < 0.01 ? "hidden" : "visible"));
   const onOrb = current === 0;
   const onBrain = current === 1;
 
   const size = useStageSize(ref);
-  const seam = size
-    ? toStage(BRAIN_CENTRE.x, BRAIN_CENTRE.y, size.w, size.h, centreScale, BRAIN_SHIFT_X, BRAIN_RISE)
-    : null;
-  // The orb: up to 40% of the width (the middle the two voices leave free),
-  // never taller than ~42% of the stage; on a portrait phone, nearly the width
-  // — unless the screen is short, when the tools under it would run into the
-  // scroll cue (8.5% off the foot): then it shrinks until they clear it.
-  const orbW =
-    size && seam
-      ? tallCompact
-        ? Math.min(
-            size.w * 0.94,
-            460,
-            2 * (size.h * (1 - 0.085) - PHONE_CUE_CLEAR - PHONE_TOOLS_H - seam.y) * ORB_ASPECT,
-          )
-        : Math.min(Math.max(size.w * 0.4, 288), 608, size.h * 0.42 * ORB_ASPECT)
-      : 0;
-  const orbH = orbW / ORB_ASPECT;
+
+  // The PORTFOLIO mark's full height, and the name over the orb — both from
+  // layout, so neither is guessed.
+  const markRef = useRef<HTMLDivElement>(null);
+  const markH = useLayoutHeight(markRef);
+  const nameRef = useRef<HTMLParagraphElement>(null);
+  const captionH = useLayoutHeight(nameRef);
+
+  // The orb slide's foot: the mark at half size, sitting on the band.
+  const markFoot = size ? size.h * (1 - BAND_H) - MARK_GAP_BELOW : 0;
+  const markTopSmall = markFoot - MARK_SMALL * markH;
+
+  // The orb: 20% in from each side (nearly the full width on a portrait
+  // phone), unless the stack (name, orb) would then run into the mark.
+  const orbW = size
+    ? Math.max(
+        0,
+        Math.min(
+          tallCompact ? Math.min(size.w * 0.94, 460) : size.w * (1 - 2 * ORB_SIDE),
+          (markTopSmall - CAPTION_CLEAR - captionH - size.h * ORB_TOP) * ORB_ASPECT,
+        ),
+      )
+    : 0;
+
+  // The mark rides the camera from the foot (half size) to the top (full).
+  // ⚠ Its drop is a motion value, not a closure, so a resize reaches it.
+  const markDrop = useMotionValue(0);
+  useLayoutEffect(() => {
+    if (size) markDrop.set(markTopSmall - size.h * MARK_TOP);
+  }, [size, markTopSmall, markDrop]);
+  const markY = useTransform([p, markDrop], ([v, drop]: number[]) => drop * (1 - clamp01(v)));
+  const markScale = useTransform(p, (v) => MARK_SMALL + (1 - MARK_SMALL) * clamp01(v));
+  // Shown only once its drop is in — derived in the same frame as markY, so
+  // it can never paint a frame at the top before it reaches the foot.
+  const markShown = useTransform(markDrop, (d) => (d > 0 ? "visible" : "hidden"));
 
   /* Which section is open, for the footing band. ⚠ Read off the same
      PIN_OPEN_EVENT bus the pins already publish on, rather than lifting state
@@ -165,25 +229,21 @@ export function HeroStage() {
     window.addEventListener(PIN_OPEN_EVENT, onPin);
     return () => window.removeEventListener(PIN_OPEN_EVENT, onPin);
   }, []);
-  const openLabel = openId ? NAV_SECTIONS.find((n) => n.id === openId)?.label : null;
+  const openSection = openId ? NAV_SECTIONS.find((n) => n.id === openId) : null;
+  const openLabel = openSection?.label ?? null;
 
-  // The brain's sequence runs through the whole flight: past the landing
-  // nobody sees it here, but BrainDock shows a live copy of it beside every
-  // room, rocking toward that room's side.
+  // The brain turns with the pointer while the landing is on screen, and
+  // rests once the camera is in the rooms. (Until 2026-10-10 it kept turning
+  // there for BrainDock, which lifted a live copy of it off this slide; the
+  // rooms' circles hold stills now, and this brain leaves with its slide.)
   const zone = flight?.zone ?? "landing";
-  const brainMode = zone === "logic" ? "left" : zone === "creative" ? "right" : "pointer";
-  // …and this one steps aside the instant the camera leaves the brain slide:
-  // from there the dock carries the same picture, from the same spot.
-  const footageShown = useTransform(p, (v) => (v > HERO_SLIDES - 1 + 1e-4 ? 0 : 1));
 
   return (
     <section
       ref={ref}
       aria-label="Landing"
       className="relative h-[100svh] min-h-[560px] w-full overflow-hidden sm:min-h-[640px]"
-      // ⚠ Its own perspective: the orb and the brain fly INSIDE this slide,
-      // and a perspective only reaches an element's direct children.
-      style={{ backgroundColor: "transparent", perspective: PERSPECTIVE }}
+      style={{ backgroundColor: "transparent" }}
     >
       {/* Circuit board texture — under everything. */}
       <CircuitBackdrop />
@@ -198,11 +258,16 @@ export function HeroStage() {
           className="flex items-baseline gap-[0.3em] text-[clamp(0.7rem,1.5vw,1.15rem)] leading-none"
         >
           {openLabel ? (
-            <span className="font-digibra font-bold tracking-[0.16em] text-white">{openLabel}</span>
+            // A section's name, in its side's face (see .type-home).
+            <span
+              className={`${openSection?.hemisphere === "left" ? "face-logic tracking-[0.16em]" : "face-creative tracking-[0.04em]"} font-bold text-white`}
+            >
+              {openLabel}
+            </span>
           ) : (
             <>
-              <span className="font-digibra font-bold tracking-[0.12em] text-white">{NAME_FIRST}</span>
-              <span className="font-graff font-bold tracking-[0.02em] text-white">{NAME_REST.join(" ")}</span>
+              <span className="font-bold tracking-[0.02em] text-white">{NAME_FIRST}</span>
+              <span className="font-bold tracking-[0.02em] text-white">{NAME_REST.join(" ")}</span>
             </>
           )}
         </p>
@@ -231,9 +296,9 @@ export function HeroStage() {
         inert={!onBrain}
         className="absolute inset-0 z-[5]"
         style={{
-          z: brainDepth.z,
-          opacity: brainDepth.opacity,
-          visibility: brainDepth.visibility,
+          y: brainY,
+          opacity: brainOpacity,
+          visibility: brainVisibility,
           pointerEvents: onBrain ? "auto" : "none",
         }}
       >
@@ -250,9 +315,7 @@ export function HeroStage() {
             over everything. See LeftRightBrain. */}
         <LeftRightBrain brain={{ scale: centreScale, shiftX: BRAIN_SHIFT_X, rise: BRAIN_RISE }} />
 
-        {/* The footage — settles in on mount. Handed to BrainDock as the
-            camera leaves (footageShown). */}
-        <motion.div className="absolute inset-0" style={{ opacity: footageShown }}>
+        {/* The footage — settles in on mount. */}
         <motion.div
           className="absolute inset-0"
           initial={reduceMotion ? false : { opacity: 0 }}
@@ -269,86 +332,99 @@ export function HeroStage() {
             scale: { duration: reduceMotion ? 0 : DURATION.verySlow, ease: EASE_IN_OUT },
           }}
         >
-          <BrainSequence active={inView} mode={brainMode} />
-        </motion.div>
+          <BrainSequence active={inView && zone === "landing"} />
         </motion.div>
 
         {/* The sections, annotated onto the brain. */}
         <BrainPins />
 
         {/* The facts — Chess, Education, Part-time and Hobbies as ONE section,
-            centred under the brain just above the black band, and smaller
-            (owner, 2026-10-03). ⚠ Smaller by ONE transform, origin bottom, so
-            every size inside comes down together and the block stays anchored
-            to the band as its height changes from fact to fact. Desktop only:
-            below `lg` the footer carries them. */}
-        <div
-          aria-hidden
-          className="pointer-events-none absolute bottom-[8.2vh] left-1/2 hidden w-[28rem] -translate-x-1/2 lg:block"
-        >
-          <div className="origin-bottom scale-[0.6]">
-            <AboutFacts align="center" />
-          </div>
-        </div>
+            centred under the brain, in white on a black tab rising out of the
+            band (owner, 2026-10-05). See FactsTab. Desktop only: below `lg`
+            the footer carries them. */}
+        <FactsTab />
       </motion.div>
 
-      {/* ── Slide 0: the portrait orb and the tools (moved up from the footer,
-          owner 2026-10-03). The orb's DISC is put on the brain's seam, so the
-          voices' lines leave from its centre here and from the brain's on the
-          next slide, and the brain comes up exactly behind it. */}
+      {/* ── Slide 0: the name and the portrait orb (owner, 2026-10-03; the
+          name moved over the orb 2026-10-04, the tools out to My Stack
+          2026-10-10) — one centred
+          column, its top 10% down (see ORB_TOP). The mark at the foot is
+          common to both slides, below. */}
       <motion.div
         aria-hidden={!onOrb}
         inert={!onOrb}
         className="absolute inset-0 z-[6]"
         style={{
-          z: orbDepth.z,
-          opacity: orbDepth.opacity,
-          visibility: orbDepth.visibility,
+          y: orbY,
+          opacity: orbOpacity,
+          visibility: orbVisibility,
           pointerEvents: onOrb ? "auto" : "none",
         }}
       >
-        {seam && orbW > 0 && (
-          <>
+        <div className="absolute inset-x-0 flex flex-col items-center" style={{ top: `${ORB_TOP * 100}%` }}>
+          {/* Shrey Singh / Designer, over the orb, the two lines centred
+              (owner, 2026-10-05).
+              ⚠ The name is in DIGIBRA, the PORTFOLIO mark's face (owner,
+              2026-10-05) and in CAPITALS — "SHREY" in Black, "SINGH" in
+              Light, bigger than the Helvetica it replaced. Digibra comes in
+              ONE weight, so the two are drawn from it: see .digibra-black /
+              .digibra-light in globals.css. "Designer" stays Helvetica. Only
+              a hair under it: the paint runs to the orb frame's very top edge
+              here.
+              ⚠ Digibra's capitals are WIDE — the name runs ~8.6em — so the
+              size is also held to 10vw, or a phone would lose its ends. */}
+          <p ref={nameRef} className="pointer-events-none flex flex-col items-center whitespace-nowrap pb-1 leading-none">
+            <span className="face-logic text-[min(10vw,clamp(3.2rem,6.6vw,6rem))] uppercase leading-none text-neutral-900">
+              <span className="digibra-black">{NAME_FIRST}</span> <span className="digibra-light">{NAME_REST.join(" ")}</span>
+            </span>
+            <span className="mt-1 text-[clamp(0.84375rem,1.5625vw,1.40625rem)] font-normal leading-none tracking-[0.02em] text-neutral-500">
+              {SITE.title}
+            </span>
+          </p>
+
+          {orbW > 0 && (
             <motion.div
-              className="absolute"
-              style={{ left: seam.x - orbW * ORB_DISC_X, top: seam.y - orbH / 2, width: orbW }}
+              style={{ width: orbW }}
               initial={reduceMotion ? false : { opacity: 0, scale: 0.94 }}
               animate={{ opacity: 1, scale: 1 }}
               transition={{ duration: DURATION.verySlow, ease: EASE_OUT }}
             >
               <PortraitOrb />
             </motion.div>
-            <div
-              className="font-graff absolute flex w-[min(92vw,46rem)] -translate-x-1/2 flex-col items-center gap-3"
-              style={{ left: seam.x, top: seam.y + orbH / 2 + (tallCompact ? 18 : 26) }}
-            >
-              <p className="text-[0.72rem] font-extrabold uppercase tracking-[0.2em] text-neutral-900">Tools</p>
-              <ToolLogos height={tallCompact ? 18 : 22} className="justify-center gap-x-6 gap-y-3" />
-            </div>
-          </>
-        )}
+          )}
+        </div>
       </motion.div>
 
       {/* ── Common, in front of both slides. */}
 
-      {/* PORTFOLIO / Shrey Singh, top centre. ⚠ Deliberately NOT a heading:
-          the stage already has one h1 (LeftRightBrain's, on the brain slide),
-          and a second would compete with it for what is a wordmark.
-          ⚠ TWICE the old size (owner, 2026-10-03; 3× was too big).
-          LeftRightBrain's compact headlines are placed under it by the same
-          numbers; change one, change both. */}
-      <div className="pointer-events-none absolute inset-x-0 top-[3.2%] z-30 flex justify-center">
+      {/* PORTFOLIO / 2026. At rest it is the brain slide's top line, top
+          centre; on the orb slide it waits at the foot at half size, and the
+          first scroll carries it up and grows it into place (markY,
+          markScale — scaled from its top centre, so its resting box IS the
+          brain slide's). Hidden until measured, so it never shows in the
+          wrong place first.
+          ⚠ Deliberately NOT a heading: the stage already has one h1
+          (LeftRightBrain's, on the brain slide), and a second would compete
+          with it for what is a wordmark.
+          ⚠ Full size is TWICE the old size (owner, 2026-10-03; 3× was too
+          big). LeftRightBrain's compact headlines are placed under it by the
+          same numbers; change one, change both. */}
+      <motion.div
+        ref={markRef}
+        className="pointer-events-none absolute inset-x-0 top-[3.2%] z-30 flex justify-center"
+        style={{ y: markY, scale: markScale, originX: 0.5, originY: 0, visibility: markShown }}
+      >
         <p className="flex flex-col items-end leading-none">
-          <span className="font-digibra text-[clamp(1.9rem,4.6vw,4rem)] font-bold leading-none tracking-[0.22em] text-neutral-900">
+          <span className="face-logic text-[clamp(1.9rem,4.6vw,4rem)] font-bold leading-none tracking-[0.22em] text-neutral-900">
             PORTFOLIO
           </span>
-          <span className="font-graff mt-1 text-[clamp(1rem,2vw,1.6rem)] font-bold tracking-[0.14em] text-neutral-500">
-            {SITE.name}
+          <span className="face-logic mt-1 text-[clamp(1rem,2vw,1.6rem)] font-bold leading-none tracking-[0.14em] text-neutral-500">
+            {SITE.edition}
           </span>
         </p>
-      </div>
+      </motion.div>
 
-      {/* The code window — desktop only. ⚠ HALF SIZE since 2026-10-03
+      {/* The code windows — desktop only. ⚠ HALF SIZE since 2026-10-03
           (owner): one transform on the mount, so width, type and line height
           all halve together. It clears the pins' connector band, which owns
           0–6vw down the left flank. */}
@@ -361,6 +437,12 @@ export function HeroStage() {
       >
         <div className="absolute left-[8vw] top-5 origin-top-left scale-50">
           <CodeStream />
+        </div>
+        {/* …and its mirror on the creative side (owner, 2026-10-04): the same
+            window, right-aligned, typing ideas — art, the Extincts, movies,
+            music — in colour. */}
+        <div className="absolute right-[8vw] top-5 origin-top-right scale-50">
+          <CodeStream variant="ideas" />
         </div>
       </motion.div>
     </section>

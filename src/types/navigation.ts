@@ -16,11 +16,15 @@ import type { Hemisphere } from "@/types/brain";
 export type NavSectionId =
   | "clients"
   | "projects"
+  | "my-stack"
+  | "ai-videos"
+  | "art"
+  | "the-extincts-project"
+  // ⚠ Off the landing since 2026-10-10 (three sections a side); kept in the
+  // set so their rooms' renderers still type-check if they come back.
   | "logofolio"
   | "career-path"
-  | "art"
   | "publications"
-  | "the-extincts-project"
   | "ai-generations";
 
 /**

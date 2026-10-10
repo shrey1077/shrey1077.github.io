@@ -9,29 +9,37 @@
  *   01 institute  what Tata IIS is, against a campus photograph
  *   02 system     the mark's change of voice, the rulebook, the three
  *                 identities (SystemBand)
- *   03 the work   the owner's account, then the six rooms as cards
- *   04 collaborate
+ *   03 handbook   the trainee handbook — its points, its pages in both
+ *                 editions (HandbookBand)
+ *   04 mockups    every themed mockup, on one moving wall (MockupsBand)
+ *   05 print      all sixteen subsections, one tile each (PrintBand)
+ *   06 reality    every installed piece, its design inset (RealityBand)
+ *   07 camera     photo / videography and editing, by aspect (PhotoStoryBand)
+ *   08 digital    socials, website banners, the deck (DigitalBand)
+ *   09 the role   the owner's account of the job, and the way to get in touch
  *   marquee + TataFooter
  *
- * The copy and the pointers live in `tataStory.ts`; this file is the layout.
+ * ⚠ 04–09 WERE RE-SET ON 2026-10-05 for the owner's "show all my work in the
+ * minimal amount of scrolls": each band's words moved into a margin column
+ * beside its work (SideBand), and each band shows ALL its work in about a
+ * screen. The six rooms behind cards (TataSectionsBoard) and the five-panel
+ * showcase over them (WorkShowcase) went with it — every piece they held is
+ * laid open in 02 and 04–08 — and Collaborate folded into 09. git has all of
+ * it; so does _source/backup-2026-10-05-before-rethink.tar.
  *
- * ⚠ THE ROOMS BEHAVE EXACTLY AS BEFORE. Six of them, one open at a time, the
- * same sliders inside. Only their presentation changed — see TataSectionsBoard.
+ * The copy and the pointers live in `tataStory.ts`; this file is the layout.
  *
  * ⚠ The comp's marks are redrawn approximations and its campus taglines are
  * invented. Everything on the page is the client's own file or the repo's own
  * words; tataStory.ts says so at more length, and it matters.
  *
- * Server Component: reads the (already curated) catalogue folders and regroups
- * them under the work families; the interactive pieces are client children.
+ * Server Component; the bands read the catalogue themselves, and the
+ * interactive pieces are client children.
  */
 
-import fs from "node:fs";
-import path from "node:path";
 import Link from "next/link";
 import Image from "next/image";
 import { clientExperienceBySlug } from "@/constants/clientExperiences";
-import { readCatalogueCategory } from "@/content/catalogue";
 import {
   CAMPUS_INK_AREA,
   inkBox,
@@ -40,36 +48,31 @@ import {
   TATA_POWERED_BY,
   TATA_PARTNERS,
   TATA_GRID,
-  tataSubcatMockup,
+  TATA_GUIDELINES,
 } from "@/constants/tataExperience";
-import { brandOf, TATA_SECTIONS, TATA_WORK_INTRO } from "@/constants/tataSections";
+import { TATA_WORK_INTRO } from "@/constants/tataSections";
 import {
   TATA_COLLABORATE,
   TATA_HERO,
   TATA_CAMPUS_PROFILES,
+  TATA_INDEX,
   TATA_WHO,
   TATA_WHO_ART,
+  TATA_CLOSING_ART,
   TATA_WORK_BAND,
-  type TataBand,
 } from "@/constants/tataStory";
-import { TATA_PINS } from "@/constants/tataPins";
 import { CampusTheme } from "@/components/client/tata/CampusTheme";
 import { SystemBand } from "@/components/client/tata/SystemBand";
-import {
-  WorkShowcase,
-  type ShowcasePanelView,
-  type ShowcaseSubsection,
-} from "@/components/client/tata/WorkShowcase";
-import { SHOWCASE_PER_PANEL, TATA_SHOWCASE, TATA_SHOWCASE_GRID } from "@/constants/tataShowcase";
+import { HandbookBand } from "@/components/client/tata/HandbookBand";
+import { MockupsBand } from "@/components/client/tata/MockupsBand";
+import { PrintBand } from "@/components/client/tata/PrintBand";
+import { RealityBand } from "@/components/client/tata/RealityBand";
+import { PhotoStoryBand } from "@/components/client/tata/PhotoStoryBand";
+import { DigitalBand } from "@/components/client/tata/DigitalBand";
+import { SideBand } from "@/components/client/tata/SideBand";
 import { SITE } from "@/constants/site";
-import { TATA_THEMES, THEME_SLIDER_MAX } from "@/constants/tataThemes";
-import type { GuidelineBrand } from "@/components/client/tata/GuidelineSlider";
-import type { CollectionAsset } from "@/types/experience";
 import { ExperienceTransition } from "@/components/transition/ExperienceTransition";
 import { PartnerMarquee } from "@/components/client/tata/PartnerMarquee";
-import { TATA_GUIDELINES } from "@/constants/tataExperience";
-import { type ResolvedSection } from "@/components/client/tata/WorkSections";
-import { TataSectionsBoard } from "@/components/client/tata/TataSectionsBoard";
 import { TataFooter } from "@/components/client/tata/TataFooter";
 
 const SLUG = "tata-iis";
@@ -96,50 +99,6 @@ const Rail = ({ words }: { words: readonly string[] }) => (
   </p>
 );
 
-/** One numbered band: the number, the words, the evidence, the rail. */
-const Band = ({
-  band,
-  ground = "bg-white/45",
-  cta,
-  children,
-}: {
-  band: TataBand;
-  ground?: string;
-  cta?: React.ReactNode;
-  children: React.ReactNode;
-}) => (
-  <section className={`border-t border-neutral-200/70 ${ground}`}>
-    <div
-      className={`${SHELL} grid grid-cols-1 items-start gap-y-8 py-14 lg:grid-cols-[auto_minmax(0,1fr)_minmax(0,1.3fr)_auto] lg:gap-x-10 lg:py-20`}
-    >
-      {/* The number is decoration — the heading below carries the meaning,
-          and a screen reader announcing "zero one" first helps nobody. */}
-      <p aria-hidden className="tata-display text-[clamp(2.6rem,5.5vw,4.5rem)] leading-[0.85] text-neutral-300">
-        {band.number}
-      </p>
-
-      <div className="max-w-md">
-        <span className={KICKER}>{band.kicker}</span>
-        <h2 className="tata-display mt-4 text-[clamp(1.55rem,2.7vw,2.25rem)] leading-[1.12] text-neutral-900">
-          {band.headline.map((line) => (
-            <span key={line} className="block">
-              {line}
-            </span>
-          ))}
-        </h2>
-        {band.body && (
-          <p className="tata-body mt-5 text-[0.9rem] leading-relaxed text-neutral-700">{band.body}</p>
-        )}
-        {cta && <div className="mt-7">{cta}</div>}
-      </div>
-
-      <div className="min-w-0">{children}</div>
-
-      {band.rail ? <Rail words={band.rail} /> : <span aria-hidden />}
-    </div>
-  </section>
-);
-
 export function TataExperience() {
   const theme = clientExperienceBySlug(SLUG)?.brandTheme;
   // The page speaks in exactly two typefaces: Copperplate Gothic Bold for
@@ -149,163 +108,6 @@ export function TataExperience() {
   const themeVars = {
     "--brand-accent": theme?.accent ?? "#14279B",
   } as React.CSSProperties;
-
-  // A mockup cutout is used only when its file is actually on disk (the
-  // slice script may not have produced every one) — a missing PNG then just
-  // renders as a plain row/chip instead of a broken image.
-  const mockupIfPresent = (url: string): string | undefined =>
-    fs.existsSync(path.join(process.cwd(), "public", url.replace(/^\//, "")))
-      ? url
-      : undefined;
-
-  // Resolve every subsection against the catalogue. A subsection with no
-  // folder — or a folder that has no assets yet — keeps its slot in the grid
-  // and renders as a pending tile, so the taxonomy always reads whole.
-  /* The theme slider each section opens with. Same switch as the guidelines —
-   * Tata IIS / IISA / IISM — but showing that section's OWN work, split by
-   * `brandOf()` on the filename.
-   *
-   * ⚠ Digital is fed from the Mockups folder specifically (the owner's ask),
-   * not from every Digital subsection: 68 themed mockups already sit there and
-   * they are the staged, presentable face of that section. Every other section
-   * pools all of its subsections. A brand with nothing to show is dropped
-   * rather than rendered as an empty deck. */
-  const themePool = (assets: CollectionAsset[]): GuidelineBrand[] =>
-    TATA_THEMES.map((t) => ({
-      ...t,
-      plates: assets
-        .filter((a) => a.kind === "image" && brandOf(a.name) === t.id)
-        .slice(0, THEME_SLIDER_MAX)
-        .map((a) => ({ name: a.caption ?? a.name, url: a.url, kind: "image" as const })),
-    })).filter((b) => b.plates.length > 0);
-
-  const sections: ResolvedSection[] = TATA_SECTIONS.map((s, si) => ({
-    id: s.id,
-    title: s.title,
-    blurb: s.blurb,
-    accent: s.accent,
-    /* ⚠ Alternating grounds, starting BLACK on Digital — the owner's
-     * zig-zag. Driven off the index so inserting a section re-flows the
-     * pattern instead of stranding two dark bands together. */
-    dark: si % 2 === 0,
-    /** Print reads four across; every other section keeps three. */
-    cols: s.id === "print" ? 4 : 3,
-    items: s.items.map((item) => {
-      const data = item.folder ? readCatalogueCategory(SLUG, item.folder) : null;
-      // `pick` slices one folder across two subsections (the films split).
-      const assets = item.pick
-        ? (data?.assets ?? []).filter((a) => item.pick!.includes(a.name))
-        : (data?.assets ?? []);
-      return {
-        key: `${s.id}:${item.label}`,
-        label: item.label,
-        note: item.note,
-        count: item.pick ? assets.length : (data?.category.assetCount ?? 0),
-        assets,
-        curated: data?.curated ?? false,
-        mockup: item.folder ? mockupIfPresent(tataSubcatMockup(item.folder)) : undefined,
-      };
-    }),
-  })).map((s) => {
-    const digitalMockups =
-      s.id === "digital"
-        ? (s.items.find((i) => i.label === "Mockups")?.assets ?? [])
-        : [];
-    const pool = s.id === "digital" ? digitalMockups : s.items.flatMap((i) => i.assets);
-    return { ...s, themes: themePool(pool) };
-  });
-
-  /* ── Each showcase panel's subsections ──────────────────────────────────
-     Clicking a panel lays its subsections out under the composition (owner,
-     2026-09-27, from Print). ⚠ THEY ARE THE SITE'S OWN SUBSECTIONS, not the raw
-     archive's folders: the Print room already carries the processed catalogue
-     folders the archive's `Print/` subfolders became, so the cards and the room
-     cannot disagree, and every card with work in it has a catalogue page to
-     link to. The archive and the site differ slightly, on purpose — Stickers
-     and Notepad are one subsection here, and Trifolds and Backgrounds join
-     Print from elsewhere in the archive. See TATA_SECTIONS.
-
-     ⚠ Paired with `sections` BY INDEX: both are TATA_SECTIONS mapped in order,
-     and only the raw item knows its folder id while only the resolved one
-     knows its count and assets. */
-  const subsectionsOf = (
-    sectionId: string,
-    keep: (label: string) => boolean = () => true,
-  ): ShowcaseSubsection[] => {
-    const raw = TATA_SECTIONS.find((sec) => sec.id === sectionId);
-    const resolved = sections.find((sec) => sec.id === sectionId);
-    if (!raw || !resolved) return [];
-    return raw.items
-      .map((item, i) => ({ item, res: resolved.items[i] }))
-      .filter(({ item }) => keep(item.label))
-      .map(({ item, res }) => {
-        const image = res.assets.find((a) => a.kind === "image");
-        return {
-          key: res.key,
-          label: item.label,
-          // The work itself when there is any; the product cutout otherwise.
-          thumb: image?.url ?? res.mockup,
-          thumbFit: image ? "cover" : "contain",
-          meta: res.count > 0 ? `${res.count} ${res.count === 1 ? "piece" : "pieces"}` : "No plates yet",
-          href: item.folder && res.count > 0 ? `/clients/${SLUG}/catalogue/${item.folder}` : undefined,
-        } satisfies ShowcaseSubsection;
-      });
-  };
-
-  /** Brand has no work folders — its subsections are the three rulebooks, and
-   *  they open in the Brand Guidelines room rather than on a page of their own. */
-  const rulebooks: ShowcaseSubsection[] = [
-    { label: "Tata IIS", thumb: TATA_GUIDELINES.tataPlates[0], plates: TATA_GUIDELINES.tataPlates.length },
-    { label: "IIS Ahmedabad", thumb: TATA_GUIDELINES.iisa.plates[0], plates: TATA_GUIDELINES.iisa.plates.length },
-    { label: "IIS Mumbai", thumb: TATA_GUIDELINES.iism.plates[0], plates: TATA_GUIDELINES.iism.plates.length },
-  ].map((book) => ({
-    key: `brand:${book.label}`,
-    label: book.label,
-    thumb: book.thumb,
-    thumbFit: "contain" as const,
-    meta: `${book.plates} plates`,
-    room: "brand-guidelines",
-  }));
-
-  const SUBSECTIONS: Record<string, ShowcaseSubsection[]> = {
-    brand: rulebooks,
-    print: subsectionsOf("print"),
-    digital: subsectionsOf("digital"),
-    photography: subsectionsOf("photo-videography", (label) => /photo/i.test(label)),
-    // The films live under two rooms — Videography and Digital's YouTube cut —
-    // and both are editing work, so both belong to this panel.
-    video: [
-      ...subsectionsOf("photo-videography", (label) => /video/i.test(label)),
-      ...subsectionsOf("digital", (label) => /video/i.test(label)),
-    ],
-  };
-
-  /* The five showcase panels, filled from the catalogue the page already
-     reads. ⚠ A panel with nothing behind it is DROPPED rather than rendered
-     empty — the composition is five shapes that interlock, and a blank one
-     would be a hole in it. */
-  const showcase: ShowcasePanelView[] = TATA_SHOWCASE.map((panel) => {
-    const fromFolders = panel.folders.flatMap((folder) =>
-      (readCatalogueCategory(SLUG, folder)?.assets ?? [])
-        .filter((a) => a.kind === "image")
-        .slice(0, SHOWCASE_PER_PANEL),
-    );
-    const images = [
-      ...(panel.plates ?? []).map((src) => ({
-        src,
-        alt: `${panel.label} — Tata IIS`,
-        panel: panel.id,
-        fit: panel.fit,
-      })),
-      ...fromFolders.map((a) => ({
-        src: a.url,
-        alt: a.caption ?? `${panel.label} — Tata IIS`,
-        panel: panel.id,
-        fit: panel.fit,
-      })),
-    ].slice(0, SHOWCASE_PER_PANEL);
-    return { ...panel, images, subsections: SUBSECTIONS[panel.id] ?? [] };
-  }).filter((panel) => panel.images.length > 0);
 
   return (
     <main className="tata-scope tata-body relative min-h-dvh w-full bg-gallery" style={themeVars}>
@@ -426,16 +228,22 @@ export function TataExperience() {
                     {TATA_DESCRIPTION}
                   </p>
 
-                  {/* What the page holds, named up front. These ARE the rooms, so
-                      the list cannot drift from what opens further down.
+                  {/* What the page holds, named up front — and each name a way
+                      straight down to its band (2026-10-05; it was the six
+                      rooms, as plain words, until the rooms went).
                       ⚠ The separator TRAILS its item rather than leading the next
                       one: leading it puts a stray "/" at the start of any line the
                       list wraps onto. */}
                   <ul className="mt-9 flex flex-wrap items-center gap-x-2 gap-y-2">
-                    {TATA_PINS.map((pin, i) => (
-                      <li key={pin.id} className={KICKER}>
-                        {pin.label}
-                        {i < TATA_PINS.length - 1 && (
+                    {TATA_INDEX.map((entry, i) => (
+                      <li key={entry.href} className={KICKER}>
+                        <a
+                          href={entry.href}
+                          className="rounded-sm transition-colors hover:text-neutral-900 focus-visible:text-neutral-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-neutral-900/30"
+                        >
+                          {entry.label}
+                        </a>
+                        {i < TATA_INDEX.length - 1 && (
                           <span aria-hidden className="ml-2 text-neutral-300">
                             /
                           </span>
@@ -605,95 +413,73 @@ export function TataExperience() {
               movements; re-set 2026-10-03 — see SystemBand. ── */}
           <SystemBand />
 
-          {/* ── 04 — the work, then the six rooms ──
-              ⚠ THIS PAGE IS CLICK-TO-VIEW (owner, 2026-08-25). It used to render
-              GuidelineSections and then every work section in one long scroll;
-              both are rooms behind the cards now, which is why GuidelineSections
-              does not appear above and WorkSections is not given the whole
-              array. Nothing was dropped — the board renders the same two
-              components, one room at a time. */}
-          <section id="work" className="scroll-mt-4 border-t border-neutral-200/70 bg-neutral-100/40">
-            <div
-              className={`${SHELL} grid grid-cols-1 items-start gap-y-8 pt-14 lg:grid-cols-[auto_minmax(0,1fr)_minmax(0,1.3fr)] lg:gap-x-10 lg:pt-20`}
-            >
-              <p aria-hidden className="tata-display text-[clamp(2.6rem,5.5vw,4.5rem)] leading-[0.85] text-neutral-300">
-                {TATA_WORK_BAND.number}
-              </p>
-              <div className="max-w-md">
-                <span className={KICKER}>{TATA_WORK_BAND.kicker}</span>
-                <h2 className="tata-display mt-4 text-[clamp(1.55rem,2.7vw,2.25rem)] leading-[1.12] text-neutral-900">
-                  {TATA_WORK_BAND.headline.map((line) => (
-                    <span key={line} className="block">
-                      {line}
-                    </span>
-                  ))}
-                </h2>
-              </div>
-              {/* The owner's own account of the job — long, first-person and
-                  already written. It sits beside the headline rather than under
-                  it because it runs three times a band's usual paragraph.
-                  ⚠ A photograph sat under it (the trainee at the machine) until
-                  2026-09-28. With the showcase below now carrying a large
-                  display of its own, the band had a picture and then another
-                  picture; the owner asked for it to go. */}
-              <div className="min-w-0">
-                <p className="tata-body text-[0.9rem] leading-relaxed text-neutral-700">{TATA_WORK_INTRO}</p>
-              </div>
-            </div>
+          {/* ── 03 — the trainee handbook: its points, and its pages in both
+              editions (owner, 2026-10-04). See HandbookBand. ── */}
+          <HandbookBand />
 
-            {/* ⚠ OUTSIDE THE SHELL, deliberately: the owner asked for the
-                composition to run the full width of the screen under the
-                description. Only a hair of padding, so the diagonals reach the
-                edges without touching them. */}
-            <div className="mt-12 w-full px-2 sm:px-3 lg:mt-16">
-              <WorkShowcase panels={showcase} gridLines={TATA_SHOWCASE_GRID} />
-            </div>
+          {/* ── 04–08 — the work, medium by medium (owner, 2026-10-04): the
+              mockups in their three themes, Print, the work as installed,
+              the camera and the screens — each laid open in about a screen
+              since 2026-10-05. ── */}
+          <MockupsBand />
+          <PrintBand />
+          <RealityBand />
+          <PhotoStoryBand />
+          <DigitalBand />
 
-            <div className={`${SHELL} pb-16 pt-12 lg:pb-20`}>
-              <TataSectionsBoard sections={sections} />
-            </div>
-          </section>
+          {/* ── 09 — the role: the owner's own account of the job, closing the
+              page, and the way to get in touch beside it. ── */}
+          <SideBand band={TATA_WORK_BAND} id="tata-role-title" anchor="role" ground="bg-white/55">
+            <div className="grid grid-cols-1 gap-x-12 gap-y-10 xl:grid-cols-[minmax(0,1.5fr)_minmax(0,1fr)]">
+              {/* Long, first-person and already written — TATA_WORK_INTRO. */}
+              <p className="tata-body max-w-[62ch] text-[0.95rem] leading-[1.75] text-neutral-700">{TATA_WORK_INTRO}</p>
 
-          {/* ── 05 — collaborate ── */}
-          <Band band={TATA_COLLABORATE} ground="bg-white/55">
-            <div className="flex flex-wrap items-start gap-x-16 gap-y-8">
-              <div>
-                <span className={KICKER}>Get in touch</span>
-                <p className="tata-body mt-3 text-[0.95rem] text-neutral-900">
-                  <a
-                    href={`mailto:${SITE.email}`}
-                    className="border-b border-neutral-300 pb-0.5 transition-colors hover:border-neutral-900"
-                  >
-                    {SITE.email}
-                  </a>
-                </p>
-              </div>
-              <div>
-                <span className={KICKER}>Follow</span>
-                {/* ⚠ Only the two profiles the site actually knows. The comp
-                    shows four; site.ts has LinkedIn and Behance, flagged there
-                    as placeholders to replace, and inventing the other two
-                    would put dead links on a client's page. */}
-                <ul className="mt-3 flex items-center gap-6">
-                  {[
-                    { label: "LinkedIn", href: SITE.linkedin },
-                    { label: "Behance", href: SITE.behance },
-                  ].map((l) => (
-                    <li key={l.label}>
+              <div className="border-t border-neutral-300/80 pt-5 xl:border-l xl:border-t-0 xl:pl-10 xl:pt-0">
+                <span className={KICKER}>{TATA_COLLABORATE.kicker}</span>
+                <h3 className="tata-display mt-3 text-[clamp(1.4rem,2.1vw,1.85rem)] leading-[1.12] text-neutral-900">
+                  {TATA_COLLABORATE.headline}
+                </h3>
+                <p className="tata-body mt-3 text-[0.88rem] leading-relaxed text-neutral-700">{TATA_COLLABORATE.body}</p>
+                <div className="mt-6 flex flex-wrap items-start gap-x-12 gap-y-6">
+                  <div>
+                    <span className={KICKER}>Get in touch</span>
+                    <p className="tata-body mt-3 text-[0.95rem] text-neutral-900">
                       <a
-                        href={l.href}
-                        target="_blank"
-                        rel="noreferrer"
-                        className="tata-body border-b border-neutral-300 pb-0.5 text-[0.8rem] text-neutral-700 transition-colors hover:border-neutral-900 hover:text-neutral-900"
+                        href={`mailto:${SITE.email}`}
+                        className="border-b border-neutral-300 pb-0.5 transition-colors hover:border-neutral-900"
                       >
-                        {l.label}
+                        {SITE.email}
                       </a>
-                    </li>
-                  ))}
-                </ul>
+                    </p>
+                  </div>
+                  <div>
+                    <span className={KICKER}>Follow</span>
+                    {/* ⚠ Only the two profiles the site actually knows. The comp
+                        shows four; site.ts has LinkedIn and Behance, flagged there
+                        as placeholders to replace, and inventing the other two
+                        would put dead links on a client's page. */}
+                    <ul className="mt-3 flex items-center gap-6">
+                      {[
+                        { label: "LinkedIn", href: SITE.linkedin },
+                        { label: "Behance", href: SITE.behance },
+                      ].map((l) => (
+                        <li key={l.label}>
+                          <a
+                            href={l.href}
+                            target="_blank"
+                            rel="noreferrer"
+                            className="tata-body border-b border-neutral-300 pb-0.5 text-[0.8rem] text-neutral-700 transition-colors hover:border-neutral-900 hover:text-neutral-900"
+                          >
+                            {l.label}
+                          </a>
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                </div>
               </div>
             </div>
-          </Band>
+          </SideBand>
 
           {/* The partner marquee, LAST — moved down from between the brand
               blocks and the work on the owner's instruction, 2026-08-25. It
@@ -706,6 +492,18 @@ export function TataExperience() {
             </div>
             <PartnerMarquee logos={TATA_PARTNERS} />
           </section>
+
+          {/* The page's close: the owner's workshop artwork, edge to edge, just
+              above the footer (2026-10-03) — the bookend to band 01's. A
+              cut-out, so its spray simply comes to rest on the footer's rule.
+              Decorative. */}
+          <div
+            aria-hidden
+            className="pointer-events-none relative mt-6 w-full lg:mt-10"
+            style={{ aspectRatio: `${TATA_CLOSING_ART.w} / ${TATA_CLOSING_ART.h}` }}
+          >
+            <Image src={TATA_CLOSING_ART.src} alt="" fill sizes="100vw" className="object-cover" />
+          </div>
 
           {/* ⚠ The client's own contact block stays. The comp ends on a thin
               "TATA IIS — PORTFOLIO / SHREY SINGH" strip and drops the

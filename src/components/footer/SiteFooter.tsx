@@ -18,11 +18,16 @@
  * reaching for a heavier weight that does not exist in the file. Juturu is a
  * 100–900 variable, so its 800 is real.
  *
+ * Behind the left, logic half runs a stream of equations at half strength
+ * (owner, 2026-10-10; FooterFormulas), so everything in the band stands
+ * `relative`, over it.
+ *
  * A Server Component.
  */
 
 import Image from "next/image";
 import { AboutFacts } from "@/components/home/AboutFacts";
+import { FooterFormulas } from "@/components/footer/FooterFormulas";
 import { SITE } from "@/constants/site";
 
 /** Contact rows. Gmail, phone and website joined on 2026-10-02; a row whose
@@ -51,8 +56,9 @@ export function SiteFooter() {
     year > SITE.inceptionYear ? `${SITE.inceptionYear}–${year}` : `${year}`;
 
   return (
-    <footer className="w-full border-t border-neutral-200 bg-gallery px-6 py-12 sm:px-10">
-      <div className="mx-auto grid w-full max-w-7xl items-center justify-items-center gap-10 lg:grid-cols-2 lg:gap-8">
+    <footer className="relative w-full overflow-hidden border-t border-neutral-200 bg-gallery px-6 py-12 sm:px-10">
+      <FooterFormulas />
+      <div className="relative mx-auto grid w-full max-w-7xl items-center justify-items-center gap-10 lg:grid-cols-2 lg:gap-8">
         {/* Name — logic face, left. */}
         <div className="font-digibra text-center lg:justify-self-start lg:text-left">
           <p className="text-[clamp(1.7rem,3.4vw,2.9rem)] leading-[1.05] text-neutral-900">
@@ -104,11 +110,11 @@ export function SiteFooter() {
           From `lg` they live under the landing's brain (HeroStage); below
           `lg` that band is the brain's lines and the scroll cue, so they are
           carried here instead. */}
-      <div className="mx-auto mt-12 flex w-full max-w-md justify-center border-t border-neutral-200 pt-10 lg:hidden">
+      <div className="relative mx-auto mt-12 flex w-full max-w-md justify-center border-t border-neutral-200 pt-10 lg:hidden">
         <AboutFacts />
       </div>
 
-      <p className="font-graff mx-auto mt-10 w-full max-w-7xl text-center text-[0.7rem] font-normal text-neutral-400">
+      <p className="font-graff relative mx-auto mt-10 w-full max-w-7xl text-center text-[0.7rem] font-normal text-neutral-400">
         © {copyrightYears} {SITE.name}. All rights reserved.
       </p>
     </footer>

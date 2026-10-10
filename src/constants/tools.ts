@@ -15,12 +15,16 @@ export interface Tool {
   name: string;
   src: string;
   aspect: number;
+  /** Optical size: the mark's height as a share of the row's. A wordmark is
+   *  ink from edge to edge where an icon sits inside its own padding, so at
+   *  one height the word shouts; this brings it back into line. */
+  scale?: number;
 }
 
 export const TOOLS: Tool[] = [
   { id: "adobe-cc", name: "Adobe Creative Cloud", src: `${DIR}/adobe-cc.svg`, aspect: 1 },
   { id: "claude", name: "Claude", src: `${DIR}/claude.svg`, aspect: 1 },
-  { id: "google-flow", name: "Google Flow", src: `${DIR}/google-flow.svg`, aspect: 448 / 172 },
+  { id: "google-flow", name: "Google Flow", src: `${DIR}/google-flow.svg`, aspect: 448 / 172, scale: 0.65 }, // smaller, owner 2026-10-03
   { id: "gemini", name: "Gemini", src: `${DIR}/gemini.svg`, aspect: 1 },
   { id: "chatgpt", name: "ChatGPT", src: `${DIR}/chatgpt.svg`, aspect: 1 },
   { id: "postshot", name: "Postshot", src: `${DIR}/postshot.png`, aspect: 151 / 128 },

@@ -16,6 +16,7 @@ import {
   Tinos,
 } from "next/font/google";
 import { MemoryTransitionHost } from "@/components/transition/MemoryTransitionHost";
+import { ScreenGuard } from "@/components/guard/ScreenGuard";
 import "./globals.css";
 
 /**
@@ -209,6 +210,10 @@ export default function RootLayout({
         {/* The memory-dive orchestrator — global so any page's client cards
             can begin a retrieval (thread → response → veil → dive). */}
         <MemoryTransitionHost />
+        {/* Deterrents against capturing the work, on every page (owner,
+            2026-10-05) — see ScreenGuard; a page cannot truly stop a
+            screenshot. */}
+        <ScreenGuard />
         {/* RotateGate stood here until 2026-10-03: it asked phones to turn
             sideways and then laid the page out at 1280px and scaled it down.
             The owner asked for the site to be fully responsive instead, so

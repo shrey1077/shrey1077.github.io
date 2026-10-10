@@ -1,234 +1,120 @@
 "use client";
 
 /**
- * BrainDock — the landing's brain, carried into the rooms (2026-10-03, owner:
- * "make the circle bigger, 80% of the screen height, and only a semicircle
- * visible … I would love to see slide 3's video animating from slide 2").
+ * BrainDock — the brain in the corner of the rooms (2026-10-10, owner: "the
+ * brain video is moved into circle and shifted to right of screen is not
+ * good, remove it, instead when we have moved to left … the brain should
+ * appear later in the black circle at left bottom and fixed on the left most
+ * frame of the original brain video, similarly and mirrored for right side").
  *
- * ONE brain for the whole run, outside the slides, posed by the camera:
- *   · up to the brain slide it is not drawn — the landing has its own brain;
- *   · flying from the brain slide to the first room it LIFTS OFF the landing,
- *     exactly where the landing's brain stood, and shrinks and slides into a
- *     round window 80% of the screen tall, centred ON an edge, so only half of
- *     it is on screen;
- *   · on the logic track that edge is the RIGHT one — the grey brain and its
- *     circuitry show; on the creative track it is the LEFT — the colour half
- *     and its splash. Between the two it is the HINGE of the sideways pan
- *     (Flythrough's two parallel tracks): it swings from one edge to the
- *     other with the rooms, and the brain turns as it goes.
- * No mask: the screen edge is what hides the other half. (A per-frame cut to
- * one hemisphere — BrainWindow, white beyond the seam — lasted an hour.)
+ * One circle per track, in its OUTER bottom corner — on WHITE (owner, the
+ * same day: "on the smaller brain artwork in internal sections, keep a white
+ * bg"; it was black for its first hour):
+ *   · logic — bottom LEFT, holding the brain footage's first frame (000, the
+ *     pointer at the far left: the grey half, its circuitry trailing off to
+ *     the left edge);
+ *   · creative — bottom RIGHT, holding the last (047, the pointer at the far
+ *     right: the colour half, its paint flying off to the right edge).
+ * Stills, not the live footage — the frames are the ones the landing already
+ * preloads, so they cost nothing more. The landing's brain no longer lifts
+ * off into the rooms: it stays on its slide and leaves with it, and this one
+ * APPEARS once the camera has arrived (a beat after the flight lands).
  *
- * THE WAY ACROSS. Inside the visible half sits "Click to <the room level with
- * this one, on the other track>" and an arrow blinking toward it (owner,
- * 2026-10-03). The whole half-window is the button.
+ * Each circle rides its column's pan, so a switch of track slides one out and
+ * the other in. THE WAY ACROSS is still here: the circle and its tab are one
+ * button — "Click to <the room level with this one, on the other track>",
+ * its arrow blinking toward it.
  *
- * The picture is a live COPY of the landing's canvas (BrainSequence, tagged
- * `data-brain`), which keeps turning in the rooms on its own (its "left" and
- * "right" modes). So the hand-over at the brain slide is pixel-exact, and the
- * dock costs one blit per new frame and no extra frames in memory.
- *
- * Below `lg` the window is smaller and sits up beside each room's header,
- * still half off the edge.
- *
- * Everything is written straight to the DOM from the motion values — nothing
- * here re-renders on scroll.
+ * Until 2026-10-10 this was a live copy of the landing's canvas that lifted
+ * off the brain slide into a window half off the right edge — git has it.
  */
 
-import { useEffect, useLayoutEffect, useRef, useState } from "react";
-import { motion, useMotionValueEvent, type MotionValue } from "framer-motion";
-import { BRAIN_CENTRE, toStage } from "@/components/home/BrainTraces";
-import { BRAIN_FRAME_H, BRAIN_FRAME_W } from "@/components/home/BrainSequence";
-import { useMediaQuery } from "@/hooks/useMediaQuery";
+import Image from "next/image";
+import { motion, useTransform, type MotionValue } from "framer-motion";
 import { typeVoiceClass } from "@/constants/typography";
 
-/** The frame point that sits on the window's centre: the seam, at the middle
- *  of the brain's height (it spans rows ~118–613). */
-const FOCUS = { x: BRAIN_CENTRE.x, y: 366 };
-/** How much of the frame (px, square) the docked window shows across. */
-const WINDOW_FRAME = 660;
-/** The clip's radius before it starts to close — wide enough that the whole
- *  frame shows, as it does on the landing. */
-const OPEN_R = 820;
-/** The landing brain's feathered right edge, repeated so the hand-over is
- *  exact. Keep in step with BrainSequence's FEATHER. */
-const FEATHER = "linear-gradient(to right, #000 0%, #000 88%, transparent 100%)";
+/** Frame px across the circle, and the frame point at its centre. The frames
+ *  are 1280×720; both crops stay clear of the export rule in rows 718–719. */
+const CROP = 700;
+const FRAMES = {
+  logic: { src: "/brain/frames/000.webp", cx: 600, cy: 360 },
+  creative: { src: "/brain/frames/047.webp", cx: 560, cy: 360 },
+} as const;
+const FRAME_W = 1280;
+const FRAME_H = 720;
 
-const ease = (t: number) => (t < 0.5 ? 4 * t * t * t : 1 - (-2 * t + 2) ** 3 / 2);
-const clamp01 = (v: number) => Math.max(0, Math.min(1, v));
-const lerp = (a: number, b: number, t: number) => a + (b - a) * t;
+/** The circle's diameter: 5.5rem on a phone, 15vh (96–150px) from `lg`.
+ *  ⚠ Kept in step with the rooms' foot padding (Flythrough), which clears
+ *  it. */
+const DOCK_SIZE = "size-[5.5rem] lg:size-[max(6rem,min(15vh,150px))]";
 
-export function BrainDock({
-  p,
-  trackX,
-  enter,
-  pose,
-  reduceMotion,
+function Corner({
+  side,
+  shown,
+  pan,
   across,
   onAcross,
+  reduceMotion,
 }: {
-  /** The camera, in slides. */
-  p: MotionValue<number>;
-  /** The pan between the tracks: 0 logic (docked right), 1 creative (left). */
-  trackX: MotionValue<number>;
-  /** The brain slide's index: the dock lifts off the landing between this
-   *  and the next. */
-  enter: number;
-  /** The landing footage's resting transform (HeroStage). */
-  pose: { scale: number; scalePhone: number; shiftX: number; rise: number };
-  reduceMotion: boolean;
-  /** Where the button inside leads: the room level with this one, its face,
-   *  and which way the arrow points. */
-  across: { label: string; face: "logic" | "creative"; toward: "left" | "right" };
+  side: "logic" | "creative";
+  shown: boolean;
+  /** This column's offset, in stage widths. */
+  pan: MotionValue<number>;
+  across: string;
   onAcross: () => void;
+  reduceMotion: boolean;
 }) {
-  const rootRef = useRef<HTMLDivElement>(null);
-  const discRef = useRef<HTMLDivElement>(null);
-  const canvasRef = useRef<HTMLCanvasElement>(null);
-  const buttonRef = useRef<HTMLButtonElement>(null);
-  const compact = useMediaQuery("(max-width: 1023px)");
-  const tallCompact = useMediaQuery("(max-width: 1023px) and (orientation: portrait)");
-  const [size, setSize] = useState<{ w: number; h: number } | null>(null);
-  // Which edge it is docked at — only to paint the ring (white or paint).
-  const [creative, setCreative] = useState(false);
-  const shown = useRef(false);
-
-  useLayoutEffect(() => {
-    const el = rootRef.current;
-    if (!el) return;
-    const read = () => setSize({ w: el.offsetWidth, h: el.offsetHeight });
-    read();
-    const ro = new ResizeObserver(read);
-    ro.observe(el);
-    return () => ro.disconnect();
-  }, []);
-
-  // Pose the window for a camera position and a pan.
-  const apply = (v: number, tx: number) => {
-    const root = rootRef.current;
-    const disc = discRef.current;
-    const canvas = canvasRef.current;
-    const button = buttonRef.current;
-    if (!root || !disc || !canvas || !button || !size) return;
-    const { w, h } = size;
-    const visible = v > enter + 1e-4;
-    shown.current = visible;
-    root.style.visibility = visible ? "visible" : "hidden";
-    setCreative(tx > 0.5);
-    if (!visible) return;
-
-    // Landing pose: the footage as HeroStage places it.
-    const cs = tallCompact ? pose.scalePhone : pose.scale;
-    const fit = Math.min(w / BRAIN_FRAME_W, h / BRAIN_FRAME_H);
-    const land = toStage(FOCUS.x, FOCUS.y, w, h, cs, pose.shiftX, pose.rise);
-    const landS = fit * cs;
-
-    // Docked: 80% of the stage tall, centred on an edge (desktop); smaller and
-    // level with the room's header below `lg`.
-    const d = compact ? Math.min(w * 0.5, 240) : h * 0.8;
-    const dockY = compact ? Math.max(h * 0.08, 80) + d / 2 : h / 2;
-    const dockS = d / WINDOW_FRAME;
-    const dockR = WINDOW_FRAME / 2;
-
-    let t = clamp01(v - enter);
-    if (reduceMotion) t = t < 0.5 ? 0 : 1;
-    const e = ease(t);
-    // Across with the pan: the right edge (logic) → the left (creative), a
-    // little smaller mid-way so it reads as swinging rather than sliding.
-    const dockX = lerp(w, 0, tx);
-    const dip = 1 - 0.18 * Math.sin(Math.PI * tx);
-
-    const s = lerp(landS, dockS * dip, e);
-    const r = lerp(OPEN_R, dockR, e); // frame px
-    const x = lerp(land.x, dockX, e);
-    const y = lerp(land.y, dockY, e);
-
-    canvas.style.transform = `translate(${x - FOCUS.x * s}px, ${y - FOCUS.y * s}px) scale(${s})`;
-    canvas.style.clipPath = `circle(${r}px at ${FOCUS.x}px ${FOCUS.y}px)`;
-    const R = r * s;
-    disc.style.transform = `translate(${x - R}px, ${y - R}px)`;
-    disc.style.width = disc.style.height = `${2 * R}px`;
-    // The ring and the shadow arrive as it docks.
-    disc.style.setProperty("--dock-ring", String(e));
-
-    // The button covers the window, and shows only while it is docked and
-    // still — not mid-lift-off, not mid-pan.
-    button.style.transform = disc.style.transform;
-    button.style.width = button.style.height = disc.style.width;
-    const settled = clamp01((t - 0.85) / 0.15) * (1 - clamp01(Math.sin(Math.PI * tx) * 4));
-    button.style.opacity = String(settled);
-    button.style.pointerEvents = settled > 0.6 ? "auto" : "none";
-  };
-
-  useMotionValueEvent(p, "change", (v) => apply(v, trackX.get()));
-  useMotionValueEvent(trackX, "change", (tx) => apply(p.get(), tx));
-  // Re-pose on resize, and once on mount.
-  useEffect(() => {
-    apply(p.get(), trackX.get());
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [size, compact, tallCompact]);
-
-  // Copy the landing's canvas whenever it shows a new frame, while visible.
-  useEffect(() => {
-    const canvas = canvasRef.current;
-    const ctx = canvas?.getContext("2d");
-    if (!canvas || !ctx) return;
-    let src: HTMLCanvasElement | null = null;
-    let last = "";
-    let raf = 0;
-    const tick = () => {
-      raf = requestAnimationFrame(tick);
-      if (!shown.current) return;
-      src ??= document.querySelector<HTMLCanvasElement>("canvas[data-brain]");
-      if (!src) return;
-      const f = src.dataset.frame ?? "";
-      if (f === last) return;
-      last = f;
-      ctx.clearRect(0, 0, BRAIN_FRAME_W, BRAIN_FRAME_H);
-      ctx.drawImage(src, 0, 0);
-    };
-    raf = requestAnimationFrame(tick);
-    return () => cancelAnimationFrame(raf);
-  }, []);
-
-  const right = across.toward === "right";
+  const logic = side === "logic";
+  const f = FRAMES[side];
+  const x = useTransform(pan, (v) => `${v * 100}%`);
+  const visibility = useTransform(pan, (v) => (Math.abs(v) > 0.999 ? "hidden" : "visible"));
 
   return (
-    <div ref={rootRef} className="pointer-events-none absolute inset-0 z-[130] overflow-hidden" style={{ visibility: "hidden" }}>
-      {/* The window's ground and ring: white light on the logic side, paint
-          on the creative — a 3px rim round a disc of the landing's own wall
-          colour, so the brain sits on what it sat on before. */}
-      <div
-        ref={discRef}
-        aria-hidden
-        className={`absolute left-0 top-0 rounded-full p-[3px] ${creative ? "brain-paint" : "bg-white/50"}`}
-        style={{ boxShadow: "0 30px 90px rgba(0,0,0,calc(0.5 * var(--dock-ring, 0)))" }}
-      >
-        <div className="h-full w-full rounded-full bg-gallery" />
-      </div>
-      <canvas
-        ref={canvasRef}
-        aria-hidden
-        width={BRAIN_FRAME_W}
-        height={BRAIN_FRAME_H}
-        className="absolute left-0 top-0 origin-top-left"
-        style={{ width: BRAIN_FRAME_W, height: BRAIN_FRAME_H, maskImage: FEATHER, WebkitMaskImage: FEATHER }}
-      />
-
-      {/* The way across — the whole window is the button; the prompt sits in
-          the middle of its VISIBLE half (a quarter of the way in from the
-          on-screen side), low enough to leave the brain's crown clear. */}
-      <button
-        ref={buttonRef}
+    <motion.div className="pointer-events-none absolute inset-0" style={{ x, visibility }}>
+      <motion.button
         type="button"
         onClick={onAcross}
-        aria-label={`Go across to ${across.label}`}
-        className="group absolute left-0 top-0 cursor-pointer rounded-full outline-none transition-opacity duration-300 focus-visible:ring-2 focus-visible:ring-white/80"
-        style={{ opacity: 0, pointerEvents: "none" }}
+        aria-label={`Go across to ${across}`}
+        tabIndex={shown ? 0 : -1}
+        className={`group pointer-events-auto absolute bottom-[max(1rem,3.5vh)] flex cursor-pointer items-center gap-3 outline-none lg:gap-4 ${
+          logic ? "left-[max(1rem,2.5vw)] flex-row" : "right-[max(1rem,2.5vw)] flex-row-reverse"
+        }`}
+        style={{ pointerEvents: shown ? "auto" : "none", transformOrigin: logic ? "0% 100%" : "100% 100%" }}
+        initial={false}
+        animate={shown ? { opacity: 1, scale: 1 } : { opacity: 0, scale: 0.72 }}
+        transition={
+          shown
+            ? { delay: reduceMotion ? 0 : 0.7, duration: reduceMotion ? 0.2 : 0.75, ease: [0.22, 1, 0.36, 1] }
+            : { duration: 0.25, ease: "easeOut" }
+        }
       >
+        {/* The circle: a ring — graphite on the logic side, paint on the
+            creative — round a white disc holding the still. */}
         <span
-          className={`absolute top-[72%] flex max-w-[40%] -translate-x-1/2 -translate-y-1/2 flex-col items-center gap-1 rounded-2xl bg-neutral-950/80 px-4 py-3 text-center text-white shadow-[0_10px_30px_rgba(0,0,0,0.35)] backdrop-blur-sm transition-transform duration-300 group-hover:scale-105 max-lg:top-1/2 max-lg:max-w-[46%] max-lg:gap-0.5 max-lg:rounded-xl max-lg:px-2 max-lg:py-1.5 ${
-            right ? "left-1/4" : "left-3/4"
+          className={`relative block shrink-0 rounded-full p-[3px] ${DOCK_SIZE} shadow-[0_18px_50px_rgba(0,0,0,0.35)] transition-transform duration-500 group-hover:scale-[1.04] group-focus-visible:ring-2 group-focus-visible:ring-neutral-900/50 group-focus-visible:ring-offset-2 ${
+            logic ? "bg-gradient-to-br from-neutral-400 via-neutral-700 to-neutral-950" : "brain-paint"
+          }`}
+        >
+          <span className="relative block h-full w-full overflow-hidden rounded-full bg-white">
+            <span
+              className="absolute block transition-transform duration-700 group-hover:scale-[1.06]"
+              style={{
+                width: `${(FRAME_W / CROP) * 100}%`,
+                height: `${(FRAME_H / CROP) * 100}%`,
+                left: `${(-(f.cx - CROP / 2) / CROP) * 100}%`,
+                top: `${(-(f.cy - CROP / 2) / CROP) * 100}%`,
+                transformOrigin: `${(f.cx / FRAME_W) * 100}% ${(f.cy / FRAME_H) * 100}%`,
+              }}
+            >
+              <Image src={f.src} alt="" fill sizes="300px" className="object-fill" />
+            </span>
+          </span>
+        </span>
+
+        {/* The way across. */}
+        <span
+          className={`flex flex-col gap-0.5 rounded-2xl bg-neutral-950/80 px-3 py-2 text-white ring-1 ring-white/10 shadow-[0_10px_30px_rgba(0,0,0,0.3)] backdrop-blur-sm lg:px-4 lg:py-3 ${
+            logic ? "items-start text-left" : "items-end text-right"
           }`}
         >
           <span className={`${typeVoiceClass("logic", "meta")} text-[0.55rem] tracking-[0.28em] text-white/60 max-lg:hidden`}>
@@ -236,22 +122,57 @@ export function BrainDock({
           </span>
           <span
             className={`${
-              across.face === "creative" ? "font-graff font-bold" : "font-digibra"
-            } text-[clamp(1rem,1.5vw,1.45rem)] leading-tight max-lg:text-[0.68rem]`}
+              logic ? "face-creative font-bold" : "face-logic"
+            } text-[clamp(0.8rem,1.2vw,1.2rem)] leading-tight`}
           >
-            {across.label}
+            {across}
             <span className="max-lg:hidden"> section</span>
           </span>
           <motion.span
             aria-hidden
-            className="block text-lg leading-none max-lg:text-sm"
-            animate={reduceMotion ? undefined : { x: right ? [0, 7, 0] : [0, -7, 0], opacity: [1, 0.25, 1] }}
+            className="block text-base leading-none lg:text-lg"
+            animate={reduceMotion ? undefined : { x: logic ? [0, 7, 0] : [0, -7, 0], opacity: [1, 0.25, 1] }}
             transition={{ duration: 1.1, repeat: Infinity, ease: "easeInOut" }}
           >
-            {right ? "→" : "←"}
+            {logic ? "→" : "←"}
           </motion.span>
         </span>
-      </button>
+      </motion.button>
+    </motion.div>
+  );
+}
+
+export function BrainDock({
+  inRooms,
+  logicPan,
+  creativePan,
+  logicAcross,
+  creativeAcross,
+  onAcross,
+  reduceMotion,
+}: {
+  /** Whether the camera is in the rooms — the circles appear a beat after. */
+  inRooms: boolean;
+  /** Each column's offset, in stage widths (Flythrough's pan). */
+  logicPan: MotionValue<number>;
+  creativePan: MotionValue<number>;
+  /** The room level with this one on the OTHER track, seen from each side. */
+  logicAcross: string;
+  creativeAcross: string;
+  onAcross: () => void;
+  reduceMotion: boolean;
+}) {
+  return (
+    <div className="pointer-events-none absolute inset-0 z-[130] overflow-hidden">
+      <Corner side="logic" shown={inRooms} pan={logicPan} across={logicAcross} onAcross={onAcross} reduceMotion={reduceMotion} />
+      <Corner
+        side="creative"
+        shown={inRooms}
+        pan={creativePan}
+        across={creativeAcross}
+        onAcross={onAcross}
+        reduceMotion={reduceMotion}
+      />
     </div>
   );
 }
