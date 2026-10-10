@@ -201,10 +201,18 @@ export function HeroStage() {
     ? Math.max(
         0,
         Math.min(
-          tallCompact ? Math.min(size.w * 0.94, 460) : size.w * (1 - 2 * ORB_SIDE),
+          // (Capped at 720px — a portrait tablet's width, 2026-10-11; it was 460,
+          // which left the orb small on a tablet.)
+          tallCompact ? Math.min(size.w * 0.94, 720) : size.w * (1 - 2 * ORB_SIDE),
           (markTopSmall - CAPTION_CLEAR - captionH - size.h * ORB_TOP) * ORB_ASPECT,
         ),
       )
+    : 0;
+  // The stack's top: ORB_TOP at least, and otherwise centred in the room over
+  // the mark — on a portrait phone the orb is held by the width, and the stack
+  // would sit up top over an empty half-screen (2026-10-11).
+  const stackTop = size
+    ? Math.max(size.h * ORB_TOP, (markTopSmall - CAPTION_CLEAR - captionH - orbW / ORB_ASPECT) / 2)
     : 0;
 
   // The mark rides the camera from the foot (half size) to the top (full).
@@ -242,7 +250,10 @@ export function HeroStage() {
     <section
       ref={ref}
       aria-label="Landing"
-      className="relative h-[100svh] min-h-[560px] w-full overflow-hidden sm:min-h-[640px]"
+      // ⚠ No minimum height (560/640px until 2026-10-11): the Flythrough's
+      // stage is exactly one screen and clips, so on a landscape phone a
+      // taller landing simply lost its foot — the band and the mark.
+      className="relative h-[100svh] w-full overflow-hidden"
       style={{ backgroundColor: "transparent" }}
     >
       {/* Circuit board texture — under everything. */}
@@ -348,7 +359,8 @@ export function HeroStage() {
       {/* ── Slide 0: the name and the portrait orb (owner, 2026-10-03; the
           name moved over the orb 2026-10-04, the tools out to My Stack
           2026-10-10) — one centred
-          column, its top 10% down (see ORB_TOP). The mark at the foot is
+          column, its top 10% down (see ORB_TOP) or lower, centred over the
+          mark where the orb leaves room (stackTop). The mark at the foot is
           common to both slides, below. */}
       <motion.div
         aria-hidden={!onOrb}
@@ -361,7 +373,10 @@ export function HeroStage() {
           pointerEvents: onOrb ? "auto" : "none",
         }}
       >
-        <div className="absolute inset-x-0 flex flex-col items-center" style={{ top: `${ORB_TOP * 100}%` }}>
+        <div
+          className="absolute inset-x-0 flex flex-col items-center"
+          style={{ top: size ? stackTop : `${ORB_TOP * 100}%` }}
+        >
           {/* Shrey Singh / Designer, over the orb, the two lines centred
               (owner, 2026-10-05).
               ⚠ The name is in DIGIBRA, the PORTFOLIO mark's face (owner,
@@ -372,9 +387,10 @@ export function HeroStage() {
               a hair under it: the paint runs to the orb frame's very top edge
               here.
               ⚠ Digibra's capitals are WIDE — the name runs ~8.6em — so the
-              size is also held to 10vw, or a phone would lose its ends. */}
+              size is also held to 10vw, or a phone would lose its ends — and on a
+              portrait tablet it grows to 4.5rem with the orb (2026-10-11). */}
           <p ref={nameRef} className="pointer-events-none flex flex-col items-center whitespace-nowrap pb-1 leading-none">
-            <span className="face-logic text-[min(10vw,clamp(3.2rem,6.6vw,6rem))] uppercase leading-none text-neutral-900">
+            <span className="face-logic text-[min(10vw,clamp(3.2rem,6.6vw,6rem))] uppercase max-lg:portrait:text-[min(10vw,4.5rem)] leading-none text-neutral-900">
               <span className="digibra-black">{NAME_FIRST}</span> <span className="digibra-light">{NAME_REST.join(" ")}</span>
             </span>
             <span className="mt-1 text-[clamp(0.84375rem,1.5625vw,1.40625rem)] font-normal leading-none tracking-[0.02em] text-neutral-500">

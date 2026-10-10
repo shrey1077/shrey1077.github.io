@@ -61,7 +61,10 @@ export function ArtCollections({ collections }: { collections: ArtCollection[] }
   }
 
   return (
-    <div className="grid h-full min-h-0 grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4">
+    // The rows share the room's height, but never below 7rem a tile — on a
+    // short screen (a phone on its side) they keep their size and the grid
+    // scrolls instead of squashing them to strips (2026-10-11).
+    <div className="grid h-full min-h-0 auto-rows-[minmax(7rem,1fr)] grid-cols-2 gap-3 overflow-y-auto sm:grid-cols-3 lg:grid-cols-4">
       {collections.map((c, i) => (
         <motion.button
           key={c.name}

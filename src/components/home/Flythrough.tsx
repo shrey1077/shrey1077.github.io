@@ -671,7 +671,8 @@ export function Flythrough({
                   2026-10-10 it kept a side clear of the dock's half-window.) */}
               <section
                 aria-label={s.label}
-                className="flex h-full px-5 pb-[calc(max(1rem,3.5vh)+5.5rem+1.5vh)] pt-[max(8vh,5rem)] text-neutral-900 sm:px-10 lg:px-[5vw] lg:pb-[calc(max(1rem,3.5vh)+max(6rem,min(15vh,150px))+1.5vh)]"
+                data-side={t}
+                className="room-pad flex h-full px-5 pb-[calc(max(1rem,3.5vh)+5.5rem+1.5vh)] pt-[max(8vh,5rem)] text-neutral-900 sm:px-10 md:pb-[calc(max(1rem,3.5vh)+max(6rem,min(15vh,9.375rem))+1.5vh)] lg:px-[5vw]"
               >
                 <div className="flex min-w-0 flex-1 flex-col">
                   {logic ? (
@@ -681,17 +682,17 @@ export function Flythrough({
                           <p className={`${typeVoiceClass("logic", "meta")} text-[0.62rem] tracking-[0.32em] text-neutral-500`}>
                             {meta}
                           </p>
-                          <h2 className="face-logic mt-2 text-[clamp(2.4rem,5.4vw,5.2rem)] leading-[0.95]">
+                          <h2 className="room-title face-logic mt-2 text-[clamp(2.4rem,5.4vw,5.2rem)] leading-[0.95]">
                             {s.label}
                           </h2>
                           {s.tagline && (
-                            <p className={`${typeVoiceClass("logic", "meta")} mt-3 text-[0.62rem] tracking-[0.3em] text-neutral-500`}>
+                            <p className={`room-tagline ${typeVoiceClass("logic", "meta")} mt-3 text-[0.62rem] tracking-[0.3em] text-neutral-500`}>
                               {s.tagline}
                             </p>
                           )}
                         </div>
                       </div>
-                      <p className="font-helv max-w-md text-sm leading-relaxed text-neutral-600 max-sm:line-clamp-3">
+                      <p className="room-desc font-helv max-w-md text-sm leading-relaxed text-neutral-600 max-sm:line-clamp-3">
                         {s.description}
                       </p>
                     </header>
@@ -705,12 +706,12 @@ export function Flythrough({
                           <p className={`${typeVoiceClass("logic", "meta")} text-[0.62rem] tracking-[0.32em] text-neutral-500`}>
                             {meta}
                           </p>
-                          <h2 className="face-creative mt-2 text-[clamp(2.2rem,5vw,4.8rem)] font-bold leading-[0.95] tracking-[-0.01em]">
+                          <h2 className="room-title face-creative mt-2 text-[clamp(2.2rem,5vw,4.8rem)] font-bold leading-[0.95] tracking-[-0.01em]">
                             {s.label}
                           </h2>
                         </div>
                       </div>
-                      <p className={`font-helv max-w-md ${PAPER_PLATE} px-5 py-4 text-sm leading-relaxed text-neutral-700 max-sm:line-clamp-3`}>
+                      <p className={`room-desc font-helv max-w-md ${PAPER_PLATE} px-5 py-4 text-sm leading-relaxed text-neutral-700 max-sm:line-clamp-3`}>
                         {s.description}
                       </p>
                     </header>

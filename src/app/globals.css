@@ -61,6 +61,14 @@ body {
 html {
   /* Native smooth scrolling for the auto-scroll to the preview pane. */
   scroll-behavior: smooth;
+  /* LARGE SCREENS (2026-10-11, owner: "fully responsive for all screens").
+   * The layout is drawn in vw/vh and grows with the screen; the type and the
+   * spacing are rem and did not, so on a 2560px screen they read laptop-sized.
+   * From 1600px wide the root size follows the width (1vw), up to 1.5× at
+   * 2400px and beyond. Percentages, so a reader's own larger default still
+   * wins; breakpoints are untouched (a media query's rem is always the
+   * browser's default, never this). */
+  font-size: clamp(100%, 1vw, 150%);
 }
 
 /* The pointer: a black-stroked ring with a flat rainbow disc inside, 24px
@@ -551,4 +559,45 @@ video,
 svg {
   -webkit-user-drag: none;
   -webkit-touch-callout: none;
+}
+
+/* SHORT SCREENS — a phone on its side (2026-10-11, owner: "fully responsive
+ * for all screens"). Width to spare, height not: at 390px tall a room kept
+ * 80px over its header and a whole band under it for the brain's circle, and
+ * its board got ~15px. Here the rooms tighten their top, take the circle into
+ * the side margin (its own side: logic left, creative right) instead of a
+ * band at the foot, shed the tagline and hold the description to two lines;
+ * the circle drops its tab and shrinks (it is still the button across).
+ * Unlayered, so these win over the components' utilities — see Flythrough
+ * (.room-*) and BrainDock (.dock-*). */
+@media (max-height: 31.25rem) {
+  .room-pad {
+    padding-top: 3.25rem;
+    padding-bottom: 1rem;
+  }
+  .room-pad[data-side="logic"] {
+    padding-left: calc(max(1rem, 2.5vw) + 3.5rem + 1rem);
+  }
+  .room-pad[data-side="creative"] {
+    padding-right: calc(max(1rem, 2.5vw) + 3.5rem + 1rem);
+  }
+  .room-title {
+    font-size: 2rem;
+  }
+  .room-tagline {
+    display: none;
+  }
+  .room-desc {
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 2;
+    overflow: hidden;
+  }
+  .dock-circle {
+    width: 3.5rem;
+    height: 3.5rem;
+  }
+  .dock-tab {
+    display: none;
+  }
 }

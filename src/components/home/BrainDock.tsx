@@ -43,10 +43,10 @@ const FRAMES = {
 const FRAME_W = 1280;
 const FRAME_H = 720;
 
-/** The circle's diameter: 5.5rem on a phone, 15vh (96–150px) from `lg`.
+/** The circle's diameter: 5.5rem on a phone, 15vh (96–150px) from `md`.
  *  ⚠ Kept in step with the rooms' foot padding (Flythrough), which clears
  *  it. */
-const DOCK_SIZE = "size-[5.5rem] lg:size-[max(6rem,min(15vh,150px))]";
+const DOCK_SIZE = "size-[5.5rem] md:size-[max(6rem,min(15vh,9.375rem))]";
 
 function Corner({
   side,
@@ -91,7 +91,7 @@ function Corner({
         {/* The circle: a ring — graphite on the logic side, paint on the
             creative — round a white disc holding the still. */}
         <span
-          className={`relative block shrink-0 rounded-full p-[3px] ${DOCK_SIZE} shadow-[0_18px_50px_rgba(0,0,0,0.35)] transition-transform duration-500 group-hover:scale-[1.04] group-focus-visible:ring-2 group-focus-visible:ring-neutral-900/50 group-focus-visible:ring-offset-2 ${
+          className={`dock-circle relative block shrink-0 rounded-full p-[3px] ${DOCK_SIZE} shadow-[0_18px_50px_rgba(0,0,0,0.35)] transition-transform duration-500 group-hover:scale-[1.04] group-focus-visible:ring-2 group-focus-visible:ring-neutral-900/50 group-focus-visible:ring-offset-2 ${
             logic ? "bg-gradient-to-br from-neutral-400 via-neutral-700 to-neutral-950" : "brain-paint"
           }`}
         >
@@ -113,7 +113,7 @@ function Corner({
 
         {/* The way across. */}
         <span
-          className={`flex flex-col gap-0.5 rounded-2xl bg-neutral-950/80 px-3 py-2 text-white ring-1 ring-white/10 shadow-[0_10px_30px_rgba(0,0,0,0.3)] backdrop-blur-sm lg:px-4 lg:py-3 ${
+          className={`dock-tab flex flex-col gap-0.5 rounded-2xl bg-neutral-950/80 px-3 py-2 text-white ring-1 ring-white/10 shadow-[0_10px_30px_rgba(0,0,0,0.3)] backdrop-blur-sm lg:px-4 lg:py-3 ${
             logic ? "items-start text-left" : "items-end text-right"
           }`}
         >
