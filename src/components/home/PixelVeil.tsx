@@ -16,7 +16,11 @@
  *   · from the brain into a column, from the lower corner the room comes in
  *     from; on a pan across, from the side the new column comes in from.
  * The tiles: a pale glass face with a graphite hairline, a few with a dark
- * "data" core and a few lit solid — the site's own greys.
+ * "data" core and a few lit solid — the site's own greys. On the creative
+ * side those few dark ones are PAINT instead (owner, 2026-10-10: "the very
+ * few random pixels that are black in color should be in rainbow colors"):
+ * the rainbow of the creative ground (MoodField's RAINBOW), each square
+ * taking the colour of its place in a sweep across the screen.
  *
  * Driven straight from the camera's motion values — it scrubs with the
  * scroll, backward as well as forward, and never re-renders React. Reduced
@@ -26,10 +30,25 @@
 import { useEffect, useRef } from "react";
 import { useMotionValueEvent, type MotionValue } from "framer-motion";
 import { CELL, easeTime, gridFor, turned, type WaveFrom } from "@/components/home/pixelDissolve";
+import { RAINBOW } from "@/components/home/MoodField";
 
 /** Shares of the squares that carry a dark core, and that light solid. */
 const CORE_SHARE = 0.09;
 const SOLID_SHARE = 0.035;
+
+/** The rainbow as 0–255 RGB, and the colour at `u` turns round it. */
+const PAINT = RAINBOW.map((hex) => {
+  const n = parseInt(hex.slice(1), 16);
+  return [(n >> 16) & 255, (n >> 8) & 255, n & 255] as const;
+});
+function paintAt(u: number): string {
+  const t = (((u % 1) + 1) % 1) * PAINT.length;
+  const i = Math.floor(t);
+  const f = t - i;
+  const a = PAINT[i];
+  const b = PAINT[(i + 1) % PAINT.length];
+  return `${Math.round(a[0] + (b[0] - a[0]) * f)}, ${Math.round(a[1] + (b[1] - a[1]) * f)}, ${Math.round(a[2] + (b[2] - a[2]) * f)}`;
+}
 
 export function PixelVeil({
   p,
@@ -90,6 +109,10 @@ export function PixelVeil({
     }
     canvas.style.visibility = "visible";
 
+    // A move on the creative side lights its accents in paint, not graphite:
+    // a pan by where it is heading, a step by the track it is on.
+    const creative = tx > 0.002 && tx < 0.998 ? trackRef.current === "creative" : tx > 0.5;
+
     const grid = gridFor(w, h);
     const start = grid.start(from);
     const g = easeTime(f);
@@ -102,8 +125,15 @@ export function PixelVeil({
       const x = grid.x[k] + (CELL - e) / 2;
       const y = grid.y[k] + (CELL - e) / 2;
       const r = grid.seed[k];
+      // The accent's colour: graphite, or the paint of this square's place.
+      const ink =
+        r < SOLID_SHARE + CORE_SHARE
+          ? creative
+            ? paintAt((grid.x[k] + CELL / 2) / w * 0.9 + (grid.y[k] + CELL / 2) / h * 0.3)
+            : "24, 24, 27"
+          : "";
       if (r < SOLID_SHARE) {
-        ctx.fillStyle = `rgba(24, 24, 27, ${0.78 * a})`;
+        ctx.fillStyle = `rgba(${ink}, ${(creative ? 0.88 : 0.78) * a})`;
         ctx.fillRect(x, y, e, e);
         continue;
       }
@@ -114,7 +144,7 @@ export function PixelVeil({
       ctx.strokeRect(x + 0.5, y + 0.5, e - 1, e - 1);
       if (r < SOLID_SHARE + CORE_SHARE) {
         const c = e * 0.26;
-        ctx.fillStyle = `rgba(24, 24, 27, ${0.7 * a})`;
+        ctx.fillStyle = `rgba(${ink}, ${(creative ? 0.9 : 0.7) * a})`;
         ctx.fillRect(x + (e - c) / 2, y + (e - c) / 2, c, c);
       }
     }

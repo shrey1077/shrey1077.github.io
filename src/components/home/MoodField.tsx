@@ -38,7 +38,7 @@ import { useReducedMotion } from "framer-motion";
 /** The ground under the field, and the rainbow its veins take — the stops of
  *  `.brain-paint`, in order (the ramp wraps from the last to the first). */
 export const MOOD_BG = "#ffffff";
-const RAINBOW = ["#ff2e8b", "#ff5a3c", "#ff8a00", "#f5c518", "#7fbf2e", "#00a6a6", "#3f6ad8", "#7a3fb0"];
+export const RAINBOW = ["#ff2e8b", "#ff5a3c", "#ff8a00", "#f5c518", "#7fbf2e", "#00a6a6", "#3f6ad8", "#7a3fb0"];
 
 /** Canvas pixels per CSS pixel (with the device ratio capped at 1). */
 const RENDER_SCALE = 0.75;
