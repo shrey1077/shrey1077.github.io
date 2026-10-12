@@ -38,6 +38,8 @@ const caveat = Caveat({
   subsets: ["latin"],
   variable: "--font-caveat",
   display: "swap",
+  // Fetched only where a page uses it (speed fix 5).
+  preload: false,
 });
 
 /** The painted voice — a brush face with true lowercase, for the creative
@@ -47,6 +49,8 @@ const caveatBrush = Caveat_Brush({
   weight: "400",
   variable: "--font-brush",
   display: "swap",
+  // Fetched only where a page uses it (speed fix 5).
+  preload: false,
 });
 
 const fraunces = Fraunces({
@@ -54,6 +58,8 @@ const fraunces = Fraunces({
   style: ["normal", "italic"],
   variable: "--font-fraunces",
   display: "swap",
+  // Fetched only where a page uses it (speed fix 5).
+  preload: false,
 });
 
 const plexMono = IBM_Plex_Mono({
@@ -61,6 +67,8 @@ const plexMono = IBM_Plex_Mono({
   weight: ["400", "500"],
   variable: "--font-plex-mono",
   display: "swap",
+  // Fetched only where a page uses it (speed fix 5).
+  preload: false,
 });
 
 /* Client brand voices (docs/TATA_IIS_BUILD_PROMPT.md — CP7 refinement).
@@ -82,6 +90,8 @@ const cinzel = Cinzel({
   weight: ["400", "600"],
   variable: "--font-cinzel",
   display: "swap",
+  // Fetched only where a page uses it (speed fix 5).
+  preload: false,
 });
 
 const syne = Syne({
@@ -96,6 +106,8 @@ const michroma = Michroma({
   weight: "400",
   variable: "--font-michroma",
   display: "swap",
+  // Fetched only where a page uses it (speed fix 5).
+  preload: false,
 });
 
 const anton = Anton({
@@ -103,6 +115,8 @@ const anton = Anton({
   weight: "400",
   variable: "--font-anton",
   display: "swap",
+  // Fetched only where a page uses it (speed fix 5).
+  preload: false,
 });
 
 const orbitron = Orbitron({
@@ -110,6 +124,8 @@ const orbitron = Orbitron({
   weight: ["500", "700"],
   variable: "--font-orbitron",
   display: "swap",
+  // Fetched only where a page uses it (speed fix 5).
+  preload: false,
 });
 
 /** Azoth's hero voice — the italic display face the client's own hero comp was
@@ -126,6 +142,8 @@ const playfair = Playfair_Display({
   weight: ["400", "500"],
   variable: "--font-playfair",
   display: "swap",
+  // Fetched only where a page uses it (speed fix 5).
+  preload: false,
 });
 
 /** ABS Wholesale's page voice. The owner asked for Barlow across that room,
@@ -136,6 +154,8 @@ const barlow = Barlow({
   weight: ["300", "400", "500", "600", "700", "800"],
   variable: "--font-barlow",
   display: "swap",
+  // Fetched only where a page uses it (speed fix 5).
+  preload: false,
 });
 
 /** The landing's "Left brain / Right brain" pair (2026-10-02), set after the
@@ -149,6 +169,8 @@ const interTight = Inter_Tight({
   weight: ["300", "800"],
   variable: "--font-inter-tight",
   display: "swap",
+  // Fetched only where a page uses it (speed fix 5).
+  preload: false,
 });
 
 const greatVibes = Great_Vibes({
@@ -156,6 +178,8 @@ const greatVibes = Great_Vibes({
   weight: "400",
   variable: "--font-great-vibes",
   display: "swap",
+  // Fetched only where a page uses it (speed fix 5).
+  preload: false,
 });
 
 const tinos = Tinos({
@@ -165,6 +189,8 @@ const tinos = Tinos({
   style: ["normal", "italic"],
   variable: "--font-tinos",
   display: "swap",
+  // Fetched only where a page uses it (speed fix 5).
+  preload: false,
 });
 
 export const metadata: Metadata = {
