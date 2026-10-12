@@ -53,6 +53,8 @@ export const Z_INDEX = {
   header: 20,
   /** The memory-transition veil (MemoryOverlay). */
   overlay: 40,
+  /** The home page's black band, fixed along the foot (FootBand). */
+  band: 45,
   /** Modal media viewing (MediaViewer). */
   viewer: 50,
 } as const;

@@ -393,44 +393,34 @@ export const TATA_PHOTO_BAND: TataBand = {
   number: "07",
   kicker: "Photo / Videography, Editing",
   headline: ["The campus,", "on camera."],
-  body: "Alongside the design, the camera: covering what happens at the institute, and cutting it into films in the same three visual themes as everything else.",
+  body: "Alongside the design, the camera — on industry visits, on testimonials, and at the institute's events and across its campus — and the films cut from it, in the same three visual themes as everything else.",
 };
 
-/** Band 07's aspects, in the owner's order. `photos` names a key of
- *  TATA_PHOTO_STORY (scripts/prepare-tata-photos.mjs); the video aspect shows
- *  the films instead.
- *  ⚠ No festival photographs were in the archive on 2026-10-04 — the aspect
- *  says it, and shows the event work it has. */
+/** Band 07's aspects: the THREE the photography job covered, in the owner's
+ *  order (2026-10-11: "Industry Visits, Students/professionals Testimonials,
+ *  and Events and Campus photography"), then the films. `photos` names a
+ *  key of TATA_PHOTO_STORY (scripts/prepare-tata-photos.mjs); the video
+ *  aspect shows the films instead.
+ *  (Until then: Events & celebrations, Interviews, Industry visits, Campus
+ *  life and Birds — the birds were the owner's own, not the job.) */
 export const TATA_PHOTO_ASPECTS = [
-  {
-    id: "events",
-    title: "Events & celebrations",
-    text: "Professional events — leadership dialogues, conclaves and guest visits — and the campus’s own festival celebrations.",
-    photos: "events",
-  },
-  {
-    id: "interviews",
-    title: "Interviews",
-    text: "Industry professionals and trainees on camera, for post-skilling testimonials.",
-    photos: "interviews",
-  },
   {
     id: "visits",
     title: "Industry visits",
-    text: "Trainees out in industry, covered on their visits.",
+    text: "Trainees out on industry visits, and groups taken through the institute’s labs — covered from the bus to the shop floor.",
     photos: "visits",
   },
   {
-    id: "campus-life",
-    title: "Campus life",
-    text: "Daily life on campus, and the journeys of trainees and trainers through their courses.",
-    photos: "campus-life",
+    id: "testimonials",
+    title: "Student & professional testimonials",
+    text: "Trainees and industry professionals on camera — set, lit and shot for post-skilling testimonials.",
+    photos: "testimonials",
   },
   {
-    id: "birds",
-    title: "Birds",
-    text: "Bird photography — kites, ibis and crows, on the long lens.",
-    photos: "birds",
+    id: "events-campus",
+    title: "Events & campus",
+    text: "Professional events — leadership dialogues, conclaves and guest visits — and daily life on campus: the labs, the kitchens, the hostels, and the trainees and trainers through their courses.",
+    photos: "events-campus",
   },
   {
     id: "video",

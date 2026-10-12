@@ -6,14 +6,16 @@
  *      standees, lab boards, posters, the quotation frames. Shot RAW; the
  *      full-size JPEG every Nikon NEF carries is used, turned by the file's
  *      own orientation tag.
- *   07 Photo / Videography, Editing — the camera work itself, grouped by what
- *      the job covered: events, interviews, industry visits, campus life, and
- *      birds.
+ *   07 Photo / Videography, Editing — the camera work itself, grouped by the
+ *      THREE aspects of the job (owner, 2026-10-11: "Industry Visits,
+ *      Students/professionals Testimonials, and Events and Campus
+ *      photography"). Until then it was five — events, interviews, visits,
+ *      campus life, and birds, which were the owner's own and not the job.
  *
  *   _source/Assets/Clients/Tata IIS/Mockups to finished product/mock to real/New folder/*.NEF
- *   _source/Assets/Clients/Tata IIS/Photography/*.jpg        (a chosen 25 of 35)
- *   _source/Assets/Photography/Birding/*.NEF                  (a chosen 3 of 38)
- *     (gitignored; copied 2026-10-04 from D:/Assets_107)
+ *   _source/Assets/Clients/Tata IIS/Photography/*.jpg        (a chosen 28 of 35)
+ *     (gitignored; copied 2026-10-04 from D:/Assets_107, and DSC_8867, 8884,
+ *     8927 and 8952 on 2026-10-11)
  *   → public/content/clients/tata-iis/reality/<slug>.webp
  *   → public/content/clients/tata-iis/photo-story/<aspect>-<n>.webp
  *   → src/constants/tataPhotos.ts                             (generated)
@@ -34,7 +36,6 @@ import { ASSETS, CONTENT, ROOT } from "./sources.mjs";
 const TATA = path.join(ASSETS, "Clients/Tata IIS");
 const REALITY_SRC = path.join(TATA, "Mockups to finished product/mock to real/New folder");
 const PHOTO_SRC = path.join(TATA, "Photography");
-const BIRD_SRC = path.join(ASSETS, "Photography/Birding");
 const OUT = path.join(CONTENT, "clients/tata-iis");
 const TS = path.join(ROOT, "src/constants/tataPhotos.ts");
 const URL = "/content/clients/tata-iis";
@@ -66,18 +67,26 @@ const REALITY = [
   { file: "DSC_2644.NEF", slug: "lab-boards-iv", caption: "Lab boards", kind: "Installed" },
 ];
 
-/** 07 — the photographs, by aspect. */
+/** 07 — the photographs, by the job's three aspects (owner, 2026-10-11). The
+ *  first of each leads the band's mosaic, large; the first five are shown. */
 const ASPECTS = {
-  events: ["DSC_7145.JPG", "cvxvzv.jpg", "DSC_5486.jpg", "DSC_3474.jpg", "DSC_5531.jpg"],
+  // The bus out, the shop floors — and (DSC_8867, DSC_8884, added
+  // 2026-10-11) groups out of uniform being taken through the labs.
+  visits: ["DSC_9276.jpg", "DSC_3299.jpg", "4O5A0755.JPG", "DSC_8867.jpg", "DSC_8884.jpg"],
   // ⚠ The owner's own portrait leads, in the big box (owner, 2026-10-05: the
-  // other three portraits — DSC_0603, DSC_0629, DSC_0632 — taken out).
-  interviews: ["DSC_0613.jpg", "DSC_3466.jpg"],
-  visits: ["DSC_9276.jpg", "DSC_3299.jpg", "4O5A0755.JPG"],
-  "campus-life": [
-    "DSC_7299.jpg", "DSC_9189.jpg", "4O5A0849.JPG", "DSC_6924.jpg", "DSC_8939.jpg",
-    "DSC_9219.jpg", "DSC_3634.jpg", "DSC_9500.jpg", "4O5A0817.JPG", "DSC_9296.jpg",
+  // other three portraits — DSC_0603, DSC_0629, DSC_0632 — taken out). Then
+  // a trainee on camera, and a professional on the lit set (DSC_5531, filed
+  // under events until 2026-10-11 — the light stands beside him).
+  testimonials: ["DSC_0613.jpg", "DSC_3466.jpg", "DSC_5531.jpg"],
+  // Events and the campus as one: the leadership dialogue leads, then the
+  // two alternate. DSC_8927 and DSC_8952 (the IIS Mumbai building) added
+  // 2026-10-11.
+  "events-campus": [
+    "DSC_7145.JPG", "DSC_9189.jpg", "cvxvzv.jpg", "DSC_7299.jpg", "DSC_5486.jpg",
+    "DSC_8952.jpg", "DSC_3474.jpg", "4O5A0849.JPG", "DSC_6924.jpg", "DSC_8939.jpg",
+    "DSC_9219.jpg", "DSC_8927.jpg", "DSC_3634.jpg", "DSC_9500.jpg", "4O5A0817.JPG",
+    "DSC_9296.jpg",
   ],
-  birds: ["DSC_2355.NEF", "DSC_2334.NEF", "DSC_2344.NEF"],
 };
 
 /** The full-size JPEG inside a Nikon NEF, found through the file's own index
@@ -162,7 +171,7 @@ const story = {};
 for (const [aspect, files] of Object.entries(ASPECTS)) {
   story[aspect] = [];
   for (const [i, f] of files.entries()) {
-    const src = path.join(aspect === "birds" ? BIRD_SRC : PHOTO_SRC, f);
+    const src = path.join(PHOTO_SRC, f);
     const name = `${aspect}-${String(i + 1).padStart(2, "0")}.webp`;
     const size = await write(src, path.join(storyDir, name));
     story[aspect].push({ src: `${URL}/photo-story/${name}`, w: size.w, h: size.h });

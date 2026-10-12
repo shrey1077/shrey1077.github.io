@@ -8,17 +8,23 @@
  * scrub window is a set of still frames, preloaded once and drawn to a canvas —
  * so scrubbing is just picking an already-decoded frame. No seeking, no lag.
  *
- * Mouse X eases the playhead across the frames via the same critically-damped
- * spring the old scrub used (smooth ease-in and ease-out, no overshoot); at rest
- * it holds the middle frame. Reduced motion parks on the middle frame.
+ * ⚠ IT SWEEPS ON ITS OWN since 2026-10-12 (owner: "instead of video moving
+ * with mouse movement i want the video always moving zig zag from left to
+ * right and vice versa"): the turn runs from the first frame to the last and
+ * back, eased at each end, without end; any pointer movement holds it on the
+ * frame it is on, and a second of stillness lets it carry on from there (see
+ * idleSweep). The sweep drives the frame directly — a spring would carry it
+ * on past the moment the pointer moved. Until then the pointer's X scrubbed
+ * the turn, through a critically-damped spring. Reduced motion parks on the
+ * middle frame.
  *
  * The canvas is tagged `data-brain`, with `data-frame` carrying the frame on
  * screen. From 2026-10-03 to 2026-10-10 BrainDock read it — the brain docked
  * beside every room was a live copy of this canvas; the rooms' circles hold
  * stills of the first and last frames now (BrainDock).
  *
- * MODES. On the landing the pointer scrubs the turn ("pointer"). The others
- * are unused since 2026-10-10 (HeroStage passes "pointer" only): they rocked
+ * MODES. On the landing the turn sweeps ("sweep"). The others are unused
+ * since 2026-10-10 (HeroStage passes none — "sweep" is the default): they rocked
  * the brain for the rooms' live dock through the end of the turn that faced
  * the dock's side: frames
  * 0–20, the grey half turned to the viewer, beside the logic rooms ("left");
@@ -41,6 +47,7 @@
 
 import { useEffect, useLayoutEffect, useRef } from "react";
 import { useReducedMotion } from "framer-motion";
+import { SWEEP_PERIOD, SWEEP_START, sweepAt, watchPointer } from "@/components/home/idleSweep";
 
 const FRAME_COUNT = 48;
 const BASE = "/brain/frames";
@@ -60,17 +67,17 @@ const DAMPING = 2 * Math.sqrt(STIFFNESS);
 /** Opaque until the far right, then a short fade — see the note on the canvas. */
 const FEATHER = "linear-gradient(to right, #000 0%, #000 88%, transparent 100%)";
 
-export type BrainMode = "pointer" | "left" | "right";
+export type BrainMode = "sweep" | "left" | "right";
 
 /** Seconds for one rock there and back, in the rooms. */
 const ROCK_PERIOD = 7;
 /** The frames each room side rocks through (see MODES). */
-const ROCK: Record<Exclude<BrainMode, "pointer">, [number, number]> = {
+const ROCK: Record<Exclude<BrainMode, "sweep">, [number, number]> = {
   left: [0, 20],
   right: [47, 27],
 };
 
-export function BrainSequence({ active = true, mode = "pointer" }: { active?: boolean; mode?: BrainMode }) {
+export function BrainSequence({ active = true, mode = "sweep" }: { active?: boolean; mode?: BrainMode }) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const activeRef = useRef(active);
   const modeRef = useRef(mode);
@@ -122,14 +129,10 @@ export function BrainSequence({ active = true, mode = "pointer" }: { active?: bo
       raf = 0,
       cur = -1;
 
-    // Where the pointer would put the turn — the target whenever the mode is
-    // "pointer", remembered while it is not.
-    let pointerTarget = rest;
-    const onMove = (e: PointerEvent) => {
-      const f = Math.min(1, Math.max(0, e.clientX / window.innerWidth));
-      pointerTarget = f * (FRAME_COUNT - 1);
-    };
-    if (!reduceMotion) window.addEventListener("pointermove", onMove, { passive: true });
+    // The sweep: how far round it has come (turns), advanced only while the
+    // pointer is still — so it holds wherever the pointer catches it.
+    let phase = SWEEP_START;
+    const pointer = reduceMotion ? null : watchPointer();
 
     const tick = (t: number) => {
       raf = requestAnimationFrame(tick);
@@ -138,18 +141,24 @@ export function BrainSequence({ active = true, mode = "pointer" }: { active?: bo
       if (!activeRef.current) return;
 
       const m = modeRef.current;
-      if (m !== "pointer") {
+      if (m === "sweep") {
+        if (pointer && !pointer.held(t)) phase += dt / SWEEP_PERIOD;
+        target = sweepAt(phase) * (FRAME_COUNT - 1);
+      } else {
         // Rocking in a room: from the end that shows the most of this side,
         // eased there and back (cosine), the spring smoothing any switch.
         const [a, b] = ROCK[m];
         const u = reduceMotion ? 0 : (1 - Math.cos(((t / 1000) % ROCK_PERIOD) / ROCK_PERIOD * Math.PI * 2)) / 2;
         target = a + (b - a) * u;
-      } else if (target !== pointerTarget) {
-        target = pointerTarget;
       }
 
-      if (reduceMotion && m === "pointer") {
+      if (reduceMotion && m === "sweep") {
         pos = rest;
+      } else if (m === "sweep") {
+        // Straight onto the sweep: it is smooth already, and it must stop the
+        // moment the pointer moves, not glide on.
+        pos = target;
+        vel = 0;
       } else if (reduceMotion) {
         pos = target;
       } else {
@@ -174,7 +183,7 @@ export function BrainSequence({ active = true, mode = "pointer" }: { active?: bo
 
     return () => {
       cancelAnimationFrame(raf);
-      if (!reduceMotion) window.removeEventListener("pointermove", onMove);
+      pointer?.stop();
     };
   }, [reduceMotion]);
 

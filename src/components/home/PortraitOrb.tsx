@@ -1,14 +1,16 @@
 "use client";
 
 /**
- * PortraitOrb — the owner, split down the middle, following the mouse.
+ * PortraitOrb — the owner, split down the middle, the seam sweeping across.
  *
  * Two supplied ring artworks with the owner's two portraits inside them: the
  * circuit-line ring around the mono frame, the paint-splatter ring around the
  * colour one. At rest the circle is half of each — the same left-logic /
- * right-creative split the brain above it makes — and the seam FOLLOWS the
- * pointer (owner, 2026-10-03; it ran against it before): move right and the
- * line goes right with you, opening the line side; move left, the paint side.
+ * right-creative split the brain above it makes — and the seam SWEEPS, left
+ * to right and back, on its own (owner, 2026-10-12: "similarly for first
+ * slide picture element", after the brain's turn): any pointer movement holds
+ * it where it is, and a second of stillness lets it carry on (idleSweep).
+ * From 2026-10-03 until then the seam followed the pointer instead.
  *
  * ⚠ The two frames are pre-composited and ALIGNED at build time, not stacked
  * by CSS. The supplied rings do not agree with each other: the line ring's
@@ -32,20 +34,19 @@
  * merely covered. That matters because both frames have transparent
  * background: a covered frame would still show its tracery through the gaps.
  *
- * Motion values, not state — the pointer drives a spring straight into the
- * masks, so nothing here re-renders on mouse move.
+ * Motion values, not state — the sweep writes straight into the masks, with
+ * no spring (it is smooth already, and must stop the instant the pointer
+ * moves), so nothing here re-renders as it goes. It only runs while the orb
+ * is on screen.
  */
 
-import { useEffect } from "react";
+import { useEffect, useRef } from "react";
 import Image from "next/image";
-import { motion, useMotionValue, useReducedMotion, useSpring, useTransform } from "framer-motion";
+import { motion, useMotionValue, useReducedMotion, useTransform } from "framer-motion";
+import { SWEEP_PERIOD, SWEEP_START, sweepAt, watchPointer } from "@/components/home/idleSweep";
 
 /** Both frames share this canvas exactly. See the header. */
 const ASPECT = 1200 / 606;
-/** How far off-centre the pointer travels before a side is whole. 1 = the very
- *  edge of the viewport; a little over 1 saturates before the edge, which makes
- *  the ends actually reachable. */
-const GAIN = 1.35;
 /** Half-width of the seam, as a percentage of the frame's width. ⚠ A HAIR, not
  *  a feather, since 2026-10-03 (owner: "the transition line should not have the
  *  fade effect") — 2% softened it over ~20px. Kept a hair above zero so the two
@@ -95,10 +96,10 @@ const travel = (v: number) => Math.min(1, Math.max(0, (v - END) / (1 - 2 * END))
 
 export function PortraitOrb({ className = "" }: { className?: string }) {
   const reduceMotion = useReducedMotion();
+  const rootRef = useRef<HTMLDivElement>(null);
   /** 0 = line side whole, 0.5 = an even split, 1 = paint side whole. */
   const split = useMotionValue(0.5);
-  const smooth = useSpring(split, { stiffness: 90, damping: 22, mass: 0.6 });
-  const src = reduceMotion ? split : smooth;
+  const src = split;
 
   const maskLine = useTransform(
     src,
@@ -112,18 +113,38 @@ export function PortraitOrb({ className = "" }: { className?: string }) {
   const opacityLine = useTransform(src, (v) => fade(1 - travel(v)));
   const opacityPaint = useTransform(src, (v) => fade(travel(v)));
 
+  // The sweep — held while the pointer moves, carried on after a second's
+  // stillness, and only run while the orb is on screen.
   useEffect(() => {
-    const onMove = (e: PointerEvent) => {
-      const t = (e.clientX / window.innerWidth - 0.5) * GAIN + 0.5;
-      // ⚠ Inverted, so the seam travels WITH the pointer (see the header).
-      split.set(1 - Math.min(1, Math.max(0, t)));
+    const root = rootRef.current;
+    if (reduceMotion || !root) return;
+    const pointer = watchPointer();
+    let shown = true;
+    const io = new IntersectionObserver(([e]) => {
+      shown = e.isIntersecting;
+    });
+    io.observe(root);
+    let phase = SWEEP_START;
+    let last = -1;
+    let raf = 0;
+    const tick = (t: number) => {
+      raf = requestAnimationFrame(tick);
+      const dt = last < 0 ? 0 : Math.min(0.05, (t - last) / 1000);
+      last = t;
+      if (!shown || pointer.held(t)) return;
+      phase += dt / SWEEP_PERIOD;
+      split.set(sweepAt(phase));
     };
-    window.addEventListener("pointermove", onMove, { passive: true });
-    return () => window.removeEventListener("pointermove", onMove);
-  }, [split]);
+    raf = requestAnimationFrame(tick);
+    return () => {
+      cancelAnimationFrame(raf);
+      io.disconnect();
+      pointer.stop();
+    };
+  }, [reduceMotion, split]);
 
   return (
-    <div className={`relative ${className}`} style={{ aspectRatio: ASPECT }}>
+    <div ref={rootRef} className={`relative ${className}`} style={{ aspectRatio: ASPECT }}>
       {/* Logic half — circuit ring, mono portrait. */}
       <motion.div
         className="absolute inset-0"

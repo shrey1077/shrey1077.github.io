@@ -573,7 +573,8 @@ svg {
 @media (max-height: 31.25rem) {
   .room-pad {
     padding-top: 3.25rem;
-    padding-bottom: 1rem;
+    /* Clear of the fixed band along the foot (FootBand). */
+    padding-bottom: calc(7svh + 1rem);
   }
   .room-pad[data-side="logic"] {
     padding-left: calc(max(1rem, 2.5vw) + 3.5rem + 1rem);
@@ -598,6 +599,11 @@ svg {
     height: 3.5rem;
   }
   .dock-tab {
+    display: none;
+  }
+  /* The band's facts tab (FactsTab) would stand into what little height
+     there is — it steps aside. */
+  .facts-tab {
     display: none;
   }
 }

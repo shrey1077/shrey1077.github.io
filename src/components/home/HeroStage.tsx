@@ -3,7 +3,7 @@
 /**
  * HeroStage — the landing, as TWO slides of the Flythrough (2026-10-03, owner).
  *
- *   slide 0  the portrait orb — following the pointer — big, with the name
+ *   slide 0  the portrait orb — its seam sweeping across — big, with the name
  *            and its one word (Shrey Singh / Designer) over it. The tools stood
  *            under it until 2026-10-10, when the owner moved them into a room
  *            of their own, My Stack (MyStack.tsx);
@@ -32,24 +32,22 @@
  * deleted 2026-09-10; the pins have been the way in for a long time.
  */
 
-import { useEffect, useLayoutEffect, useRef, useState } from "react";
+import { useLayoutEffect, useRef, useState } from "react";
 import { motion, useMotionValue, useReducedMotion, useTransform } from "framer-motion";
 import { BrainSequence } from "@/components/home/BrainSequence";
 import { LeftRightBrain } from "@/components/home/LeftRightBrain";
 import { CodeStream } from "@/components/home/CodeStream";
-import { FactsTab } from "@/components/home/FactsTab";
+import { FACTS_RISE } from "@/components/home/FactsTab";
 import { Corner3DGrid } from "@/components/home/Corner3DGrid";
 import { PortraitOrb } from "@/components/home/PortraitOrb";
 import { useInViewport } from "@/hooks/useInViewport";
 import { DURATION, EASE_IN_OUT, EASE_OUT } from "@/constants/motion";
 import { CircuitBackdrop } from "@/components/home/CircuitBackdrop";
-import { BrainPins, PIN_OPEN_EVENT } from "@/components/home/BrainPins";
+import { BrainPins } from "@/components/home/BrainPins";
 import { BrainTraces } from "@/components/home/BrainTraces";
 import { useFlight } from "@/components/home/flight";
 import { useMediaQuery } from "@/hooks/useMediaQuery";
 import { SITE } from "@/constants/site";
-import { NAV_SECTIONS } from "@/constants/navigation";
-import type { NavSectionId } from "@/types/navigation";
 
 /** The landing brain read too large at 1:1 — sit it back a quarter, then a
  *  further tenth (2026-08-10) to give the words and pins more room, then 5%
@@ -101,7 +99,8 @@ const ORB_SIDE = 0.2;
 /** The least room between the orb and the mark waiting at the foot. */
 const CAPTION_CLEAR = 28;
 
-/** The black footing, as a share of the stage's height (the band below). */
+/** The black band along the foot, as a share of the stage's height — the
+ *  FIXED band since 2026-10-11 (FootBand, BAND_SVH); keep the two in step. */
 const BAND_H = 0.07;
 
 /** The PORTFOLIO / 2026 mark: full size at the top of the brain slide (where
@@ -158,6 +157,9 @@ export function HeroStage() {
   const reduceMotion = useReducedMotion() ?? false;
   const tallCompact = useMediaQuery("(max-width: 1023px) and (orientation: portrait)");
   const centreScale = tallCompact ? CENTER_SCALE_PHONE : CENTER_SCALE;
+  // Where the band's facts tab stands at the foot's centre (FactsTab: `lg`,
+  // and not on a short screen — see .facts-tab).
+  const factsTab = useMediaQuery("(min-width: 1024px) and (min-height: 501px)");
 
   // The camera. Outside a Flythrough (never, today) the stage rests on the brain.
   const flight = useFlight();
@@ -191,8 +193,9 @@ export function HeroStage() {
   const nameRef = useRef<HTMLParagraphElement>(null);
   const captionH = useLayoutHeight(nameRef);
 
-  // The orb slide's foot: the mark at half size, sitting on the band.
-  const markFoot = size ? size.h * (1 - BAND_H) - MARK_GAP_BELOW : 0;
+  // The orb slide's foot: the mark at half size, sitting on the band — or on
+  // the facts tab rising out of its middle, where there is one (2026-10-11).
+  const markFoot = size ? size.h * (1 - BAND_H) - MARK_GAP_BELOW - (factsTab ? FACTS_RISE : 0) : 0;
   const markTopSmall = markFoot - MARK_SMALL * markH;
 
   // The orb: 20% in from each side (nearly the full width on a portrait
@@ -227,19 +230,6 @@ export function HeroStage() {
   // it can never paint a frame at the top before it reaches the foot.
   const markShown = useTransform(markDrop, (d) => (d > 0 ? "visible" : "hidden"));
 
-  /* Which section is open, for the footing band. ⚠ Read off the same
-     PIN_OPEN_EVENT bus the pins already publish on, rather than lifting state
-     — the band is a listener, not a new source of truth, so it cannot
-     disagree with what is actually open. */
-  const [openId, setOpenId] = useState<NavSectionId | null>(null);
-  useEffect(() => {
-    const onPin = (e: Event) => setOpenId((e as CustomEvent<NavSectionId | null>).detail);
-    window.addEventListener(PIN_OPEN_EVENT, onPin);
-    return () => window.removeEventListener(PIN_OPEN_EVENT, onPin);
-  }, []);
-  const openSection = openId ? NAV_SECTIONS.find((n) => n.id === openId) : null;
-  const openLabel = openSection?.label ?? null;
-
   // The brain turns with the pointer while the landing is on screen, and
   // rests once the camera is in the rooms. (Until 2026-10-10 it kept turning
   // there for BrainDock, which lifted a live copy of it off this slide; the
@@ -259,30 +249,10 @@ export function HeroStage() {
       {/* Circuit board texture — under everything. */}
       <CircuitBackdrop />
 
-      {/* The black footing. Runs the FULL width, under everything else, so the
-          words, the pins and the corner furniture all read on top of it. It
-          carries the name — or, while a section is open, that section's
-          title, in Digibra (owner, 2026-08-25) — so it is not `aria-hidden`. */}
-      <div className="pointer-events-none absolute inset-x-0 bottom-0 z-0 grid h-[7%] place-items-center bg-neutral-950">
-        <p
-          key={openLabel ?? "wordmark"}
-          className="flex items-baseline gap-[0.3em] text-[clamp(0.7rem,1.5vw,1.15rem)] leading-none"
-        >
-          {openLabel ? (
-            // A section's name, in its side's face (see .type-home).
-            <span
-              className={`${openSection?.hemisphere === "left" ? "face-logic tracking-[0.16em]" : "face-creative tracking-[0.04em]"} font-bold text-white`}
-            >
-              {openLabel}
-            </span>
-          ) : (
-            <>
-              <span className="font-bold tracking-[0.02em] text-white">{NAME_FIRST}</span>
-              <span className="font-bold tracking-[0.02em] text-white">{NAME_REST.join(" ")}</span>
-            </>
-          )}
-        </p>
-      </div>
+      {/* The black band along the foot is no longer the landing's: since
+          2026-10-11 it is FIXED along the foot of the whole home page
+          (FootBand, rendered by the Flythrough), and everything here that
+          stands on the foot clears it (BAND_H). */}
 
       {/* The corner lattices — all four corners since 2026-10-03 (owner),
           common to both slides, and UNDER the brain's layer so the pins on
@@ -349,11 +319,8 @@ export function HeroStage() {
         {/* The sections, annotated onto the brain. */}
         <BrainPins />
 
-        {/* The facts — Chess, Education, Part-time and Hobbies as ONE section,
-            centred under the brain, in white on a black tab rising out of the
-            band (owner, 2026-10-05). See FactsTab. Desktop only: below `lg`
-            the footer carries them. */}
-        <FactsTab />
+        {/* The facts' tab stood here, under the brain, until 2026-10-11: it
+            is part of the fixed band now (FootBand, FactsTab). */}
       </motion.div>
 
       {/* ── Slide 0: the name and the portrait orb (owner, 2026-10-03; the
@@ -380,18 +347,16 @@ export function HeroStage() {
           {/* Shrey Singh / Designer, over the orb, the two lines centred
               (owner, 2026-10-05).
               ⚠ The name is in DIGIBRA, the PORTFOLIO mark's face (owner,
-              2026-10-05) and in CAPITALS — "SHREY" in Black, "SINGH" in
-              Light, bigger than the Helvetica it replaced. Digibra comes in
-              ONE weight, so the two are drawn from it: see .digibra-black /
-              .digibra-light in globals.css. "Designer" stays Helvetica. Only
-              a hair under it: the paint runs to the orb frame's very top edge
-              here.
-              ⚠ Digibra's capitals are WIDE — the name runs ~8.6em — so the
-              size is also held to 10vw, or a phone would lose its ends — and on a
-              portrait tablet it grows to 4.5rem with the orb (2026-10-11). */}
+              2026-10-05), in CAPITALS, and since 2026-10-11 in ONE weight —
+              both words Light (.digibra-light; "SHREY" was Black until then)
+              — at EXACTLY the PORTFOLIO mark's size on the brain slide
+              (owner: "font size of Shrey Singh on slide 1 should be same as
+              font size of portfolio on slide 2"). Change one, change both.
+              "Designer" stays Helvetica. Only a hair under it: the paint runs
+              to the orb frame's very top edge here. */}
           <p ref={nameRef} className="pointer-events-none flex flex-col items-center whitespace-nowrap pb-1 leading-none">
-            <span className="face-logic text-[min(10vw,clamp(3.2rem,6.6vw,6rem))] uppercase max-lg:portrait:text-[min(10vw,4.5rem)] leading-none text-neutral-900">
-              <span className="digibra-black">{NAME_FIRST}</span> <span className="digibra-light">{NAME_REST.join(" ")}</span>
+            <span className="face-logic digibra-light text-[clamp(1.9rem,4.6vw,4rem)] uppercase leading-none text-neutral-900">
+              {NAME_FIRST} {NAME_REST.join(" ")}
             </span>
             <span className="mt-1 text-[clamp(0.84375rem,1.5625vw,1.40625rem)] font-normal leading-none tracking-[0.02em] text-neutral-500">
               {SITE.title}
@@ -431,6 +396,7 @@ export function HeroStage() {
         style={{ y: markY, scale: markScale, originX: 0.5, originY: 0, visibility: markShown }}
       >
         <p className="flex flex-col items-end leading-none">
+          {/* ⚠ The name over the orb takes this size (owner, 2026-10-11). */}
           <span className="face-logic text-[clamp(1.9rem,4.6vw,4rem)] font-bold leading-none tracking-[0.22em] text-neutral-900">
             PORTFOLIO
           </span>

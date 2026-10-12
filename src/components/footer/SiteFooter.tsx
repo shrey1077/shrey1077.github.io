@@ -55,8 +55,10 @@ export function SiteFooter() {
   const copyrightYears =
     year > SITE.inceptionYear ? `${SITE.inceptionYear}–${year}` : `${year}`;
 
+  // The foot clears the home page's fixed black band (7svh, FootBand) — and,
+  // from `lg`, the facts tab rising out of its middle (FACTS_RISE, 88px).
   return (
-    <footer className="relative w-full overflow-hidden border-t border-neutral-200 bg-gallery px-6 py-12 sm:px-10">
+    <footer className="relative w-full overflow-hidden border-t border-neutral-200 bg-gallery px-6 pb-[calc(3rem+7svh)] pt-12 sm:px-10 lg:pb-[calc(3rem+7svh+88px)]">
       <FooterFormulas />
       <div className="relative mx-auto grid w-full max-w-7xl items-center justify-items-center gap-10 lg:grid-cols-2 lg:gap-8">
         {/* Name — logic face, left. */}

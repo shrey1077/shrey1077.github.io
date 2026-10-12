@@ -1,9 +1,16 @@
 /**
- * FactsTab — the landing's facts (Chess, Education, Part-time, Hobbies) on a
- * black tab rising out of the band at the foot of the brain slide (owner,
- * 2026-10-05: "a black shape under the centre chess info element… in exact
- * centre of screen, just above the black band, with its rounded edges ending
- * inside the lower black bar").
+ * FactsTab — the facts (Chess, Education, Part-time, Hobbies) on a black tab
+ * rising out of the band at the foot of the screen (owner, 2026-10-05: "a
+ * black shape under the centre chess info element… in exact centre of screen,
+ * just above the black band, with its rounded edges ending inside the lower
+ * black bar").
+ *
+ * ⚠ PART OF THE BAND since 2026-10-11 (owner: "make this a part of black
+ * band"): it rides in FootBand, fixed with it the whole way down the home
+ * page, rather than on the brain slide. So everything at the foot's centre
+ * clears its RISE — the PORTFOLIO mark on the orb slide (HeroStage), the
+ * footer's last line (SiteFooter) — and on a short screen it steps aside
+ * (.facts-tab, globals.css).
  *
  * The shape is geometric: a flat top with rounded shoulders, sides that lean
  * out as they fall, and feet that curve OUT into the band's own top edge —
@@ -23,12 +30,14 @@ import { AboutFacts } from "@/components/home/AboutFacts";
 /** px — the flat top, the height above the band, each side's lean, the two
  *  radii, and how far the tab sinks into the band. */
 const TOP = 228;
-const RISE = 88;
+/** ⚠ Exported: what stands at the foot's centre clears it. */
+export const FACTS_RISE = 88;
+const RISE = FACTS_RISE;
 const LEAN = 22;
 const R_TOP = 14;
 const R_FOOT = 14;
 const SINK = 16;
-/** The band's colour (HeroStage: bg-neutral-950). */
+/** The band's colour (FootBand: bg-neutral-950). */
 const INK = "#0a0a0a";
 
 const WIDTH = 2 * (R_FOOT + LEAN) + TOP;
@@ -65,9 +74,9 @@ export function FactsTab() {
   return (
     <div
       aria-hidden
-      // Its foot on the band's top edge (the band is the stage's bottom 7%),
+      // Its foot on the band's top edge — it stands in the band (FootBand) —
       // centred on the screen.
-      className="pointer-events-none absolute bottom-[7%] left-1/2 hidden -translate-x-1/2 lg:block"
+      className="facts-tab pointer-events-none absolute bottom-full left-1/2 hidden -translate-x-1/2 lg:block"
       style={{ width: WIDTH, height: RISE }}
     >
       <svg

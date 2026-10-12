@@ -169,45 +169,6 @@ export const TATA_REALITY: TataRealityPiece[] = [
 ];
 
 export const TATA_PHOTO_STORY: Record<string, TataImage[]> = {
-  "events": [
-    {
-      "src": "/content/clients/tata-iis/photo-story/events-01.webp",
-      "w": 1600,
-      "h": 1067
-    },
-    {
-      "src": "/content/clients/tata-iis/photo-story/events-02.webp",
-      "w": 1600,
-      "h": 1067
-    },
-    {
-      "src": "/content/clients/tata-iis/photo-story/events-03.webp",
-      "w": 1600,
-      "h": 1067
-    },
-    {
-      "src": "/content/clients/tata-iis/photo-story/events-04.webp",
-      "w": 1600,
-      "h": 1067
-    },
-    {
-      "src": "/content/clients/tata-iis/photo-story/events-05.webp",
-      "w": 1600,
-      "h": 1067
-    }
-  ],
-  "interviews": [
-    {
-      "src": "/content/clients/tata-iis/photo-story/interviews-01.webp",
-      "w": 1600,
-      "h": 1067
-    },
-    {
-      "src": "/content/clients/tata-iis/photo-story/interviews-02.webp",
-      "w": 1600,
-      "h": 1067
-    }
-  ],
   "visits": [
     {
       "src": "/content/clients/tata-iis/photo-story/visits-01.webp",
@@ -223,73 +184,113 @@ export const TATA_PHOTO_STORY: Record<string, TataImage[]> = {
       "src": "/content/clients/tata-iis/photo-story/visits-03.webp",
       "w": 1600,
       "h": 1067
-    }
-  ],
-  "campus-life": [
+    },
     {
-      "src": "/content/clients/tata-iis/photo-story/campus-life-01.webp",
+      "src": "/content/clients/tata-iis/photo-story/visits-04.webp",
       "w": 1600,
       "h": 1067
     },
     {
-      "src": "/content/clients/tata-iis/photo-story/campus-life-02.webp",
-      "w": 1600,
-      "h": 1067
-    },
-    {
-      "src": "/content/clients/tata-iis/photo-story/campus-life-03.webp",
-      "w": 1600,
-      "h": 1067
-    },
-    {
-      "src": "/content/clients/tata-iis/photo-story/campus-life-04.webp",
-      "w": 1600,
-      "h": 1067
-    },
-    {
-      "src": "/content/clients/tata-iis/photo-story/campus-life-05.webp",
-      "w": 1600,
-      "h": 1067
-    },
-    {
-      "src": "/content/clients/tata-iis/photo-story/campus-life-06.webp",
-      "w": 1600,
-      "h": 1067
-    },
-    {
-      "src": "/content/clients/tata-iis/photo-story/campus-life-07.webp",
-      "w": 1600,
-      "h": 1067
-    },
-    {
-      "src": "/content/clients/tata-iis/photo-story/campus-life-08.webp",
-      "w": 1600,
-      "h": 1067
-    },
-    {
-      "src": "/content/clients/tata-iis/photo-story/campus-life-09.webp",
-      "w": 1600,
-      "h": 1067
-    },
-    {
-      "src": "/content/clients/tata-iis/photo-story/campus-life-10.webp",
+      "src": "/content/clients/tata-iis/photo-story/visits-05.webp",
       "w": 1600,
       "h": 1067
     }
   ],
-  "birds": [
+  "testimonials": [
     {
-      "src": "/content/clients/tata-iis/photo-story/birds-01.webp",
+      "src": "/content/clients/tata-iis/photo-story/testimonials-01.webp",
       "w": 1600,
       "h": 1067
     },
     {
-      "src": "/content/clients/tata-iis/photo-story/birds-02.webp",
+      "src": "/content/clients/tata-iis/photo-story/testimonials-02.webp",
       "w": 1600,
       "h": 1067
     },
     {
-      "src": "/content/clients/tata-iis/photo-story/birds-03.webp",
+      "src": "/content/clients/tata-iis/photo-story/testimonials-03.webp",
+      "w": 1600,
+      "h": 1067
+    }
+  ],
+  "events-campus": [
+    {
+      "src": "/content/clients/tata-iis/photo-story/events-campus-01.webp",
+      "w": 1600,
+      "h": 1067
+    },
+    {
+      "src": "/content/clients/tata-iis/photo-story/events-campus-02.webp",
+      "w": 1600,
+      "h": 1067
+    },
+    {
+      "src": "/content/clients/tata-iis/photo-story/events-campus-03.webp",
+      "w": 1600,
+      "h": 1067
+    },
+    {
+      "src": "/content/clients/tata-iis/photo-story/events-campus-04.webp",
+      "w": 1600,
+      "h": 1067
+    },
+    {
+      "src": "/content/clients/tata-iis/photo-story/events-campus-05.webp",
+      "w": 1600,
+      "h": 1067
+    },
+    {
+      "src": "/content/clients/tata-iis/photo-story/events-campus-06.webp",
+      "w": 1600,
+      "h": 1067
+    },
+    {
+      "src": "/content/clients/tata-iis/photo-story/events-campus-07.webp",
+      "w": 1600,
+      "h": 1067
+    },
+    {
+      "src": "/content/clients/tata-iis/photo-story/events-campus-08.webp",
+      "w": 1600,
+      "h": 1067
+    },
+    {
+      "src": "/content/clients/tata-iis/photo-story/events-campus-09.webp",
+      "w": 1600,
+      "h": 1067
+    },
+    {
+      "src": "/content/clients/tata-iis/photo-story/events-campus-10.webp",
+      "w": 1600,
+      "h": 1067
+    },
+    {
+      "src": "/content/clients/tata-iis/photo-story/events-campus-11.webp",
+      "w": 1600,
+      "h": 1067
+    },
+    {
+      "src": "/content/clients/tata-iis/photo-story/events-campus-12.webp",
+      "w": 1600,
+      "h": 1067
+    },
+    {
+      "src": "/content/clients/tata-iis/photo-story/events-campus-13.webp",
+      "w": 1600,
+      "h": 1067
+    },
+    {
+      "src": "/content/clients/tata-iis/photo-story/events-campus-14.webp",
+      "w": 1600,
+      "h": 1067
+    },
+    {
+      "src": "/content/clients/tata-iis/photo-story/events-campus-15.webp",
+      "w": 1600,
+      "h": 1067
+    },
+    {
+      "src": "/content/clients/tata-iis/photo-story/events-campus-16.webp",
       "w": 1600,
       "h": 1067
     }

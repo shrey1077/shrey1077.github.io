@@ -43,7 +43,7 @@
  * full-screen stage. Scroll progress through the block is the camera:
  *   · the landing is slides 0 and 1 (2026-10-03): the portrait orb, then the
  *     brain with its pins and the facts, which rises as the orb scrolls away
- *     — the wordmark and the band standing still across both (HeroStage); the
+ *     — the wordmark standing still across both (HeroStage); the
  *     next scroll takes the whole landing off across the plane;
  *   · then the rooms — see above;
  *   · past the last slide the block simply scrolls away into the footer.
@@ -98,6 +98,7 @@ import { FlightContext, HERO_SLIDES, PERSPECTIVE } from "@/components/home/fligh
 import { PixelVeil } from "@/components/home/PixelVeil";
 import { FLY_EASE, clipFor, easeTime, gridFor } from "@/components/home/pixelDissolve";
 import { BrainDock } from "@/components/home/BrainDock";
+import { FootBand } from "@/components/home/FootBand";
 import { PIN_OPEN_EVENT } from "@/components/home/BrainPins";
 import { SectionParticles } from "@/components/home/SectionParticles";
 import { CircuitBackdrop } from "@/components/home/CircuitBackdrop";
@@ -379,6 +380,9 @@ export function Flythrough({
   // Whether the camera has left the landing — the grounds are only worth
   // running from then on.
   const [roomsLive, setRoomsLive] = useState(false);
+  // Whether the page has scrolled on past the rooms, into the footer — the
+  // fixed band goes back to the name there.
+  const [pastRun, setPastRun] = useState(false);
   useMotionValueEvent(p, "change", (v) => {
     setCurrent(Math.min(LAST, Math.max(0, Math.round(v))));
     const inRooms = v > FIRST_ROOM - 1 + EPS;
@@ -522,6 +526,7 @@ export function Flythrough({
     // Native scrolling that comes to rest between two slides is eased onto the
     // nearer one. Never mid-touch: a finger held still is not "at rest".
     const onScroll = () => {
+      setPastRun(position() > LAST + 0.35);
       clearTimeout(settle);
       if (reduceMotion || flyingRef.current) return;
       settle = setTimeout(() => {
@@ -588,6 +593,13 @@ export function Flythrough({
     window.dispatchEvent(new CustomEvent<GoDetail>(GO_EVENT, { detail: t ? { k, track: t } : k }));
 
   // The dock's prompt: the room LEVEL with this one, on the other track.
+  // What the fixed band along the foot carries: the room the camera is in,
+  // or — on the landing and past the rooms — the name.
+  const bandRoom =
+    current >= FIRST_ROOM && !pastRun
+      ? { label: (track === "logic" ? LOGIC : CREATIVE)[level]?.label ?? "", side: track }
+      : null;
+
   // Each circle's prompt: the room LEVEL with this one, on the other track.
   const logicAcross = CREATIVE[level]?.label ?? CREATIVE[0].label;
   const creativeAcross = LOGIC[level]?.label ?? LOGIC[0].label;
@@ -665,14 +677,15 @@ export function Flythrough({
               reduceMotion={reduceMotion}
               current={current === index && track === t}
             >
-              {/* The room keeps its foot clear of the brain's circle in the
+              {/* The room keeps its foot clear of the fixed band (7svh,
+                  FootBand) and the brain's circle standing on it in the
                   column's outer corner (BrainDock: its offset + its size + air);
                   creative mirrored, with its header right-aligned. (Until
                   2026-10-10 it kept a side clear of the dock's half-window.) */}
               <section
                 aria-label={s.label}
                 data-side={t}
-                className="room-pad flex h-full px-5 pb-[calc(max(1rem,3.5vh)+5.5rem+1.5vh)] pt-[max(8vh,5rem)] text-neutral-900 sm:px-10 md:pb-[calc(max(1rem,3.5vh)+max(6rem,min(15vh,9.375rem))+1.5vh)] lg:px-[5vw]"
+                className="room-pad flex h-full px-5 pb-[calc(7svh+max(0.75rem,2.5vh)+5.5rem+1.5vh)] pt-[max(8vh,5rem)] text-neutral-900 sm:px-10 md:pb-[calc(7svh+max(0.75rem,2.5vh)+max(6rem,min(15vh,9.375rem))+1.5vh)] lg:px-[5vw]"
               >
                 <div className="flex min-w-0 flex-1 flex-col">
                   {logic ? (
@@ -798,6 +811,10 @@ export function Flythrough({
           </div>
         </div>
       </div>
+
+      {/* The black band along the foot — fixed to the screen for the whole
+          page, over the stage and under the dialogs (FootBand). */}
+      <FootBand room={bandRoom} />
 
       {/* Outside the sticky stage on purpose: the stage's `perspective` (and
           each slide's transform) would make this `position: fixed` dialog

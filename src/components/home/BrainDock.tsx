@@ -76,7 +76,7 @@ function Corner({
         onClick={onAcross}
         aria-label={`Go across to ${across}`}
         tabIndex={shown ? 0 : -1}
-        className={`group pointer-events-auto absolute bottom-[max(1rem,3.5vh)] flex cursor-pointer items-center gap-3 outline-none lg:gap-4 ${
+        className={`group pointer-events-auto absolute bottom-[calc(7svh+max(0.75rem,2.5vh))] flex cursor-pointer items-center gap-3 outline-none lg:gap-4 ${
           logic ? "left-[max(1rem,2.5vw)] flex-row" : "right-[max(1rem,2.5vw)] flex-row-reverse"
         }`}
         style={{ pointerEvents: shown ? "auto" : "none", transformOrigin: logic ? "0% 100%" : "100% 100%" }}
