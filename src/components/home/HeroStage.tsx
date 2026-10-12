@@ -33,13 +33,14 @@
  */
 
 import { useLayoutEffect, useRef, useState } from "react";
+import { preload } from "react-dom";
 import { motion, useMotionValue, useReducedMotion, useTransform } from "framer-motion";
 import { BrainSequence } from "@/components/home/BrainSequence";
 import { LeftRightBrain } from "@/components/home/LeftRightBrain";
 import { CodeStream } from "@/components/home/CodeStream";
 import { FACTS_RISE } from "@/components/home/FactsTab";
 import { Corner3DGrid } from "@/components/home/Corner3DGrid";
-import { PortraitOrb } from "@/components/home/PortraitOrb";
+import { ORB_SRC, PortraitOrb } from "@/components/home/PortraitOrb";
 import { useInViewport } from "@/hooks/useInViewport";
 import { DURATION, EASE_IN_OUT, EASE_OUT } from "@/constants/motion";
 import { CircuitBackdrop } from "@/components/home/CircuitBackdrop";
@@ -151,6 +152,15 @@ function useLayoutHeight(ref: React.RefObject<HTMLElement | null>) {
 }
 
 export function HeroStage() {
+  // The photo is the first screen's picture, but the orb only renders once
+  // the stage is measured — after the page's code has run. Preloading both
+  // halves from the <head> (it lands in the static HTML) has the browser
+  // fetch them first, at high priority, rather than discover them then,
+  // behind everything else (speed fix 1, 2026-10-12). Nothing on screen
+  // changes: the orb still appears, and fades in, exactly when it did.
+  preload(ORB_SRC.line, { as: "image", fetchPriority: "high" });
+  preload(ORB_SRC.paint, { as: "image", fetchPriority: "high" });
+
   // Keep the scrub loop running while the hero is near the viewport; idle it
   // once the visitor has scrolled well past.
   const { ref, inView } = useInViewport<HTMLElement>({ rootMargin: "200px 0px" });

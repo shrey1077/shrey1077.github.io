@@ -45,6 +45,13 @@ import Image from "next/image";
 import { motion, useMotionValue, useReducedMotion, useTransform } from "framer-motion";
 import { SWEEP_PERIOD, SWEEP_START, sweepAt, watchPointer } from "@/components/home/idleSweep";
 
+/** The two frames. ⚠ HeroStage preloads both from the page's <head>
+ *  (2026-10-12, speed fix 1): the orb only renders once the stage has been
+ *  measured, after the page's code has run, so without that the browser would
+ *  not learn of the photo until then — and would fetch it behind everything
+ *  else the page asks for at that moment. */
+export const ORB_SRC = { line: "/content/portrait/orb-line.webp", paint: "/content/portrait/orb-paint.webp" } as const;
+
 /** Both frames share this canvas exactly. See the header. */
 const ASPECT = 1200 / 606;
 /** Half-width of the seam, as a percentage of the frame's width. ⚠ A HAIR, not
@@ -151,12 +158,13 @@ export function PortraitOrb({ className = "" }: { className?: string }) {
         style={{ maskImage: maskLine, WebkitMaskImage: maskLine, opacity: opacityLine }}
       >
         <Image
-          src="/content/portrait/orb-line.webp"
+          src={ORB_SRC.line}
           alt="Shrey Singh"
           fill
           sizes="500px"
           className="object-contain"
-          priority
+          loading="eager"
+          fetchPriority="high"
         />
       </motion.div>
 
@@ -165,12 +173,17 @@ export function PortraitOrb({ className = "" }: { className?: string }) {
         className="absolute inset-0"
         style={{ maskImage: maskPaint, WebkitMaskImage: maskPaint, opacity: opacityPaint }}
       >
+        {/* ⚠ Eager and high priority as the line half is (it was lazy until
+            2026-10-12): the photo is the first screen's picture, and it is
+            whole only when both halves are in. */}
         <Image
-          src="/content/portrait/orb-paint.webp"
+          src={ORB_SRC.paint}
           alt=""
           fill
           sizes="500px"
           className="object-contain"
+          loading="eager"
+          fetchPriority="high"
         />
       </motion.div>
     </div>
