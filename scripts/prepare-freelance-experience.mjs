@@ -63,6 +63,11 @@ const WORK = {
     "Vivid tech/Soln for Formulations-03-03.png",
     "Vivid tech/Containment soln2.png",
     "Vivid tech/vivid slider 2.png",
+    // From the live site (2026-10-13): drawn by scripts/make-vivid-boards.mjs
+    // — the icon system, and the home page on a laptop and a phone.
+    "Vivid tech/vivid-icon-system.png",
+    "Vivid tech/vivid-website-laptop.png",
+    "Vivid tech/vivid-website-phone.png",
   ],
   leder: [
     "Misc/Leden warren/lEDEN 22-01.png",
