@@ -32,6 +32,8 @@ export const FREELANCE_EXPERIENCE: CaseStudyConfig = {
       description:
         "A full identity and website, plus the piece that did the real work: process maps placing every Vivid product inside the actual API, biopharma and formulation lines a plant runs. A catalogue of stainless housings turned into a story a process engineer already believes.",
       accent: "#0E63B3",
+      // The company's site (owner, 2026-10-13).
+      site: "vividprotech.com",
     },
     {
       id: "leder",
