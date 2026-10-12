@@ -32,10 +32,48 @@ export function RoomImage({ src, alt, ...rest }: ImageProps) {
 
 // ── The page's own milestones.
 
+//   loaded   the window's load event — the page's own downloads are done;
+//   up       …and on the home page, the photo is on screen too — both halves
+//            in (PortraitOrb) and its fade-in finished (HeroStage): the
+//            first screen is up, and the background downloads
+//            may start. Until then they would compete with it — and the
+//            photo only appears once the page's code has run, after load;
+//   settled  the brain's frames are in (BrainSequence), or long overdue: the
+//            rest of the rooms' pictures may come.
+
 let loaded = false;
+let photoShown = false;
+const photoParts = new Set<string>();
+let up = false;
 let settled = false;
 const listeners = new Set<() => void>();
 const notify = () => listeners.forEach((f) => f());
+
+/** If the photo never reports (it always should), the first screen counts as
+ *  up this long after the load. */
+const UP_FALLBACK_MS = 5000;
+/** If the brain's frames are slow, the rooms do not wait on them past this. */
+const SETTLE_FALLBACK_MS = 10000;
+
+const checkUp = () => {
+  if (up || !loaded || !photoShown) return;
+  up = true;
+  notify();
+  window.setTimeout(markBrainFramesIn, SETTLE_FALLBACK_MS);
+};
+
+/** The photo is on screen: called with "loaded" when both halves are in
+ *  (PortraitOrb), with "settled" when its fade-in has finished (HeroStage) —
+ *  both, and it is. With no part, it is outright (the fallback). */
+export function markPhotoShown(part?: "loaded" | "settled") {
+  if (photoShown) return;
+  if (part) {
+    photoParts.add(part);
+    if (photoParts.size < 2) return;
+  }
+  photoShown = true;
+  checkUp();
+}
 
 /** The brain's frames are all in (BrainSequence): the rooms' turn. */
 export function markBrainFramesIn() {
@@ -44,17 +82,30 @@ export function markBrainFramesIn() {
   notify();
 }
 
-/** If the brain's frames are slow, the rooms do not wait on them past this. */
-const SETTLE_FALLBACK_MS = 10000;
-
 if (typeof window !== "undefined") {
   const onLoad = () => {
     loaded = true;
     notify();
-    window.setTimeout(markBrainFramesIn, SETTLE_FALLBACK_MS);
+    checkUp();
+    window.setTimeout(() => markPhotoShown(), UP_FALLBACK_MS);
   };
   if (document.readyState === "complete") onLoad();
   else window.addEventListener("load", onLoad, { once: true });
+}
+
+/** Calls `cb` once the first screen is up (now, if it is). Returns a stop. */
+export function whenFirstScreenUp(cb: () => void): () => void {
+  if (up) {
+    cb();
+    return () => {};
+  }
+  const f = () => {
+    if (!up) return;
+    listeners.delete(f);
+    cb();
+  };
+  listeners.add(f);
+  return () => listeners.delete(f);
 }
 
 function useMilestone(read: () => boolean) {
@@ -71,9 +122,12 @@ function useMilestone(read: () => boolean) {
 }
 
 const readLoaded = () => loaded;
+const readUp = () => up;
 const readSettled = () => settled;
 
-/** The page has loaded: the first screen's own downloads are done. */
+/** The page has loaded: its own downloads are done (any page). */
 export const usePageLoaded = () => useMilestone(readLoaded);
+/** The home page's first screen is up — loaded, and the photo showing. */
+export const useFirstScreenUp = () => useMilestone(readUp);
 /** …and the brain's frames are in (or long overdue): everything else may come. */
 export const usePageSettled = () => useMilestone(readSettled);

@@ -42,8 +42,8 @@
  * are 9.4MB — most of the homepage's weight — and until then all 48 were
  * requested on mount, alongside the photo the first screen is waiting for,
  * though the brain is only on screen 2. Now nothing is requested until the
- * page has loaded, or the visitor starts for the brain's screen, whichever is
- * first; then the frame the turn is on comes first, alone, and the rest
+ * first screen is up (the page loaded and the photo showing — nearness), or
+ * the visitor starts for the brain's screen, whichever is first; then the frame the turn is on comes first, alone, and the rest
  * follow a few at a time in the order the sweep will reach them. Nothing on
  * screen changes: the brain is drawn exactly as before, frame by frame.
  */
@@ -52,7 +52,7 @@ import { useEffect, useLayoutEffect, useRef } from "react";
 import { useReducedMotion } from "framer-motion";
 import { SWEEP_PERIOD, SWEEP_START, sweepAt, watchPointer } from "@/components/home/idleSweep";
 import { useFlight } from "@/components/home/flight";
-import { markBrainFramesIn } from "@/components/home/nearness";
+import { markBrainFramesIn, whenFirstScreenUp } from "@/components/home/nearness";
 
 const FRAME_COUNT = 48;
 const BASE = "/brain/frames";
@@ -189,10 +189,8 @@ export function BrainSequence({ active = true, mode = "sweep" }: { active?: bool
       queue = rising ? [...up, ...down] : [k, ...down, ...up.slice(1)];
       pump();
     };
-    // When the page has loaded (the photo, the type and the first screen's
-    // code are in)…
-    if (document.readyState === "complete") startLoading();
-    else window.addEventListener("load", startLoading, { once: true });
+    // When the first screen is up (the page loaded and the photo showing)…
+    const stopWait = whenFirstScreenUp(startLoading);
     // …or the moment the visitor starts for the brain's screen.
     const stopWatch = p?.on("change", (v) => {
       if (v > 0) startLoading();
@@ -248,7 +246,7 @@ export function BrainSequence({ active = true, mode = "sweep" }: { active?: bool
 
     return () => {
       disposed = true;
-      window.removeEventListener("load", startLoading);
+      stopWait();
       stopWatch?.();
       cancelAnimationFrame(raf);
       pointer?.stop();

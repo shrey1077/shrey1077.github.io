@@ -12,32 +12,32 @@
  * `preload="auto"`, so its 1.8MB downloaded alongside the first screen's
  * photo, and every copy kept playing wherever it was — the landing's behind
  * the rooms, so two at once in the logic column. Now the poster frame (the
- * film's own first frame) stands until the page has loaded, the film then
- * plays while its copy is on screen, and it pauses off screen. At 8% behind
+ * film's own first frame) stands until the first screen is up (nearness),
+ * the film then plays while its copy is on screen, and it pauses off screen. At 8% behind
  * a fade, the difference cannot be seen.
  */
 
 import { useEffect, useRef } from "react";
 import { useReducedMotion } from "framer-motion";
 import { useInViewport } from "@/hooks/useInViewport";
-import { usePageLoaded } from "@/components/home/nearness";
+import { useFirstScreenUp } from "@/components/home/nearness";
 
 export function CircuitBackdrop() {
   const reduceMotion = useReducedMotion();
   const videoRef = useRef<HTMLVideoElement>(null);
   const { ref, inView } = useInViewport<HTMLDivElement>({ initial: false });
-  const pageLoaded = usePageLoaded();
+  const firstScreenUp = useFirstScreenUp();
 
   useEffect(() => {
     const v = videoRef.current;
     if (!v) return;
-    if (reduceMotion || !pageLoaded || !inView) {
+    if (reduceMotion || !firstScreenUp || !inView) {
       v.pause();
       return;
     }
     v.preload = "auto";
     v.play().catch(() => {});
-  }, [reduceMotion, pageLoaded, inView]);
+  }, [reduceMotion, firstScreenUp, inView]);
 
   // The footage has a bright chip "patch" that pulses dead-centre — right where
   // the brain sits. An inverted radial mask fades the centre out, so the patch

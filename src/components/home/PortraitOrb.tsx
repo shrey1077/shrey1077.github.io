@@ -44,6 +44,7 @@ import { useEffect, useRef } from "react";
 import Image from "next/image";
 import { motion, useMotionValue, useReducedMotion, useTransform } from "framer-motion";
 import { SWEEP_PERIOD, SWEEP_START, sweepAt, watchPointer } from "@/components/home/idleSweep";
+import { markPhotoShown } from "@/components/home/nearness";
 
 /** The two frames. ⚠ HeroStage preloads both from the page's <head>
  *  (2026-10-12, speed fix 1): the orb only renders once the stage has been
@@ -120,6 +121,14 @@ export function PortraitOrb({ className = "" }: { className?: string }) {
   const opacityLine = useTransform(src, (v) => fade(1 - travel(v)));
   const opacityPaint = useTransform(src, (v) => fade(travel(v)));
 
+  // Both halves in and painted — half of what the home page's background
+  // downloads wait for (nearness; the other half is the orb's fade-in,
+  // HeroStage).
+  const halvesIn = useRef(0);
+  const onHalfIn = () => {
+    if (++halvesIn.current === 2) requestAnimationFrame(() => requestAnimationFrame(() => markPhotoShown("loaded")));
+  };
+
   // The sweep — held while the pointer moves, carried on after a second's
   // stillness, and only run while the orb is on screen.
   useEffect(() => {
@@ -165,6 +174,7 @@ export function PortraitOrb({ className = "" }: { className?: string }) {
           className="object-contain"
           loading="eager"
           fetchPriority="high"
+          onLoad={onHalfIn}
         />
       </motion.div>
 
@@ -184,6 +194,7 @@ export function PortraitOrb({ className = "" }: { className?: string }) {
           className="object-contain"
           loading="eager"
           fetchPriority="high"
+          onLoad={onHalfIn}
         />
       </motion.div>
     </div>

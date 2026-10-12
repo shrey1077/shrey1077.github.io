@@ -32,7 +32,7 @@
  * deleted 2026-09-10; the pins have been the way in for a long time.
  */
 
-import { useLayoutEffect, useRef, useState } from "react";
+import { useEffect, useLayoutEffect, useRef, useState } from "react";
 import { preload } from "react-dom";
 import { motion, useMotionValue, useMotionValueEvent, useReducedMotion, useTransform } from "framer-motion";
 import { BrainSequence } from "@/components/home/BrainSequence";
@@ -40,6 +40,7 @@ import { LeftRightBrain } from "@/components/home/LeftRightBrain";
 import { CodeStream } from "@/components/home/CodeStream";
 import { Corner3DGrid } from "@/components/home/Corner3DGrid";
 import { ORB_SRC, PortraitOrb } from "@/components/home/PortraitOrb";
+import { markPhotoShown } from "@/components/home/nearness";
 import { useInViewport } from "@/hooks/useInViewport";
 import { DURATION, EASE_IN_OUT, EASE_OUT } from "@/constants/motion";
 import { CircuitBackdrop } from "@/components/home/CircuitBackdrop";
@@ -196,6 +197,11 @@ export function HeroStage() {
   const onBrain = current === 1;
 
   const size = useStageSize(ref);
+
+  // Reduced motion: the orb has no fade-in to wait for (nearness).
+  useEffect(() => {
+    if (reduceMotion) markPhotoShown("settled");
+  }, [reduceMotion]);
 
   // The PORTFOLIO mark's full height, and the name over the orb — both from
   // layout, so neither is guessed.
@@ -381,6 +387,9 @@ export function HeroStage() {
               initial={reduceMotion ? false : { opacity: 0, scale: 0.94 }}
               animate={{ opacity: 1, scale: 1 }}
               transition={{ duration: DURATION.verySlow, ease: EASE_OUT }}
+              // The fade-in done: with both halves in, the first screen is up
+              // and the background downloads may start (nearness).
+              onAnimationComplete={() => markPhotoShown("settled")}
             >
               <PortraitOrb />
             </motion.div>

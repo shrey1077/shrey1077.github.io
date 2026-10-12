@@ -107,7 +107,7 @@ import { Corner3DGrid } from "@/components/home/Corner3DGrid";
 import { ProjectPreview } from "@/components/home/ProjectPreview";
 import { BrainNav } from "@/components/home/BrainNav";
 import { SectionBody, sectionEntryCount, type SectionData } from "@/components/home/SectionBody";
-import { NearContext, usePageLoaded, usePageSettled } from "@/components/home/nearness";
+import { NearContext, useFirstScreenUp, usePageSettled } from "@/components/home/nearness";
 import { navSectionsFor } from "@/constants/navigation";
 import { projectStudyById } from "@/constants/projectStudies";
 import { PAPER_PLATE } from "@/constants/design";
@@ -386,14 +386,14 @@ export function Flythrough({
   const [pastRun, setPastRun] = useState(false);
 
   // ── When each slide's pictures may download (speed fix 4, nearness): the
-  //    brain slide's once the page has loaded or the camera leaves the orb;
+  //    brain slide's once the first screen is up or the camera leaves the orb;
   //    a room's once the camera is a step from it or flying to it — `reach`,
   //    the furthest slide that has been in reach — and every room's once the
   //    page has settled.
   const [leftOrb, setLeftOrb] = useState(false);
   const [reach, setReach] = useState(0);
   const extendReach = useCallback((k: number) => setReach((r) => Math.max(r, k + 1)), []);
-  const pageLoaded = usePageLoaded();
+  const firstScreenUp = useFirstScreenUp();
   const pageSettled = usePageSettled();
 
   useMotionValueEvent(p, "change", (v) => {
@@ -672,7 +672,7 @@ export function Flythrough({
           current={current < FIRST_ROOM}
           className="bg-gallery"
         >
-          <NearContext.Provider value={pageLoaded || leftOrb}>{children}</NearContext.Provider>
+          <NearContext.Provider value={firstScreenUp || leftOrb}>{children}</NearContext.Provider>
         </Slide>
 
         {ROOMS.map(({ section: s, level: lv, track: t }) => {
