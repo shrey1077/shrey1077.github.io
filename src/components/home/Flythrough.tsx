@@ -150,6 +150,25 @@ const AHEAD_Z = 1700;
 const PASS_Z = 800;
 /** A wheel event this soon after the last belongs to the same gesture. */
 const GESTURE_GAP_MS = 220;
+/** ⚠ THE LOCK HAS A CAP (speed fix 6, 2026-10-13, with the owner's OK). One
+ *  push moves one slide, and the rest of that push's wheel events are
+ *  swallowed — but until then they were swallowed for as long as they kept
+ *  coming within GESTURE_GAP_MS, so a long trackpad glide, or a wheel kept
+ *  turning because nothing seemed to happen, held the page still (6 s of
+ *  steady scrolling moved ONE slide: the "freeze"). Now, once the flight has
+ *  landed and this long has passed, a wheel still PUSHING is a new push and
+ *  moves on; one dying away (momentum's tail) is still the old one. The
+ *  flights themselves are untouched. */
+const LOCK_CAP_MS = 450;
+/** Pushing, not dying away, measured against the largest delta in the last
+ *  PUSH_WINDOW_MS: either STEADY and strong — at least PUSH_STEADY_PX and not
+ *  falling below PUSH_HOLD of that peak (a wheel kept turning) — or RISING
+ *  past it by PUSH_RISE (fingers back on the pad). Momentum only ever falls,
+ *  and its last crumbs, flat at a few px, are neither. */
+const PUSH_WINDOW_MS = 300;
+const PUSH_STEADY_PX = 15;
+const PUSH_HOLD = 0.98;
+const PUSH_RISE = 1.1;
 /** Native scrolling that stops this long counts as at rest. */
 const SETTLE_MS = 140;
 /** Slide positions this close to a whole number count as on that slide. */
@@ -427,6 +446,10 @@ export function Flythrough({
     let anim: { stop: () => void } | null = null;
     let lastWheel = 0;
     let gestureSpent = false;
+    // The cap (LOCK_CAP_MS): when the last flight landed, and the recent
+    // deltas, [time, |deltaY|], over the last PUSH_WINDOW_MS.
+    let landedAt = 0;
+    let recent: [number, number][] = [];
     let touching = false;
     let settle: ReturnType<typeof setTimeout> | undefined;
 
@@ -476,6 +499,7 @@ export function Flythrough({
         onUpdate: (v) => window.scrollTo({ top: v, behavior: "instant" }),
         onComplete: () => {
           flyingRef.current = false;
+          landedAt = performance.now();
         },
       });
     };
@@ -499,7 +523,18 @@ export function Flythrough({
     const onWheel = (e: WheelEvent) => {
       if (reduceMotion || e.ctrlKey || modal()) return;
       const now = performance.now();
+      const delta = Math.abs(e.deltaY);
+      recent = recent.filter(([t]) => now - t <= PUSH_WINDOW_MS);
+      const peak = recent.reduce((m, [, d]) => Math.max(m, d), 0);
+      recent.push([now, delta]);
       if (now - lastWheel > GESTURE_GAP_MS && !flyingRef.current) gestureSpent = false;
+      else if (
+        gestureSpent &&
+        !flyingRef.current &&
+        now - landedAt > LOCK_CAP_MS &&
+        ((delta >= PUSH_STEADY_PX && delta >= peak * PUSH_HOLD) || (delta >= 4 && delta > peak * PUSH_RISE))
+      )
+        gestureSpent = false;
       lastWheel = now;
       const dir = Math.sign(e.deltaY);
       if (!dir) return;

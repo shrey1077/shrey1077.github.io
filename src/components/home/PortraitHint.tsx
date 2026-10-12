@@ -38,8 +38,8 @@ const COPY = {
     body: "Two halves of a brain live in here, and they like the room. Tilt your phone to landscape — or come back on a laptop for the full experience.",
   },
 } as const;
-/** ⚠ The owner picks. A until then. */
-export const CHOSEN: keyof typeof COPY = "A";
+/** The owner chose B (2026-10-13). */
+export const CHOSEN: keyof typeof COPY = "B";
 
 const PHONE_UPRIGHT = "(orientation: portrait) and (max-width: 600px) and (pointer: coarse)";
 const LANDSCAPE = "(orientation: landscape)";
