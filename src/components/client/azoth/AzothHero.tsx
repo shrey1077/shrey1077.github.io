@@ -170,9 +170,22 @@ export function AzothHero() {
       raf.current = requestAnimationFrame(tick);
     };
 
+    // The loop runs only while the hero is on screen (speed fix 9,
+    // 2026-10-13): it wrote the spotlight every frame after it had scrolled
+    // away. Back on screen it eases on from where it stood, as it always did.
+    let on = false;
+    const run = (v: boolean) => {
+      if (v === on) return;
+      on = v;
+      if (v) raf.current = requestAnimationFrame(tick);
+      else if (raf.current) cancelAnimationFrame(raf.current);
+    };
+    const io = new IntersectionObserver(([e]) => run(e.isIntersecting));
+    io.observe(el);
+
     window.addEventListener("pointermove", onMove, { passive: true });
-    raf.current = requestAnimationFrame(tick);
     return () => {
+      io.disconnect();
       window.removeEventListener("pointermove", onMove);
       if (raf.current) cancelAnimationFrame(raf.current);
     };

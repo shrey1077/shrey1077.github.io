@@ -17,10 +17,17 @@
  * comes in colour, in the deep paint hues the right brain's own lines use.
  *
  * Reduced motion renders a static block of the first lines.
+ *
+ * It types only while it can be seen (speed fix 9, 2026-10-13): on the landing,
+ * and on a screen wide enough to show it (below `lg` it is not displayed). It
+ * typed on behind the rooms, and on phones where it never shows, until then;
+ * it picks up mid-line where it stopped.
  */
 
 import { useEffect, useRef, useState } from "react";
 import { useReducedMotion } from "framer-motion";
+import { useInViewport } from "@/hooks/useInViewport";
+import { useFlight } from "@/components/home/flight";
 
 /** ~50 lines of the site's own source (the hero name split), looped. */
 const SOURCE = `export function HeroName() {
@@ -112,9 +119,12 @@ export function CodeStream({ variant = "code" }: { variant?: Variant }) {
   /** The line being typed, and its index in the source. */
   const [cur, setCur] = useState({ text: "", at: 0 });
   const pos = useRef({ line: 0, col: 0 });
+  const { ref, inView } = useInViewport<HTMLDivElement>({ initial: false });
+  const zone = useFlight()?.zone ?? "landing";
+  const running = inView && zone === "landing";
 
   useEffect(() => {
-    if (reduceMotion) return;
+    if (reduceMotion || !running) return;
     let t: number;
     const step = () => {
       const p = pos.current;
@@ -132,15 +142,17 @@ export function CodeStream({ variant = "code" }: { variant?: Variant }) {
         t = window.setTimeout(step, line.trim() === "" ? 120 : 240);
       }
     };
-    t = window.setTimeout(step, right ? 900 : 350);
+    const fresh = pos.current.line === 0 && pos.current.col === 0;
+    t = window.setTimeout(step, fresh ? (right ? 900 : 350) : 240);
     return () => window.clearTimeout(t);
-  }, [reduceMotion, lines, right]);
+  }, [reduceMotion, lines, right, running]);
 
   const shown = reduceMotion ? lines.slice(0, VISIBLE).map((text, at) => ({ text, at })) : done;
   const curInk = colour ? inkOf(cur.text, cur.at) : undefined;
 
   return (
     <div
+      ref={ref}
       aria-hidden
       className={`font-helv w-[min(23vw,17rem)] select-none text-[0.58rem] leading-[1.55] text-neutral-400 ${
         right ? "text-right" : ""
