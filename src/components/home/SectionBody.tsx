@@ -12,7 +12,8 @@
  * exactly one screen, so it runs five to a row on shallower plates.
  */
 
-import Image from "next/image";
+// Waits for its room (speed fix 4, nearness).
+import { RoomImage as Image } from "@/components/home/nearness";
 import Link from "next/link";
 import { CAREER_STOP_COUNT, CareerTimeline } from "@/components/home/CareerTimeline";
 import { ArtCollections } from "@/components/home/ArtCollections";

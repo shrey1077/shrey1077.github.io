@@ -107,6 +107,7 @@ import { Corner3DGrid } from "@/components/home/Corner3DGrid";
 import { ProjectPreview } from "@/components/home/ProjectPreview";
 import { BrainNav } from "@/components/home/BrainNav";
 import { SectionBody, sectionEntryCount, type SectionData } from "@/components/home/SectionBody";
+import { NearContext, usePageLoaded, usePageSettled } from "@/components/home/nearness";
 import { navSectionsFor } from "@/constants/navigation";
 import { projectStudyById } from "@/constants/projectStudies";
 import { PAPER_PLATE } from "@/constants/design";
@@ -383,8 +384,23 @@ export function Flythrough({
   // Whether the page has scrolled on past the rooms, into the footer — the
   // fixed band goes back to the name there.
   const [pastRun, setPastRun] = useState(false);
+
+  // ── When each slide's pictures may download (speed fix 4, nearness): the
+  //    brain slide's once the page has loaded or the camera leaves the orb;
+  //    a room's once the camera is a step from it or flying to it — `reach`,
+  //    the furthest slide that has been in reach — and every room's once the
+  //    page has settled.
+  const [leftOrb, setLeftOrb] = useState(false);
+  const [reach, setReach] = useState(0);
+  const extendReach = useCallback((k: number) => setReach((r) => Math.max(r, k + 1)), []);
+  const pageLoaded = usePageLoaded();
+  const pageSettled = usePageSettled();
+
   useMotionValueEvent(p, "change", (v) => {
-    setCurrent(Math.min(LAST, Math.max(0, Math.round(v))));
+    if (v > 0) setLeftOrb(true);
+    const c = Math.min(LAST, Math.max(0, Math.round(v)));
+    setCurrent(c);
+    if (c >= FIRST_ROOM - 1) extendReach(c);
     const inRooms = v > FIRST_ROOM - 1 + EPS;
     setRoomsLive(inRooms);
     // Back up on the orb, the track rests on logic again. (Not on the brain
@@ -449,6 +465,8 @@ export function Flythrough({
         return;
       }
       flyingRef.current = true;
+      // The rooms on the way, and the one it lands in, start their pictures now.
+      if (to >= FIRST_ROOM - 1) extendReach(to);
       const slides = Math.abs(target - from) / (step || 1);
       // Into or between the rooms the squares need the longer flight.
       const base = Math.max(to, position()) > FIRST_ROOM - 1 + EPS ? FLY_ROOMS : FLY_BASE;
@@ -587,9 +605,9 @@ export function Flythrough({
       window.removeEventListener(PIN_OPEN_EVENT, onPin);
       window.removeEventListener(GO_EVENT, onGo);
     };
-  }, [reduceMotion, switchTrack]);
+  }, [reduceMotion, switchTrack, extendReach]);
 
-  const go = (k: number, t?: Track) =>
+  const go =(k: number, t?: Track) =>
     window.dispatchEvent(new CustomEvent<GoDetail>(GO_EVENT, { detail: t ? { k, track: t } : k }));
 
   // The dock's prompt: the room LEVEL with this one, on the other track.
@@ -654,7 +672,7 @@ export function Flythrough({
           current={current < FIRST_ROOM}
           className="bg-gallery"
         >
-          {children}
+          <NearContext.Provider value={pageLoaded || leftOrb}>{children}</NearContext.Provider>
         </Slide>
 
         {ROOMS.map(({ section: s, level: lv, track: t }) => {
@@ -677,6 +695,7 @@ export function Flythrough({
               reduceMotion={reduceMotion}
               current={current === index && track === t}
             >
+              <NearContext.Provider value={pageSettled || index <= reach}>
               {/* The room keeps its foot clear of the fixed band (7svh,
                   FootBand) and the brain's circle standing on it in the
                   column's outer corner (BrainDock: its offset + its size + air);
@@ -750,6 +769,7 @@ export function Flythrough({
                   </div>
                 </div>
               </section>
+              </NearContext.Provider>
             </Slide>
           );
         })}
@@ -761,6 +781,7 @@ export function Flythrough({
 
         {/* The brain's circle in each column's outer foot — appearing a beat
             after the camera arrives — and the way across to the other track. */}
+        <NearContext.Provider value={pageSettled || reach >= FIRST_ROOM}>
         <BrainDock
           inRooms={current >= FIRST_ROOM}
           logicPan={logicPan}
@@ -770,6 +791,7 @@ export function Flythrough({
           onAcross={() => switchTrack(track === "logic" ? "creative" : "logic")}
           reduceMotion={reduceMotion}
         />
+        </NearContext.Provider>
 
         {/* The three circles — left brain, home, right brain — and under each
             side its four rooms (BrainNav). Hidden over the landing, which has

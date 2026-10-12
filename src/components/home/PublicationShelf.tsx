@@ -18,7 +18,8 @@
  * pieces) draws a typographic spine in its own accent instead of a gap.
  */
 
-import Image from "next/image";
+// Waits for its room (speed fix 4, nearness).
+import { RoomImage as Image } from "@/components/home/nearness";
 import Link from "next/link";
 import { motion, useReducedMotion } from "framer-motion";
 import type { Publication } from "@/constants/publications";

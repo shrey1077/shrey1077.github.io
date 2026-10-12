@@ -52,6 +52,7 @@ import { useEffect, useLayoutEffect, useRef } from "react";
 import { useReducedMotion } from "framer-motion";
 import { SWEEP_PERIOD, SWEEP_START, sweepAt, watchPointer } from "@/components/home/idleSweep";
 import { useFlight } from "@/components/home/flight";
+import { markBrainFramesIn } from "@/components/home/nearness";
 
 const FRAME_COUNT = 48;
 const BASE = "/brain/frames";
@@ -136,6 +137,8 @@ export function BrainSequence({ active = true, mode = "sweep" }: { active?: bool
     let landed = 0;
     let disposed = false;
     const pump = () => {
+      // All in: the rooms' pictures may come down now (nearness).
+      if (landed === FRAME_COUNT) markBrainFramesIn();
       while (!disposed && queue.length && inFlight < (landed ? IN_FLIGHT : 1)) {
         const i = queue.shift()!;
         const img = new Image();

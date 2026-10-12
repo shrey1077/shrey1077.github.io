@@ -29,7 +29,8 @@
  * off the brain slide into a window half off the right edge — git has it.
  */
 
-import Image from "next/image";
+// Waits for its room (speed fix 4, nearness).
+import { RoomImage as Image } from "@/components/home/nearness";
 import { motion, useTransform, type MotionValue } from "framer-motion";
 import { typeVoiceClass } from "@/constants/typography";
 

@@ -29,7 +29,8 @@
  */
 
 import { useEffect, useRef, useState } from "react";
-import Image from "next/image";
+// Waits for its room (speed fix 4, nearness).
+import { RoomImage as Image } from "@/components/home/nearness";
 import { motion, useReducedMotion } from "framer-motion";
 import { NAV_SECTIONS } from "@/constants/navigation";
 import type { NavSectionId } from "@/types/navigation";

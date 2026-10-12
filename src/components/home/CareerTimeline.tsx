@@ -25,7 +25,8 @@
  * (scripts/prepare-career.mjs).
  */
 
-import Image from "next/image";
+// Waits for its room (speed fix 4, nearness).
+import { RoomImage as Image } from "@/components/home/nearness";
 import { motion, useReducedMotion } from "framer-motion";
 import { EASE_OUT } from "@/constants/motion";
 import { typeVoiceClass } from "@/constants/typography";

@@ -44,7 +44,8 @@
  */
 
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import Image from "next/image";
+// Waits for its room (speed fix 4, nearness).
+import { RoomImage as Image } from "@/components/home/nearness";
 import { useReducedMotion } from "framer-motion";
 import type { LogoMark, MarkPlate } from "@/content/catalogue";
 

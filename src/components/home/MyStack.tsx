@@ -11,7 +11,8 @@
  * not claims about the work made with them.
  */
 
-import Image from "next/image";
+// Waits for its room (speed fix 4, nearness).
+import { RoomImage as Image } from "@/components/home/nearness";
 import { TOOLS, type Tool } from "@/constants/tools";
 
 /** What each tool is, in a line. */

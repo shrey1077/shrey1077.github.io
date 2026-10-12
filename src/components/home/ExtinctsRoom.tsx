@@ -17,7 +17,8 @@
 
 import { useEffect, useRef, useState } from "react";
 import { createPortal } from "react-dom";
-import Image from "next/image";
+// Waits for its room (speed fix 4, nearness).
+import { RoomImage as Image } from "@/components/home/nearness";
 import { AnimatePresence, motion } from "framer-motion";
 import {
   EXTINCTS_REPORTS,

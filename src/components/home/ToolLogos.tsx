@@ -4,7 +4,8 @@
  * name as alt text and a hover title; the row as a whole is a list.
  */
 
-import Image from "next/image";
+// Waits for its room (speed fix 4, nearness).
+import { RoomImage as Image } from "@/components/home/nearness";
 import { TOOLS } from "@/constants/tools";
 
 export function ToolLogos({
