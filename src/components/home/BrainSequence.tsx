@@ -38,16 +38,20 @@
  * Re-encoding changes nothing, but REPLACING the artwork means re-measuring that
  * band (the numbers and how they were taken are in BrainTraces).
  *
- * ⚠ ALL FRAMES PRELOAD EAGERLY on mount — the whole sequence lands before the
- * hero is interactive. At 9.39MB (2026-08-21, after the q75 re-encode) that is
- * most of the homepage's weight. Encoding has been tuned; this strategy has
- * not. If time-to-interactive is ever the complaint rather than total transfer,
- * this loop is the thing to change, not the encoder settings.
+ * ⚠ THE FRAMES LOAD AFTER THE FIRST SCREEN (speed fix 2, 2026-10-13). They
+ * are 9.4MB — most of the homepage's weight — and until then all 48 were
+ * requested on mount, alongside the photo the first screen is waiting for,
+ * though the brain is only on screen 2. Now nothing is requested until the
+ * page has loaded, or the visitor starts for the brain's screen, whichever is
+ * first; then the frame the turn is on comes first, alone, and the rest
+ * follow a few at a time in the order the sweep will reach them. Nothing on
+ * screen changes: the brain is drawn exactly as before, frame by frame.
  */
 
 import { useEffect, useLayoutEffect, useRef } from "react";
 import { useReducedMotion } from "framer-motion";
 import { SWEEP_PERIOD, SWEEP_START, sweepAt, watchPointer } from "@/components/home/idleSweep";
+import { useFlight } from "@/components/home/flight";
 
 const FRAME_COUNT = 48;
 const BASE = "/brain/frames";
@@ -59,6 +63,9 @@ const W = BRAIN_FRAME_W;
 const H = BRAIN_FRAME_H;
 /** Rows cleared off the foot of every frame — see `draw`. */
 const FRAME_EDGE_ROWS = 3;
+/** Frames downloading at once once the first has landed — few enough that
+ *  they arrive in the sweep's order, not all together. */
+const IN_FLIGHT = 4;
 
 /** Critically-damped spring for the scrub follow (the old video's feel). */
 const STIFFNESS = 26;
@@ -86,6 +93,8 @@ export function BrainSequence({ active = true, mode = "sweep" }: { active?: bool
     modeRef.current = mode;
   }, [active, mode]);
   const reduceMotion = useReducedMotion();
+  // The camera: the frames start loading the moment it leaves the orb slide.
+  const p = useFlight()?.p;
 
   useEffect(() => {
     const canvas = canvasRef.current;
@@ -94,7 +103,6 @@ export function BrainSequence({ active = true, mode = "sweep" }: { active?: bool
     if (!ctx) return;
 
     const rest = (FRAME_COUNT - 1) / 2;
-    const restIdx = Math.round(rest);
     const frames: HTMLImageElement[] = [];
 
     const draw = (img: HTMLImageElement) => {
@@ -107,21 +115,6 @@ export function BrainSequence({ active = true, mode = "sweep" }: { active?: bool
       ctx.clearRect(0, H - FRAME_EDGE_ROWS, W, FRAME_EDGE_ROWS);
     };
 
-    // Preload every frame; paint the resting frame the instant it arrives.
-    let painted = false;
-    for (let i = 0; i < FRAME_COUNT; i++) {
-      const img = new Image();
-      img.decoding = "async";
-      img.onload = () => {
-        if (!painted && i === restIdx) {
-          draw(img);
-          painted = true;
-        }
-      };
-      img.src = `${BASE}/${String(i).padStart(3, "0")}.webp`;
-      frames[i] = img;
-    }
-
     let target = rest,
       pos = rest,
       vel = 0,
@@ -133,6 +126,62 @@ export function BrainSequence({ active = true, mode = "sweep" }: { active?: bool
     // pointer is still — so it holds wherever the pointer catches it.
     let phase = SWEEP_START;
     const pointer = reduceMotion ? null : watchPointer();
+
+    // ── The frames, loaded once the first screen no longer needs the line.
+    // The first to land is painted the instant it arrives, as the resting
+    // frame always was.
+    let painted = false;
+    let queue: number[] = [];
+    let inFlight = 0;
+    let landed = 0;
+    let disposed = false;
+    const pump = () => {
+      while (!disposed && queue.length && inFlight < (landed ? IN_FLIGHT : 1)) {
+        const i = queue.shift()!;
+        const img = new Image();
+        img.decoding = "async";
+        inFlight++;
+        img.onload = () => {
+          inFlight--;
+          landed++;
+          if (!painted) {
+            draw(img);
+            painted = true;
+          }
+          pump();
+        };
+        img.onerror = () => {
+          inFlight--;
+          landed++;
+          pump();
+        };
+        img.src = `${BASE}/${String(i).padStart(3, "0")}.webp`;
+        frames[i] = img;
+      }
+    };
+    let started = false;
+    const startLoading = () => {
+      if (started || disposed) return;
+      started = true;
+      // From the frame the turn is on, the way it is heading, to that end —
+      // then back from there to the other end: the order the sweep reaches
+      // them in.
+      const k = Math.max(0, Math.min(FRAME_COUNT - 1, Math.round(pos)));
+      const rising = Math.sin(2 * Math.PI * phase) >= 0;
+      const up = Array.from({ length: FRAME_COUNT - k }, (_, j) => k + j);
+      const down = Array.from({ length: k }, (_, j) => k - 1 - j);
+      queue = rising ? [...up, ...down] : [k, ...down, ...up.slice(1)];
+      pump();
+    };
+    // When the page has loaded (the photo, the type and the first screen's
+    // code are in)…
+    if (document.readyState === "complete") startLoading();
+    else window.addEventListener("load", startLoading, { once: true });
+    // …or the moment the visitor starts for the brain's screen.
+    const stopWatch = p?.on("change", (v) => {
+      if (v > 0) startLoading();
+    });
+    if (p && p.get() > 0) startLoading();
 
     const tick = (t: number) => {
       raf = requestAnimationFrame(tick);
@@ -182,10 +231,13 @@ export function BrainSequence({ active = true, mode = "sweep" }: { active?: bool
     raf = requestAnimationFrame(tick);
 
     return () => {
+      disposed = true;
+      window.removeEventListener("load", startLoading);
+      stopWatch?.();
       cancelAnimationFrame(raf);
       pointer?.stop();
     };
-  }, [reduceMotion]);
+  }, [reduceMotion, p]);
 
   return (
     <canvas
