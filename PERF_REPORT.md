@@ -198,3 +198,32 @@ Also shipped but unused: 5 original JPGs in `tata-iis/campus/_orig` and `tata-ii
 Expected result for the home page after 1–9: **first screen about 1.5 MB instead of 15 MB, and the photo in about 1.5 s on a normal phone.** Everything else then downloads quietly in the background while you look at the first screen.
 
 *Raw measurements (Lighthouse reports, scroll tests, traces) are kept locally in `.perf-tools/results/`. That folder isn't part of the site or of git.*
+
+---
+
+## Step 3 — results (2026-10-13)
+
+Applied on branch `step-3-speed-fixes`: fixes **1, 2, 4, 5, 7, 8, 9**, and the part of **3** that needs no approval (the films wait for the page and pause off screen; the NewsMobile backdrop waits too). **Not applied:** re-compressing the films (needs your OK after a side-by-side; there is also no video tool on this PC yet) and **6** (the scroll lock; it changes how scrolling responds).
+
+Both versions were built and measured on the same PC, the same day, with the same tests. Lighthouse figures are the **median of 3 runs**; the phone test is the **median of 5**.
+
+| Home page | Before (live) | After |
+|---|---|---|
+| Photo on screen, normal phone (9 Mbps, slowed CPU) | **7.5 s** | **2.1–3.3 s** |
+| Downloaded before the photo appears | 5.3 MB, 85 files | **0.9 MB, 22 files** |
+| Downloaded before the page counts as loaded | ~6–15 MB | **0.9 MB** |
+| Lighthouse, phone: score | 54 | **72** |
+| Lighthouse, phone: main picture (LCP) | 22.7 s | **7.5 s** |
+| Lighthouse, phone: page looks complete (Speed Index) | 6.0 s | **2.2 s** |
+| Lighthouse, phone: time the page is frozen (TBT) | 475 ms | **182 ms** |
+| Lighthouse, laptop: score | 72 | **91** |
+| Lighthouse, laptop: main picture (LCP) | 4.2 s | **1.9 s** |
+| Font files preloaded on every page | 25 | **1** |
+
+Everything else (the brain's frames, the rooms' pictures, the circuit film) still downloads, but **after** the first screen is up, in the order you'll reach it. Scroll before it's done and the next screen's pictures jump the queue.
+
+**Visual check:** every slide and room on both tracks, plus the footer, at laptop (1440×900), phone (375×812) and phone sideways (812×375), before and after side by side. The only differences are the two you asked for today: the facts in the band's corners (and not in the footer), and the PORTFOLIO mark sitting on the band again on the orb slide. No console errors except the missing favicon, which is the same on the live site and is added in Step 4.
+
+**One loading-only difference:** client pages no longer preload their own fonts (they were preloaded on every page, including home). On a first visit their text can appear in a size-matched stand-in font for a split second before the real one, with no layout jump. The fonts themselves are exactly the same ones as before, checked on every client page at both sizes.
+
+*Kept, not deleted (rule 2):* `FactsTab.tsx` and `AboutFacts.tsx` are no longer rendered (the facts are in the band now); `HobbyWords` is no longer rendered either.
