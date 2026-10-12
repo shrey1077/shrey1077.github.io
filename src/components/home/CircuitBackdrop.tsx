@@ -7,12 +7,37 @@
  * opacity over the gallery wall, so the brain and panels read against a quiet
  * animated tech field rather than flat paper. Decorative and pointer-inert;
  * under reduced motion it holds on its poster frame instead of playing.
+ *
+ * ⚠ IT WAITS, AND IT PAUSES (speed fix 3, 2026-10-13). It autoplayed with
+ * `preload="auto"`, so its 1.8MB downloaded alongside the first screen's
+ * photo, and every copy kept playing wherever it was — the landing's behind
+ * the rooms, so two at once in the logic column. Now the poster frame (the
+ * film's own first frame) stands until the page has loaded, the film then
+ * plays while its copy is on screen, and it pauses off screen. At 8% behind
+ * a fade, the difference cannot be seen.
  */
 
+import { useEffect, useRef } from "react";
 import { useReducedMotion } from "framer-motion";
+import { useInViewport } from "@/hooks/useInViewport";
+import { usePageLoaded } from "@/components/home/nearness";
 
 export function CircuitBackdrop() {
   const reduceMotion = useReducedMotion();
+  const videoRef = useRef<HTMLVideoElement>(null);
+  const { ref, inView } = useInViewport<HTMLDivElement>({ initial: false });
+  const pageLoaded = usePageLoaded();
+
+  useEffect(() => {
+    const v = videoRef.current;
+    if (!v) return;
+    if (reduceMotion || !pageLoaded || !inView) {
+      v.pause();
+      return;
+    }
+    v.preload = "auto";
+    v.play().catch(() => {});
+  }, [reduceMotion, pageLoaded, inView]);
 
   // The footage has a bright chip "patch" that pulses dead-centre — right where
   // the brain sits. An inverted radial mask fades the centre out, so the patch
@@ -22,15 +47,15 @@ export function CircuitBackdrop() {
     "radial-gradient(58% 52% at 50% 43%, transparent 0%, transparent 46%, #000 82%)";
 
   return (
-    <div aria-hidden className="pointer-events-none absolute inset-0 z-0 bg-white">
+    <div ref={ref} aria-hidden className="pointer-events-none absolute inset-0 z-0 bg-white">
       <video
+        ref={videoRef}
         className="h-full w-full object-cover opacity-[0.08]"
         style={{ maskImage: holeMask, WebkitMaskImage: holeMask }}
-        autoPlay={!reduceMotion}
         muted
         loop
         playsInline
-        preload="auto"
+        preload="none"
         poster="/videos/circuit-bg-poster.jpg"
       >
         <source src="/videos/circuit-bg.mp4" type="video/mp4" />
