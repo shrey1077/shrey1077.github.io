@@ -38,7 +38,6 @@ import { motion, useMotionValue, useReducedMotion, useTransform } from "framer-m
 import { BrainSequence } from "@/components/home/BrainSequence";
 import { LeftRightBrain } from "@/components/home/LeftRightBrain";
 import { CodeStream } from "@/components/home/CodeStream";
-import { FACTS_RISE } from "@/components/home/FactsTab";
 import { Corner3DGrid } from "@/components/home/Corner3DGrid";
 import { ORB_SRC, PortraitOrb } from "@/components/home/PortraitOrb";
 import { useInViewport } from "@/hooks/useInViewport";
@@ -167,9 +166,6 @@ export function HeroStage() {
   const reduceMotion = useReducedMotion() ?? false;
   const tallCompact = useMediaQuery("(max-width: 1023px) and (orientation: portrait)");
   const centreScale = tallCompact ? CENTER_SCALE_PHONE : CENTER_SCALE;
-  // Where the band's facts tab stands at the foot's centre (FactsTab: `lg`,
-  // and not on a short screen — see .facts-tab).
-  const factsTab = useMediaQuery("(min-width: 1024px) and (min-height: 501px)");
 
   // The camera. Outside a Flythrough (never, today) the stage rests on the brain.
   const flight = useFlight();
@@ -203,9 +199,10 @@ export function HeroStage() {
   const nameRef = useRef<HTMLParagraphElement>(null);
   const captionH = useLayoutHeight(nameRef);
 
-  // The orb slide's foot: the mark at half size, sitting on the band — or on
-  // the facts tab rising out of its middle, where there is one (2026-10-11).
-  const markFoot = size ? size.h * (1 - BAND_H) - MARK_GAP_BELOW - (factsTab ? FACTS_RISE : 0) : 0;
+  // The orb slide's foot: the mark at half size, sitting on the band. (From
+  // 2026-10-11 to 2026-10-13 it sat on the facts tab rising out of the band's
+  // middle, FACTS_RISE higher; the facts are in the band's corners now.)
+  const markFoot = size ? size.h * (1 - BAND_H) - MARK_GAP_BELOW : 0;
   const markTopSmall = markFoot - MARK_SMALL * markH;
 
   // The orb: 20% in from each side (nearly the full width on a portrait

@@ -26,7 +26,6 @@
  */
 
 import Image from "next/image";
-import { AboutFacts } from "@/components/home/AboutFacts";
 import { FooterFormulas } from "@/components/footer/FooterFormulas";
 import { SITE } from "@/constants/site";
 
@@ -55,10 +54,11 @@ export function SiteFooter() {
   const copyrightYears =
     year > SITE.inceptionYear ? `${SITE.inceptionYear}–${year}` : `${year}`;
 
-  // The foot clears the home page's fixed black band (7svh, FootBand) — and,
-  // from `lg`, the facts tab rising out of its middle (FACTS_RISE, 88px).
+  // The foot clears the home page's fixed black band (7svh, FootBand). (From
+  // `lg` it cleared the facts tab rising out of the band too, 88px, until the
+  // facts moved into the band's corners on 2026-10-13.)
   return (
-    <footer className="relative w-full overflow-hidden border-t border-neutral-200 bg-gallery px-6 pb-[calc(3rem+7svh)] pt-12 sm:px-10 lg:pb-[calc(3rem+7svh+88px)]">
+    <footer className="relative w-full overflow-hidden border-t border-neutral-200 bg-gallery px-6 pb-[calc(3rem+7svh)] pt-12 sm:px-10">
       <FooterFormulas />
       <div className="relative mx-auto grid w-full max-w-7xl items-center justify-items-center gap-10 lg:grid-cols-2 lg:gap-8">
         {/* Name — logic face, left. */}
@@ -108,13 +108,9 @@ export function SiteFooter() {
         </div>
       </div>
 
-      {/* The facts — Chess, Education, Part-time, Hobbies, one section.
-          From `lg` they live under the landing's brain (HeroStage); below
-          `lg` that band is the brain's lines and the scroll cue, so they are
-          carried here instead. */}
-      <div className="relative mx-auto mt-12 flex w-full max-w-md justify-center border-t border-neutral-200 pt-10 lg:hidden">
-        <AboutFacts />
-      </div>
+      {/* The facts — Chess, Education, Part-time, Hobbies — stood here below
+          `lg` until 2026-10-13: they are in the fixed band's two corners now,
+          on every screen (BandFacts). */}
 
       <p className="font-graff relative mx-auto mt-10 w-full max-w-7xl text-center text-[0.7rem] font-normal text-neutral-400">
         © {copyrightYears} {SITE.name}. All rights reserved.

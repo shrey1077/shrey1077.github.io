@@ -35,7 +35,7 @@ interface Hobby {
   mark: React.ReactNode;
 }
 
-const HOBBIES: Hobby[] = [
+export const HOBBIES: Hobby[] = [
   { label: "Arts", mark: <ArtsMark /> },
   { label: "Painting", mark: <PaintingMark /> },
   { label: "Sketching", mark: <SketchingMark /> },
@@ -45,7 +45,7 @@ const HOBBIES: Hobby[] = [
   { label: "Pickleball", mark: <PickleballMark /> },
 ];
 
-const CYCLE_MS = 2200;
+export const CYCLE_MS = 2200;
 
 export function HobbyWords({ align = "right" }: { align?: "left" | "right" | "center" }) {
   const reduceMotion = useReducedMotion();

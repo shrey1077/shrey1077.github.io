@@ -15,8 +15,14 @@
  * face is Juturu). The Flythrough says which; past the rooms, at the footer,
  * it is the name again.
  *
- * The facts tab rises out of its middle (FactsTab — desktop only), part of
- * the band since 2026-10-11 (owner: "make this a part of black band").
+ * The facts stand in its two corners (BandFacts — owner, 2026-10-13: "this
+ * info should be displayed in the black band at the bottom at left and right
+ * corners"): the logic side's on the left, the creative side's on the right,
+ * on every screen. From 2026-10-11 until then they rode a tab rising out of
+ * its middle (FactsTab — desktop only; it is no longer rendered).
+ *
+ * ⚠ Three columns, the outer two equal, so the name stays on the screen's
+ * centre whatever the corners hold; a long fact truncates rather than push it.
  *
  * Over the stage (whose own layers stack inside it) and under the dialogs
  * (Z_INDEX.viewer). Everything that stands on the foot — the PORTFOLIO mark,
@@ -27,7 +33,7 @@
 import { motion, useReducedMotion } from "framer-motion";
 import { SITE } from "@/constants/site";
 import { Z_INDEX } from "@/constants/design";
-import { FactsTab } from "@/components/home/FactsTab";
+import { BandFactsLeft, BandFactsRight } from "@/components/home/BandFacts";
 
 /** The band's height — a share of the screen. ⚠ HeroStage (BAND_H), the
  *  Flythrough's rooms and BrainDock all clear this; change them together. */
@@ -39,10 +45,10 @@ export function FootBand({ room }: { room: { label: string; side: "logic" | "cre
   const reduceMotion = useReducedMotion() ?? false;
   return (
     <div
-      className="pointer-events-none fixed inset-x-0 bottom-0 grid place-items-center bg-neutral-950"
+      className="pointer-events-none fixed inset-x-0 bottom-0 grid grid-cols-[minmax(0,1fr)_auto_minmax(0,1fr)] items-center gap-3 bg-neutral-950 px-4 text-[clamp(0.62rem,1.05vw,0.95rem)] sm:px-6 lg:px-10"
       style={{ height: `${BAND_SVH}svh`, zIndex: Z_INDEX.band }}
     >
-      <FactsTab />
+      <BandFactsLeft />
       <motion.p
         key={room?.label ?? "name"}
         initial={reduceMotion ? false : { opacity: 0, y: 4 }}
@@ -63,6 +69,7 @@ export function FootBand({ room }: { room: { label: string; side: "logic" | "cre
           </>
         )}
       </motion.p>
+      <BandFactsRight />
     </div>
   );
 }

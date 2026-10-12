@@ -606,4 +606,18 @@ svg {
   .facts-tab {
     display: none;
   }
+  /* The band's corner facts (BandFacts) on ONE line — heading, mark, value —
+     however narrow: there is no height for two. */
+  .band-fact {
+    flex-direction: row;
+    align-items: center;
+    gap: 0.7em;
+  }
+  .band-degrees {
+    flex-direction: row;
+    column-gap: 0.5em;
+  }
+  .band-dot {
+    display: inline;
+  }
 }

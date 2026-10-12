@@ -25,11 +25,17 @@ import { EASE_OUT } from "@/constants/motion";
 import { EducationMark, PartTimeMark } from "@/components/home/HomeMarks";
 import { HobbyWords } from "@/components/home/HobbiesRotator";
 
-const FACT_MS = 15000;
-const WORD_MS = 1400;
+export const FACT_MS = 15000;
+export const WORD_MS = 1400;
 
 /** Part-time roles — words arrive one at a time, hold, and hand off. Extendable. */
-const PART_TIME = ["Reader", "Writer", "Researcher", "Birder", "Gamer"];
+export const PART_TIME = ["Reader", "Writer", "Researcher", "Birder", "Gamer"];
+
+/** The degrees — without the colleges (owner, 2026-10-13). */
+export const EDUCATION = ["B.Tech. (IT)", "M.Des. (Visual Comm.)"] as const;
+
+/** The highest Rapid rating. */
+export const CHESS_RATING = "1563";
 
 function PartTimeWords() {
   const [i, setI] = useState(0);
@@ -102,7 +108,7 @@ const FACTS: {
     mark: <ChessMark />,
     body: (
       <p className="text-[34px] font-bold leading-none tracking-tight text-neutral-800">
-        1563
+        {CHESS_RATING}
       </p>
     ),
   },
@@ -121,10 +127,13 @@ const FACTS: {
     // The institution and the field survive, which was the point of writing
     // them out; the town and state are what went. One `truncate`d line per
     // degree is a hard two-line guarantee, not a hope about string lengths.
+    // ⚠ The colleges came off on 2026-10-13 (owner: "remove college names
+    // from Education") — the degrees alone. They were "— JUIT, Waknaghat" and
+    // "— UID, Karnavati".
     body: (
       <div className={BODY}>
-        <p className="truncate">B.Tech. (IT) — JUIT, Waknaghat</p>
-        <p className="mt-1.5 truncate">M.Des. (Visual Comm.) — UID, Karnavati</p>
+        <p className="truncate">{EDUCATION[0]}</p>
+        <p className="mt-1.5 truncate">{EDUCATION[1]}</p>
       </div>
     ),
   },
