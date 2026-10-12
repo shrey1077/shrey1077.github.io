@@ -136,9 +136,18 @@ export function BrainSequence({ active = true, mode = "sweep" }: { active?: bool
     let inFlight = 0;
     let landed = 0;
     let disposed = false;
-    const pump = () => {
+    // ⚠ A frame is drawn only once it is UNPACKED (speed fix 8, 2026-10-13):
+    // `decode()` does that off the main thread as each lands, so the sweep
+    // never stops to unpack a frame mid-turn — on a phone, that was a hitch
+    // at every new frame.
+    const ready: boolean[] = [];
+    const settle = () => {
+      landed++;
       // All in: the rooms' pictures may come down now (nearness).
       if (landed === FRAME_COUNT) markBrainFramesIn();
+      pump();
+    };
+    const pump = () => {
       while (!disposed && queue.length && inFlight < (landed ? IN_FLIGHT : 1)) {
         const i = queue.shift()!;
         const img = new Image();
@@ -146,17 +155,21 @@ export function BrainSequence({ active = true, mode = "sweep" }: { active?: bool
         inFlight++;
         img.onload = () => {
           inFlight--;
-          landed++;
-          if (!painted) {
-            draw(img);
-            painted = true;
-          }
           pump();
+          const unpacked = () => {
+            if (disposed) return;
+            ready[i] = true;
+            if (!painted) {
+              draw(img);
+              painted = true;
+            }
+            settle();
+          };
+          img.decode().then(unpacked, unpacked);
         };
         img.onerror = () => {
           inFlight--;
-          landed++;
-          pump();
+          settle();
         };
         img.src = `${BASE}/${String(i).padStart(3, "0")}.webp`;
         frames[i] = img;
@@ -223,7 +236,7 @@ export function BrainSequence({ active = true, mode = "sweep" }: { active?: bool
       const idx = Math.max(0, Math.min(FRAME_COUNT - 1, Math.round(pos)));
       if (idx !== cur) {
         const img = frames[idx];
-        if (img && img.complete && img.naturalWidth) {
+        if (img && ready[idx]) {
           draw(img);
           painted = true;
           cur = idx;

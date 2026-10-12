@@ -34,7 +34,7 @@
 
 import { useLayoutEffect, useRef, useState } from "react";
 import { preload } from "react-dom";
-import { motion, useMotionValue, useReducedMotion, useTransform } from "framer-motion";
+import { motion, useMotionValue, useMotionValueEvent, useReducedMotion, useTransform } from "framer-motion";
 import { BrainSequence } from "@/components/home/BrainSequence";
 import { LeftRightBrain } from "@/components/home/LeftRightBrain";
 import { CodeStream } from "@/components/home/CodeStream";
@@ -187,6 +187,11 @@ export function HeroStage() {
   const brainY = useTransform(p, (v) => (reduceMotion ? "0%" : `${(1 - clamp01(v)) * 100}%`));
   const brainOpacity = useTransform(p, (v) => (v < 1 ? (reduceMotion ? clamp01(v) : v > 0.001 ? 1 : 0) : 1));
   const brainVisibility = useTransform(brainOpacity, (o) => (o < 0.01 ? "hidden" : "visible"));
+  // Whether the brain slide is showing or on its way up — the only time its
+  // sweep can be seen, so the only time it runs (speed fix 8, 2026-10-13;
+  // it swept behind the orb slide too, unpacking frames nobody saw).
+  const [brainUp, setBrainUp] = useState(() => brainVisibility.get() === "visible");
+  useMotionValueEvent(brainVisibility, "change", (v) => setBrainUp(v === "visible"));
   const onOrb = current === 0;
   const onBrain = current === 1;
 
@@ -320,7 +325,7 @@ export function HeroStage() {
             scale: { duration: reduceMotion ? 0 : DURATION.verySlow, ease: EASE_IN_OUT },
           }}
         >
-          <BrainSequence active={inView && zone === "landing"} />
+          <BrainSequence active={inView && zone === "landing" && brainUp} />
         </motion.div>
 
         {/* The sections, annotated onto the brain. */}
