@@ -24,6 +24,7 @@ import { HeroStage } from "@/components/home/HeroStage";
 import { Flythrough } from "@/components/home/Flythrough";
 import { HOME_TYPE } from "@/constants/faces";
 import { SiteFooter } from "@/components/footer/SiteFooter";
+import { PortraitHint } from "@/components/home/PortraitHint";
 import {
   readArtCollections,
   readLogofolio,
@@ -92,6 +93,8 @@ export default function Home() {
         <HeroStage />
       </Flythrough>
       <SiteFooter />
+      {/* Phones held upright: turn sideways, or try a laptop (Step 7). */}
+      <PortraitHint />
     </main>
   );
 }
