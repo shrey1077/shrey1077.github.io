@@ -29,8 +29,9 @@ import Image from "next/image";
 import { FooterFormulas } from "@/components/footer/FooterFormulas";
 import { SITE } from "@/constants/site";
 
-/** Contact rows. Gmail, phone and website joined on 2026-10-02; a row whose
- *  value is empty (the phone, until it is supplied) is left out. */
+/** Contact rows. Gmail, phone and website joined on 2026-10-02, WhatsApp on
+ *  2026-10-13; a row whose value is empty (the phone, until it is supplied)
+ *  is left out. */
 const LINKS: { label: string; value: string; href: string; external: boolean; icon?: string }[] = [
   {
     label: "Gmail",
@@ -38,6 +39,14 @@ const LINKS: { label: string; value: string; href: string; external: boolean; ic
     href: `mailto:${SITE.email}`,
     external: false,
     icon: "/content/tools/gmail.svg",
+  },
+  // Beside Gmail, with its glyph in the same grey (owner, 2026-10-13).
+  {
+    label: "WhatsApp",
+    value: SITE.whatsappNumber,
+    href: SITE.whatsapp,
+    external: true,
+    icon: "/content/tools/whatsapp.svg",
   },
   { label: "Phone", value: SITE.phone, href: `tel:${SITE.phone.replace(/[^\d+]/g, "")}`, external: false },
   { label: "Website", value: SITE.website.replace(/^https?:\/\//, ""), href: SITE.website, external: true },

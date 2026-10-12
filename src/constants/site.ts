@@ -23,6 +23,9 @@ export const SITE = {
    *  is. Write it as dialled internationally, e.g. "+91 98765 43210"; the
    *  tel: link strips the spaces. */
   phone: "",
+  /** WhatsApp (owner, 2026-10-13): the chat link, and the number as shown. */
+  whatsapp: "https://wa.me/919871546175",
+  whatsappNumber: "+91 98715 46175",
   /** The site's own domain (GoDaddy → GitHub Pages, 2026-10-02). */
   website: "https://shrey107.com",
   /** Full URLs so they can be used directly as hrefs. */
