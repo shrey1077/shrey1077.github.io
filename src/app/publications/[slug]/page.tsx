@@ -15,6 +15,7 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import type { Metadata } from "next";
+import { pageMeta } from "@/constants/seo";
 import { PUBLICATIONS, publicationBySlug, READABLE_PUBLICATIONS } from "@/constants/publications";
 import { readPublicationPages } from "@/content/catalogue";
 import { PublicationPages } from "@/components/publications/PublicationPages";
@@ -36,7 +37,12 @@ export function generateStaticParams() {
 export async function generateMetadata({ params }: PublicationPageProps): Promise<Metadata> {
   const { slug } = await params;
   const pub = publicationBySlug(slug);
-  return { title: pub ? `${pub.title} — Publications` : "Publications" };
+  if (!pub) return { title: "Publications" };
+  return pageMeta({
+    title: `${pub.title} — Publications`,
+    description: pub.subtitle ? `${pub.title}: ${pub.subtitle}` : `${pub.title} — a publication by Shrey Singh.`,
+    path: `/publications/${slug}/`,
+  });
 }
 
 export default async function PublicationPage({ params }: PublicationPageProps) {

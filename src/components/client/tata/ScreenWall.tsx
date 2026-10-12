@@ -151,7 +151,7 @@ export function ScreenWall({ socials, banners, decks }: { socials: ScreenSet; ba
                 >
                   <Image
                     src={p.thumb}
-                    alt=""
+                    alt={`Post: ${p.name}`}
                     fill
                     sizes="(max-width: 768px) 23vw, 110px"
                     className="object-cover transition-transform duration-700 ease-out group-hover:scale-[1.06]"

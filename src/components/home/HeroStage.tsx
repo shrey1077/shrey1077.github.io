@@ -207,7 +207,7 @@ export function HeroStage() {
   // layout, so neither is guessed.
   const markRef = useRef<HTMLDivElement>(null);
   const markH = useLayoutHeight(markRef);
-  const nameRef = useRef<HTMLParagraphElement>(null);
+  const nameRef = useRef<HTMLHeadingElement>(null);
   const captionH = useLayoutHeight(nameRef);
 
   // The orb slide's foot: the mark at half size, sitting on the band. (From
@@ -371,15 +371,21 @@ export function HeroStage() {
               (owner: "font size of Shrey Singh on slide 1 should be same as
               font size of portfolio on slide 2"). Change one, change both.
               "Designer" stays Helvetica. Only a hair under it: the paint runs
-              to the orb frame's very top edge here. */}
-          <p ref={nameRef} className="pointer-events-none flex flex-col items-center whitespace-nowrap pb-1 leading-none">
+              to the orb frame's very top edge here.
+              ⚠ THE PAGE'S ONE <h1> since 2026-10-13 (Step 4): it reads, to a
+              search engine or a screen reader, "Shrey Singh — Visual
+              Communication Designer" — the hidden span supplies the middle.
+              The reset gives an h1 no size, weight or margin of its own, so
+              it looks exactly as the <p> it was. */}
+          <h1 ref={nameRef} className="pointer-events-none flex flex-col items-center whitespace-nowrap pb-1 leading-none">
             <span className="face-logic digibra-light text-[clamp(1.9rem,4.6vw,4rem)] uppercase leading-none text-neutral-900">
               {NAME_FIRST} {NAME_REST.join(" ")}
             </span>
+            <span className="sr-only"> — Visual Communication </span>
             <span className="mt-1 text-[clamp(0.84375rem,1.5625vw,1.40625rem)] font-normal leading-none tracking-[0.02em] text-neutral-500">
               {SITE.title}
             </span>
-          </p>
+          </h1>
 
           {orbW > 0 && (
             <motion.div

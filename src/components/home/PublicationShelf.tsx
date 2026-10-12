@@ -72,7 +72,7 @@ export function PublicationShelf({
                   {cover ? (
                     <Image
                       src={cover}
-                      alt=""
+                      alt={`${pub.title} — cover`}
                       fill
                       sizes="72px"
                       className="object-cover object-top transition-transform duration-500 group-hover:scale-[1.04]"

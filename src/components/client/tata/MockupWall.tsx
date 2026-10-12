@@ -139,7 +139,7 @@ export function MockupWall({
         >
           <Image
             src={p.thumb}
-            alt=""
+            alt={copy ? "" : `${themeOf(p.theme)?.label}: ${p.name}`}
             fill
             sizes="240px"
             className="object-cover transition-transform duration-700 ease-out group-hover/tile:scale-[1.05]"

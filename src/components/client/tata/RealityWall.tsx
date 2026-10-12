@@ -99,7 +99,7 @@ export function RealityWall({ tiles }: { tiles: readonly RealityTile[] }) {
                   >
                     <Image
                       src={t.photo.thumb}
-                      alt=""
+                      alt={`${t.caption}, ${t.kind.toLowerCase()}`}
                       fill
                       sizes="(max-width: 1024px) 46vw, 300px"
                       className="object-cover transition-transform duration-700 ease-out group-hover:scale-[1.03]"
@@ -110,7 +110,7 @@ export function RealityWall({ tiles }: { tiles: readonly RealityTile[] }) {
                     <>
                       {/* The design, large — shown under the pointer. */}
                       <span className="absolute inset-0 block bg-white opacity-0 transition-opacity duration-500 group-hover:opacity-100 group-focus-visible:opacity-100">
-                        <Image src={t.design.thumb} alt="" fill sizes="300px" className="object-contain p-3" />
+                        <Image src={t.design.thumb} alt={`${t.caption} — the design`} fill sizes="300px" className="object-contain p-3" />
                       </span>
                       {/* The other one, inset in the corner: the design at rest,
                           the photograph under the pointer. */}

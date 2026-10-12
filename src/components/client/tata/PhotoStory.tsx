@@ -209,7 +209,7 @@ export function PhotoStory({
                       >
                         <Image
                           src={p.src}
-                          alt=""
+                          alt={`${aspect.title}, photograph ${i + 1}`}
                           fill
                           sizes={i === 0 ? "(max-width: 1024px) 60vw, 34rem" : "(max-width: 1024px) 30vw, 17rem"}
                           className="object-cover transition-transform duration-700 ease-out group-hover:scale-[1.03]"

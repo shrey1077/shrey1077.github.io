@@ -14,6 +14,7 @@
 
 import { notFound } from "next/navigation";
 import type { Metadata } from "next";
+import { clientImage, pageMeta } from "@/constants/seo";
 import { clientBySlug, routedClients } from "@/constants/clients";
 import { clientExperienceBySlug } from "@/constants/clientExperiences";
 import { ClientExperience } from "@/components/client/ClientExperience";
@@ -39,7 +40,13 @@ export async function generateMetadata({
 }: ClientPageProps): Promise<Metadata> {
   const { slug } = await params;
   const client = clientBySlug(slug);
-  return { title: client ? `${client.name} — Client` : "Client" };
+  if (!client) return { title: "Client" };
+  return pageMeta({
+    title: client.name,
+    description: `${client.essence} ${client.sector} — work by Shrey Singh.`,
+    path: `/clients/${slug}/`,
+    image: clientImage(slug, client.name),
+  });
 }
 
 export default async function ClientPage({ params }: ClientPageProps) {

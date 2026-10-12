@@ -275,7 +275,7 @@ export function SectionBody({
                 // Artwork, not a mark: it covers the plate.
                 <Image
                   src={c.image}
-                  alt=""
+                  alt={`${c.label} — project work`}
                   fill
                   sizes="(min-width: 1024px) 22vw, 45vw"
                   className="object-cover transition-transform duration-500 group-hover:scale-[1.03]"
@@ -291,7 +291,7 @@ export function SectionBody({
                       height: `${Math.min(LOGO_BOX.h * (c.scale ?? 1), LOGO_BOX.max)}%`,
                     }}
                   >
-                    <Image src={c.image} alt="" fill sizes="16vw" className="object-contain" />
+                    <Image src={c.image} alt={`${c.label} logo`} fill sizes="16vw" className="object-contain" />
                   </span>
                 </span>
               ) : (

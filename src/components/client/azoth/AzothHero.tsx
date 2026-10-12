@@ -217,7 +217,7 @@ export function AzothHero() {
           its own copy the same way, so inside the spotlight it reads through
           the flowering ridge too. */}
       <div className="azoth-hero-zoom absolute inset-0 z-10">
-        <Image src={AZOTH_HERO.base} alt="" fill priority sizes="100vw" className="object-cover" />
+        <Image src={AZOTH_HERO.base} alt={`Azoth Biotech — the landscape behind “${AZOTH_HERO.headline}”`} fill priority sizes="100vw" className="object-cover" />
         <div className="absolute inset-x-0 top-[16%] flex justify-center px-5 text-center">
           <h1
             className="azoth-hero-anim azoth-hero-reveal font-azoth-display whitespace-nowrap text-[clamp(1.5rem,10.2vw,11.25rem)] italic leading-none text-white"
@@ -268,7 +268,7 @@ export function AzothHero() {
                     : `drop-shadow(0 0 10px ${s.color}aa)`,
               }}
             >
-              <Image src={s.image} alt="" fill sizes="16vw" className="object-contain object-bottom" />
+              <Image src={s.image} alt={s.name} fill sizes="16vw" className="object-contain object-bottom" />
             </div>
           ))}
         </div>

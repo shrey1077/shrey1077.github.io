@@ -12,6 +12,7 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import type { Metadata } from "next";
+import { clientImage, pageMeta } from "@/constants/seo";
 import { clientBySlug, routedClients } from "@/constants/clients";
 import { clientExperienceBySlug } from "@/constants/clientExperiences";
 import { readCatalogue, readCatalogueCategory } from "@/content/catalogue";
@@ -43,12 +44,13 @@ export async function generateMetadata({
   const { slug, category } = await params;
   const client = clientBySlug(slug);
   const data = client ? readCatalogueCategory(slug, category) : null;
-  return {
-    title:
-      client && data
-        ? `${data.category.name} — ${client.name}`
-        : "Catalogue",
-  };
+  if (!client || !data) return { title: "Catalogue" };
+  return pageMeta({
+    title: `${data.category.name} — ${client.name}`,
+    description: `${data.category.name} for ${client.name}: ${client.essence}`,
+    path: `/clients/${slug}/catalogue/${category}/`,
+    image: clientImage(slug, client.name),
+  });
 }
 
 export default async function CategoryPage({ params }: CategoryPageProps) {

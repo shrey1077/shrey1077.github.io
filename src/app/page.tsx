@@ -33,6 +33,24 @@ import {
 } from "@/content/catalogue";
 import { PUBLICATIONS } from "@/constants/publications";
 import { PROJECT_STUDIES, STUDY_CONTENT_SLUG } from "@/constants/projectStudies";
+import type { Metadata } from "next";
+import { SITE } from "@/constants/site";
+import { SITE_DESCRIPTION, pageMeta } from "@/constants/seo";
+
+/** The site's own title and preview (constants/seo), and its address. */
+export const metadata: Metadata = pageMeta({ path: "/" });
+
+/** Who the site is about, for search engines (schema.org Person). */
+const PERSON_LD = {
+  "@context": "https://schema.org",
+  "@type": "Person",
+  name: SITE.name,
+  jobTitle: SITE.role,
+  url: SITE.website,
+  image: `${SITE.website}/og/og-image.jpg`,
+  description: SITE_DESCRIPTION,
+  sameAs: [SITE.linkedin, SITE.behance].filter(Boolean),
+};
 
 export default function Home() {
   // Every mark, for the Logofolio board.
@@ -67,6 +85,7 @@ export default function Home() {
     <main
       className={`w-full bg-gallery ${HOME_TYPE}`}
     >
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(PERSON_LD) }} />
       <Flythrough
         data={{ logos, artCollections, publicationCovers, studyPlates, markPlates }}
       >

@@ -121,7 +121,7 @@ function Reports({ onRead }: { onRead: (r: ExtinctsReport) => void }) {
                   // two are portrait, the final report is landscape.
                   style={{ height: "clamp(7rem, 22vh, 13rem)", aspectRatio: `${cover.w} / ${cover.h}` }}
                 >
-                  <Image src={cover.src} alt="" fill sizes="22vw" className="object-cover" />
+                  <Image src={cover.src} alt={`${r.title} — report cover`} fill sizes="22vw" className="object-cover" />
                 </span>
               )}
               <span className={`${PAPER_PLATE} block max-w-[13rem] px-3.5 py-2.5`}>

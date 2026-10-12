@@ -8,12 +8,17 @@
 
 import Link from "next/link";
 import type { Metadata } from "next";
+import { pageMeta } from "@/constants/seo";
 import { clientsInSection } from "@/constants/clients";
 import { navSectionById } from "@/constants/navigation";
 import { ClientCard } from "@/components/preview/ClientCard";
 import { typeVoiceClass } from "@/constants/typography";
 
-export const metadata: Metadata = { title: "Clients — Shrey Singh" };
+export const metadata: Metadata = pageMeta({
+  title: "Clients",
+  description: "The brands and organisations I have designed for — identities, campaigns and systems, each in a room of its own.",
+  path: "/clients/",
+});
 
 export default function ClientsIndexPage() {
   const section = navSectionById("clients");

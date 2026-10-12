@@ -482,7 +482,9 @@ export function LeftRightBrain({
       className="pointer-events-none absolute inset-0 z-30"
       style={{ perspective: PERSPECTIVE }}
     >
-      <h1 className="sr-only">Left brain, right brain — Shrey Singh</h1>
+      {/* An h2 since 2026-10-13: the page's h1 is the name on the orb slide
+          (HeroStage). */}
+      <h2 className="sr-only">Left brain, right brain — Shrey Singh</h2>
 
       {/* LEFT — grotesque, black once reached. */}
       <div className="absolute inset-y-0 hidden flex-col justify-center lg:flex" style={LEFT_SLOT}>

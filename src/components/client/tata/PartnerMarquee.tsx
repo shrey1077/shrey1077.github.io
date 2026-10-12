@@ -20,6 +20,14 @@ interface PartnerMarqueeProps {
   durationSec?: number;
 }
 
+/** A partner's name from its file ("universal-robots.png" → "Universal
+ *  Robots"), with the names that are not simply capitalised. */
+const NAMES: Record<string, string> = { fanuc: "FANUC", zeiss: "ZEISS", tvs: "TVS" };
+function partnerName(src: string) {
+  const slug = src.split("/").pop()!.replace(/.w+$/, "");
+  return NAMES[slug] ?? slug.split("-").map((w) => w[0].toUpperCase() + w.slice(1)).join(" ");
+}
+
 export function PartnerMarquee({ logos, durationSec = 42 }: PartnerMarqueeProps) {
   const reducedMotion = useReducedMotion();
   const loop = [...logos, ...logos];
@@ -51,7 +59,8 @@ export function PartnerMarquee({ logos, durationSec = 42 }: PartnerMarqueeProps)
                 area (scripts/normalize-tata-partners.mjs); shown in full colour. */}
             <Image
               src={logo}
-              alt=""
+              // The second copy of the track (the seamless loop) stays silent.
+              alt={i < logos.length ? `${partnerName(logo)} logo` : ""}
               width={266}
               height={119}
               className="h-12 w-auto object-contain opacity-95 transition-opacity duration-500 hover:opacity-100 sm:h-14"

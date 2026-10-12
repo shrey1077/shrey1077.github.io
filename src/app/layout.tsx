@@ -17,6 +17,8 @@ import {
 } from "next/font/google";
 import { MemoryTransitionHost } from "@/components/transition/MemoryTransitionHost";
 import { ScreenGuard } from "@/components/guard/ScreenGuard";
+import { SITE } from "@/constants/site";
+import { SITE_DESCRIPTION, SITE_IMAGE, SITE_TITLE } from "@/constants/seo";
 import "./globals.css";
 
 /**
@@ -193,10 +195,27 @@ const tinos = Tinos({
   preload: false,
 });
 
+/** The site's name in every tab and search result (Step 4, 2026-10-13 — it
+ *  was "Mind — Interactive Brain"). Every page but home sets its own title,
+ *  which the template follows with the name; see constants/seo. The icons
+ *  are the files beside this one (icon.png, apple-icon.png, favicon.ico —
+ *  scripts/make-og-images.mjs). */
 export const metadata: Metadata = {
-  title: "Mind — Interactive Brain",
-  description:
-    "An interactive experience exploring the two sides of the mind: logic and creativity.",
+  metadataBase: new URL(SITE.website),
+  title: { default: SITE_TITLE, template: `%s — ${SITE.name}` },
+  description: SITE_DESCRIPTION,
+  applicationName: SITE.name,
+  authors: [{ name: SITE.name, url: SITE.website }],
+  creator: SITE.name,
+  openGraph: {
+    type: "website",
+    siteName: SITE.name,
+    locale: "en_IN",
+    title: SITE_TITLE,
+    description: SITE_DESCRIPTION,
+    images: [SITE_IMAGE],
+  },
+  twitter: { card: "summary_large_image", title: SITE_TITLE, description: SITE_DESCRIPTION, images: [SITE_IMAGE.url] },
 };
 
 /**

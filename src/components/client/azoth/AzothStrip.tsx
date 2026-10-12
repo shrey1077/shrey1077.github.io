@@ -72,7 +72,7 @@ export function AzothStrip({
             >
               <Image
                 src={src}
-                alt=""
+                alt={`${label}, post ${i + 1}`}
                 fill
                 sizes="216px"
                 className="object-cover transition-transform duration-700 ease-out group-hover:scale-[1.04]"

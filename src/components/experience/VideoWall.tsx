@@ -68,7 +68,7 @@ function Tile({
             {poster && (
               <Image
                 src={poster}
-                alt=""
+                alt={`${video.caption ?? video.name} — still`}
                 fill
                 priority={featured}
                 sizes={featured ? "(max-width: 1024px) 100vw, 896px" : "440px"}

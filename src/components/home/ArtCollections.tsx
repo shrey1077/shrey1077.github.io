@@ -80,7 +80,7 @@ export function ArtCollections({ collections }: { collections: ArtCollection[] }
         >
           <Image
             src={c.images[0]}
-            alt=""
+            alt={`A piece from ${c.name}`}
             fill
             sizes="(min-width: 1024px) 22vw, 45vw"
             className="object-cover opacity-70 transition-opacity duration-300 group-hover:opacity-100"

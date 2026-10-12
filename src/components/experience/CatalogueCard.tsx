@@ -38,7 +38,7 @@ export function CatalogueCard({ clientSlug, category, position }: CatalogueCardP
         <span className="relative block aspect-[3/2] overflow-hidden bg-neutral-100">
           <Image
             src={category.coverUrl}
-            alt=""
+            alt={`${category.name} — cover`}
             fill
             sizes="(max-width: 640px) 100vw, (max-width: 1280px) 50vw, 400px"
             className="object-cover transition-transform duration-700 group-hover:scale-[1.02]"
