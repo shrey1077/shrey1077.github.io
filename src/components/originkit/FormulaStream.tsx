@@ -19,6 +19,12 @@
 //   2. `pointermove` is listened for on the WINDOW rather than the root, so
 //      the stream still answers the pointer when it is used as a
 //      `pointer-events: none` background. See the note at the listener.
+// Two more on 2026-10-13, for speed only (speed fix 7) — what is drawn, and
+// how it moves, are unchanged:
+//   3. `paused`: while set, the loop stops — nothing drawn, nothing advanced —
+//      and picks up where it stood when cleared (the footer off screen).
+//   4. The eight sprite atlases are built ahead, one per idle moment, rather
+//      than all together in the first frame (a 0.6 s block on a slow phone).
 // The layout, the lanes, the drawing and every constant are untouched.
 
 "use client"
@@ -333,6 +339,8 @@ interface FormulaStreamProps {
     hover?: number
     reach?: number
     style?: React.CSSProperties
+    /** CHANGE 3: stop drawing (and advancing) while true. */
+    paused?: boolean
 }
 
 const DEFAULTS = {
@@ -353,6 +361,11 @@ export default function FormulaStream(props: FormulaStreamProps) {
     const canvasRef = useRef<HTMLCanvasElement>(null)
     const propsRef = useRef(props)
     propsRef.current = props
+    // CHANGE 3: how the loop is restarted when `paused` clears.
+    const resumeRef = useRef<() => void>(() => {})
+    useEffect(() => {
+        if (!props.paused) resumeRef.current()
+    }, [props.paused])
 
     useEffect(() => {
         const root = rootRef.current
@@ -408,10 +421,52 @@ export default function FormulaStream(props: FormulaStreamProps) {
             return y
         }
 
+        // CHANGE 4: the atlases built ahead, one per idle moment, for the
+        // props as they stand at mount. ⚠ The key is made exactly as the frame
+        // makes it below; if anything has changed by the first frame (a font
+        // landing, a colour), the keys differ and the frame builds its own.
+        const pre = { key: "", base: [] as Atlas[], accent: [] as Atlas[] }
+        let jobs: (() => void)[] = []
+        let idle = 0
+        const w = window as any
+        const ric = (cb: () => void): number =>
+            w.requestIdleCallback ? w.requestIdleCallback(cb, { timeout: 4000 }) : window.setTimeout(cb, 16)
+        const cic = (id: number) => (w.cancelIdleCallback ? w.cancelIdleCallback(id) : window.clearTimeout(id))
+        {
+            const p = propsRef.current
+            const font = p.font
+            const px = fontPx(font)
+            const base = parseColor(p.textColor ?? DEFAULTS.textColor, [232, 228, 220, 0.55])
+            const acc = parseColor(p.accent ?? DEFAULTS.accent, [255, 122, 69, 1])
+            const fkey = `${font?.fontFamily}|${font?.fontWeight}|${font?.fontStyle}|${font?.letterSpacing}|${px}|${dpr}|${fontEpoch}`
+            pre.key = `${fkey}|${base.slice(0, 3)}|${acc.slice(0, 3)}`
+            jobs = [
+                ...TIERS.map((t) => () => {
+                    pre.base.push(buildAtlas(font, px * t.scale, base, dpr))
+                }),
+                ...TIERS.map((t) => () => {
+                    pre.accent.push(buildAtlas(font, px * t.scale, acc, dpr))
+                }),
+            ]
+            const next = () => {
+                const job = jobs.shift()
+                if (!job) return
+                job()
+                idle = ric(next)
+            }
+            idle = ric(next)
+        }
+
         let raf = 0
         let last = -1
+        let running = false
         const frame = (now: number) => {
             const p = propsRef.current
+            // CHANGE 3: paused — stop here; `start` picks it up again.
+            if (p.paused) {
+                running = false
+                return
+            }
             const background = p.background ?? DEFAULTS.background
             const font = p.font
             const density = Math.round(p.density ?? DEFAULTS.density)
@@ -431,8 +486,16 @@ export default function FormulaStream(props: FormulaStreamProps) {
             const aKey = `${fkey}|${base.slice(0, 3)}|${acc.slice(0, 3)}`
             if (aKey !== atlasKey) {
                 atlasKey = aKey
-                atlasBase = TIERS.map((t) => buildAtlas(font, px * t.scale, base, dpr))
-                atlasAccent = TIERS.map((t) => buildAtlas(font, px * t.scale, acc, dpr))
+                // CHANGE 4: the atlases built ahead, when they are these.
+                if (pre.key === aKey && pre.base.length === TIERS.length && pre.accent.length === TIERS.length) {
+                    atlasBase = pre.base
+                    atlasAccent = pre.accent
+                } else {
+                    jobs = []
+                    cic(idle)
+                    atlasBase = TIERS.map((t) => buildAtlas(font, px * t.scale, base, dpr))
+                    atlasAccent = TIERS.map((t) => buildAtlas(font, px * t.scale, acc, dpr))
+                }
             }
             const bow = (curve / 100) * CURVE_MAX * H
             const lKey = `${fkey}|${W}|${H}|${density}|${gap}|${Math.round(Math.abs(bow))}`
@@ -510,7 +573,16 @@ export default function FormulaStream(props: FormulaStreamProps) {
 
             raf = requestAnimationFrame(frame)
         }
-        raf = requestAnimationFrame(frame)
+        // CHANGE 3: (re)start the loop — `last` reset so a pause is not
+        // counted as time gone by.
+        const start = () => {
+            if (running) return
+            running = true
+            last = -1
+            raf = requestAnimationFrame(frame)
+        }
+        resumeRef.current = start
+        start()
 
         // CHANGE 2 (forced): on the WINDOW, measured against the root's box.
         // The original listened on the root and read `e.offsetX/Y`; as a
@@ -540,6 +612,8 @@ export default function FormulaStream(props: FormulaStreamProps) {
 
         return () => {
             cancelAnimationFrame(raf)
+            cic(idle)
+            resumeRef.current = () => {}
             ro.disconnect()
             fonts?.removeEventListener?.("loadingdone", onFonts)
             window.removeEventListener("pointermove", onMove)

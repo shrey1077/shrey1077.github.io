@@ -20,8 +20,11 @@
  *   · the whole layer at 50% (the owner's number);
  *   · as many lanes as suit the band's height (the original's 18 are for an
  *     800px panel);
- *   · mounted only while the footer is near the screen — the stream draws
- *     every frame; reduced motion: still, and the pointer leaves it alone.
+ *   · mounted once the footer is a screen away, so the stream prepares its
+ *     type in spare moments before anyone sees it, and DRAWING only while the
+ *     footer is actually on screen (speed fix 7, 2026-10-13 — it mounted
+ *     300px out and drew every frame from then, unseen); reduced motion:
+ *     still, and the pointer leaves it alone.
  */
 
 import { useEffect, useRef, useState } from "react";
@@ -35,17 +38,21 @@ export function FooterFormulas() {
   const ref = useRef<HTMLDivElement>(null);
   const reduceMotion = useReducedMotion() ?? false;
   const [near, setNear] = useState(false);
+  const [seen, setSeen] = useState(false);
   const [lanes, setLanes] = useState(6);
 
   useEffect(() => {
     const el = ref.current;
     if (!el) return;
-    const io = new IntersectionObserver(([e]) => setNear(e.isIntersecting), { rootMargin: "300px 0px" });
+    const io = new IntersectionObserver(([e]) => setNear(e.isIntersecting), { rootMargin: "100% 0px" });
     io.observe(el);
+    const view = new IntersectionObserver(([e]) => setSeen(e.isIntersecting));
+    view.observe(el);
     const ro = new ResizeObserver(() => setLanes(Math.max(4, Math.min(18, Math.round(el.offsetHeight / LANE_PX)))));
     ro.observe(el);
     return () => {
       io.disconnect();
+      view.disconnect();
       ro.disconnect();
     };
   }, []);
@@ -63,6 +70,7 @@ export function FooterFormulas() {
           density={lanes}
           speed={reduceMotion ? 0 : 69}
           hover={reduceMotion ? 0 : 139}
+          paused={!seen}
         />
       )}
     </div>
