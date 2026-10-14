@@ -53,16 +53,16 @@ const FROM: Record<Exclude<WaveFrom, "centre">, { x: number; y: number }> = {
 };
 
 const clamp01 = (v: number) => Math.max(0, Math.min(1, v));
-const smooth = (t: number) => t * t * (3 - 2 * t);
+export const smooth = (t: number) => t * t * (3 - 2 * t);
 
 /** A fixed pseudo-random number in [0, 1) per lattice point. */
-function hash(i: number, j: number) {
+export function hash(i: number, j: number) {
   const x = Math.sin(i * 127.1 + j * 311.7) * 43758.5453;
   return x - Math.floor(x);
 }
 
 /** Smooth value noise in [0, 1): `scale` cells to a lattice step. */
-function noise(i: number, j: number, scale: number) {
+export function noise(i: number, j: number, scale: number) {
   const x = i / scale;
   const y = j / scale;
   const x0 = Math.floor(x);

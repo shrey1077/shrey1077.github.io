@@ -1,16 +1,38 @@
 "use client";
 
 /**
- * PortraitOrb — the owner, split down the middle, the seam sweeping across.
+ * PortraitOrb — the owner, half circuit-line and half paint, the one turning
+ * into the other square by square.
  *
  * Two supplied ring artworks with the owner's two portraits inside them: the
  * circuit-line ring around the mono frame, the paint-splatter ring around the
  * colour one. At rest the circle is half of each — the same left-logic /
- * right-creative split the brain above it makes — and the seam SWEEPS, left
- * to right and back, on its own (owner, 2026-10-12: "similarly for first
- * slide picture element", after the brain's turn): any pointer movement holds
- * it where it is, and a second of stillness lets it carry on (idleSweep).
- * From 2026-10-03 until then the seam followed the pointer instead.
+ * right-creative split the brain above it makes.
+ *
+ * ⚠ THE TWO HALVES TRADE PLACES ALONG AN ARROWHEAD OF SQUARES (owner,
+ * 2026-10-14). The frame is a grid of small SEAM_CELL squares; the line
+ * between the halves is a very open chevron ("closer to a straight line, but
+ * not exactly straight") pointing the way the change is going — the side
+ * gaining ground leads with its tip — and along it the squares turn over in a
+ * ragged band, each shrinking out of one half as it grows into the other, the
+ * way the slides' squares turn (pixelDissolve). It runs the whole width of the
+ * frame, tracery and splatter included, to both ends: at one end every square
+ * is line, at the other every square is paint — nothing fades, the squares
+ * carry it all the way ("pixel animation should follow all the way through on
+ * both sides"). (For an hour the same day the squares turned in a random
+ * spray instead; the owner preferred the arrowhead.)
+ *   · THE MOUSE DRIVES IT (owner, 2026-10-14: "remember we had attached it
+ *     with mouse horizontal movement, keep that"): the pointer's place across
+ *     the screen sets how far the change has gone — move right and the line
+ *     half goes right with you, opening; move left, the paint half — as it did
+ *     from 2026-10-03 to 2026-10-12.
+ *   · A SECOND OF STILLNESS and it carries on by itself from wherever it
+ *     stands, to one end and back, at ONE steady speed (owner: "no variable
+ *     animation speed … same pixel animation speed all the way from L to R or
+ *     vice versa"), heading the way it was last going.
+ * (2026-10-12 to -14 it swept on its own on a cosine and held still while the
+ * pointer moved, faded the beaten side out near each end, and its seam was a
+ * crisp straight line — git has all of it.)
  *
  * ⚠ The two frames are pre-composited and ALIGNED at build time, not stacked
  * by CSS. The supplied rings do not agree with each other: the line ring's
@@ -28,23 +50,22 @@
  * well as a zoom, and only the shift closes the jaw and glasses across the
  * join.
  *
- * The seam is a gradient mask — a crisp line since 2026-10-03, see FEATHER — and the two masks
- * are exact complements — where one is opaque the other is transparent — so a
- * side that is fully open leaves the other genuinely invisible rather than
- * merely covered. That matters because both frames have transparent
+ * The two halves' clips are exact complements — every square is one half or
+ * the other, or mid-turn as a small square of one inside a ring of the other —
+ * so a side that is fully open leaves the other genuinely invisible rather
+ * than merely covered. That matters because both frames have transparent
  * background: a covered frame would still show its tracery through the gaps.
  *
- * Motion values, not state — the sweep writes straight into the masks, with
- * no spring (it is smooth already, and must stop the instant the pointer
- * moves), so nothing here re-renders as it goes. It only runs while the orb
- * is on screen.
+ * Written straight to the two layers' clip-path from a motion value; nothing
+ * re-renders as it goes. It only runs while the orb is on screen.
  */
 
-import { useEffect, useRef } from "react";
+import { useEffect, useLayoutEffect, useRef } from "react";
 import Image from "next/image";
-import { motion, useMotionValue, useReducedMotion, useTransform } from "framer-motion";
-import { SWEEP_PERIOD, SWEEP_START, sweepAt, watchPointer } from "@/components/home/idleSweep";
+import { useMotionValue, useMotionValueEvent, useReducedMotion } from "framer-motion";
+import { IDLE_MS, SWEEP_PERIOD } from "@/components/home/idleSweep";
 import { markPhotoShown } from "@/components/home/nearness";
+import { CELL, PHI, hash, smooth } from "@/components/home/pixelDissolve";
 
 /** The two frames. ⚠ HeroStage preloads both from the page's <head>
  *  (2026-10-12, speed fix 1): the orb only renders once the stage has been
@@ -55,85 +76,125 @@ export const ORB_SRC = { line: "/content/portrait/orb-line.webp", paint: "/conte
 
 /** Both frames share this canvas exactly. See the header. */
 const ASPECT = 1200 / 606;
-/** Half-width of the seam, as a percentage of the frame's width. ⚠ A HAIR, not
- *  a feather, since 2026-10-03 (owner: "the transition line should not have the
- *  fade effect") — 2% softened it over ~20px. Kept a hair above zero so the two
- *  complementary masks overlap by a fraction of a pixel and never leave a gap. */
-const FEATHER = 0.05;
-
-/* Where the disc sits inside the frame, as percentages of frame width. Emitted
- * by the build step (cxFrac 0.4674, rFracW 0.1688) — re-read them if the rings
- * are rebuilt. The frame is mostly tracery and splatter; the circle is only
- * this middle third of it. */
-const CIRCLE_L = 29.86;
-const CIRCLE_R = 63.62;
-
-/** Seam position for a given split, in %.
- *
- *  ⚠ It sweeps the CIRCLE's span, not the whole frame, and that distinction is
- *  the whole design. Sweeping 100 → 0 meant the seam spent most of its travel
- *  outside the disc: the face would read as fully mono while the paint side
- *  was still half-revealed, its splatter sliced down a hard vertical edge in
- *  empty space. Ending the sweep at the disc's edges means "the face is whole"
- *  and "that side has won" happen at the same instant.
- *
- *  At split 0.5 this lands on CIRCLE's centre (46.74), not on 50 — the disc is
- *  NOT centred in the frame, so splitting the frame in half would have split
- *  the face 12px off its own middle. */
-const seam = (v: number) => CIRCLE_R + (CIRCLE_L - CIRCLE_R) * v;
-
-/** How much of the travel is spent fading a losing side out completely.
- *
- *  The mask alone cannot do this: each frame carries artwork BEYOND the disc
- *  (tracery to the left, splatter to the right) which no seam inside the disc
- *  will ever cover. So the beaten side is faded out outright, over the first
- *  slice of travel, while the seam is still inside the disc — the paint fades
- *  up as it takes the circle rather than popping in at the edge. */
-const FADE = 0.25;
-const fade = (v: number) => Math.min(1, Math.max(0, v / FADE));
-
-/** ⚠ The ENDS HOLD (owner, 2026-10-03: "this position should be the point
- *  where the black picture is completely visible and the colour totally
- *  invisible, and vice versa"). The last END of the pointer's travel at each
- *  side is spent AT the end — seam on the disc's edge, the beaten side gone —
- *  instead of creeping the last few pixels while the other side's splatter
- *  still showed at half strength beyond the disc. `travel` is the split with
- *  those two dead zones taken out; the seam and both fades read it. */
-const END = 0.1;
-const travel = (v: number) => Math.min(1, Math.max(0, (v - END) / (1 - 2 * END)));
+/** The squares, px: the golden ratio once more (owner, 2026-10-14: "smaller
+ *  pixels") — CELL ÷ φ³, down the line that runs 48 between the slides, 30
+ *  between the two columns (PAN_CELL) and 18 for this seam's first squares: 11. */
+const SEAM_CELL = Math.round(CELL / (PHI * PHI * PHI));
+/** The arrowhead: how far its arms trail its tip per px up or down from the
+ *  frame's middle — a very open one (owner, 2026-10-14: "more obtuse angle, ie
+ *  closer to a straight line, but not exactly straight"), each arm ~11° off
+ *  the vertical. */
+const ARROW = 0.2;
+/** The ragged band, in squares, over which a square turns from one half to
+ *  the other, and how far each square's own jitter carries it. */
+const BAND = 3;
+const JITTER = 1;
+/** How quickly the arrow swings round when the way it is going reverses —
+ *  through straight, never a snap. Per second. */
+const SWING = 5;
+/** The disc's centre as a share of the frame's width (the build step's cxFrac).
+ *  The tip's run across is laid out so that at the even split it stands HERE —
+ *  the face half and half — not at the frame's middle, 12px off it: the run
+ *  starts a little further out past the left edge than past the right, and
+ *  stays one straight, steady line. */
+const DISC_CX = 0.4674;
+/** One way across, end to end, by itself: half the sweep's period — and at one
+ *  steady speed the whole way. */
+const PASS_S = SWEEP_PERIOD / 2;
+/** How far off-centre the pointer travels before a side is whole. 1 = the very
+ *  edge of the screen; a little over saturates before it, so the ends are
+ *  reachable. (The value it had while it followed the mouse before.) */
+const GAIN = 1.35;
+/** How quickly it closes on the pointer, per second — the old spring's feel. */
+const FOLLOW = 9;
 
 export function PortraitOrb({ className = "" }: { className?: string }) {
   const reduceMotion = useReducedMotion();
   const rootRef = useRef<HTMLDivElement>(null);
-  /** 0 = line side whole, 0.5 = an even split, 1 = paint side whole. */
+  const lineRef = useRef<HTMLDivElement>(null);
+  const paintRef = useRef<HTMLDivElement>(null);
+  /** How far the change has gone: 0 = all line, 0.5 = the even split, 1 = all paint. */
   const split = useMotionValue(0.5);
-  const src = split;
+  /** The arrow's bend: 1 points it left (the paint gaining), −1 right (the line
+   *  gaining), and between, on its way round. Eased in the loop below. */
+  const bendRef = useRef(1);
 
-  // Beaten side goes fully away — tracery and splatter included.
-  const opacityLine = useTransform(src, (v) => fade(1 - travel(v)));
-  const opacityPaint = useTransform(src, (v) => fade(travel(v)));
-
-  /* ⚠ THE WINNER IS WHOLE AT THE ENDS (owner, 2026-10-14: "the images are
-     getting cut from sides, make sure they are 100% at ends"). Each side's
-     mask edge sits on the seam while the other side is fully there — the
-     split reads exactly as before — but as the beaten side fades out, the
-     winner's edge opens past the seam to the frame's own edge, so when the
-     other side is gone this one is shown 100%, nothing trimmed where the
-     disc ends. (Until then the winner stayed cut flat at the disc's edge:
-     the paint ring's left rim, the line ring's right.) */
-  const lineEdge = (v: number) => {
-    const s = seam(travel(v));
-    return s + (100 - s) * (1 - fade(travel(v)));
+  const renderSquares = () => {
+    const root = rootRef.current;
+    const lineEl = lineRef.current;
+    const paintEl = paintRef.current;
+    if (!root || !lineEl || !paintEl) return;
+    const W = root.offsetWidth;
+    const H = root.offsetHeight;
+    if (!W || !H) return;
+    const u = split.get();
+    const c = SEAM_CELL;
+    const cols = Math.ceil(W / c);
+    const rows = Math.ceil(H / c);
+    // The tip's run: from past the right edge (all line) to past the left (all
+    // paint), far enough out that nothing of the arms, the band or the jitter
+    // is left on the frame at either end — straight and steady in between,
+    // and through the disc's centre at the half.
+    const margin = (BAND + JITTER + 1) * c + (ARROW * H) / 2;
+    const from = W + margin;
+    const to = 2 * DISC_CX * W - from;
+    const tip = from + (to - from) * u;
+    const bend = ARROW * bendRef.current;
+    const f = (v: number) => v.toFixed(1);
+    const rect = (x: number, y: number, w: number, h: number) => `M${f(x)} ${f(y)}h${f(w)}v${f(h)}h${f(-w)}z`;
+    let paint = "";
+    let line = "";
+    for (let j = 0; j < rows; j++) {
+      const y = j * c;
+      // This row's edge: the tip at the middle, the arms trailing behind it.
+      const edge = tip + bend * Math.abs(y + c / 2 - H / 2);
+      let runP = -1;
+      let runL = -1;
+      for (let i = 0; i <= cols; i++) {
+        const x = i * c;
+        // How much of this square is paint, 0 … 1 (paint lies right of the
+        // edge), its own jitter making the edge ragged; past the row, none.
+        const s =
+          i < cols
+            ? smooth(Math.min(1, Math.max(0, ((x + c / 2 - edge) / c + (hash(i + 11, j + 7) - 0.5) * JITTER) / BAND + 0.5)))
+            : -1;
+        // Whole squares run together along the row, a hair over their edges.
+        if (s >= 0.999) {
+          if (runP < 0) runP = x;
+        } else if (runP >= 0) {
+          paint += rect(runP - 0.5, y - 0.5, x - runP + 1, c + 1);
+          runP = -1;
+        }
+        if (s >= 0 && s <= 0.001) {
+          if (runL < 0) runL = x;
+        } else if (runL >= 0) {
+          line += rect(runL - 0.5, y - 0.5, x - runL + 1, c + 1);
+          runL = -1;
+        }
+        // A square mid-turn: a smaller square of paint at its middle, and the
+        // ring of line around it — exact complements.
+        if (s > 0.001 && s < 0.999) {
+          const e = c * s;
+          const g = (c - e) / 2;
+          paint += rect(x + g, y + g, e, e);
+          line += rect(x - 0.5, y - 0.5, c + 1, g + 0.5) + rect(x - 0.5, y + g + e, c + 1, g + 0.5);
+          line += rect(x - 0.5, y + g, g + 0.5, e) + rect(x + g + e, y + g, g + 0.5, e);
+        }
+      }
+    }
+    lineEl.style.clipPath = line ? `path("${line}")` : "inset(50%)";
+    paintEl.style.clipPath = paint ? `path("${paint}")` : "inset(50%)";
   };
-  const paintEdge = (v: number) => seam(travel(v)) * fade(1 - travel(v));
-  const maskLine = useTransform(
-    src,
-    (v) => `linear-gradient(to right, #000 ${lineEdge(v) - FEATHER}%, transparent ${lineEdge(v) + FEATHER}%)`,
-  );
-  const maskPaint = useTransform(
-    src,
-    (v) => `linear-gradient(to right, transparent ${paintEdge(v) - FEATHER}%, #000 ${paintEdge(v) + FEATHER}%)`,
-  );
+  useMotionValueEvent(split, "change", renderSquares);
+  useLayoutEffect(() => {
+    renderSquares();
+    const root = rootRef.current;
+    if (!root) return;
+    const ro = new ResizeObserver(renderSquares);
+    ro.observe(root);
+    return () => ro.disconnect();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   // Both halves in and painted — half of what the home page's background
   // downloads wait for (nearness; the other half is the orb's fade-in,
@@ -143,43 +204,73 @@ export function PortraitOrb({ className = "" }: { className?: string }) {
     if (++halvesIn.current === 2) requestAnimationFrame(() => requestAnimationFrame(() => markPhotoShown("loaded")));
   };
 
-  // The sweep — held while the pointer moves, carried on after a second's
-  // stillness, and only run while the orb is on screen.
+  // The mouse, and the steady sweep when it is still — only while the orb is
+  // on screen. A finger is not followed: on a touch screen it is scrolling.
   useEffect(() => {
     const root = rootRef.current;
-    if (reduceMotion || !root) return;
-    const pointer = watchPointer();
+    if (!root) return;
+    let target = split.get();
+    let movedAt = -Infinity;
+    const onMove = (e: PointerEvent) => {
+      if (e.pointerType === "touch") return;
+      const t = (e.clientX / window.innerWidth - 0.5) * GAIN + 0.5;
+      // ⚠ Inverted, so the change travels WITH the pointer (see the header).
+      target = 1 - Math.min(1, Math.max(0, t));
+      movedAt = performance.now();
+    };
+    window.addEventListener("pointermove", onMove, { passive: true });
     let shown = true;
     const io = new IntersectionObserver(([e]) => {
       shown = e.isIntersecting;
     });
     io.observe(root);
-    let phase = SWEEP_START;
+    /** Which way it is heading: 1 toward the paint, −1 back. */
+    let dir = 1;
     let last = -1;
     let raf = 0;
-    const tick = (t: number) => {
+    const tick = (now: number) => {
       raf = requestAnimationFrame(tick);
-      const dt = last < 0 ? 0 : Math.min(0.05, (t - last) / 1000);
-      last = t;
-      if (!shown || pointer.held(t)) return;
-      phase += dt / SWEEP_PERIOD;
-      split.set(sweepAt(phase));
+      const dt = last < 0 ? 0 : Math.min(0.05, (now - last) / 1000);
+      last = now;
+      if (!shown) return;
+      const v = split.get();
+      let next = v;
+      if (now - movedAt < IDLE_MS) {
+        // Following the mouse.
+        next = reduceMotion ? target : v + (target - v) * (1 - Math.exp(-dt * FOLLOW));
+        if (Math.abs(next - v) > 1e-4) dir = next > v ? 1 : -1;
+      } else if (!reduceMotion) {
+        // By itself: one steady speed, turning at each end.
+        next = v + (dir * dt) / PASS_S;
+        if (next >= 1) {
+          next = 2 - next;
+          dir = -1;
+        } else if (next <= 0) {
+          next = -next;
+          dir = 1;
+        }
+      }
+      // The arrow swings round to the way it is going.
+      const b = bendRef.current;
+      const nb = reduceMotion ? dir : b + (dir - b) * (1 - Math.exp(-dt * SWING));
+      const swung = Math.abs(nb - b) > 1e-3;
+      if (swung) bendRef.current = nb;
+      if (next !== v) split.set(next);
+      else if (swung) renderSquares();
     };
     raf = requestAnimationFrame(tick);
     return () => {
       cancelAnimationFrame(raf);
       io.disconnect();
-      pointer.stop();
+      window.removeEventListener("pointermove", onMove);
     };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [reduceMotion, split]);
 
   return (
     <div ref={rootRef} className={`relative ${className}`} style={{ aspectRatio: ASPECT }}>
       {/* Logic half — circuit ring, mono portrait. */}
-      <motion.div
-        className="absolute inset-0"
-        style={{ maskImage: maskLine, WebkitMaskImage: maskLine, opacity: opacityLine }}
-      >
+      <div ref={lineRef} className="absolute inset-0">
         <Image
           src={ORB_SRC.line}
           alt="Shrey Singh"
@@ -190,13 +281,10 @@ export function PortraitOrb({ className = "" }: { className?: string }) {
           fetchPriority="high"
           onLoad={onHalfIn}
         />
-      </motion.div>
+      </div>
 
       {/* Creative half — paint ring, colour portrait. */}
-      <motion.div
-        className="absolute inset-0"
-        style={{ maskImage: maskPaint, WebkitMaskImage: maskPaint, opacity: opacityPaint }}
-      >
+      <div ref={paintRef} className="absolute inset-0">
         {/* ⚠ Eager and high priority as the line half is (it was lazy until
             2026-10-12): the photo is the first screen's picture, and it is
             whole only when both halves are in. */}
@@ -210,7 +298,7 @@ export function PortraitOrb({ className = "" }: { className?: string }) {
           fetchPriority="high"
           onLoad={onHalfIn}
         />
-      </motion.div>
+      </div>
     </div>
   );
 }
