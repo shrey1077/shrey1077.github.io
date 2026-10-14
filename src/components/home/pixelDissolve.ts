@@ -26,14 +26,17 @@
  * time gone, so the squares turn at a steady pace from take-off to landing.
  */
 
-/** The square, CSS px (≈ half an inch at 96 dpi) — the steps between slides. */
-export const CELL = 48;
+/** The square, CSS px — the steps between slides. HALVED on 2026-10-14 (owner:
+ *  "half the size of pixels in slide transitions effects"): 24, a quarter
+ *  inch at 96 dpi; it was 48, half an inch. PAN_CELL follows it by φ. */
+export const CELL = 24;
 /** The golden ratio. */
 export const PHI = (1 + Math.sqrt(5)) / 2;
 /** The squares of a move ACROSS — the pan between the two tracks, left to
  *  right (owner, 2026-10-14: "smaller pixels, follow golden ratio to
- *  determine size as compared to size of slide transition"): CELL ÷ φ =
- *  29.7, to the whole pixel so neighbouring squares meet without a seam. */
+ *  determine size as compared to size of slide transition"): CELL ÷ φ —
+ *  14.8, to the whole pixel (15) so neighbouring squares meet without a
+ *  seam. (29.7 → 30 while CELL was 48.) */
 export const PAN_CELL = Math.round(CELL / PHI);
 /** Of a move, the share one square takes to turn over. The last starts at
  *  1 − WINDOW, so it has just turned as the move lands. */
@@ -102,6 +105,9 @@ export interface Grid {
   h: number;
   /** The square's side, px. */
   cell: number;
+  /** Columns and rows; square k is column ⌊k / rows⌋, row k mod rows. */
+  cols: number;
+  rows: number;
   n: number;
   /** Each square's top-left corner. */
   x: Float32Array;
@@ -173,7 +179,7 @@ export function gridFor(w: number, h: number, cell: number = CELL): Grid {
     return s;
   };
 
-  const grid: Grid = { w, h, cell, n, x, y, seed, start };
+  const grid: Grid = { w, h, cell, cols, rows, n, x, y, seed, start };
   cached.set(cell, grid);
   return grid;
 }
@@ -212,20 +218,37 @@ export function clipFor(
   const Y = (y: number) => (y - my) / scale + my + dy;
   let path = "";
   let whole = 0;
-  for (let k = 0; k < grid.n; k++) {
-    const t = turned(s, k, g);
-    const size = role === "out" ? 1 - smooth(clamp01(t * 2)) : smooth(clamp01(t * 2 - 1));
-    if (size <= 0.002) continue;
-    if (size >= 0.998) {
-      whole++;
-      // A hair over the square, so whole neighbours meet without a seam.
-      path += `M${(X(grid.x[k]) - 0.5).toFixed(1)} ${(Y(grid.y[k]) - 0.5).toFixed(1)}h${(CELL + 1).toFixed(1)}v${(CELL + 1).toFixed(1)}h-${(CELL + 1).toFixed(1)}z`;
-      continue;
+  const f = (v: number) => v.toFixed(1);
+  // Row by row, so a run of whole squares goes down as ONE strip — far fewer
+  // shapes for the browser to cut with now the squares are small (24px, and
+  // 15 on a pan; 2026-10-14).
+  for (let j = 0; j < grid.rows; j++) {
+    let run = -1; // the first column of a run of whole squares
+    for (let i = 0; i <= grid.cols; i++) {
+      const k = i * grid.rows + j;
+      let size = 0;
+      if (i < grid.cols) {
+        const t = turned(s, k, g);
+        size = role === "out" ? 1 - smooth(clamp01(t * 2)) : smooth(clamp01(t * 2 - 1));
+      }
+      if (size >= 0.998) {
+        whole++;
+        if (run < 0) run = i;
+        continue;
+      }
+      if (run >= 0) {
+        // A hair over the strip, so it meets its neighbours without a seam.
+        const k0 = run * grid.rows + j;
+        const len = (i - run) * CELL;
+        path += `M${f(X(grid.x[k0]) - 0.5)} ${f(Y(grid.y[k0]) - 0.5)}h${f(len + 1)}v${f(CELL + 1)}h-${f(len + 1)}z`;
+        run = -1;
+      }
+      if (size <= 0.002 || i === grid.cols) continue;
+      const e = CELL * size;
+      const ix = X(grid.x[k]) + (CELL - e) / 2;
+      const iy = Y(grid.y[k]) + (CELL - e) / 2;
+      path += `M${f(ix)} ${f(iy)}h${f(e)}v${f(e)}h-${f(e)}z`;
     }
-    const e = CELL * size;
-    const ix = X(grid.x[k]) + (CELL - e) / 2;
-    const iy = Y(grid.y[k]) + (CELL - e) / 2;
-    path += `M${ix.toFixed(1)} ${iy.toFixed(1)}h${e.toFixed(1)}v${e.toFixed(1)}h-${e.toFixed(1)}z`;
   }
   if (whole === grid.n) return "none";
   return path ? `path("${path}")` : "";

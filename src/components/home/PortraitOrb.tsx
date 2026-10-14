@@ -65,7 +65,7 @@ import Image from "next/image";
 import { useMotionValue, useMotionValueEvent, useReducedMotion } from "framer-motion";
 import { IDLE_MS, SWEEP_PERIOD } from "@/components/home/idleSweep";
 import { markPhotoShown } from "@/components/home/nearness";
-import { CELL, PHI, hash, smooth } from "@/components/home/pixelDissolve";
+import { hash, smooth } from "@/components/home/pixelDissolve";
 
 /** The two frames. ⚠ HeroStage preloads both from the page's <head>
  *  (2026-10-12, speed fix 1): the orb only renders once the stage has been
@@ -76,10 +76,11 @@ export const ORB_SRC = { line: "/content/portrait/orb-line.webp", paint: "/conte
 
 /** Both frames share this canvas exactly. See the header. */
 const ASPECT = 1200 / 606;
-/** The squares, px: the golden ratio once more (owner, 2026-10-14: "smaller
- *  pixels") — CELL ÷ φ³, down the line that runs 48 between the slides, 30
- *  between the two columns (PAN_CELL) and 18 for this seam's first squares: 11. */
-const SEAM_CELL = Math.round(CELL / (PHI * PHI * PHI));
+/** The squares, px: 11 (owner, 2026-10-14: "smaller pixels"). Set when the
+ *  slides' squares were 48 — 48 ÷ φ³ — and KEPT at 11 when those were halved
+ *  to 24 the same day: this seam is its own effect, and the owner had just
+ *  signed it off at this size. */
+const SEAM_CELL = 11;
 /** The arrowhead: how far its arms trail its tip per px up or down from the
  *  frame's middle — a very open one (owner, 2026-10-14: "more obtuse angle, ie
  *  closer to a straight line, but not exactly straight"), each arm ~11° off
