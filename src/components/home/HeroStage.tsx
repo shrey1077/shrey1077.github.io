@@ -459,7 +459,9 @@ export function HeroStage() {
         className="pointer-events-none absolute inset-x-0 top-[3.2%] z-30 flex justify-center"
         style={{ y: markY, scale: markScale, originX: 0.5, originY: 0, visibility: markShown }}
       >
-        <p className="flex flex-col items-end leading-none">
+        {/* data-nav-avoid: the blinking direction squares keep clear of it
+            (CornerPixels). */}
+        <p data-nav-avoid className="flex flex-col items-end leading-none">
           {/* ⚠ The name over the orb takes this size (owner, 2026-10-11). */}
           <span className="face-logic text-[clamp(1.9rem,4.6vw,4rem)] font-bold leading-none tracking-[0.22em] text-neutral-900">
             PORTFOLIO

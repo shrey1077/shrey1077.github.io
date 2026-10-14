@@ -108,7 +108,7 @@ import { ProjectPreview } from "@/components/home/ProjectPreview";
 import { BrainNav } from "@/components/home/BrainNav";
 import { SectionBody, sectionEntryCount, type SectionData } from "@/components/home/SectionBody";
 import { NearContext, useFirstScreenUp, usePageSettled } from "@/components/home/nearness";
-import { CornerPixels, type Corner } from "@/components/home/CornerPixels";
+import { CornerPixels, type NavDir } from "@/components/home/CornerPixels";
 import { navSectionsFor } from "@/constants/navigation";
 import { projectStudyById } from "@/constants/projectStudies";
 import { PAPER_PLATE } from "@/constants/design";
@@ -185,12 +185,17 @@ const FILLS: ReadonlySet<string> = new Set(["art", "the-extincts-project"]);
 
 const pad = (n: number) => String(n).padStart(2, "0");
 
-/** Which corners blink, where (CornerPixels). */
-const NO_CORNERS: readonly Corner[] = [];
-const ORB_CORNERS: readonly Corner[] = ["bl", "br"];
-const BRAIN_CORNERS: readonly Corner[] = ["tl", "tr", "bl", "br"];
-const LOGIC_CORNERS: readonly Corner[] = ["tl", "tr", "br"];
-const CREATIVE_CORNERS: readonly Corner[] = ["tl", "tr", "bl"];
+/** The ways on from each place, as the blinking squares show them
+ *  (CornerPixels): down from the orb; into either column or back up from the
+ *  brain; in a room, across, on down, and back up — to the brain from a
+ *  column's first room, up and toward the side it came down from. */
+const NO_DIRS: readonly NavDir[] = [];
+const ORB_DIRS: readonly NavDir[] = ["s"];
+const BRAIN_DIRS: readonly NavDir[] = ["n", "sw", "se"];
+const LOGIC_FIRST_DIRS: readonly NavDir[] = ["ne", "e", "s"];
+const LOGIC_DIRS: readonly NavDir[] = ["n", "e", "s"];
+const CREATIVE_FIRST_DIRS: readonly NavDir[] = ["nw", "w", "s"];
+const CREATIVE_DIRS: readonly NavDir[] = ["n", "w", "s"];
 
 /** The camera's scale at camera `v` and pan `tx`: it lifts through a move
  *  across the plane — from the brain into a column, and the pan — and
@@ -738,6 +743,32 @@ export function Flythrough({
         {/* The landing — slides 0 and 1 in one: it stands still while its
             own two layers (the orb, then the brain) trade places inside it,
             and leaves across the plane on the step after. See HeroStage. */}
+        {/* Each way the visitor can go blinks at that edge or corner
+            (CornerPixels). None past the rooms. ⚠ HERE, before the camera:
+            in a room the squares sit BEHIND its content — over the ground,
+            under the cards and type — so nothing they cross is hard to read;
+            over the landing, whose ground is its own and opaque, they are
+            lifted in front (`front`). */}
+        <CornerPixels
+          dirs={
+            pastRun
+              ? NO_DIRS
+              : current === 0
+                ? ORB_DIRS
+                : current < FIRST_ROOM
+                  ? BRAIN_DIRS
+                  : track === "logic"
+                    ? current === FIRST_ROOM
+                      ? LOGIC_FIRST_DIRS
+                      : LOGIC_DIRS
+                    : current === FIRST_ROOM
+                      ? CREATIVE_FIRST_DIRS
+                      : CREATIVE_DIRS
+          }
+          creative={zone === "creative"}
+          front={current < FIRST_ROOM}
+        />
+
         {/* Everything that travels, under one camera — its lift (cameraScale)
             applies to all of it at once. */}
         <motion.div className="absolute inset-0" style={{ scale: cameraScale }}>
@@ -883,24 +914,6 @@ export function Flythrough({
           creative={CREATIVE}
           hidden={current < FIRST_ROOM}
           onGo={go}
-        />
-
-        {/* The corners the visitor can go toward blink (CornerPixels): down
-            from the orb; down and back up on the brain; in a room, across to
-            the other column and back up. None past the rooms. */}
-        <CornerPixels
-          corners={
-            pastRun
-              ? NO_CORNERS
-              : current === 0
-                ? ORB_CORNERS
-                : current < FIRST_ROOM
-                  ? BRAIN_CORNERS
-                  : track === "logic"
-                    ? LOGIC_CORNERS
-                    : CREATIVE_CORNERS
-          }
-          creative={zone === "creative"}
         />
 
         {/* Say the way on is down: over the orb at every size, and over the

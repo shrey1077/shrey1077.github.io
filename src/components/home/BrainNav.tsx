@@ -250,7 +250,9 @@ export function BrainNav({
         hidden ? "pointer-events-none opacity-0" : "opacity-100"
       }`}
     >
-      <div className="flex items-center gap-3 rounded-full bg-neutral-950/35 p-1.5 ring-1 ring-white/10 backdrop-blur-sm sm:gap-5">
+      {/* data-nav-avoid: the blinking direction squares keep clear of it
+          (CornerPixels). */}
+      <div data-nav-avoid className="flex items-center gap-3 rounded-full bg-neutral-950/35 p-1.5 ring-1 ring-white/10 backdrop-blur-sm sm:gap-5">
         <SideCircle
           side="logic"
           rooms={logic}

@@ -618,20 +618,21 @@ html[data-guard] :is(img, video, svg) {
   }
 }
 
-/* The navigation corners' squares (CornerPixels, owner 2026-10-14): each
- * blinks on its own beat (--blink, --delay), stepped so it reads digital.
- * Reduced motion: still, at a steady strength. */
+/* The direction squares' outlines (CornerPixels, owner 2026-10-14): each
+ * flashes on its own random beat (--blink, --delay) — mostly faint, lit for a
+ * moment — stepped so it reads digital. Reduced motion: still, steady. */
 @keyframes corner-blink {
   0%,
+  30%,
   100% {
-    opacity: 0.12;
+    opacity: 0.14;
   }
-  50% {
+  12% {
     opacity: 1;
   }
 }
 .corner-pixel {
-  animation: corner-blink var(--blink, 1.6s) steps(4, jump-both) var(--delay, 0s) infinite;
+  animation: corner-blink var(--blink, 2s) steps(3, jump-both) var(--delay, 0s) infinite;
 }
 @media (prefers-reduced-motion: reduce) {
   .corner-pixel {
