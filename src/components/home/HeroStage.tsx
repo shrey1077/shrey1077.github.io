@@ -41,6 +41,7 @@ import { CodeStream } from "@/components/home/CodeStream";
 import { Corner3DGrid } from "@/components/home/Corner3DGrid";
 import { ORB_SRC, PortraitOrb } from "@/components/home/PortraitOrb";
 import { markPhotoShown } from "@/components/home/nearness";
+import { clipFor, easeTime, gridFor } from "@/components/home/pixelDissolve";
 import { useInViewport } from "@/hooks/useInViewport";
 import { DURATION, EASE_IN_OUT, EASE_OUT } from "@/constants/motion";
 import { CircuitBackdrop } from "@/components/home/CircuitBackdrop";
@@ -198,6 +199,37 @@ export function HeroStage() {
 
   const size = useStageSize(ref);
 
+  /* ⚠ THE FIRST STEP IN SQUARES TOO (owner, 2026-10-14: "need the pixel
+     transition effect in between slide 1 and 2"). As the orb slide rides
+     up and the brain slide rises, the orb slide dissolves out square by
+     square and the brain slide grows in — the rooms' dissolve, the same
+     half-inch squares and timing (pixelDissolve), the wave from below where
+     the brain comes from; the veil lights over it (PixelVeil). The squares
+     are held on the SCREEN while both slides move under them. The slide
+     upward itself is untouched; reduced motion keeps its cross-fade. */
+  const orbLayerRef = useRef<HTMLDivElement>(null);
+  const brainLayerRef = useRef<HTMLDivElement>(null);
+  const lastStepClip = useRef("none|none");
+  useMotionValueEvent(p, "change", (v) => {
+    const orbLayer = orbLayerRef.current;
+    const brainLayer = brainLayerRef.current;
+    if (!orbLayer || !brainLayer || !size) return;
+    const { w, h } = size;
+    let out = "none";
+    let inn = "none";
+    if (!reduceMotion && v > 0.001 && v < 0.999 && w && h) {
+      const grid = gridFor(w, h);
+      const g = easeTime(v);
+      out = clipFor(grid, g, "out", "below", 0, v * h) || "inset(50%)";
+      inn = clipFor(grid, g, "in", "below", 0, -(1 - v) * h) || "inset(50%)";
+    }
+    const key = `${out}|${inn}`;
+    if (key === lastStepClip.current) return;
+    lastStepClip.current = key;
+    orbLayer.style.clipPath = out;
+    brainLayer.style.clipPath = inn;
+  });
+
   // Reduced motion: the orb has no fade-in to wait for (nearness).
   useEffect(() => {
     if (reduceMotion) markPhotoShown("settled");
@@ -291,6 +323,7 @@ export function HeroStage() {
       {/* ── Slide 1: the brain, its pins and lines, and the facts. Waits in
           the depth behind the orb, and comes up as the orb goes by. */}
       <motion.div
+        ref={brainLayerRef}
         aria-hidden={!onBrain}
         inert={!onBrain}
         className="absolute inset-0 z-[5]"
@@ -348,6 +381,7 @@ export function HeroStage() {
           mark where the orb leaves room (stackTop). The mark at the foot is
           common to both slides, below. */}
       <motion.div
+        ref={orbLayerRef}
         aria-hidden={!onOrb}
         inert={!onOrb}
         className="absolute inset-0 z-[6]"

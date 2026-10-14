@@ -96,7 +96,7 @@ import {
 } from "framer-motion";
 import { FlightContext, HERO_SLIDES, PERSPECTIVE } from "@/components/home/flight";
 import { PixelVeil } from "@/components/home/PixelVeil";
-import { FLY_EASE, clipFor, easeTime, gridFor } from "@/components/home/pixelDissolve";
+import { FLY_EASE, PAN_CELL, clipFor, easeTime, gridFor } from "@/components/home/pixelDissolve";
 import { BrainDock } from "@/components/home/BrainDock";
 import { FootBand } from "@/components/home/FootBand";
 import { PIN_OPEN_EVENT } from "@/components/home/BrainPins";
@@ -184,6 +184,17 @@ const FILLS: ReadonlySet<string> = new Set(["art", "the-extincts-project"]);
 
 const pad = (n: number) => String(n).padStart(2, "0");
 
+/** The camera's scale at camera `v` and pan `tx`: it lifts through a move
+ *  across the plane — from the brain into a column, and the pan — and
+ *  settles as it lands. Shared by the stage and the rooms' squares, which
+ *  have to undo it to stay put on the screen. */
+function cameraLift(v: number, tx: number, reduceMotion: boolean) {
+  if (reduceMotion) return 1;
+  const into = v > FIRST_ROOM - 1 && v < FIRST_ROOM ? Math.sin(Math.PI * (v - (FIRST_ROOM - 1))) : 0;
+  const across = Math.sin(Math.PI * Math.max(0, Math.min(1, tx)));
+  return 1 - CAMERA_DIP * Math.max(into, across);
+}
+
 /** True when the wheel should scroll something inside the slide first. */
 function canScrollInside(target: EventTarget | null, root: HTMLElement, dir: number): boolean {
   let el = target instanceof Element ? target : null;
@@ -226,6 +237,7 @@ function Slide({
   trackX,
   side = 0,
   pan,
+  heading = "logic",
   reduceMotion,
   current,
   className = "",
@@ -240,6 +252,9 @@ function Slide({
   /** Sideways offset in screen widths (−1 off left … 1 off right) — the
    *  track pan. The landing has none. */
   pan?: MotionValue<number>;
+  /** The track a pan is heading for — so a room knows, mid-pan, whether it
+   *  is the column going or the one arriving. */
+  heading?: Track;
   reduceMotion: boolean;
   /** The slide the camera is on — the only one that takes the pointer. */
   current: boolean;
@@ -303,6 +318,10 @@ function Slide({
     ro.observe(el);
     return () => ro.disconnect();
   }, []);
+  const headingRef = useRef(heading);
+  useEffect(() => {
+    headingRef.current = heading;
+  }, [heading]);
   const applyClip = (v: number, o: number) => {
     const el = outerRef.current;
     if (!el || !room) return;
@@ -310,8 +329,29 @@ function Slide({
     const d = index - v;
     const role = d < 0 && d > -1 ? "out" : d > 0 && d < 1 && !first ? "in" : null;
     const { w, h } = box.current;
-    if (role && !reduceMotion && Math.abs(o) < 0.999 && w && h) {
+    const a = Math.abs(o);
+    if (role && !reduceMotion && a < 0.999 && w && h) {
       clip = clipFor(gridFor(w, h), easeTime(role === "out" ? -d : 1 - d), role) || "inset(50%)";
+    } else if (!role && !reduceMotion && Math.abs(d) < 0.5 && a > 0.001 && a < 0.999 && w && h) {
+      // A PAN across between the tracks (owner, 2026-10-14: "the left to
+      // right transition in our pixel transition effect, smaller pixels"):
+      // the column going dissolves out and the one arriving grows in, in
+      // the smaller squares (PAN_CELL = CELL ÷ φ), the wave from the side
+      // it arrives on. The squares are held on the SCREEN — under the
+      // veil's tiles — while the room slides and the camera lifts beneath
+      // them. The slide across itself is untouched.
+      const toCreative = headingRef.current === "creative";
+      const arriving = (side === 1) === toCreative;
+      clip =
+        clipFor(
+          gridFor(w, h, PAN_CELL),
+          easeTime(arriving ? 1 - a : a),
+          arriving ? "in" : "out",
+          toCreative ? "right" : "left",
+          -o * w,
+          0,
+          cameraLift(v, trackX.get(), reduceMotion),
+        ) || "inset(50%)";
     }
     if (clip === lastClip.current) return;
     lastClip.current = clip;
@@ -382,12 +422,7 @@ export function Flythrough({
   const creativePan = useTransform(trackX, (v) => 1 - v);
   // The camera lifts through a move across the plane — from the brain into a
   // column, and the pan — and settles as it lands.
-  const cameraScale = useTransform([p, trackX], ([v, tx]: number[]) => {
-    if (reduceMotion) return 1;
-    const into = v > FIRST_ROOM - 1 && v < FIRST_ROOM ? Math.sin(Math.PI * (v - (FIRST_ROOM - 1))) : 0;
-    const across = Math.sin(Math.PI * Math.max(0, Math.min(1, tx)));
-    return 1 - CAMERA_DIP * Math.max(into, across);
-  });
+  const cameraScale = useTransform([p, trackX], ([v, tx]: number[]) => cameraLift(v, tx, reduceMotion));
   const logicGroundX = useTransform(trackX, (v) => `${-v * 100}%`);
   const creativeGroundX = useTransform(trackX, (v) => `${(1 - v) * 100}%`);
 
@@ -727,6 +762,7 @@ export function Flythrough({
               trackX={trackX}
               side={logic ? -1 : 1}
               pan={logic ? logicPan : creativePan}
+              heading={track}
               reduceMotion={reduceMotion}
               current={current === index && track === t}
             >

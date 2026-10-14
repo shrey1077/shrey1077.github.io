@@ -26,8 +26,15 @@
  * time gone, so the squares turn at a steady pace from take-off to landing.
  */
 
-/** The square, CSS px (≈ half an inch at 96 dpi). */
+/** The square, CSS px (≈ half an inch at 96 dpi) — the steps between slides. */
 export const CELL = 48;
+/** The golden ratio. */
+export const PHI = (1 + Math.sqrt(5)) / 2;
+/** The squares of a move ACROSS — the pan between the two tracks, left to
+ *  right (owner, 2026-10-14: "smaller pixels, follow golden ratio to
+ *  determine size as compared to size of slide transition"): CELL ÷ φ =
+ *  29.7, to the whole pixel so neighbouring squares meet without a seam. */
+export const PAN_CELL = Math.round(CELL / PHI);
 /** Of a move, the share one square takes to turn over. The last starts at
  *  1 − WINDOW, so it has just turned as the move lands. */
 export const WINDOW = 0.36;
@@ -93,6 +100,8 @@ export function easeTime(f: number) {
 export interface Grid {
   w: number;
   h: number;
+  /** The square's side, px. */
+  cell: number;
   n: number;
   /** Each square's top-left corner. */
   x: Float32Array;
@@ -103,12 +112,15 @@ export interface Grid {
   start: (from: WaveFrom) => Float32Array;
 }
 
-let cached: Grid | null = null;
+const cached = new Map<number, Grid>();
 
-/** The grid for a screen size, laid out from the middle so the squares sit
- *  symmetrically. One at a time is cached — there is one stage. */
-export function gridFor(w: number, h: number): Grid {
-  if (cached && cached.w === w && cached.h === h) return cached;
+/** The grid for a screen size and square, laid out from the middle so the
+ *  squares sit symmetrically. One per square size is cached — there is one
+ *  stage. */
+export function gridFor(w: number, h: number, cell: number = CELL): Grid {
+  const hit = cached.get(cell);
+  if (hit && hit.w === w && hit.h === h) return hit;
+  const CELL = cell;
   const cols = Math.ceil(w / CELL) + 1;
   const rows = Math.ceil(h / CELL) + 1;
   const ox = (w - cols * CELL) / 2;
@@ -161,8 +173,9 @@ export function gridFor(w: number, h: number): Grid {
     return s;
   };
 
-  cached = { w, h, n, x, y, seed, start };
-  return cached;
+  const grid: Grid = { w, h, cell, n, x, y, seed, start };
+  cached.set(cell, grid);
+  return grid;
 }
 
 /** How far square `k` has turned, 0 … 1, at time-share `g` of the move. */
@@ -171,14 +184,32 @@ export function turned(start: Float32Array, k: number, g: number) {
 }
 
 /**
- * The clip for a room on a step between rooms, at time-share `g`: "out" for
- * the one flying past (each square shrinks away over the first half of its
- * turn), "in" for the one arriving (each grows in over the second half). The
- * veil's tile is brightest at the half, over the hand-over.
+ * The clip for a view on a move, at time-share `g`: "out" for the one going
+ * (each square shrinks away over the first half of its turn), "in" for the
+ * one arriving (each grows in over the second half). The veil's tile is
+ * brightest at the half, over the hand-over. `from` is the wave's origin (a
+ * fly-through's middle by default); `dx`, `dy` shift the squares into the
+ * view's own coordinates when the view itself is moving, and `scale` undoes
+ * a camera that has lifted (scaled about the screen's middle), so the
+ * squares stay put on the SCREEN, under the veil's tiles, while the view
+ * slides and shrinks beneath them.
  * Returns "none" when nothing is clipped yet, "" when nothing is left.
  */
-export function clipFor(grid: Grid, g: number, role: "out" | "in"): string {
-  const s = grid.start("centre");
+export function clipFor(
+  grid: Grid,
+  g: number,
+  role: "out" | "in",
+  from: WaveFrom = "centre",
+  dx = 0,
+  dy = 0,
+  scale = 1,
+): string {
+  const s = grid.start(from);
+  const CELL = grid.cell / scale;
+  const mx = grid.w / 2;
+  const my = grid.h / 2;
+  const X = (x: number) => (x - mx) / scale + mx + dx;
+  const Y = (y: number) => (y - my) / scale + my + dy;
   let path = "";
   let whole = 0;
   for (let k = 0; k < grid.n; k++) {
@@ -188,12 +219,12 @@ export function clipFor(grid: Grid, g: number, role: "out" | "in"): string {
     if (size >= 0.998) {
       whole++;
       // A hair over the square, so whole neighbours meet without a seam.
-      path += `M${(grid.x[k] - 0.5).toFixed(1)} ${(grid.y[k] - 0.5).toFixed(1)}h${CELL + 1}v${CELL + 1}h-${CELL + 1}z`;
+      path += `M${(X(grid.x[k]) - 0.5).toFixed(1)} ${(Y(grid.y[k]) - 0.5).toFixed(1)}h${(CELL + 1).toFixed(1)}v${(CELL + 1).toFixed(1)}h-${(CELL + 1).toFixed(1)}z`;
       continue;
     }
     const e = CELL * size;
-    const ix = grid.x[k] + (CELL - e) / 2;
-    const iy = grid.y[k] + (CELL - e) / 2;
+    const ix = X(grid.x[k]) + (CELL - e) / 2;
+    const iy = Y(grid.y[k]) + (CELL - e) / 2;
     path += `M${ix.toFixed(1)} ${iy.toFixed(1)}h${e.toFixed(1)}v${e.toFixed(1)}h-${e.toFixed(1)}z`;
   }
   if (whole === grid.n) return "none";

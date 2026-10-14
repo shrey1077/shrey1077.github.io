@@ -13,8 +13,12 @@
  * square and the next has not yet arrived in it, so the tile covers the
  * hand-over. The wave covers the WHOLE screen, ground included:
  *   · between two rooms — the fly-through — from the middle outward;
+ *   · from the orb to the brain (since 2026-10-14, owner: "need the pixel
+ *     transition effect in between slide 1 and 2"), from below, where the
+ *     brain rises from;
  *   · from the brain into a column, from the lower corner the room comes in
- *     from; on a pan across, from the side the new column comes in from.
+ *     from; on a pan across, from the side the new column comes in from —
+ *     in SMALLER squares, CELL ÷ φ (PAN_CELL; owner, 2026-10-14).
  * The tiles: a pale glass face with a graphite hairline, a few with a dark
  * "data" core and a few lit solid — the site's own greys. On the creative
  * side those few dark ones are PAINT instead (owner, 2026-10-10: "the very
@@ -29,7 +33,7 @@
 
 import { useEffect, useRef } from "react";
 import { useMotionValueEvent, type MotionValue } from "framer-motion";
-import { CELL, easeTime, gridFor, turned, type WaveFrom } from "@/components/home/pixelDissolve";
+import { CELL, PAN_CELL, easeTime, gridFor, turned, type WaveFrom } from "@/components/home/pixelDissolve";
 import { RAINBOW } from "@/components/home/MoodField";
 
 /** Shares of the squares that carry a dark core, and that light solid. */
@@ -92,16 +96,19 @@ export function PixelVeil({
     const v = p.get();
     let f = 0;
     let from: WaveFrom | null = null;
+    let cell = CELL;
     if (tx > 0.002 && tx < 0.998) {
       const toCreative = trackRef.current === "creative";
       f = toCreative ? tx : 1 - tx;
       from = toCreative ? "right" : "left";
+      cell = PAN_CELL;
     } else {
       const base = Math.floor(v);
       f = v - base;
       if (base === firstRoom - 1) from = tx > 0.5 ? "below-right" : "below-left";
       else if (base >= firstRoom) from = "centre";
-      // (The step from the orb to the brain scrolls the page; no squares.)
+      // The orb to the brain: the brain rises from below.
+      else if (base === firstRoom - 2) from = "below";
     }
     if (!from || f <= 0.002 || f >= 0.998) {
       canvas.style.visibility = "hidden";
@@ -113,7 +120,8 @@ export function PixelVeil({
     // a pan by where it is heading, a step by the track it is on.
     const creative = tx > 0.002 && tx < 0.998 ? trackRef.current === "creative" : tx > 0.5;
 
-    const grid = gridFor(w, h);
+    const grid = gridFor(w, h, cell);
+    const side = grid.cell;
     const start = grid.start(from);
     const g = easeTime(f);
     for (let k = 0; k < grid.n; k++) {
@@ -121,15 +129,15 @@ export function PixelVeil({
       if (t <= 0 || t >= 1) continue;
       const a = Math.sin(Math.PI * t); // 0 → 1 → 0, smooth at both ends
       // The tile swells a little as it lights.
-      const e = CELL * (0.72 + 0.28 * a) - 2;
-      const x = grid.x[k] + (CELL - e) / 2;
-      const y = grid.y[k] + (CELL - e) / 2;
+      const e = side * (0.72 + 0.28 * a) - 2;
+      const x = grid.x[k] + (side - e) / 2;
+      const y = grid.y[k] + (side - e) / 2;
       const r = grid.seed[k];
       // The accent's colour: graphite, or the paint of this square's place.
       const ink =
         r < SOLID_SHARE + CORE_SHARE
           ? creative
-            ? paintAt((grid.x[k] + CELL / 2) / w * 0.9 + (grid.y[k] + CELL / 2) / h * 0.3)
+            ? paintAt((grid.x[k] + side / 2) / w * 0.9 + (grid.y[k] + side / 2) / h * 0.3)
             : "24, 24, 27"
           : "";
       if (r < SOLID_SHARE) {
