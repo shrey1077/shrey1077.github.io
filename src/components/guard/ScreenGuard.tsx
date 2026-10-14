@@ -26,9 +26,15 @@
  *
  * ⚠ The cost: Cmd/Ctrl+Shift shortcuts (reopen tab, hard reload) blank the
  * page for a moment too.
+ *
+ * ⚠ ALL OF IT IS BEHIND ONE SWITCH — constants/guard (SCREEN_GUARD_ON) — and
+ * it is OFF since 2026-10-14 (owner: "enable screenshot, i will disable
+ * later"). Flip it to true and every deterrent here and in globals.css
+ * comes back.
  */
 
 import { useEffect } from "react";
+import { SCREEN_GUARD_ON } from "@/constants/guard";
 
 /** How long a shield stands: from Print Screen, and at most from Cmd/Win+Shift. */
 const SHIELD_MS = 1600;
@@ -38,6 +44,8 @@ const SHIELD_MIN_MS = 900;
 
 export function ScreenGuard() {
   useEffect(() => {
+    // Switched off (constants/guard): nothing listens, nothing is refused.
+    if (!SCREEN_GUARD_ON) return;
     const root = document.documentElement;
     let timer = 0;
     let raisedAt = 0;

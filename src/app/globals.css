@@ -502,7 +502,9 @@ canvas {
 
 /* ── ScreenGuard (owner, 2026-10-05: "disable screenshotting on my website
  * throughout"). A page cannot stop a screenshot — see the component — so
- * these are deterrents, site-wide:
+ * these are deterrents, site-wide — and ONLY while the switch is on
+ * (constants/guard: the layout marks <html data-guard>; off since
+ * 2026-10-14):
  *   · html[data-shield] — raised by ScreenGuard on the screenshot keys the
  *     browser hears: the whole page goes dark, with one line on it, so the
  *     capture comes out black. Instant: no transition, or the capture could
@@ -531,32 +533,26 @@ html[data-shield] body::after {
   text-transform: uppercase;
 }
 @media print {
-  body > * {
+  html[data-guard] body > * {
     display: none !important;
   }
-  body::after {
+  html[data-guard] body::after {
     content: "Printing is disabled on this site — shrey107.com";
     display: block;
     padding: 4rem;
     font: 500 12pt Helvetica, Arial, sans-serif;
   }
 }
-body {
+html[data-guard] body {
   -webkit-user-select: none;
   user-select: none;
   -webkit-touch-callout: none;
 }
-input,
-textarea,
-select,
-[contenteditable],
-a[href^="mailto:"] {
+html[data-guard] :is(input, textarea, select, [contenteditable], a[href^="mailto:"]) {
   -webkit-user-select: text;
   user-select: text;
 }
-img,
-video,
-svg {
+html[data-guard] :is(img, video, svg) {
   -webkit-user-drag: none;
   -webkit-touch-callout: none;
 }

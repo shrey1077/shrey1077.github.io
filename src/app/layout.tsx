@@ -17,6 +17,7 @@ import {
 } from "next/font/google";
 import { MemoryTransitionHost } from "@/components/transition/MemoryTransitionHost";
 import { ScreenGuard } from "@/components/guard/ScreenGuard";
+import { SCREEN_GUARD_ON } from "@/constants/guard";
 import { SITE } from "@/constants/site";
 import { SITE_DESCRIPTION, SITE_IMAGE, SITE_TITLE } from "@/constants/seo";
 import "./globals.css";
@@ -248,6 +249,8 @@ export default function RootLayout({
   return (
     <html
       lang="en"
+      // The screenshot deterrents' styles key to this (constants/guard).
+      data-guard={SCREEN_GUARD_ON ? "" : undefined}
       className={`${caveat.variable} ${caveatBrush.variable} ${fraunces.variable} ${plexMono.variable} ${cinzel.variable} ${michroma.variable} ${anton.variable} ${orbitron.variable} ${playfair.variable} ${syne.variable} ${barlow.variable} ${interTight.variable} ${greatVibes.variable} ${tinos.variable}`}
     >
       <body className="bg-gallery text-neutral-900 antialiased">
