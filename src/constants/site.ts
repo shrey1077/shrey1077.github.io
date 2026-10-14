@@ -13,9 +13,6 @@ export const SITE = {
   /** The one word under the name on the landing's first slide (owner,
    *  2026-10-03) — `role` is the long form. */
   title: "Designer",
-  /** The landing's headline, under the name and "Designer" (owner, 2026-10-13:
-   *  option 1 of the eight drafted — no client names, by the brief). */
-  headline: "A look inside my head — from first designer to Lead Manager.",
   /** The edition on the landing's PORTFOLIO mark. */
   edition: "2026",
   /** Script monogram shown in the hero identity mark. */

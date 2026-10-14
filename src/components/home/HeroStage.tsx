@@ -207,7 +207,7 @@ export function HeroStage() {
   // layout, so neither is guessed.
   const markRef = useRef<HTMLDivElement>(null);
   const markH = useLayoutHeight(markRef);
-  const nameRef = useRef<HTMLDivElement>(null);
+  const nameRef = useRef<HTMLHeadingElement>(null);
   const captionH = useLayoutHeight(nameRef);
 
   // The orb slide's foot: the mark at half size, sitting on the band. (From
@@ -377,10 +377,10 @@ export function HeroStage() {
               Communication Designer" — the hidden span supplies the middle.
               The reset gives an h1 no size, weight or margin of its own, so
               it looks exactly as the <p> it was.
-              ⚠ The block the orb is sized around (nameRef) holds the name AND
-              the headline under it, so the orb makes room for both. */}
-          <div ref={nameRef} className="flex flex-col items-center">
-          <h1 className="pointer-events-none flex flex-col items-center whitespace-nowrap pb-1 leading-none">
+              (A headline stood under "Designer" on 2026-10-13 — "A look inside
+              my head — from first designer to Lead Manager." — and came off
+              the next day, owner's call.) */}
+          <h1 ref={nameRef} className="pointer-events-none flex flex-col items-center whitespace-nowrap pb-1 leading-none">
             <span className="face-logic digibra-light text-[clamp(1.9rem,4.6vw,4rem)] uppercase leading-none text-neutral-900">
               {NAME_FIRST} {NAME_REST.join(" ")}
             </span>
@@ -389,14 +389,6 @@ export function HeroStage() {
               {SITE.title}
             </span>
           </h1>
-          {/* The headline (owner, 2026-10-13 — option 1 of eight): under
-              "Designer" in its Helvetica and grey, a step smaller, balanced
-              over two lines where the screen is narrow. Still, as the name
-              is; only the orb under it fades in. */}
-          <p className="pointer-events-none mt-2 max-w-[min(92vw,40rem)] text-balance px-4 text-center text-[clamp(0.8rem,1.05vw,1rem)] font-normal leading-snug tracking-[0.01em] text-neutral-500">
-            {SITE.headline}
-          </p>
-          </div>
 
           {orbW > 0 && (
             <motion.div
