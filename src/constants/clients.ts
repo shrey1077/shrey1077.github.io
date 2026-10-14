@@ -151,6 +151,19 @@ export const CLIENTS: readonly Client[] = [
     // fits the common box by HEIGHT and lands small without the scale.
     cardLogo: "/chess/images/logo.png",
   },
+  {
+    // Vivid's own page (2026-10-15): one of the nine project slides on the
+    // home page, whose button opens /clients/vivid. Its words and plates are
+    // still FREELANCE_EXPERIENCE's — see constants/vividExperience.ts.
+    slug: "vivid",
+    name: "Vivid Process Technology",
+    sector: "Filtration & containment · Pharma",
+    accent: "#0E63B3",
+    essence: "Making invisible filtration legible.",
+    section: "projects",
+    site: "vividprotech.com",
+    cardLogo: "/content/clients/vivid/vivid-mark.png",
+  },
 ] as const;
 
 /* ⚠ Three entries left this list on 2026-08-20, all by the owner's instruction.

@@ -8,23 +8,75 @@
  *
  * Left hemisphere = logic. Right hemisphere = creativity.
  *
- * ⚠ THREE SECTIONS A SIDE since 2026-10-10 (owner). It was four:
- *   left   Clients · Projects · My Stack          (Logofolio and Career Path out;
- *                                                   My Stack in — the tools that
- *                                                   stood on the landing's first
- *                                                   slide moved into it)
- *   right  AI Videos · Arts & Crafts · The Extincts Project
- *                                                  (Publications and AI
- *                                                   Generations & Ideas out; AI
- *                                                   Videos in, its films to come)
- * The rooms that went keep their renderers (LogofolioWall, CareerTimeline,
- * PublicationShelf) and their ids in NavSectionId; git has their entries.
+ * ⚠ THE PINS SINCE 2026-10-15 (owner): ONE on the left — Projects, "a single
+ * Projects menu at the bottom of second slide" — and four on the right:
+ *   left   Projects                 (Clients and Projects merged; My Stack
+ *                                      became the bottom-left pop-up, KitButton)
+ *   right  Arts & Crafts · AI Projects · Writings & Publications ·
+ *          The Extincts Project      (AI Videos renamed AI Projects; Writings
+ *                                      & Publications back in, the shelf)
+ * The pins fly to the rooms, which are no longer one per section: every
+ * project and creative body of work has a slide of its own (constants/
+ * showcase.ts). Projects flies to the first of them.
+ * Until 2026-10-15 it was three a side — Clients · Projects · My Stack, and
+ * AI Videos · Arts & Crafts · The Extincts Project — and four before
+ * 2026-10-10. The sections that went keep their entries in RETIRED_SECTIONS,
+ * so pages that quote them (/clients) still can.
  */
 
 import type { NavSection, NavSectionId } from "@/types/navigation";
 
 export const NAV_SECTIONS: readonly NavSection[] = [
-  // Left — logic / engineering.
+  // Left — logic / engineering: the one way in to the projects.
+  {
+    id: "projects",
+    label: "Projects",
+    hemisphere: "left",
+    order: 0,
+    kind: "clients",
+    description:
+      "Brands and organizations I've collaborated with to build meaningful identities and impactful experiences.",
+    tagline: "People / Brands / Impact",
+  },
+
+  // Right — creativity / art.
+  {
+    id: "art",
+    label: "Arts & Crafts",
+    hemisphere: "right",
+    order: 0,
+    kind: "gallery",
+    description:
+      "Drawings, paintings and studies away from the screen — sketchbooks, observational work, and things made by hand.",
+  },
+  {
+    id: "ai-videos",
+    label: "AI Projects",
+    hemisphere: "right",
+    order: 1,
+    kind: "coming-soon",
+    description: "Films and motion made with AI. The reel is on its way.",
+  },
+  {
+    id: "publications",
+    label: "Writings & Publications",
+    hemisphere: "right",
+    order: 2,
+    kind: "gallery",
+    description: "Field studies, essays, process books and bylines — the work that can be read.",
+  },
+  {
+    id: "the-extincts-project",
+    label: "The Extincts Project",
+    hemisphere: "right",
+    order: 3,
+    kind: "gallery",
+    description: "An ongoing personal series on what we've lost.",
+  },
+] as const;
+
+/** Sections no longer on the landing, kept for the pages that quote them. */
+const RETIRED_SECTIONS: readonly NavSection[] = [
   {
     id: "clients",
     label: "Clients",
@@ -36,16 +88,6 @@ export const NAV_SECTIONS: readonly NavSection[] = [
     tagline: "People / Brands / Impact",
   },
   {
-    id: "projects",
-    label: "Projects",
-    hemisphere: "left",
-    order: 1,
-    kind: "clients",
-    description:
-      "Self-directed and academic work — where the brief was my own, end to end.",
-    tagline: "Ideas / Execution / Outcomes",
-  },
-  {
     id: "my-stack",
     label: "My Stack",
     hemisphere: "left",
@@ -54,36 +96,7 @@ export const NAV_SECTIONS: readonly NavSection[] = [
     description: "The tools behind the work — for design, for generating images and film, and for building.",
     tagline: "Design / Generate / Build",
   },
-
-  // Right — creativity / art.
-  // ⚠ Arts & Crafts (id `art`) and the Extincts draw their own bodies
-  // (SectionBody's OWN_RENDERER), so `kind` never reaches `cellsFor` for them.
-  {
-    id: "ai-videos",
-    label: "AI Videos",
-    hemisphere: "right",
-    order: 0,
-    kind: "coming-soon",
-    description: "Films and motion made with AI. The reel is on its way.",
-  },
-  {
-    id: "art",
-    label: "Arts & Crafts",
-    hemisphere: "right",
-    order: 1,
-    kind: "gallery",
-    description:
-      "Drawings, paintings and studies away from the screen — sketchbooks, observational work, and things made by hand.",
-  },
-  {
-    id: "the-extincts-project",
-    label: "The Extincts Project",
-    hemisphere: "right",
-    order: 2,
-    kind: "gallery",
-    description: "An ongoing personal series on what we've lost.",
-  },
-] as const;
+];
 
 /** Sections for one hemisphere, sorted top → bottom. */
 export function navSectionsFor(hemisphere: "left" | "right"): NavSection[] {
@@ -94,5 +107,5 @@ export function navSectionsFor(hemisphere: "left" | "right"): NavSection[] {
 
 /** Look up a section by id (e.g. to title the open preview pane). */
 export function navSectionById(id: NavSectionId): NavSection | undefined {
-  return NAV_SECTIONS.find((s) => s.id === id);
+  return NAV_SECTIONS.find((s) => s.id === id) ?? RETIRED_SECTIONS.find((s) => s.id === id);
 }

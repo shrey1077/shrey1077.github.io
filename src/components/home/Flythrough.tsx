@@ -1,7 +1,7 @@
 "use client";
 
 /**
- * Flythrough — the landing and every section as one flight (2026-10-02, owner:
+ * Flythrough — the landing and every room as one flight (2026-10-02, owner:
  * "vertical slides flythrough… travel in z axis to the clients page, then the
  * next scroll to projects, and so on").
  *
@@ -14,73 +14,73 @@
  *                    ↓          the page scrolls (HeroStage)
  *                [ brain ]
  *              ↙           ↘    across the brain slide's plane — the side
- *       [ Clients ]     [ AI Videos ]   the pointer is on picks the column
- *            ⊙               ⊙
- *       [ Projects ]    [ Arts & Crafts ]       ⊙ = a fly-through, in depth,
- *            ⊙               ⊙                      dissolving in squares
- *       [ My Stack ]    [ The Extincts Project ]
+ *       [ Tata IIS ]     [ Arts & Crafts ]   the pointer is on picks the column
+ *            ⊙                 ⊙
+ *       [ Azoth ]        [ AI Projects ]       ⊙ = a fly-through, in depth,
+ *            ⊙                 ⊙                   dissolving in squares
+ *           …                 …
+ *       [ Vivid ]        [ The Extincts Project ]
  *
  *   · from the brain into a column the camera moves DOWN AND TO THE SIDE on
  *     the brain slide's own plane: the landing slides off up and away while
  *     the first room comes in from the lower corner, the view lifting a
  *     little through the move (CAMERA_DIP). Which side is the visitor's: a
- *     scroll with the pointer over the Left brain goes to Clients, over the
- *     Right brain to AI Videos (a touch: where the finger lands);
+ *     scroll with the pointer over the Left brain goes left, over the Right
+ *     brain right (a touch: where the finger lands);
  *   · every step down a column is the FLY-THROUGH: the next room waits back
  *     in the depth (AHEAD_Z) and flies forward to fill the screen while the
- *     current one rushes past the camera (PASS_Z). Their hand-over — a fade
- *     until 2026-10-10 — is a DISSOLVE IN HALF-INCH SQUARES: the room flying
- *     past shrinks away square by square, from the middle outward, as the
- *     next one grows in behind it (pixelDissolve, clipping each room);
+ *     current one rushes past the camera (PASS_Z), the two handing over in
+ *     squares (pixelDissolve, clipping each room);
  *   · every move, the pan across between the columns included, lights a wave
  *     of glass tiles over the squares as they turn, across the whole screen
- *     (PixelVeil). The flights into and down the columns take FLY_ROOMS, long
- *     enough to watch the squares go.
- * (For part of 2026-10-10 the columns were wholly planar, every step a slide
- * down the plane — the owner wanted the fly-through back.)
+ *     (PixelVeil).
+ *
+ * THE ROOMS (owner, 2026-10-15). One slide per project on the left — the
+ * nine of constants/showcase.ts, in the owner's order — and one per body of
+ * work on the right (four), each in four quadrants (ShowcaseRoom). Until then
+ * each side had three section rooms of cards (Clients · Projects · My Stack;
+ * AI Videos · Arts & Crafts · The Extincts Project). Along the top of each
+ * side runs its strip (ShowcaseStrip): it comes in with the side's first
+ * room — from the foot of the brain slide, where the Projects pin stands —
+ * and then holds still while the rooms fly through beneath it.
+ *
+ * ONE STEP, HOWEVER FAR — THE WARP (owner, 2026-10-15: "we can access them
+ * through logos on top, at that time, there should be a single slide
+ * transition and not go through multiple slides quickly"). A choice in the
+ * strip, the sections menu (SectionMenu) or a pin flies straight there: for
+ * the length of the flight the two ends of the jump stand in as neighbours
+ * (`slotOf`), every slide between is hidden, and the camera the slides and
+ * the veil read (`cam`) runs one slide's step while the page scrolls the
+ * whole way underneath. Onto the other side it pans across first, the room
+ * arriving the one chosen, and lands the page on it after.
  *
  * THE RUN. A tall block, one screen of scroll per slide, holding a sticky
- * full-screen stage. Scroll progress through the block is the camera:
- *   · the landing is slides 0 and 1 (2026-10-03): the portrait orb, then the
- *     brain with its pins and the facts, which rises as the orb scrolls away
- *     — the wordmark standing still across both (HeroStage); the
- *     next scroll takes the whole landing off across the plane;
- *   · then the rooms — see above;
+ * full-screen stage. Scroll position through the block is the camera:
+ *   · the landing is slides 0 and 1: the portrait orb, then the brain with
+ *     its pins (HeroStage); the next scroll takes it off across the plane;
+ *   · then the rooms — as long as the side the camera is on (`runLast`: the
+ *     two columns are no longer the same length), held long enough for both
+ *     ends while a jump crosses sides;
  *   · past the last slide the block simply scrolls away into the footer.
  * The camera is a real translateZ under perspective, and every position and
  * clip is written through motion values — no React work per frame.
  *
- * TWO PARALLEL TRACKS (owner, 2026-10-03). The rooms are two columns, LEVEL
- * with each other — three a side since 2026-10-10:
- *
- *        logic (left)        creative (right)
- *        Clients        ↔    AI Videos
- *        Projects       ↔    Arts & Crafts
- *        My Stack       ↔    The Extincts Project
- *
- * Scrolling flies down whichever track you are on. Switching is SIDEWAYS: the
- * brain's circle in each column's outer foot carries "Click to <the room
- * level with this one>" and a blinking arrow, and a click pans the stage —
- * this room slides off one way, its partner slides in from the other, each
- * with its circle (BrainDock). The arrow keys ← → switch too. Each column's
- * ground travels with it. The run is therefore the landing plus THREE
- * levels, not six rooms. Back up on the orb the track resets to logic.
+ * SWITCHING SIDE is sideways: a pan — this room slides off one way, the other
+ * side's slides in from the other. The sections menu and the arrow keys ← →
+ * do it; the keys to the room level with this one, or the other side's last
+ * where it is shorter. (The brain's circle in each column's outer foot,
+ * BrainDock, did it until 2026-10-15; its corners hold the Stack and Tools
+ * buttons now, KitButton.) Back up on the orb the track resets to logic.
  *
  * ONE SCROLL, ONE SLIDE. Inside the run a wheel gesture is taken over and flies
  * exactly one slide, with a lock that outlasts a trackpad's inertia tail so one
- * swipe can't skip three slides. Rooms that scroll on their own (Career's rail,
- * the Logofolio wall, the Publications shelf, Art's collections) get the wheel
- * first until they hit their end. Keys step the same way. Touch, the scrollbar
- * and anything else scroll natively and are eased onto the nearest slide when
- * they come to rest.
- *
- * PINS. Every pin flies to its room — switching track first if it has to — and
- * so does every circle of BrainNav, the three at the top of the stage. This
- * replaced SectionPanel, the band that used to open under the hero; it was
- * deleted on 2026-10-02 once both sides lived here — git has it.
+ * swipe can't skip three slides. Anything inside a slide that scrolls on its
+ * own gets the wheel first until it hits its end. Keys step the same way.
+ * Touch, the scrollbar and anything else scroll natively and are eased onto
+ * the nearest slide when they come to rest.
  *
  * Reduced motion: no take-over, no movement, no depth, no squares — slides
- * crossfade with the scroll, and a track switch cuts rather than pans.
+ * crossfade with the scroll, and a switch of side cuts rather than pans.
  */
 
 import { useCallback, useEffect, useLayoutEffect, useRef, useState } from "react";
@@ -97,44 +97,51 @@ import {
 import { FlightContext, HERO_SLIDES, PERSPECTIVE } from "@/components/home/flight";
 import { PixelVeil } from "@/components/home/PixelVeil";
 import { FLY_EASE, PAN_CELL, clipFor, easeTime, gridFor } from "@/components/home/pixelDissolve";
-import { BrainDock } from "@/components/home/BrainDock";
 import { FootBand } from "@/components/home/FootBand";
 import { PIN_OPEN_EVENT } from "@/components/home/BrainPins";
 import { SectionParticles } from "@/components/home/SectionParticles";
 import { CircuitBackdrop } from "@/components/home/CircuitBackdrop";
 import { MOOD_BG, MoodField } from "@/components/home/MoodField";
 import { Corner3DGrid } from "@/components/home/Corner3DGrid";
-import { ProjectPreview } from "@/components/home/ProjectPreview";
-import { BrainNav } from "@/components/home/BrainNav";
-import { SectionBody, sectionEntryCount, type SectionData } from "@/components/home/SectionBody";
+import { ShowcaseRoom } from "@/components/home/ShowcaseRoom";
+import { ShowcaseStrip } from "@/components/home/ShowcaseStrip";
+import { SectionMenu } from "@/components/home/SectionMenu";
+import { KitButton } from "@/components/home/KitButton";
 import { NearContext, useFirstScreenUp, usePageSettled } from "@/components/home/nearness";
-import { CornerPixels, type NavDir } from "@/components/home/CornerPixels";
-import { navSectionsFor } from "@/constants/navigation";
-import { projectStudyById } from "@/constants/projectStudies";
-import { PAPER_PLATE } from "@/constants/design";
+import { CREATIVE_SHOWCASE, LOGIC_SHOWCASE, type ShowFact, type Showcase } from "@/constants/showcase";
 import { typeVoiceClass } from "@/constants/typography";
-import type { NavSection } from "@/types/navigation";
-
-/** The two tracks, each top pin first. Level i is LOGIC[i] beside CREATIVE[i]. */
-const LOGIC = navSectionsFor("left");
-const CREATIVE = navSectionsFor("right");
-const LEVELS = Math.max(LOGIC.length, CREATIVE.length);
-/** The landing takes the first HERO_SLIDES (the orb, then the brain); the
- *  rooms' levels start after it. */
-const FIRST_ROOM = HERO_SLIDES;
-const LAST = FIRST_ROOM + LEVELS - 1;
 
 export type Track = "logic" | "creative";
-const ROOMS: { section: NavSection; level: number; track: Track }[] = [
-  ...LOGIC.map((section, level) => ({ section, level, track: "logic" as const })),
-  ...CREATIVE.map((section, level) => ({ section, level, track: "creative" as const })),
+
+/** The two columns, top room first. */
+const LOGIC = LOGIC_SHOWCASE;
+const CREATIVE = CREATIVE_SHOWCASE;
+const roomsOf = (t: Track) => (t === "logic" ? LOGIC : CREATIVE);
+/** The landing takes the first HERO_SLIDES (the orb, then the brain); the
+ *  rooms start after it. */
+const FIRST_ROOM = HERO_SLIDES;
+const BRAIN = FIRST_ROOM - 1;
+/** The last slide of a side's run. */
+const lastFor = (t: Track) => FIRST_ROOM + roomsOf(t).length - 1;
+
+interface Room {
+  item: Showcase;
+  level: number;
+  track: Track;
+  index: number;
+}
+const ROOMS: Room[] = [
+  ...LOGIC.map((item, level) => ({ item, level, track: "logic" as const, index: FIRST_ROOM + level })),
+  ...CREATIVE.map((item, level) => ({ item, level, track: "creative" as const, index: FIRST_ROOM + level })),
 ];
+const roomAt = (index: number, t: Track) => ROOMS.find((r) => r.index === index && r.track === t);
 
 /** Seconds for one slide's flight on the landing (the orb to the brain); each
  *  further slide adds FLY_EXTRA, up to FLY_MAX_SLIDES' worth. */
 const FLY_BASE = 0.95;
 /** …and for one into or between the rooms, which turn over in squares —
- *  long enough to watch them go (owner, 2026-10-10: "very quick"). */
+ *  long enough to watch them go (owner, 2026-10-10: "very quick"). A warp,
+ *  however far, is one of these. */
 const FLY_ROOMS = 1.6;
 const FLY_EXTRA = 0.3;
 const FLY_MAX_SLIDES = 6;
@@ -175,27 +182,37 @@ const SETTLE_MS = 140;
 /** Slide positions this close to a whole number count as on that slide. */
 const EPS = 0.02;
 
-/** Fired to fly to a slide by index (0 = the orb), optionally switching
- *  track — BrainNav's circles. */
+/** Fired to fly somewhere: a slide by index (0 = the orb), optionally
+ *  switching track, or a room by its showcase id. */
 const GO_EVENT = "flythrough:go";
-type GoDetail = number | { k: number; track?: Track };
+type GoDetail = number | { k: number; track?: Track } | { id: string };
 
-/** Rooms that size and scroll themselves (SectionBody's own renderers). */
-const FILLS: ReadonlySet<string> = new Set(["art", "the-extincts-project"]);
+const clamp01 = (v: number) => Math.max(0, Math.min(1, v));
 
-const pad = (n: number) => String(n).padStart(2, "0");
+/** A jump of more than one slide, or across the sides (see THE WARP). From
+ *  slide `a` on track `ta` to `b` on `tb`; the two ends stand in as the
+ *  neighbours A and B while it lasts. A `pan` holds the camera on A while the
+ *  sides pan, then lands the page on b. */
+interface Warp {
+  a: number;
+  b: number;
+  ta: Track;
+  tb: Track;
+  pan: boolean;
+  A: number;
+  B: number;
+}
 
-/** The ways on from each place, as the blinking squares show them
- *  (CornerPixels): down from the orb; into either column or back up from the
- *  brain; in a room, across, on down, and back up — to the brain from a
- *  column's first room, up and toward the side it came down from. */
-const NO_DIRS: readonly NavDir[] = [];
-const ORB_DIRS: readonly NavDir[] = ["s"];
-const BRAIN_DIRS: readonly NavDir[] = ["n", "sw", "se"];
-const LOGIC_FIRST_DIRS: readonly NavDir[] = ["ne", "e", "s"];
-const LOGIC_DIRS: readonly NavDir[] = ["n", "e", "s"];
-const CREATIVE_FIRST_DIRS: readonly NavDir[] = ["nw", "w", "s"];
-const CREATIVE_DIRS: readonly NavDir[] = ["n", "w", "s"];
+/** Where a slide stands for the camera: its own index, or — in a warp — its
+ *  stand-in; null for every slide the warp passes over. `track` is null for
+ *  the landing. */
+function slotOf(w: Warp | null, index: number, track: Track | null): number | null {
+  if (!w) return index;
+  const end = (k: number, t: Track) => index === k && (track === null ? k < FIRST_ROOM : k >= FIRST_ROOM && track === t);
+  if (end(w.a, w.ta)) return w.A;
+  if (end(w.b, w.tb)) return w.B;
+  return null;
+}
 
 /** The camera's scale at camera `v` and pan `tx`: it lifts through a move
  *  across the plane — from the brain into a column, and the pan — and
@@ -203,8 +220,8 @@ const CREATIVE_DIRS: readonly NavDir[] = ["n", "w", "s"];
  *  have to undo it to stay put on the screen. */
 function cameraLift(v: number, tx: number, reduceMotion: boolean) {
   if (reduceMotion) return 1;
-  const into = v > FIRST_ROOM - 1 && v < FIRST_ROOM ? Math.sin(Math.PI * (v - (FIRST_ROOM - 1))) : 0;
-  const across = Math.sin(Math.PI * Math.max(0, Math.min(1, tx)));
+  const into = v > BRAIN && v < FIRST_ROOM ? Math.sin(Math.PI * (v - BRAIN)) : 0;
+  const across = Math.sin(Math.PI * clamp01(tx));
   return 1 - CAMERA_DIP * Math.max(into, across);
 }
 
@@ -226,7 +243,7 @@ function canScrollInside(target: EventTarget | null, root: HTMLElement, dir: num
 }
 
 /**
- * One slide, posed by the camera (p, in slides) and the pan between the
+ * One slide, posed by the camera (`cam`, in slides) and the pan between the
  * columns (trackX, 0 logic … 1 creative):
  *   · the LANDING stands still to the brain slide, then rides up and away
  *     across the plane — right when the camera heads for the logic column,
@@ -235,18 +252,20 @@ function canScrollInside(target: EventTarget | null, root: HTMLElement, dir: num
  *     lower corner (the step from the brain); every room after it waits back
  *     in the depth and flies forward; and every room, once the camera passes
  *     it, rushes past. On those fly-through steps both rooms are CLIPPED to
- *     the squares (pixelDissolve) — the one passing shrinks away square by
- *     square, the one arriving grows in. The pan between columns rides on
- *     top.
- * Two layers: the outer one moves across the plane and carries the clip — so
- * the squares stay half an inch on screen however near the room is — and the
- * perspective; the inner one flies in depth. A slide wholly gone is hidden.
- * Reduced motion: no movement, no squares — a crossfade, and the pan cuts.
+ *     the squares (pixelDissolve). The pan between columns rides on top.
+ * Where it stands is its SLOT — its index, or its stand-in during a warp.
+ * Two layers: the outer one moves across the plane and carries the clip and
+ * the perspective; the inner one flies in depth. A slide wholly gone is
+ * hidden. Reduced motion: no movement, no squares — a crossfade, and the pan
+ * cuts.
  */
 function Slide({
   kind,
   index,
-  p,
+  track = null,
+  warpRef,
+  warpTick,
+  cam,
   trackX,
   side = 0,
   pan,
@@ -258,7 +277,12 @@ function Slide({
 }: {
   kind: "landing" | "room";
   index: number;
-  p: MotionValue<number>;
+  /** A room's track; null for the landing. */
+  track?: Track | null;
+  warpRef: React.RefObject<Warp | null>;
+  /** Bumped whenever a warp starts or ends, so the poses are re-read. */
+  warpTick: MotionValue<number>;
+  cam: MotionValue<number>;
   trackX: MotionValue<number>;
   /** A room's column: −1 the logic one (left), 1 the creative one (right). */
   side?: -1 | 0 | 1;
@@ -279,42 +303,51 @@ function Slide({
   const lastClip = useRef("none");
   const still = useMotionValue(0);
   const offset = pan ?? still;
-  const clamp01 = (v: number) => Math.max(0, Math.min(1, v));
   const room = kind === "room";
-  // The first room of a column comes in across the plane, not out of the depth.
-  const first = room && index === FIRST_ROOM;
+  const slot = () => slotOf(warpRef.current, index, track);
 
-  // Across the plane, in screen sizes.
-  const posX = useTransform([p, trackX, offset], ([v, tx, o]: number[]) => {
-    if (!room) return reduceMotion ? 0 : (tx > 0.5 ? -1 : 1) * clamp01(v - index);
+  // Across the plane, in screen sizes. A slide the warp passes over is sent
+  // well off (and hidden below).
+  const posX = useTransform([cam, trackX, offset, warpTick], ([v, tx, o]: number[]) => {
+    const k = slot();
+    if (k === null) return 2;
+    if (!room) return reduceMotion ? 0 : (tx > 0.5 ? -1 : 1) * clamp01(v - k);
     return reduceMotion ? o : o + side * clamp01(FIRST_ROOM - v);
   });
-  const posY = useTransform(p, (v) => {
-    if (reduceMotion) return 0;
-    return room ? clamp01(FIRST_ROOM - v) : -clamp01(v - index);
+  const posY = useTransform([cam, warpTick], ([v]: number[]) => {
+    const k = slot();
+    if (reduceMotion || k === null) return 0;
+    return room ? clamp01(FIRST_ROOM - v) : -clamp01(v - k);
   });
   const x = useTransform(posX, (q) => `${q * 100}%`);
   const y = useTransform(posY, (q) => `${q * 100}%`);
-  // In depth: waiting ahead, or rushing past.
-  const z = useTransform(p, (v) => {
-    if (reduceMotion || !room) return 0;
-    const d = index - v;
-    if (d >= 0) return first ? 0 : -Math.min(1, d) * AHEAD_Z;
+  // In depth: waiting ahead, or rushing past. The first room of a column
+  // comes in across the plane, not out of the depth.
+  const z = useTransform([cam, warpTick], ([v]: number[]) => {
+    const k = slot();
+    if (reduceMotion || !room || k === null) return 0;
+    const d = k - v;
+    if (d >= 0) return k === FIRST_ROOM ? 0 : -Math.min(1, d) * AHEAD_Z;
     return -Math.max(-1, d) * PASS_Z;
   });
   // The one passing is stacked over the one arriving behind it.
-  const zIndex = useTransform(p, (v) => (room ? 100 - Math.round((index - v) * 10) : 20));
-  const opacity = useTransform([p, offset], ([v, o]: number[]) => {
-    if (!reduceMotion) return 1;
-    if (!room) return clamp01(index + 1 - v);
-    return Math.abs(o) > 0.5 ? 0 : clamp01(1 - Math.abs(index - v));
+  const zIndex = useTransform([cam, warpTick], ([v]: number[]) => {
+    const k = slot();
+    return room ? (k === null ? 0 : 100 - Math.round((k - v) * 10)) : 20;
   });
-  const visibility = useTransform([p, posX, posY, opacity], ([v, qx, qy, op]: number[]) => {
-    if (op < 0.01 || Math.abs(qx) > 0.999 || Math.abs(qy) > 0.999) return "hidden";
+  const opacity = useTransform([cam, offset, warpTick], ([v, o]: number[]) => {
+    if (!reduceMotion) return 1;
+    const k = slot() ?? index;
+    if (!room) return clamp01(k + 1 - v);
+    return Math.abs(o) > 0.5 ? 0 : clamp01(1 - Math.abs(k - v));
+  });
+  const visibility = useTransform([cam, posX, posY, opacity, warpTick], ([v, qx, qy, op]: number[]) => {
+    const k = slot();
+    if (k === null || op < 0.01 || Math.abs(qx) > 0.999 || Math.abs(qy) > 0.999) return "hidden";
     if (room && !reduceMotion) {
-      const d = index - v;
+      const d = k - v;
       // Flown past, or not yet begun — the next room's turn to come forward.
-      if (d <= -1 + 1e-3 || (!first && d >= 1 - 1e-3)) return "hidden";
+      if (d <= -1 + 1e-3 || (k !== FIRST_ROOM && d >= 1 - 1e-3)) return "hidden";
     }
     return "visible";
   });
@@ -335,43 +368,49 @@ function Slide({
   useEffect(() => {
     headingRef.current = heading;
   }, [heading]);
-  const applyClip = (v: number, o: number) => {
+  const applyClip = () => {
     const el = outerRef.current;
     if (!el || !room) return;
+    const v = cam.get();
+    const o = offset.get();
+    const k = slot();
     let clip = "none";
-    const d = index - v;
-    const role = d < 0 && d > -1 ? "out" : d > 0 && d < 1 && !first ? "in" : null;
     const { w, h } = box.current;
     const a = Math.abs(o);
-    if (role && !reduceMotion && a < 0.999 && w && h) {
-      clip = clipFor(gridFor(w, h), easeTime(role === "out" ? -d : 1 - d), role) || "inset(50%)";
-    } else if (!role && !reduceMotion && Math.abs(d) < 0.5 && a > 0.001 && a < 0.999 && w && h) {
-      // A PAN across between the tracks (owner, 2026-10-14: "the left to
-      // right transition in our pixel transition effect, smaller pixels"):
-      // the column going dissolves out and the one arriving grows in, in
-      // the smaller squares (PAN_CELL = CELL ÷ φ), the wave from the side
-      // it arrives on. The squares are held on the SCREEN — under the
-      // veil's tiles — while the room slides and the camera lifts beneath
-      // them. The slide across itself is untouched.
-      const toCreative = headingRef.current === "creative";
-      const arriving = (side === 1) === toCreative;
-      clip =
-        clipFor(
-          gridFor(w, h, PAN_CELL),
-          easeTime(arriving ? 1 - a : a),
-          arriving ? "in" : "out",
-          toCreative ? "right" : "left",
-          -o * w,
-          0,
-          cameraLift(v, trackX.get(), reduceMotion),
-        ) || "inset(50%)";
+    if (k !== null) {
+      const d = k - v;
+      const role = d < 0 && d > -1 ? "out" : d > 0 && d < 1 && k !== FIRST_ROOM ? "in" : null;
+      if (role && !reduceMotion && a < 0.999 && w && h) {
+        clip = clipFor(gridFor(w, h), easeTime(role === "out" ? -d : 1 - d), role) || "inset(50%)";
+      } else if (!role && !reduceMotion && Math.abs(d) < 0.5 && a > 0.001 && a < 0.999 && w && h) {
+        // A PAN across between the tracks (owner, 2026-10-14: "the left to
+        // right transition in our pixel transition effect, smaller pixels"):
+        // the column going dissolves out and the one arriving grows in, in
+        // the smaller squares (PAN_CELL = CELL ÷ φ), the wave from the side
+        // it arrives on. The squares are held on the SCREEN — under the
+        // veil's tiles — while the room slides and the camera lifts beneath
+        // them. The slide across itself is untouched.
+        const toCreative = headingRef.current === "creative";
+        const arriving = (side === 1) === toCreative;
+        clip =
+          clipFor(
+            gridFor(w, h, PAN_CELL),
+            easeTime(arriving ? 1 - a : a),
+            arriving ? "in" : "out",
+            toCreative ? "right" : "left",
+            -o * w,
+            0,
+            cameraLift(v, trackX.get(), reduceMotion),
+          ) || "inset(50%)";
+      }
     }
     if (clip === lastClip.current) return;
     lastClip.current = clip;
     el.style.clipPath = clip;
   };
-  useMotionValueEvent(p, "change", (v) => applyClip(v, offset.get()));
-  useMotionValueEvent(offset, "change", (o) => applyClip(p.get(), o));
+  useMotionValueEvent(cam, "change", applyClip);
+  useMotionValueEvent(offset, "change", applyClip);
+  useMotionValueEvent(warpTick, "change", applyClip);
 
   return (
     <motion.div
@@ -397,22 +436,29 @@ function Slide({
   );
 }
 
+/** One collection of the Arts & Crafts room, as the home page needs it. */
+export interface ArtSummary {
+  name: string;
+  cover?: string;
+  count: number;
+}
+
 export function Flythrough({
   children,
-  data,
+  art,
 }: {
   /** The landing — slides 0 and 1. */
   children: React.ReactNode;
-  data: SectionData;
+  /** The art folders, read at build time (app/page.tsx). */
+  art: ArtSummary[];
 }) {
   const reduceMotion = useReducedMotion() ?? false;
   const runRef = useRef<HTMLDivElement>(null);
-  const { scrollYProgress } = useScroll({ target: runRef, offset: ["start start", "end end"] });
-  const p = useTransform(scrollYProgress, (v) => v * LAST);
+  const { scrollY } = useScroll();
 
   // ── The track: which line of rooms the camera is on, and the pan between
   //    them (0 = logic, 1 = creative), which the slides, the grounds and the
-  //    dock all read.
+  //    corner buttons all read.
   const [track, setTrack] = useState<Track>("logic");
   const trackRef = useRef<Track>("logic");
   const trackX = useMotionValue(0);
@@ -420,27 +466,57 @@ export function Flythrough({
   const [panning, setPanning] = useState(false);
   useMotionValueEvent(trackX, "change", (v) => setPanning(v > 0.001 && v < 0.999));
   const switchTrack = useCallback(
-    (t: Track, instant = false) => {
-      if (trackRef.current === t) return;
+    (t: Track, instant = false, onDone?: () => void) => {
+      if (trackRef.current === t) {
+        onDone?.();
+        return;
+      }
       trackRef.current = t;
       setTrack(t);
       panAnim.current?.stop();
       const to = t === "creative" ? 1 : 0;
-      if (instant || reduceMotion) trackX.set(to);
-      else panAnim.current = animate(trackX, to, { duration: PAN, ease: FLY_EASE });
+      if (instant || reduceMotion) {
+        trackX.set(to);
+        onDone?.();
+      } else panAnim.current = animate(trackX, to, { duration: PAN, ease: FLY_EASE, onComplete: onDone });
     },
     [reduceMotion, trackX],
   );
   const logicPan = useTransform(trackX, (v) => -v);
   const creativePan = useTransform(trackX, (v) => 1 - v);
-  // The camera lifts through a move across the plane — from the brain into a
-  // column, and the pan — and settles as it lands.
-  const cameraScale = useTransform([p, trackX], ([v, tx]: number[]) => cameraLift(v, tx, reduceMotion));
   const logicGroundX = useTransform(trackX, (v) => `${-v * 100}%`);
   const creativeGroundX = useTransform(trackX, (v) => `${(1 - v) * 100}%`);
 
+  // ── The run's length: the side the camera is on, or — while a jump
+  //    crosses between sides — long enough for both ends (`hold`).
+  const [hold, setHold] = useState<number | null>(null);
+  // The room a jump across sides is panning in — the band names it already.
+  const [arriving, setArriving] = useState<Room | null>(null);
+  const runLast = Math.max(lastFor(track), hold ?? 0);
+  const runLastRef = useRef(runLast);
+  /** Where the run starts on the page, and one slide's scroll (100svh). */
+  const geomRef = useRef({ top: 0, step: 1 });
+  const measure = useCallback(() => {
+    const run = runRef.current;
+    if (!run) return;
+    geomRef.current = {
+      top: run.getBoundingClientRect().top + window.scrollY,
+      step: run.offsetHeight / (runLastRef.current + 1) || 1,
+    };
+  }, []);
+  /** The camera's place on the page, in slides — unclamped. */
+  const position = useCallback(() => (window.scrollY - geomRef.current.top) / geomRef.current.step, []);
+
+  // ── The camera. `p` is the page's own place in the run, which the landing
+  //    reads (FlightContext); `cam` is what the slides and the veil read — the
+  //    same, except through a warp (see THE WARP).
+  const p = useMotionValue(0);
+  const cam = useMotionValue(0);
+  const warpRef = useRef<Warp | null>(null);
+  const warpTick = useMotionValue(0);
+
   // Set while a flight is under way, so the landing's track reset below
-  // never undoes a pin's or the nav's own choice of track mid-flight.
+  // never undoes a pin's or the menu's own choice of track mid-flight.
   const flyingRef = useRef(false);
 
   // The slide the camera is nearest — only changes on a crossing.
@@ -463,29 +539,87 @@ export function Flythrough({
   const firstScreenUp = useFirstScreenUp();
   const pageSettled = usePageSettled();
 
-  useMotionValueEvent(p, "change", (v) => {
+  /** Read the page's place into the camera, and everything that follows it. */
+  const sync = useCallback(() => {
+    const raw = position();
+    const last = runLastRef.current;
+    const v = Math.max(0, Math.min(last, raw));
+    p.set(v);
+    const w = warpRef.current;
+    let c: number;
+    if (!w) {
+      cam.set(v);
+      c = Math.round(v);
+    } else if (w.pan) {
+      cam.set(w.A);
+      c = w.a;
+    } else {
+      const f = clamp01((v - w.a) / (w.b - w.a));
+      cam.set(w.A + (w.B - w.A) * f);
+      c = f < 0.5 ? w.a : w.b;
+    }
     if (v > 0) setLeftOrb(true);
-    const c = Math.min(LAST, Math.max(0, Math.round(v)));
+    c = Math.min(last, Math.max(0, c));
     setCurrent(c);
-    if (c >= FIRST_ROOM - 1) extendReach(c);
-    const inRooms = v > FIRST_ROOM - 1 + EPS;
-    setRoomsLive(inRooms);
+    if (c >= BRAIN) extendReach(c);
+    const camNow = cam.get();
+    setRoomsLive(camNow > BRAIN + EPS);
+    if (!w) setPastRun(raw > last + 0.35);
     // Back up on the orb, the track rests on logic again. (Not on the brain
     // slide: there the side the pointer is on has just chosen it.)
-    if (v < FIRST_ROOM - 1 - EPS && trackRef.current !== "logic" && !flyingRef.current) switchTrack("logic", true);
-  });
+    if (v < BRAIN - EPS && trackRef.current !== "logic" && !flyingRef.current) switchTrack("logic", true);
+  }, [cam, extendReach, p, position, switchTrack]);
+  useMotionValueEvent(scrollY, "change", sync);
+
+  // The run's geometry: on mount, as anything resizes, and whenever its
+  // length changes — then whatever was waiting for the length runs.
+  const afterLength = useRef<(() => void) | null>(null);
+  useLayoutEffect(() => {
+    runLastRef.current = runLast;
+    measure();
+    const fn = afterLength.current;
+    afterLength.current = null;
+    fn?.();
+    sync();
+  }, [runLast, measure, sync]);
+  useEffect(() => {
+    const run = runRef.current;
+    if (!run) return;
+    const re = () => {
+      measure();
+      sync();
+    };
+    const ro = new ResizeObserver(re);
+    ro.observe(run);
+    window.addEventListener("resize", re);
+    return () => {
+      ro.disconnect();
+      window.removeEventListener("resize", re);
+    };
+  }, [measure, sync]);
+
   // Each ground only runs while its track can be seen — a film decoding off
   // screen is a waste.
   const circuitLive = roomsLive && (track === "logic" || panning);
   const creativeLive = roomsLive && (track === "creative" || panning);
   const zone = current < FIRST_ROOM ? "landing" : track;
-  const level = Math.max(0, Math.min(LEVELS - 1, current - FIRST_ROOM));
+  const here = arriving ?? (current >= FIRST_ROOM ? roomAt(current, track) : undefined);
 
-  const [studyId, setStudyId] = useState<string | null>(null);
-  const dialogOpen = useRef(false);
-  useEffect(() => {
-    dialogOpen.current = studyId !== null;
-  }, [studyId]);
+  // The camera lifts through a move across the plane — from the brain into a
+  // column, and the pan — and settles as it lands.
+  const cameraScale = useTransform([cam, trackX], ([v, tx]: number[]) => cameraLift(v, tx, reduceMotion));
+
+  // The strips ride in with their side's first room — up from the foot of
+  // the brain slide — then hold still over the rooms, and pan with the side.
+  const stripY = useTransform(cam, (v) => (reduceMotion ? "0%" : `${clamp01(FIRST_ROOM - v) * 100}%`));
+  const logicStripX = useTransform([cam, trackX], ([v, tx]: number[]) =>
+    `${((reduceMotion ? 0 : -clamp01(FIRST_ROOM - v)) - tx) * 100}%`,
+  );
+  const creativeStripX = useTransform([cam, trackX], ([v, tx]: number[]) =>
+    `${((reduceMotion ? 0 : clamp01(FIRST_ROOM - v)) + 1 - tx) * 100}%`,
+  );
+  const stripOpacity = useTransform(cam, (v) => (reduceMotion ? clamp01(v - BRAIN) : 1));
+  const stripVisibility = useTransform(cam, (v) => (v <= BRAIN + 0.002 ? "hidden" : "visible"));
 
   useEffect(() => {
     const run = runRef.current;
@@ -501,16 +635,6 @@ export function Flythrough({
     let touching = false;
     let settle: ReturnType<typeof setTimeout> | undefined;
 
-    /** Where the run starts on the page, and how far one slide scrolls. */
-    const geom = () => {
-      const top = run.getBoundingClientRect().top + window.scrollY;
-      const step = (run.offsetHeight - window.innerHeight) / LAST;
-      return { top, step };
-    };
-    const position = () => {
-      const { top, step } = geom();
-      return step > 0 ? (window.scrollY - top) / step : 0;
-    };
     const onLanding = () => position() < FIRST_ROOM - 0.5;
 
     // On the brain slide the way down is the visitor's: the half the pointer
@@ -521,26 +645,31 @@ export function Flythrough({
       pointerX = e.clientX;
     };
     const pickSide = (x: number) => {
-      if (Math.abs(position() - (FIRST_ROOM - 1)) > EPS) return;
+      if (Math.abs(position() - BRAIN) > EPS) return;
       switchTrack(x > window.innerWidth / 2 ? "creative" : "logic", true);
     };
 
-    const flyTo = (k: number) => {
-      const { top, step } = geom();
-      const to = Math.max(0, Math.min(LAST, k));
-      const target = top + to * step;
+    const scrollTop = (k: number) => geomRef.current.top + k * geomRef.current.step;
+
+    /** Fly the page to slide `k`. `single` times it as one slide's step
+     *  however far it goes (a warp); `onLanded` runs as it lands. */
+    const flyTo = (k: number, opts: { single?: boolean; onLanded?: () => void } = {}) => {
+      measure();
+      const to = Math.max(0, Math.min(runLastRef.current, k));
+      const target = scrollTop(to);
       const from = window.scrollY;
       anim?.stop();
       if (reduceMotion) {
         window.scrollTo({ top: target, behavior: "instant" });
+        opts.onLanded?.();
         return;
       }
       flyingRef.current = true;
       // The rooms on the way, and the one it lands in, start their pictures now.
-      if (to >= FIRST_ROOM - 1) extendReach(to);
-      const slides = Math.abs(target - from) / (step || 1);
+      if (to >= BRAIN) extendReach(to);
+      const slides = opts.single ? 1 : Math.abs(target - from) / (geomRef.current.step || 1);
       // Into or between the rooms the squares need the longer flight.
-      const base = Math.max(to, position()) > FIRST_ROOM - 1 + EPS ? FLY_ROOMS : FLY_BASE;
+      const base = Math.max(to, position()) > BRAIN + EPS ? FLY_ROOMS : FLY_BASE;
       anim = animate(from, target, {
         duration: base + FLY_EXTRA * Math.max(0, Math.min(FLY_MAX_SLIDES, slides) - 1),
         ease: FLY_EASE,
@@ -548,15 +677,109 @@ export function Flythrough({
         onComplete: () => {
           flyingRef.current = false;
           landedAt = performance.now();
+          opts.onLanded?.();
         },
       });
+    };
+
+    const setWarp = (w: Warp | null) => {
+      warpRef.current = w;
+      warpTick.set(warpTick.get() + 1);
+      sync();
+    };
+
+    /** Go to slide `b` on track `tb` in one move — see THE WARP. */
+    const goTo = (b: number, tb: Track) => {
+      if (flyingRef.current || (trackX.get() > 0.001 && trackX.get() < 0.999)) return;
+      const pos = position();
+      const a = Math.round(pos);
+      const ta = trackRef.current;
+      // Within the landing, or down to the orb: the ordinary flight.
+      if ((b < FIRST_ROOM && a < FIRST_ROOM) || b < BRAIN) {
+        flyTo(b);
+        return;
+      }
+      extendReach(b);
+      // Across sides from the landing: nothing of either column is on screen,
+      // so the track is simply set.
+      const crossing = tb !== ta && b >= FIRST_ROOM;
+      if (crossing && a < FIRST_ROOM) switchTrack(tb, true);
+      const sameTrack = !crossing || a < FIRST_ROOM;
+      // The run long enough for both ends until it lands.
+      const need = Math.max(lastFor(ta), lastFor(tb));
+      const land = () => {
+        setHold(null);
+        setArriving(null);
+      };
+      const start = (fn: () => void) => {
+        if (need > runLastRef.current) {
+          afterLength.current = fn;
+          setHold(need);
+        } else {
+          setHold(need);
+          fn();
+        }
+      };
+
+      if (reduceMotion) {
+        start(() => {
+          switchTrack(tb, true);
+          flyTo(b, { onLanded: land });
+        });
+        return;
+      }
+
+      if (sameTrack) {
+        // A neighbour, or the step between the brain and a first room: the
+        // ordinary flight.
+        if (Math.abs(b - a) <= 1 && Math.abs(pos - a) <= EPS) {
+          start(() => flyTo(b, { onLanded: land }));
+          return;
+        }
+        const s = Math.sign(b - a) || 1;
+        const A = b < FIRST_ROOM ? FIRST_ROOM : a;
+        const B = b < FIRST_ROOM ? b : a < FIRST_ROOM ? FIRST_ROOM : a + s;
+        start(() => {
+          setWarp({ a, b, ta: tb, tb, pan: false, A, B });
+          flyTo(b, {
+            single: true,
+            onLanded: () => {
+              setWarp(null);
+              land();
+            },
+          });
+        });
+        return;
+      }
+
+      // Across: pan, the arriving side showing the room chosen, then land
+      // the page on it.
+      start(() => {
+        if (b !== a) setWarp({ a, b, ta, tb, pan: true, A: a, B: a });
+        setArriving(roomAt(b, tb) ?? null);
+        flyingRef.current = true;
+        switchTrack(tb, false, () => {
+          measure();
+          window.scrollTo({ top: scrollTop(b), behavior: "instant" });
+          setWarp(null);
+          flyingRef.current = false;
+          landedAt = performance.now();
+          land();
+        });
+      });
+    };
+
+    const goToId = (id: string) => {
+      const r = ROOMS.find((x) => x.item.id === id);
+      if (r) goTo(r.index, r.track);
     };
 
     /** The slide one step from `pos` in `dir`, or null to let the page scroll
      *  natively (leaving the run at either end, or nowhere near it). */
     const stepFrom = (pos: number, dir: number): number | null => {
-      if (pos < -EPS || pos > LAST + 0.6) return null;
-      if (dir > 0 && pos >= LAST - EPS) return null;
+      const last = runLastRef.current;
+      if (pos < -EPS || pos > last + 0.6) return null;
+      if (dir > 0 && pos >= last - EPS) return null;
       if (dir < 0 && pos <= EPS) return null;
       const n = Math.round(pos);
       if (Math.abs(pos - n) <= EPS) return n + dir;
@@ -564,9 +787,10 @@ export function Flythrough({
       return dir > 0 ? Math.ceil(pos) : Math.floor(pos);
     };
 
-    // A dialog portalled outside the run (the Extincts reader) marks the root
-    // `data-modal` while open; the wheel and the keys are its then.
-    const modal = () => dialogOpen.current || !!document.documentElement.dataset.modal;
+    // A dialog (the sections list, the Stack and Tools pop-ups, the Extincts
+    // reader) marks the root `data-modal` while open; the wheel and the keys
+    // are its then.
+    const modal = () => !!document.documentElement.dataset.modal;
 
     const onWheel = (e: WheelEvent) => {
       if (reduceMotion || e.ctrlKey || modal()) return;
@@ -600,12 +824,15 @@ export function Flythrough({
       if (modal() || e.altKey || e.ctrlKey || e.metaKey) return;
       const t = e.target as HTMLElement | null;
       if (t && (t.isContentEditable || /^(INPUT|TEXTAREA|SELECT)$/.test(t.tagName))) return;
-      // ← → switch track, in the rooms only.
+      // ← → switch track, in the rooms only: to the room level with this
+      // one, or the other side's last where it is shorter.
       if ((e.key === "ArrowRight" || e.key === "ArrowLeft") && !onLanding()) {
         const pos = position();
-        if (pos > LAST + 0.6) return;
+        if (pos > runLastRef.current + 0.6) return;
         e.preventDefault();
-        switchTrack(e.key === "ArrowRight" ? "creative" : "logic");
+        const other: Track = e.key === "ArrowRight" ? "creative" : "logic";
+        if (other === trackRef.current) return;
+        goTo(Math.min(Math.round(pos), lastFor(other)), other);
         return;
       }
       if (reduceMotion) return;
@@ -627,21 +854,23 @@ export function Flythrough({
     // Native scrolling that comes to rest between two slides is eased onto the
     // nearer one. Never mid-touch: a finger held still is not "at rest".
     const onScroll = () => {
-      setPastRun(position() > LAST + 0.35);
       clearTimeout(settle);
-      if (reduceMotion || flyingRef.current) return;
+      if (reduceMotion || flyingRef.current || warpRef.current) return;
       settle = setTimeout(() => {
-        if (flyingRef.current || touching) return;
+        if (flyingRef.current || touching || warpRef.current) return;
         const pos = position();
-        if (pos <= EPS || pos >= LAST - EPS) return;
+        if (pos <= EPS || pos >= runLastRef.current - EPS) return;
         if (Math.abs(pos - Math.round(pos)) > EPS) flyTo(Math.round(pos));
       }, SETTLE_MS);
     };
     const onTouchStart = (e: TouchEvent) => {
       touching = true;
-      // A finger on the glass takes the page back from a flight in progress.
-      anim?.stop();
-      flyingRef.current = false;
+      // A finger on the glass takes the page back from a flight in progress —
+      // but not from a warp, which has to land where it is going.
+      if (!warpRef.current) {
+        anim?.stop();
+        flyingRef.current = false;
+      }
       // On the brain slide, the half the finger lands on picks the column.
       const x = e.touches[0]?.clientX;
       if (x !== undefined) pickSide(x);
@@ -651,21 +880,22 @@ export function Flythrough({
       onScroll();
     };
 
-    // Every pin flies to its room, on its own track; null (a pin closing)
-    // needs nothing. From the landing the track is simply set — nothing of
-    // either track is on screen to pan.
+    // Every pin flies to its room: Projects to the first project, each
+    // creative pin to its own. Null (a pin closing) needs nothing.
     const onPin = (e: Event) => {
       const id = (e as CustomEvent<string | null>).detail;
-      const room = ROOMS.find((r) => r.section.id === id);
-      if (!room) return;
-      switchTrack(room.track, onLanding());
-      flyTo(FIRST_ROOM + room.level);
+      if (!id) return;
+      const r =
+        id === "projects"
+          ? ROOMS.find((x) => x.track === "logic" && x.level === 0)
+          : ROOMS.find((x) => x.item.sectionId === id);
+      if (r) goTo(r.index, r.track);
     };
     const onGo = (e: Event) => {
       const d = (e as CustomEvent<GoDetail>).detail;
-      const { k, track: t } = typeof d === "number" ? { k: d, track: undefined } : d;
-      if (t) switchTrack(t, onLanding());
-      flyTo(k);
+      if (typeof d === "number") goTo(d, trackRef.current);
+      else if ("id" in d) goToId(d.id);
+      else goTo(d.k, d.track ?? trackRef.current);
     };
 
     window.addEventListener("wheel", onWheel, { passive: false });
@@ -688,40 +918,37 @@ export function Flythrough({
       window.removeEventListener(PIN_OPEN_EVENT, onPin);
       window.removeEventListener(GO_EVENT, onGo);
     };
-  }, [reduceMotion, switchTrack, extendReach]);
+  }, [reduceMotion, switchTrack, extendReach, measure, position, sync, trackX, warpTick]);
 
-  const go =(k: number, t?: Track) =>
-    window.dispatchEvent(new CustomEvent<GoDetail>(GO_EVENT, { detail: t ? { k, track: t } : k }));
+  const goId = (id: string) => window.dispatchEvent(new CustomEvent<GoDetail>(GO_EVENT, { detail: { id } }));
+  const goHome = () => window.dispatchEvent(new CustomEvent<GoDetail>(GO_EVENT, { detail: { k: BRAIN } }));
 
-  // The dock's prompt: the room LEVEL with this one, on the other track.
   // What the fixed band along the foot carries: the room the camera is in,
   // or — on the landing and past the rooms — the name.
-  const bandRoom =
-    current >= FIRST_ROOM && !pastRun
-      ? { label: (track === "logic" ? LOGIC : CREATIVE)[level]?.label ?? "", side: track }
-      : null;
+  const bandRoom = here && !pastRun ? { label: here.item.short, side: track } : null;
+  const inRooms = current >= FIRST_ROOM && !pastRun;
 
-  // Each circle's prompt: the room LEVEL with this one, on the other track.
-  const logicAcross = CREATIVE[level]?.label ?? CREATIVE[0].label;
-  const creativeAcross = LOGIC[level]?.label ?? LOGIC[0].label;
+  // Arts & Crafts' tree and counts come from its folders.
+  const artTree = art.map((c) => ({ name: c.name, thumb: c.cover }));
+  const artFacts: ShowFact[] = [
+    { label: "Collections", value: String(art.length) },
+    { label: "Pieces", value: String(art.reduce((n, c) => n + c.count, 0)) },
+  ];
 
   return (
     <FlightContext.Provider value={{ p, current, zone, reduceMotion }}>
-    <div ref={runRef} className="relative w-full" style={{ height: `${(LAST + 1) * 100}svh` }}>
+    <div ref={runRef} className="relative w-full" style={{ height: `${(runLast + 1) * 100}svh` }}>
       <div
         className="sticky top-0 h-[100svh] w-full overflow-hidden bg-white"
       >
         {/* The two grounds, one per track, side by side, each panning with
             its track; behind the landing both are covered entirely.
             · LOGIC: the landing's own — white, the faint circuit film, a
-              lattice in each corner (owner, 2026-10-05: "my bg from first two
-              slides, rather than this black bg" — the dimmed circuit board
-              and its dark scrim until then; git has them), with its drifting
-              field in dark grey (SectionParticles).
+              lattice in each corner, with its drifting field of falling
+              nodes in dark grey (SectionParticles; half as many since
+              2026-10-15).
             · CREATIVE: the Mood Field — rainbow veins drifting over white,
-              stirred by the pointer (owner, 2026-10-10; MoodField). The
-              landing's white ground until then, and the paint-burst film
-              before 2026-10-03. */}
+              stirred by the pointer (MoodField). */}
         <motion.div aria-hidden className="pointer-events-none absolute inset-0 bg-white" style={{ x: logicGroundX }}>
           {circuitLive && <CircuitBackdrop />}
           <div className="absolute inset-0 hidden lg:block">
@@ -740,42 +967,21 @@ export function Flythrough({
           {creativeLive && <MoodField />}
         </motion.div>
 
-        {/* The landing — slides 0 and 1 in one: it stands still while its
-            own two layers (the orb, then the brain) trade places inside it,
-            and leaves across the plane on the step after. See HeroStage. */}
-        {/* Each way the visitor can go blinks at that edge or corner
-            (CornerPixels). None past the rooms. ⚠ HERE, before the camera:
-            in a room the squares sit BEHIND its content — over the ground,
-            under the cards and type — so nothing they cross is hard to read;
-            over the landing, whose ground is its own and opaque, they are
-            lifted in front (`front`). */}
-        <CornerPixels
-          dirs={
-            pastRun
-              ? NO_DIRS
-              : current === 0
-                ? ORB_DIRS
-                : current < FIRST_ROOM
-                  ? BRAIN_DIRS
-                  : track === "logic"
-                    ? current === FIRST_ROOM
-                      ? LOGIC_FIRST_DIRS
-                      : LOGIC_DIRS
-                    : current === FIRST_ROOM
-                      ? CREATIVE_FIRST_DIRS
-                      : CREATIVE_DIRS
-          }
-          creative={zone === "creative"}
-          front={current < FIRST_ROOM}
-        />
+        {/* (The blinking direction squares stood here, 2026-10-14 → 15 —
+            CornerPixels, unlinked: "a bit too much".) */}
 
         {/* Everything that travels, under one camera — its lift (cameraScale)
             applies to all of it at once. */}
         <motion.div className="absolute inset-0" style={{ scale: cameraScale }}>
+        {/* The landing — slides 0 and 1 in one: it stands still while its
+            own two layers (the orb, then the brain) trade places inside it,
+            and leaves across the plane on the step after. See HeroStage. */}
         <Slide
           kind="landing"
-          index={FIRST_ROOM - 1}
-          p={p}
+          index={BRAIN}
+          warpRef={warpRef}
+          warpTick={warpTick}
+          cam={cam}
           trackX={trackX}
           reduceMotion={reduceMotion}
           current={current < FIRST_ROOM}
@@ -784,20 +990,18 @@ export function Flythrough({
           <NearContext.Provider value={firstScreenUp || leftOrb}>{children}</NearContext.Provider>
         </Slide>
 
-        {ROOMS.map(({ section: s, level: lv, track: t }) => {
-          const index = FIRST_ROOM + lv;
-          const count = sectionEntryCount(s, data);
+        {ROOMS.map(({ item, level, track: t, index }) => {
           const logic = t === "logic";
-          const side = logic ? LOGIC : CREATIVE;
-          const meta = `${logic ? "Logic" : "Creative"} · ${pad(lv + 1)} / ${pad(side.length)} · ${
-            count === 0 ? "coming soon" : `${count} ${count === 1 ? "entry" : "entries"}`
-          }`;
+          const isArt = item.id === "arts-and-crafts";
           return (
             <Slide
-              key={s.id}
+              key={item.id}
               kind="room"
               index={index}
-              p={p}
+              track={t}
+              warpRef={warpRef}
+              warpTick={warpTick}
+              cam={cam}
               trackX={trackX}
               side={logic ? -1 : 1}
               pan={logic ? logicPan : creativePan}
@@ -806,114 +1010,64 @@ export function Flythrough({
               current={current === index && track === t}
             >
               <NearContext.Provider value={pageSettled || index <= reach}>
-              {/* The room keeps its foot clear of the fixed band (7svh,
-                  FootBand) and the brain's circle standing on it in the
-                  column's outer corner (BrainDock: its offset + its size + air);
-                  creative mirrored, with its header right-aligned. (Until
-                  2026-10-10 it kept a side clear of the dock's half-window.) */}
-              <section
-                aria-label={s.label}
-                data-side={t}
-                className="room-pad flex h-full px-5 pb-[calc(7svh+max(0.75rem,2.5vh)+5.5rem+1.5vh)] pt-[max(8vh,5rem)] text-neutral-900 sm:px-10 md:pb-[calc(7svh+max(0.75rem,2.5vh)+max(6rem,min(15vh,9.375rem))+1.5vh)] lg:px-[5vw]"
-              >
-                <div className="flex min-w-0 flex-1 flex-col">
-                  {logic ? (
-                    <header className="mb-[3.5vh] flex flex-wrap items-end justify-between gap-x-10 gap-y-3">
-                      <div className="flex w-full items-center justify-between gap-4 lg:w-auto">
-                        <div className="min-w-0">
-                          <p className={`${typeVoiceClass("logic", "meta")} text-[0.62rem] tracking-[0.32em] text-neutral-500`}>
-                            {meta}
-                          </p>
-                          <h2 className="room-title face-logic mt-2 text-[clamp(2.4rem,5.4vw,5.2rem)] leading-[0.95]">
-                            {s.label}
-                          </h2>
-                          {s.tagline && (
-                            <p className={`room-tagline ${typeVoiceClass("logic", "meta")} mt-3 text-[0.62rem] tracking-[0.3em] text-neutral-500`}>
-                              {s.tagline}
-                            </p>
-                          )}
-                        </div>
-                      </div>
-                      <p className="room-desc font-helv max-w-md text-sm leading-relaxed text-neutral-600 max-sm:line-clamp-3">
-                        {s.description}
-                      </p>
-                    </header>
-                  ) : (
-                    // Creative: the creative face, dark on the landing's light
-                    // ground, each block on a paper plate over the circuit film,
-                    // and all of it right-aligned, on the right.
-                    <header className="mb-[3.5vh] flex flex-col items-end gap-3 text-right">
-                      <div className="flex w-full items-center justify-end gap-4">
-                        <div className={`${PAPER_PLATE} min-w-0 px-6 py-4`}>
-                          <p className={`${typeVoiceClass("logic", "meta")} text-[0.62rem] tracking-[0.32em] text-neutral-500`}>
-                            {meta}
-                          </p>
-                          <h2 className="room-title face-creative mt-2 text-[clamp(2.2rem,5vw,4.8rem)] font-bold leading-[0.95] tracking-[-0.01em]">
-                            {s.label}
-                          </h2>
-                        </div>
-                      </div>
-                      <p className={`room-desc font-helv max-w-md ${PAPER_PLATE} px-5 py-4 text-sm leading-relaxed text-neutral-700 max-sm:line-clamp-3`}>
-                        {s.description}
-                      </p>
-                    </header>
-                  )}
-                  {/* Boards are centred in what is left of the screen when short
-                      (five client cards) and scroll when not. The rooms with
-                      their own renderer (FILLS) size and scroll themselves, so
-                      they get the whole body — a centring wrapper would leave
-                      their `h-full` resolving to nothing. */}
-                  {/* ⚠ No overscroll-contain: on touch a swipe that runs off the end of
-                      a list must carry on into the page, or a phone could never
-                      leave a room whose body fills the screen. */}
-                  <div className="min-h-0 flex-1 overflow-y-auto">
-                    <div className={FILLS.has(s.id) ? "h-full" : "flex min-h-full flex-col justify-center"}>
-                      <SectionBody
-                        section={s}
-                        data={data}
-                        onStudy={setStudyId}
-                        variant="slide"
-                        align={logic ? "left" : "right"}
-                      />
-                    </div>
-                  </div>
-                </div>
-              </section>
+                <ShowcaseRoom
+                  item={isArt ? { ...item, tree: { ...item.tree, children: artTree } } : item}
+                  position={level + 1}
+                  total={roomsOf(t).length}
+                  extraFacts={isArt ? artFacts : undefined}
+                />
               </NearContext.Provider>
             </Slide>
           );
         })}
+
+        {/* The strips along the top — "Projects" and its marks on the left,
+            the creative rooms on the right — over the rooms, in from the
+            foot of the brain slide with the first room. */}
+        <NearContext.Provider value={pageSettled || reach >= FIRST_ROOM}>
+          <motion.div
+            className="pointer-events-none absolute inset-0 z-[120]"
+            style={{ x: logicStripX, y: stripY, opacity: stripOpacity, visibility: stripVisibility }}
+            aria-hidden={!(inRooms && track === "logic")}
+            inert={!(inRooms && track === "logic")}
+          >
+            <ShowcaseStrip side="logic" items={LOGIC} activeId={track === "logic" ? (here?.item.id ?? null) : null} onGo={goId} />
+          </motion.div>
+          <motion.div
+            className="pointer-events-none absolute inset-0 z-[120]"
+            style={{ x: creativeStripX, y: stripY, opacity: stripOpacity, visibility: stripVisibility }}
+            aria-hidden={!(inRooms && track === "creative")}
+            inert={!(inRooms && track === "creative")}
+          >
+            <ShowcaseStrip
+              side="creative"
+              items={CREATIVE}
+              activeId={track === "creative" ? (here?.item.id ?? null) : null}
+              onGo={goId}
+            />
+          </motion.div>
+        </NearContext.Provider>
         </motion.div>
 
         {/* The glass tiles that light over the squares as every move turns
             them, across the whole screen. */}
-        <PixelVeil p={p} trackX={trackX} track={track} firstRoom={FIRST_ROOM} reduceMotion={reduceMotion} />
+        <PixelVeil p={cam} trackX={trackX} track={track} firstRoom={FIRST_ROOM} reduceMotion={reduceMotion} />
 
-        {/* The brain's circle in each column's outer foot — appearing a beat
-            after the camera arrives — and the way across to the other track. */}
-        <NearContext.Provider value={pageSettled || reach >= FIRST_ROOM}>
-        <BrainDock
-          inRooms={current >= FIRST_ROOM}
-          logicPan={logicPan}
-          creativePan={creativePan}
-          logicAcross={logicAcross}
-          creativeAcross={creativeAcross}
-          onAcross={() => switchTrack(track === "logic" ? "creative" : "logic")}
+        {/* My Stack in the bottom-left corner of the left side, My Tools in
+            the bottom-right of the right — each a pop-up over the top. */}
+        <KitButton side="logic" show={inRooms} x={logicGroundX} reduceMotion={reduceMotion} />
+        <KitButton side="creative" show={inRooms} x={creativeGroundX} reduceMotion={reduceMotion} />
+
+        {/* The sections button, top right, from the first room on — any room
+            from any room, in one step. (The three circles at the top centre,
+            BrainNav, did this until 2026-10-15.) */}
+        <SectionMenu
+          show={inRooms}
+          side={track}
+          activeId={here?.item.id ?? null}
+          onGo={goId}
+          onHome={goHome}
           reduceMotion={reduceMotion}
-        />
-        </NearContext.Provider>
-
-        {/* The three circles — left brain, home, right brain — and under each
-            side its four rooms (BrainNav). Hidden over the landing, which has
-            its own pins. This replaced the dot rail on the right edge. */}
-        <BrainNav
-          current={current}
-          track={track}
-          firstRoom={FIRST_ROOM}
-          logic={LOGIC}
-          creative={CREATIVE}
-          hidden={current < FIRST_ROOM}
-          onGo={go}
         />
 
         {/* Say the way on is down: over the orb at every size, and over the
@@ -947,15 +1101,6 @@ export function Flythrough({
       {/* The black band along the foot — fixed to the screen for the whole
           page, over the stage and under the dialogs (FootBand). */}
       <FootBand room={bandRoom} />
-
-      {/* Outside the sticky stage on purpose: the stage's `perspective` (and
-          each slide's transform) would make this `position: fixed` dialog
-          fixed to THEM instead of the viewport. */}
-      <ProjectPreview
-        study={studyId ? (projectStudyById(studyId) ?? null) : null}
-        plates={studyId ? (data.studyPlates[studyId] ?? []) : []}
-        onClose={() => setStudyId(null)}
-      />
     </div>
     </FlightContext.Provider>
   );

@@ -56,6 +56,10 @@ const ParticleDrift = dynamic(() => import("@/components/originkit/ParticleDrift
 const PARTICLE_OPACITY = 0.6;
 /** The field's greys (neutral-600, and neutral-800 near the pointer). */
 const NODE = "#525252";
+/** How many nodes fall: HALF the component's own 400 since 2026-10-15
+ *  (owner: "reduce amount of nodes to half"). The lines between them follow,
+ *  being drawn between whichever nodes are near each other. */
+const DENSITY = 200;
 const NODE_LIT = "#262626";
 
 export function SectionParticles() {
@@ -72,6 +76,7 @@ export function SectionParticles() {
         background="transparent"
         baseColor={NODE}
         accentColor={NODE_LIT}
+        density={DENSITY}
       />
     </div>
   );

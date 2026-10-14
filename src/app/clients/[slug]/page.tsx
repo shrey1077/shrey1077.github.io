@@ -24,6 +24,7 @@ import { UidExperience } from "@/components/client/uid/UidExperience";
 import { CaseStudyExperience } from "@/components/client/case/CaseStudyExperience";
 import { NEWSMOBILE_EXPERIENCE } from "@/constants/newsmobileExperience";
 import { ABS_EXPERIENCE } from "@/constants/absExperience";
+import { VIVID_EXPERIENCE } from "@/constants/vividExperience";
 import { ClientWip } from "@/components/client/ClientWip";
 
 interface ClientPageProps {
@@ -74,6 +75,10 @@ export default async function ClientPage({ params }: ClientPageProps) {
   // each a small case study with its own plates.
   if (slug === "abs") {
     return <CaseStudyExperience config={ABS_EXPERIENCE} />;
+  }
+  // Vivid (2026-10-15): one category, its plates in the freelance folder.
+  if (slug === "vivid") {
+    return <CaseStudyExperience config={VIVID_EXPERIENCE} />;
   }
 
   const experience = clientExperienceBySlug(slug);

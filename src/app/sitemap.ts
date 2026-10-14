@@ -18,6 +18,12 @@ export default function sitemap(): MetadataRoute.Sitemap {
   return [
     { url: url("/"), changeFrequency: "monthly", priority: 1 },
     { url: url("/clients/"), changeFrequency: "monthly", priority: 0.6 },
+    // The rooms' own pages (2026-10-15).
+    ...["/all-works/", "/arts-and-crafts/", "/writings/", "/extincts/"].map((p) => ({
+      url: url(p),
+      changeFrequency: "monthly" as const,
+      priority: 0.7,
+    })),
     ...routedClients().flatMap((c) => [
       { url: url(`/clients/${c.slug}/`), changeFrequency: "monthly" as const, priority: 0.8 },
       ...readCatalogue(c.slug).map((cat) => ({
