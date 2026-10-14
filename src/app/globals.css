@@ -617,3 +617,25 @@ html[data-guard] :is(img, video, svg) {
     display: inline;
   }
 }
+
+/* The navigation corners' squares (CornerPixels, owner 2026-10-14): each
+ * blinks on its own beat (--blink, --delay), stepped so it reads digital.
+ * Reduced motion: still, at a steady strength. */
+@keyframes corner-blink {
+  0%,
+  100% {
+    opacity: 0.12;
+  }
+  50% {
+    opacity: 1;
+  }
+}
+.corner-pixel {
+  animation: corner-blink var(--blink, 1.6s) steps(4, jump-both) var(--delay, 0s) infinite;
+}
+@media (prefers-reduced-motion: reduce) {
+  .corner-pixel {
+    animation: none;
+    opacity: 0.7;
+  }
+}
