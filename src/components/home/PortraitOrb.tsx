@@ -109,17 +109,31 @@ export function PortraitOrb({ className = "" }: { className?: string }) {
   const split = useMotionValue(0.5);
   const src = split;
 
-  const maskLine = useTransform(
-    src,
-    (v) => `linear-gradient(to right, #000 ${seam(travel(v)) - FEATHER}%, transparent ${seam(travel(v)) + FEATHER}%)`,
-  );
-  const maskPaint = useTransform(
-    src,
-    (v) => `linear-gradient(to right, transparent ${seam(travel(v)) - FEATHER}%, #000 ${seam(travel(v)) + FEATHER}%)`,
-  );
   // Beaten side goes fully away — tracery and splatter included.
   const opacityLine = useTransform(src, (v) => fade(1 - travel(v)));
   const opacityPaint = useTransform(src, (v) => fade(travel(v)));
+
+  /* ⚠ THE WINNER IS WHOLE AT THE ENDS (owner, 2026-10-14: "the images are
+     getting cut from sides, make sure they are 100% at ends"). Each side's
+     mask edge sits on the seam while the other side is fully there — the
+     split reads exactly as before — but as the beaten side fades out, the
+     winner's edge opens past the seam to the frame's own edge, so when the
+     other side is gone this one is shown 100%, nothing trimmed where the
+     disc ends. (Until then the winner stayed cut flat at the disc's edge:
+     the paint ring's left rim, the line ring's right.) */
+  const lineEdge = (v: number) => {
+    const s = seam(travel(v));
+    return s + (100 - s) * (1 - fade(travel(v)));
+  };
+  const paintEdge = (v: number) => seam(travel(v)) * fade(1 - travel(v));
+  const maskLine = useTransform(
+    src,
+    (v) => `linear-gradient(to right, #000 ${lineEdge(v) - FEATHER}%, transparent ${lineEdge(v) + FEATHER}%)`,
+  );
+  const maskPaint = useTransform(
+    src,
+    (v) => `linear-gradient(to right, transparent ${paintEdge(v) - FEATHER}%, #000 ${paintEdge(v) + FEATHER}%)`,
+  );
 
   // Both halves in and painted — half of what the home page's background
   // downloads wait for (nearness; the other half is the orb's fade-in,
