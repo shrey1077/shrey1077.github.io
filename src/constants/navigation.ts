@@ -12,8 +12,8 @@
  * Projects menu at the bottom of second slide" — and four on the right:
  *   left   Projects                 (Clients and Projects merged; My Stack
  *                                      became the bottom-left pop-up, KitButton)
- *   right  Arts & Crafts · AI Projects · Writings & Publications ·
- *          The Extincts Project      (AI Videos renamed AI Projects; Writings
+ *   right  The Extincts Project · Arts & Crafts · AI Projects ·
+ *          Writings & Publications     (AI Videos renamed AI Projects; Writings
  *                                      & Publications back in, the shelf)
  * The pins fly to the rooms, which are no longer one per section: every
  * project and creative body of work has a slide of its own (constants/
@@ -44,7 +44,7 @@ export const NAV_SECTIONS: readonly NavSection[] = [
     id: "art",
     label: "Arts & Crafts",
     hemisphere: "right",
-    order: 0,
+    order: 1,
     kind: "gallery",
     description:
       "Drawings, paintings and studies away from the screen — sketchbooks, observational work, and things made by hand.",
@@ -53,7 +53,7 @@ export const NAV_SECTIONS: readonly NavSection[] = [
     id: "ai-videos",
     label: "AI Projects",
     hemisphere: "right",
-    order: 1,
+    order: 2,
     kind: "coming-soon",
     description: "Films and motion made with AI. The reel is on its way.",
   },
@@ -61,7 +61,7 @@ export const NAV_SECTIONS: readonly NavSection[] = [
     id: "publications",
     label: "Writings & Publications",
     hemisphere: "right",
-    order: 2,
+    order: 3,
     kind: "gallery",
     description: "Field studies, essays, process books and bylines — the work that can be read.",
   },
@@ -69,7 +69,7 @@ export const NAV_SECTIONS: readonly NavSection[] = [
     id: "the-extincts-project",
     label: "The Extincts Project",
     hemisphere: "right",
-    order: 3,
+    order: 0,
     kind: "gallery",
     description: "An ongoing personal series on what we've lost.",
   },

@@ -20,8 +20,8 @@
  *
  * THE ORDER IS THE OWNER'S. Left: Tata IIS, Azoth Biotech, ABS Wholesale
  * (USA), Luzid, Kartpipe, Zabraku, NewsMobile, Post Grad. UID, Vivid ProTech.
- * Right: Arts & Crafts, AI Projects, Writings & Publications, The Extincts
- * Project (kept as a fourth room, owner's call). Everything else that stood
+ * Right: The Extincts Project ("1st and topmost", owner 2026-10-15), Arts &
+ * Crafts, AI Projects, Writings & Publications. Everything else that stood
  * on the old boards is on /all-works.
  *
  * ⚠ THE WORDS ARE THE SITE'S OWN, condensed: every role, year and bullet comes
@@ -128,7 +128,7 @@ export const LOGIC_SHOWCASE: readonly Showcase[] = [
       { label: "Email", value: "admissions@tataiis.org", href: "mailto:admissions@tataiis.org" },
       { label: "Based", value: "Ahmedabad · Mumbai, India" },
     ],
-    report: { label: "View Full Report", href: "/clients/tata-iis" },
+    report: { label: "View Full Project", href: "/clients/tata-iis" },
   },
   {
     id: "azoth-biotech",
@@ -162,7 +162,7 @@ export const LOGIC_SHOWCASE: readonly Showcase[] = [
       { label: "Website", value: "azothbiotech.com", href: "https://azothbiotech.com" },
       { label: "Based", value: "Noida, Uttar Pradesh" },
     ],
-    report: { label: "View Full Report", href: "/clients/azoth-biotech" },
+    report: { label: "View Full Project", href: "/clients/azoth-biotech" },
   },
   {
     id: "abs",
@@ -204,7 +204,7 @@ export const LOGIC_SHOWCASE: readonly Showcase[] = [
       { label: "Website", value: "abscali.com", href: "https://abscali.com" },
       { label: "Based", value: "Santa Fe Springs, California" },
     ],
-    report: { label: "View Full Report", href: "/clients/abs" },
+    report: { label: "View Full Project", href: "/clients/abs" },
   },
   {
     id: "luzid",
@@ -239,7 +239,7 @@ export const LOGIC_SHOWCASE: readonly Showcase[] = [
       { label: "Parent", value: "ABS Wholesale" },
       { label: "Based", value: "Santa Fe Springs, California" },
     ],
-    report: { label: "View Full Report", href: "/clients/abs#luzid" },
+    report: { label: "View Full Project", href: "/clients/abs#luzid" },
   },
   {
     id: "kartpipe",
@@ -271,7 +271,7 @@ export const LOGIC_SHOWCASE: readonly Showcase[] = [
       { label: "Parent", value: "Luzid · ABS Wholesale" },
       { label: "Based", value: "Santa Fe Springs, California" },
     ],
-    report: { label: "View Full Report", href: "/clients/abs#kartpipe" },
+    report: { label: "View Full Project", href: "/clients/abs#kartpipe" },
   },
   {
     id: "zabraku",
@@ -296,7 +296,7 @@ export const LOGIC_SHOWCASE: readonly Showcase[] = [
       "The 2021 company portfolio, page by page.",
     ],
     facts: [{ label: "Based", value: "Malviya Nagar, Delhi" }],
-    report: { label: "View Full Report", href: "/clients/zabraku-media" },
+    report: { label: "View Full Project", href: "/clients/zabraku-media" },
   },
   {
     id: "newsmobile",
@@ -324,7 +324,7 @@ export const LOGIC_SHOWCASE: readonly Showcase[] = [
       { label: "Website", value: "newsmobile.in", href: "https://newsmobile.in" },
       { label: "Based", value: "Gurugram, Haryana" },
     ],
-    report: { label: "View Full Report", href: "/clients/newsmobile" },
+    report: { label: "View Full Project", href: "/clients/newsmobile" },
   },
   {
     id: "uid",
@@ -358,7 +358,7 @@ export const LOGIC_SHOWCASE: readonly Showcase[] = [
       { label: "Email", value: "admissions@uid.edu.in", href: "mailto:admissions@uid.edu.in" },
       { label: "Campuses", value: "Ahmedabad · NCR · Bengaluru" },
     ],
-    report: { label: "View Full Report", href: "/clients/uid" },
+    report: { label: "View Full Project", href: "/clients/uid" },
   },
   {
     id: "vivid",
@@ -383,9 +383,14 @@ export const LOGIC_SHOWCASE: readonly Showcase[] = [
       "A catalogue of stainless housings, turned into a story a process engineer already believes.",
     ],
     facts: [{ label: "Website", value: "vividprotech.com", href: "https://vividprotech.com" }],
-    report: { label: "View Full Report", href: "/clients/vivid" },
+    report: { label: "View Full Project", href: "/clients/vivid" },
   },
 ];
+
+/** The six writings on the Writings & Publications slide (owner's pick,
+ *  2026-10-15): the documents with pages of their own, in the shelf's order.
+ *  Here, not in the slide, so the server page can read their covers. */
+export const SIX_WRITINGS = ["ethnography", "food-distribution", "design-for-print", "packaging-zine", "mycoveda-app", "nirvaan"];
 
 /** Where "See all", after the last logo, goes. */
 export const ALL_WORKS_HREF = "/all-works";
@@ -393,6 +398,38 @@ export const ALL_WORKS_HREF = "/all-works";
 /** The right side — mirrored. The trees of Arts & Crafts are filled in from
  *  the art folders at build time (app/page.tsx), so they can't drift. */
 export const CREATIVE_SHOWCASE: readonly Showcase[] = [
+  {
+    id: "the-extincts-project",
+    side: "creative",
+    name: "The Extincts Project",
+    short: "The Extincts Project",
+    sectionId: "the-extincts-project",
+    sector: "An ongoing personal series on what we've lost",
+    treeLabel: "The project",
+    tree: {
+      name: "The Extincts Project",
+      children: [
+        { name: "Initial Research", group: true, children: [{ name: "3 reports" }] },
+        { name: "Stories", group: true, children: [{ name: "6 stories" }] },
+        { name: "Script", group: true, children: [{ name: "To come" }] },
+        { name: "Character Sheets", group: true, children: [{ name: "To come" }] },
+      ],
+    },
+    preview: { src: `${PREVIEW}/the-extincts-project.webp`, url: "shrey107.com/extincts" },
+    role: "Researcher & Storyteller",
+    years: "2020 —",
+    points: [
+      "Three reports — identifying the problem, approaching the story, and the final report.",
+      "Field trips to Pradhyuman Zoo, Gir and Fudam.",
+      "Six stories, from The Last Dodo to The First Meeting.",
+      "A script and character sheets, still to come.",
+    ],
+    facts: [
+      { label: "Reports", value: "3" },
+      { label: "Stories", value: "6" },
+    ],
+    report: { label: "View Full Project", href: "/extincts" },
+  },
   {
     id: "arts-and-crafts",
     side: "creative",
@@ -480,38 +517,6 @@ export const CREATIVE_SHOWCASE: readonly Showcase[] = [
     ],
     facts: [{ label: "Documents", value: "8" }],
     report: { label: "Read Them All", href: "/writings" },
-  },
-  {
-    id: "the-extincts-project",
-    side: "creative",
-    name: "The Extincts Project",
-    short: "The Extincts Project",
-    sectionId: "the-extincts-project",
-    sector: "An ongoing personal series on what we've lost",
-    treeLabel: "The project",
-    tree: {
-      name: "The Extincts Project",
-      children: [
-        { name: "Initial Research", group: true, children: [{ name: "3 reports" }] },
-        { name: "Stories", group: true, children: [{ name: "6 stories" }] },
-        { name: "Script", group: true, children: [{ name: "To come" }] },
-        { name: "Character Sheets", group: true, children: [{ name: "To come" }] },
-      ],
-    },
-    preview: { src: `${PREVIEW}/the-extincts-project.webp`, url: "shrey107.com/extincts" },
-    role: "Researcher & Storyteller",
-    years: "2020 —",
-    points: [
-      "Three reports — identifying the problem, approaching the story, and the final report.",
-      "Field trips to Pradhyuman Zoo, Gir and Fudam.",
-      "Six stories, from The Last Dodo to The First Meeting.",
-      "A script and character sheets, still to come.",
-    ],
-    facts: [
-      { label: "Reports", value: "3" },
-      { label: "Stories", value: "6" },
-    ],
-    report: { label: "Open the Reports", href: "/extincts" },
   },
 ];
 

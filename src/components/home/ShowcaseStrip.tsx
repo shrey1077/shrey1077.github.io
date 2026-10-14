@@ -19,12 +19,12 @@
  * the foot of the brain slide, where the Projects pin stands, to the top of
  * slide 3 — then holds still while the rooms fly through beneath it, and pans
  * with its side. It keeps clear of the sections button in the top-right
- * corner (SectionMenu). Too long for the screen, it scrolls sideways, and the
- * marked tile is kept in view.
+ * corner (SectionMenu). It fits whole at every size (owner: "all icons fit
+ * inside the frame"): the tiles share the width, and on a phone stand in two
+ * rows, five and five.
  */
 
 import Link from "next/link";
-import { useEffect, useRef } from "react";
 import { RoomImage as Image } from "@/components/home/nearness";
 import { CreativeIcon } from "@/components/home/CreativeIcons";
 import { RAINBOW } from "@/components/home/MoodField";
@@ -37,7 +37,7 @@ const META = `${typeVoiceClass("logic", "meta")} text-[0.56rem] tracking-[0.3em]
 /** Three pixels blinking under the marked tile. */
 function Marker({ creative }: { creative: boolean }) {
   return (
-    <span aria-hidden className="pointer-events-none absolute -bottom-[7px] left-1/2 flex -translate-x-1/2 gap-[3px]">
+    <span aria-hidden className="pointer-events-none absolute -bottom-[5px] left-1/2 flex -translate-x-1/2 gap-[3px] sm:-bottom-[7px]">
       {[0, 1, 2, 3].map((i) => (
         <span
           key={i}
@@ -68,19 +68,6 @@ export function ShowcaseStrip({
   onGo: (id: string) => void;
 }) {
   const creative = side === "creative";
-  const rowRef = useRef<HTMLDivElement>(null);
-
-  // Keep the marked tile in view along the row (never by scrollIntoView,
-  // which would move the page too).
-  useEffect(() => {
-    const row = rowRef.current;
-    const tile = activeId ? row?.querySelector<HTMLElement>(`[data-strip-id="${activeId}"]`) : null;
-    if (!row || !tile) return;
-    const l = tile.offsetLeft - 12;
-    const r = tile.offsetLeft + tile.offsetWidth + 12;
-    if (l < row.scrollLeft) row.scrollTo({ left: l, behavior: "smooth" });
-    else if (r > row.scrollLeft + row.clientWidth) row.scrollTo({ left: r - row.clientWidth, behavior: "smooth" });
-  }, [activeId]);
 
   return (
     <nav
@@ -89,12 +76,12 @@ export function ShowcaseStrip({
         creative ? "justify-end" : "justify-start"
       }`}
     >
-      {/* Room on the right for the sections button (SectionMenu). */}
-      <div className="flex min-w-0 max-w-full pr-[7.25rem]">
+      {/* Room on the right for the sections button (SectionMenu) — just its
+          mark on a phone. Everything fits: no sideways scroll at any size. */}
+      <div className={`flex w-full min-w-0 pr-[3.5rem] sm:pr-[7.25rem] ${creative ? "justify-end" : "justify-start"}`}>
         <div
-          ref={rowRef}
-          className={`pointer-events-auto flex min-w-0 items-center gap-1.5 overflow-x-auto rounded-2xl bg-white/85 px-2 pb-2.5 pt-1.5 ring-1 ring-neutral-200/90 backdrop-blur-sm [scrollbar-width:none] [&::-webkit-scrollbar]:hidden ${
-            creative ? "flex-row-reverse" : ""
+          className={`pointer-events-auto grid w-full min-w-0 gap-x-1 gap-y-1.5 rounded-2xl bg-white/85 p-1.5 pb-2.5 ring-1 ring-neutral-200/90 backdrop-blur-sm sm:flex sm:w-auto sm:max-w-full sm:items-center sm:gap-1.5 sm:px-2 sm:pt-1.5 ${
+            creative ? "grid-cols-2 sm:flex-row-reverse" : "grid-cols-5"
           }`}
         >
           <span className={`${META} hidden shrink-0 px-2 xl:inline`}>{creative ? "Creative" : "Projects"}</span>
@@ -105,16 +92,16 @@ export function ShowcaseStrip({
                 <button
                   key={it.id}
                   type="button"
-                  data-strip-id={it.id}
                   aria-current={on ? "true" : undefined}
+                  title={it.short}
                   onClick={() => onGo(it.id)}
-                  className={`relative shrink-0 rounded-full p-[1.5px] outline-none focus-visible:ring-2 focus-visible:ring-neutral-900/40 ${
+                  className={`relative min-w-0 rounded-full p-[1.5px] outline-none focus-visible:ring-2 focus-visible:ring-neutral-900/40 sm:w-[14rem] sm:shrink ${
                     on ? "bg-[linear-gradient(90deg,#ff2e8b,#ff8a00,#f5c518,#7fbf2e,#00a6a6,#3f6ad8,#7a3fb0)]" : "bg-neutral-900/10 hover:bg-neutral-900/30"
                   }`}
                 >
-                  <span className="flex h-10 items-center gap-2 rounded-full bg-white px-4">
+                  <span className="flex h-8 min-w-0 items-center justify-center gap-2 rounded-full bg-white px-3 sm:h-10 sm:px-4">
                     {it.sectionId && <CreativeIcon section={it.sectionId} className="h-4 w-4 shrink-0" />}
-                    <span className="face-creative whitespace-nowrap text-[0.78rem] font-bold leading-none text-neutral-900">
+                    <span className="face-creative truncate text-[0.7rem] font-bold leading-none text-neutral-900 sm:text-[0.78rem]">
                       {it.short}
                     </span>
                   </span>
@@ -126,26 +113,25 @@ export function ShowcaseStrip({
               <button
                 key={it.id}
                 type="button"
-                data-strip-id={it.id}
                 aria-current={on ? "true" : undefined}
                 aria-label={it.short}
                 title={it.short}
                 onClick={() => onGo(it.id)}
-                className={`group relative h-11 w-[5.6rem] shrink-0 rounded-lg bg-white outline-none transition-[box-shadow,opacity] duration-200 focus-visible:ring-2 focus-visible:ring-neutral-900/40 xl:w-[6.2rem] ${
+                className={`group relative h-8 min-w-0 rounded-lg bg-white outline-none transition-[box-shadow,opacity] duration-200 focus-visible:ring-2 focus-visible:ring-neutral-900/40 sm:h-11 sm:w-[6.2rem] sm:shrink ${
                   on ? "ring-2 ring-neutral-900" : "ring-1 ring-neutral-900/12 hover:ring-neutral-900/40"
                 }`}
               >
                 {it.mark ? (
                   <span
-                    className={`absolute inset-x-1.5 inset-y-1 transition-[filter,opacity] duration-200 ${
+                    className={`absolute inset-x-1 inset-y-1 transition-[filter,opacity] duration-200 sm:inset-x-1.5 ${
                       on ? "" : "opacity-60 grayscale group-hover:opacity-100 group-hover:grayscale-0"
                     }`}
                   >
-                    <Image src={it.mark} alt="" fill sizes="96px" className="object-contain" />
+                    <Image src={it.mark} alt="" fill sizes="100px" className="object-contain" />
                   </span>
                 ) : (
                   <span
-                    className={`font-graff absolute inset-0 grid place-items-center text-[0.66rem] uppercase tracking-[0.14em] ${
+                    className={`font-graff absolute inset-0 grid place-items-center text-[0.5rem] uppercase tracking-[0.1em] sm:text-[0.62rem] ${
                       on ? "text-neutral-900" : "text-neutral-500 group-hover:text-neutral-900"
                     }`}
                   >
@@ -160,7 +146,7 @@ export function ShowcaseStrip({
             <Link
               href={ALL_WORKS_HREF}
               prefetch={false}
-              className="font-graff group ml-1 flex h-11 shrink-0 items-center gap-1.5 whitespace-nowrap rounded-lg px-3 text-[0.62rem] uppercase tracking-[0.18em] text-neutral-600 outline-none transition-colors hover:text-neutral-900 focus-visible:ring-2 focus-visible:ring-neutral-900/40"
+              className="font-graff group flex h-8 min-w-0 shrink-0 items-center justify-center gap-1 whitespace-nowrap rounded-lg text-[0.5rem] uppercase tracking-[0.14em] text-neutral-600 outline-none ring-1 ring-neutral-900/12 transition-colors hover:text-neutral-900 focus-visible:ring-2 focus-visible:ring-neutral-900/40 sm:ml-1 sm:h-11 sm:px-3 sm:text-[0.62rem] sm:tracking-[0.18em] sm:ring-0"
             >
               See all
               <span aria-hidden className="transition-transform duration-200 group-hover:translate-x-0.5">

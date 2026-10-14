@@ -120,7 +120,7 @@ export function PixelButton({
     side === "logic"
       ? "bg-neutral-900"
       : "bg-[linear-gradient(90deg,#ff2e8b,#ff8a00,#f5c518,#7fbf2e,#00a6a6,#3f6ad8,#7a3fb0)]";
-  const pad = size === "sm" ? "h-9 px-3.5 text-[0.6rem]" : "h-11 px-5 text-[0.68rem]";
+  const pad = size === "sm" ? "h-9 px-3.5 text-[0.6rem]" : "h-11 px-3.5 text-[0.68rem] sm:px-5";
   const face =
     side === "logic"
       ? "font-graff uppercase tracking-[0.2em]"

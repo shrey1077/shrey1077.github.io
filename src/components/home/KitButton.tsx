@@ -118,12 +118,15 @@ function ToolsKit() {
 export function KitButton({
   side,
   show,
+  away,
   x,
   reduceMotion,
 }: {
   side: "logic" | "creative";
   /** In the rooms. */
   show: boolean;
+  /** Its side is panned off the screen: out of reach of the keyboard too. */
+  away: boolean;
   /** Its side's pan, as a CSS translate. */
   x: MotionValue<string>;
   reduceMotion: boolean;
@@ -172,7 +175,8 @@ export function KitButton({
   return (
     <>
       <motion.div
-        aria-hidden={!show}
+        aria-hidden={!show || away}
+        inert={away}
         className="pointer-events-none absolute inset-0 z-[140]"
         style={{ x }}
       >

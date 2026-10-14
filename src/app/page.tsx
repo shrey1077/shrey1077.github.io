@@ -19,7 +19,7 @@
  * sections, and the pins have replaced it.
  *
  * Stays a Server Component so it can read the content folders (catalogue.ts is
- * node:fs-backed) for the Arts & Crafts room's collections. (The boards that
+ * node:fs-backed) for Arts & Crafts' pieces and the writings' covers. (The boards that
  * needed the logofolio, the publication covers and the study plates went on
  * 2026-10-15; those now live on their own pages.)
  */
@@ -29,7 +29,11 @@ import { Flythrough } from "@/components/home/Flythrough";
 import { HOME_TYPE } from "@/constants/faces";
 import { SiteFooter } from "@/components/footer/SiteFooter";
 import { PortraitHint } from "@/components/home/PortraitHint";
-import { readArtCollections } from "@/content/catalogue";
+import fs from "node:fs";
+import path from "node:path";
+import { readPublicationPages } from "@/content/catalogue";
+import { SIX_WRITINGS } from "@/constants/showcase";
+import type { ArtThumb } from "@/components/home/ArtSlide";
 import type { Metadata } from "next";
 import { SITE } from "@/constants/site";
 import { SITE_DESCRIPTION, pageMeta } from "@/constants/seo";
@@ -50,16 +54,21 @@ const PERSON_LD = {
 };
 
 export default function Home() {
-  // The Arts & Crafts room's tree: each collection, its first piece and how
-  // many pieces it holds — not the pieces themselves, which its page reads.
-  const art = readArtCollections().map((c) => ({ name: c.name, cover: c.images[0], count: c.images.length }));
+  // Arts & Crafts' moving rows: the small copies of every piece and their
+  // sizes (scripts/make-art-thumbs.mjs writes the list).
+  const artThumbs: ArtThumb[] = JSON.parse(
+    fs.readFileSync(path.join(process.cwd(), "public", "content", "art", "_thumbs.json"), "utf8"),
+  );
+
+  // The six writings' covers — each one's first rendered page.
+  const covers = Object.fromEntries(SIX_WRITINGS.map((slug) => [slug, readPublicationPages(slug)[0]]));
 
   return (
     <main
       className={`w-full bg-gallery ${HOME_TYPE}`}
     >
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(PERSON_LD) }} />
-      <Flythrough art={art}>
+      <Flythrough artThumbs={artThumbs} covers={covers}>
         <HeroStage />
       </Flythrough>
       <SiteFooter />

@@ -653,3 +653,62 @@ html[data-guard] :is(img, video, svg) {
     opacity: 0.55;
   }
 }
+
+/* THE ROOMS' SLIDES (2026-10-15). Each fits its screen whole — "no vertical
+ * scrolling on any slide" (owner) — inside one frame: clear of the strip
+ * along the top (its height is --strip-h, set on the stage by the
+ * Flythrough), of the band along the foot (FootBand, 7svh) and the row of
+ * corner buttons standing on it, and of the edge tab on the left (EdgeJump).
+ * .slide-corner-left is where a slide's own button stands: the bottom-left
+ * corner, mirroring the Stack / Tools button in the right. */
+.slide-frame {
+  padding: calc(max(2vh, 0.75rem) + var(--strip-h, 3.75rem) + 0.6rem) 1rem calc(7svh + 0.75rem + 2.75rem + 0.75rem) 2.75rem;
+}
+.slide-corner-left {
+  bottom: calc(7svh + 0.75rem);
+  left: 2.75rem;
+}
+@media (min-width: 640px) {
+  .slide-frame {
+    padding-left: 3.25rem;
+    padding-right: 2rem;
+  }
+  .slide-corner-left {
+    left: 3.25rem;
+  }
+}
+@media (min-width: 1024px) {
+  .slide-frame {
+    padding-left: max(5vw, 3.25rem);
+    padding-right: 5vw;
+  }
+  .slide-corner-left {
+    left: max(5vw, 3.25rem);
+  }
+}
+
+/* Arts & Crafts' three rows (ArtSlide): each runs its pieces twice over and
+ * slides by exactly one run, so the loop has no seam; the middle row runs
+ * the other way. A row holds still under the pointer. Reduced motion: still. */
+@keyframes art-slide {
+  from {
+    transform: translateX(0);
+  }
+  to {
+    transform: translateX(-50%);
+  }
+}
+.art-track {
+  animation: art-slide var(--art-duration, 90s) linear infinite;
+}
+.art-track-reverse {
+  animation-direction: reverse;
+}
+.art-row:hover .art-track {
+  animation-play-state: paused;
+}
+@media (prefers-reduced-motion: reduce) {
+  .art-track {
+    animation: none;
+  }
+}

@@ -179,7 +179,7 @@ function ToCome({ what }: { what: string }) {
  * `position: fixed` box fixed to THEM. While open it sets `data-modal` on the
  * root, which the Flythrough reads to leave the wheel and the keys alone.
  */
-function ExtinctsReader({ report, onClose }: { report: ExtinctsReport | null; onClose: () => void }) {
+export function ExtinctsReader({ report, onClose }: { report: ExtinctsReport | null; onClose: () => void }) {
   const closeRef = useRef<HTMLButtonElement>(null);
   const close = useRef(onClose);
   useEffect(() => {

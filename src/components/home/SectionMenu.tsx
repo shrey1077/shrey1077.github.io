@@ -116,7 +116,7 @@ export function SectionMenu({
         ariaHaspopup="menu"
       >
         <GridMark />
-        Menu
+        <span className="max-sm:sr-only">Menu</span>
       </PixelButton>
 
       {open && (

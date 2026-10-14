@@ -103,12 +103,17 @@ import { SectionParticles } from "@/components/home/SectionParticles";
 import { CircuitBackdrop } from "@/components/home/CircuitBackdrop";
 import { MOOD_BG, MoodField } from "@/components/home/MoodField";
 import { Corner3DGrid } from "@/components/home/Corner3DGrid";
-import { ShowcaseRoom } from "@/components/home/ShowcaseRoom";
+import { ProjectSlide } from "@/components/home/ProjectSlide";
+import { ExtinctsSlide } from "@/components/home/ExtinctsSlide";
+import { ArtSlide, type ArtThumb } from "@/components/home/ArtSlide";
+import { AiSlide } from "@/components/home/AiSlide";
+import { WritingsSlide } from "@/components/home/WritingsSlide";
+import { EdgeJump } from "@/components/home/EdgeJump";
 import { ShowcaseStrip } from "@/components/home/ShowcaseStrip";
 import { SectionMenu } from "@/components/home/SectionMenu";
 import { KitButton } from "@/components/home/KitButton";
 import { NearContext, useFirstScreenUp, usePageSettled } from "@/components/home/nearness";
-import { CREATIVE_SHOWCASE, LOGIC_SHOWCASE, type ShowFact, type Showcase } from "@/constants/showcase";
+import { CREATIVE_SHOWCASE, LOGIC_SHOWCASE, type Showcase } from "@/constants/showcase";
 import { typeVoiceClass } from "@/constants/typography";
 
 export type Track = "logic" | "creative";
@@ -177,6 +182,8 @@ const PUSH_WINDOW_MS = 300;
 const PUSH_STEADY_PX = 15;
 const PUSH_HOLD = 0.98;
 const PUSH_RISE = 1.1;
+/** How far a finger travels before a swipe counts, px. */
+const SWIPE_PX = 24;
 /** Native scrolling that stops this long counts as at rest. */
 const SETTLE_MS = 140;
 /** Slide positions this close to a whole number count as on that slide. */
@@ -436,21 +443,18 @@ function Slide({
   );
 }
 
-/** One collection of the Arts & Crafts room, as the home page needs it. */
-export interface ArtSummary {
-  name: string;
-  cover?: string;
-  count: number;
-}
 
 export function Flythrough({
   children,
-  art,
+  artThumbs,
+  covers,
 }: {
   /** The landing — slides 0 and 1. */
   children: React.ReactNode;
-  /** The art folders, read at build time (app/page.tsx). */
-  art: ArtSummary[];
+  /** Arts & Crafts' pieces, small (scripts/make-art-thumbs.mjs). */
+  artThumbs: ArtThumb[];
+  /** Each writing's first page, by slug — read at build time (app/page.tsx). */
+  covers: Record<string, string | undefined>;
 }) {
   const reduceMotion = useReducedMotion() ?? false;
   const runRef = useRef<HTMLDivElement>(null);
@@ -692,13 +696,16 @@ export function Flythrough({
     const goTo = (b: number, tb: Track) => {
       if (flyingRef.current || (trackX.get() > 0.001 && trackX.get() < 0.999)) return;
       const pos = position();
-      const a = Math.round(pos);
+      const here = Math.round(pos);
       const ta = trackRef.current;
       // Within the landing, or down to the orb: the ordinary flight.
-      if ((b < FIRST_ROOM && a < FIRST_ROOM) || b < BRAIN) {
+      if ((b < FIRST_ROOM && here < FIRST_ROOM) || b < BRAIN) {
         flyTo(b);
         return;
       }
+      // From the orb, the landing stands in as the brain: the page runs the
+      // orb up into the brain on its way (its own move), then the warp.
+      const a = Math.max(here, BRAIN);
       extendReach(b);
       // Across sides from the landing: nothing of either column is on screen,
       // so the track is simply set.
@@ -740,6 +747,9 @@ export function Flythrough({
         const A = b < FIRST_ROOM ? FIRST_ROOM : a;
         const B = b < FIRST_ROOM ? b : a < FIRST_ROOM ? FIRST_ROOM : a + s;
         start(() => {
+          // In flight BEFORE the warp is read in — or, from the orb, the
+          // landing's track reset (sync) would undo the side just chosen.
+          flyingRef.current = true;
           setWarp({ a, b, ta: tb, tb, pan: false, A, B });
           flyTo(b, {
             single: true,
@@ -755,9 +765,9 @@ export function Flythrough({
       // Across: pan, the arriving side showing the room chosen, then land
       // the page on it.
       start(() => {
+        flyingRef.current = true;
         if (b !== a) setWarp({ a, b, ta, tb, pan: true, A: a, B: a });
         setArriving(roomAt(b, tb) ?? null);
-        flyingRef.current = true;
         switchTrack(tb, false, () => {
           measure();
           window.scrollTo({ top: scrollTop(b), behavior: "instant" });
@@ -863,20 +873,40 @@ export function Flythrough({
         if (Math.abs(pos - Math.round(pos)) > EPS) flyTo(Math.round(pos));
       }, SETTLE_MS);
     };
+    // ONE SWIPE, ONE SLIDE (owner, 2026-10-15: "one scroll moves you exactly
+    // to the next slide, or back, no stoppage in between"). Inside the run a
+    // swipe no longer scrolls the page natively — it used to, coming to rest
+    // wherever the finger let go and easing on from there. Once a finger has
+    // gone SWIPE_PX up or down, the camera flies exactly one slide, and the
+    // rest of that swipe is spent. A swipe that is mostly sideways is left
+    // alone, as is everything past either end of the run (the footer) and
+    // anything a dialog has (data-modal). A flight under way is never
+    // stopped by a finger now: it lands.
+    let swipe: { x: number; y: number; spent: boolean } | null = null;
     const onTouchStart = (e: TouchEvent) => {
       touching = true;
-      // A finger on the glass takes the page back from a flight in progress —
-      // but not from a warp, which has to land where it is going.
-      if (!warpRef.current) {
-        anim?.stop();
-        flyingRef.current = false;
-      }
+      const t = e.touches[0];
+      swipe = t && e.touches.length === 1 ? { x: t.clientX, y: t.clientY, spent: false } : null;
       // On the brain slide, the half the finger lands on picks the column.
-      const x = e.touches[0]?.clientX;
-      if (x !== undefined) pickSide(x);
+      if (t) pickSide(t.clientX);
+    };
+    const onTouchMove = (e: TouchEvent) => {
+      if (!swipe || reduceMotion || modal() || e.touches.length !== 1) return;
+      const t = e.touches[0];
+      const dy = swipe.y - t.clientY;
+      const dx = swipe.x - t.clientX;
+      const dir = Math.sign(dy);
+      if (!dir || (!swipe.spent && Math.abs(dx) > Math.abs(dy))) return;
+      const target = stepFrom(position(), dir);
+      if (target === null) return;
+      if (e.cancelable) e.preventDefault();
+      if (swipe.spent || flyingRef.current || Math.abs(dy) < SWIPE_PX) return;
+      swipe.spent = true;
+      flyTo(target);
     };
     const onTouchEnd = () => {
       touching = false;
+      swipe = null;
       onScroll();
     };
 
@@ -902,6 +932,7 @@ export function Flythrough({
     window.addEventListener("keydown", onKey);
     window.addEventListener("scroll", onScroll, { passive: true });
     window.addEventListener("touchstart", onTouchStart, { passive: true });
+    window.addEventListener("touchmove", onTouchMove, { passive: false });
     window.addEventListener("touchend", onTouchEnd, { passive: true });
     window.addEventListener("pointermove", onPointer, { passive: true });
     window.addEventListener(PIN_OPEN_EVENT, onPin);
@@ -913,6 +944,7 @@ export function Flythrough({
       window.removeEventListener("keydown", onKey);
       window.removeEventListener("scroll", onScroll);
       window.removeEventListener("touchstart", onTouchStart);
+      window.removeEventListener("touchmove", onTouchMove);
       window.removeEventListener("touchend", onTouchEnd);
       window.removeEventListener("pointermove", onPointer);
       window.removeEventListener(PIN_OPEN_EVENT, onPin);
@@ -928,18 +960,18 @@ export function Flythrough({
   const bandRoom = here && !pastRun ? { label: here.item.short, side: track } : null;
   const inRooms = current >= FIRST_ROOM && !pastRun;
 
-  // Arts & Crafts' tree and counts come from its folders.
-  const artTree = art.map((c) => ({ name: c.name, thumb: c.cover }));
-  const artFacts: ShowFact[] = [
-    { label: "Collections", value: String(art.length) },
-    { label: "Pieces", value: String(art.reduce((n, c) => n + c.count, 0)) },
-  ];
-
+  // The way across from here (EdgeJump): the room level with this one on
+  // the other side — the right side's last, where it is shorter.
+  const level = here?.level ?? 0;
+  const acrossFromLogic = CREATIVE[Math.min(level, CREATIVE.length - 1)];
+  const acrossFromCreative = LOGIC[Math.min(level, LOGIC.length - 1)];
   return (
     <FlightContext.Provider value={{ p, current, zone, reduceMotion }}>
     <div ref={runRef} className="relative w-full" style={{ height: `${(runLast + 1) * 100}svh` }}>
       <div
-        className="sticky top-0 h-[100svh] w-full overflow-hidden bg-white"
+        // --strip-h: the strip's height, which every slide keeps clear of
+        // (.slide-frame) — two rows of marks on a phone, one above.
+        className="sticky top-0 h-[100svh] w-full overflow-hidden bg-white [--strip-h:5.4rem] sm:[--strip-h:3.75rem]"
       >
         {/* The two grounds, one per track, side by side, each panning with
             its track; behind the landing both are covered entirely.
@@ -990,9 +1022,9 @@ export function Flythrough({
           <NearContext.Provider value={firstScreenUp || leftOrb}>{children}</NearContext.Provider>
         </Slide>
 
-        {ROOMS.map(({ item, level, track: t, index }) => {
+        {ROOMS.map(({ item, track: t, index }) => {
           const logic = t === "logic";
-          const isArt = item.id === "arts-and-crafts";
+          const live = current === index && track === t;
           return (
             <Slide
               key={item.id}
@@ -1007,15 +1039,23 @@ export function Flythrough({
               pan={logic ? logicPan : creativePan}
               heading={track}
               reduceMotion={reduceMotion}
-              current={current === index && track === t}
+              current={live}
             >
               <NearContext.Provider value={pageSettled || index <= reach}>
-                <ShowcaseRoom
-                  item={isArt ? { ...item, tree: { ...item.tree, children: artTree } } : item}
-                  position={level + 1}
-                  total={roomsOf(t).length}
-                  extraFacts={isArt ? artFacts : undefined}
-                />
+                {/* Left: the project's page, on the whole slide. Right: each
+                    room its own (owner, 2026-10-15). The four quadrants
+                    (ShowcaseRoom) are unlinked. */}
+                {logic ? (
+                  <ProjectSlide item={item} />
+                ) : item.id === "the-extincts-project" ? (
+                  <ExtinctsSlide reduceMotion={reduceMotion} />
+                ) : item.id === "arts-and-crafts" ? (
+                  <ArtSlide thumbs={artThumbs} active={live && !reduceMotion} />
+                ) : item.id === "ai-projects" ? (
+                  <AiSlide reduceMotion={reduceMotion} />
+                ) : (
+                  <WritingsSlide covers={covers} />
+                )}
               </NearContext.Provider>
             </Slide>
           );
@@ -1055,8 +1095,29 @@ export function Flythrough({
 
         {/* My Stack in the bottom-left corner of the left side, My Tools in
             the bottom-right of the right — each a pop-up over the top. */}
-        <KitButton side="logic" show={inRooms} x={logicGroundX} reduceMotion={reduceMotion} />
-        <KitButton side="creative" show={inRooms} x={creativeGroundX} reduceMotion={reduceMotion} />
+        <KitButton side="logic" show={inRooms} away={track !== "logic" && !panning} x={logicGroundX} reduceMotion={reduceMotion} />
+        <KitButton side="creative" show={inRooms} away={track !== "creative" && !panning} x={creativeGroundX} reduceMotion={reduceMotion} />
+
+        {/* The way across to the room level with this one, at the middle of
+            the edge facing the other side (EdgeJump). */}
+        <EdgeJump
+          side="logic"
+          label={acrossFromLogic.short}
+          show={inRooms}
+          away={track !== "logic" && !panning}
+          x={logicGroundX}
+          onGo={() => goId(acrossFromLogic.id)}
+          reduceMotion={reduceMotion}
+        />
+        <EdgeJump
+          side="creative"
+          label={acrossFromCreative.short}
+          show={inRooms}
+          away={track !== "creative" && !panning}
+          x={creativeGroundX}
+          onGo={() => goId(acrossFromCreative.id)}
+          reduceMotion={reduceMotion}
+        />
 
         {/* The sections button, top right, from the first room on — any room
             from any room, in one step. (The three circles at the top centre,
