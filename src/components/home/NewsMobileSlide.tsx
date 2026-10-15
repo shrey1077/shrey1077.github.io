@@ -15,13 +15,16 @@
  */
 
 import dynamic from "next/dynamic";
+import { useEffect } from "react";
 import { useQuietStart } from "@/components/home/quietStart";
+import type { MotionValue } from "framer-motion";
 import { RoomImage as Image } from "@/components/home/nearness";
 import { PixelButton } from "@/components/home/PixelButton";
 import type { Showcase } from "@/constants/showcase";
 import { typeVoiceClass } from "@/constants/typography";
 
-const AsciiGlobe = dynamic(() => import("@/components/originkit/AsciiGlobe"), { ssr: false });
+const loadGlobe = () => import("@/components/originkit/AsciiGlobe");
+const AsciiGlobe = dynamic(loadGlobe, { ssr: false });
 
 const META = `${typeVoiceClass("logic", "meta")} text-[0.58rem] tracking-[0.28em] text-neutral-500`;
 const BEATS = ["Sports", "Environment", "Politics", "& more"];
@@ -29,18 +32,24 @@ const BEATS = ["Sports", "Environment", "Politics", "& more"];
 export function NewsMobileSlide({
   item,
   live,
-  arrived,
+  soon,
+  moving,
   reduceMotion,
 }: {
   item: Showcase;
   live: boolean;
-  arrived: boolean;
+  /** The camera is here or a step away: fetch the globe's code ahead. */
+  soon: boolean;
+  moving: MotionValue<number>;
   reduceMotion: boolean;
 }) {
+  useEffect(() => {
+    if (soon) void loadGlobe();
+  }, [soon]);
   // Started once the camera has landed here, kept while the slide is the
   // camera's, dropped when it leaves (as the Zabraku robot).
   // After landing, once scrolling has gone quiet (useQuietStart).
-  const on = useQuietStart(arrived, live);
+  const on = useQuietStart(live, moving);
   return (
     <section aria-label={item.name} data-side="logic" className="absolute inset-0 overflow-hidden">
       <h2 className="sr-only">{item.name}</h2>

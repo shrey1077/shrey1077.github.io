@@ -83,7 +83,7 @@
  * crossfade with the scroll, and a switch of side cuts rather than pans.
  */
 
-import { useCallback, useEffect, useLayoutEffect, useRef, useState } from "react";
+import { memo, useCallback, useEffect, useLayoutEffect, useRef, useState } from "react";
 import {
   animate,
   motion,
@@ -386,7 +386,38 @@ function Slide({
   }, [heading]);
   const applyClip = () => {
     const el = outerRef.current;
-    if (!el || !room) return;
+    if (!el) return;
+    if (!room) {
+      // ⚠ THE LANDING GOES IN SQUARES TOO (owner, 2026-10-15: "between 2nd
+      // and 3rd transition, the outgoing slide 2 bottom corners are a bit of
+      // hindrance, make them dissolve in pixel effect as well"): as it rides
+      // off across the plane into a column it shrinks away square by square,
+      // the wave from the corner the new room comes in from — the veil's own
+      // — the squares held still on the screen while it slides beneath them.
+      const k = slot();
+      const f = k === null ? 0 : cam.get() - k;
+      const { w, h } = box.current;
+      let clip = "none";
+      if (!reduceMotion && f > 0.004 && f < 0.999 && w && h) {
+        const tx = trackX.get();
+        const across = tx > 0.5 ? -1 : 1; // which way it rides off
+        clip =
+          clipFor(
+            gridFor(w, h),
+            easeTime(f),
+            "out",
+            tx > 0.5 ? "below-right" : "below-left",
+            -across * f * w,
+            f * h,
+            cameraLift(cam.get(), tx, reduceMotion),
+          ) || "inset(50%)";
+      }
+      if (clip !== lastClip.current) {
+        lastClip.current = clip;
+        el.style.clipPath = clip;
+      }
+      return;
+    }
     const v = cam.get();
     const o = offset.get();
     const k = slot();
@@ -454,6 +485,69 @@ function Slide({
   );
 }
 
+
+/**
+ * A room's own contents, MEMOISED (2026-10-15, owner: "it feels like it stops
+ * for a while just after beginning of transition"). The Flythrough re-renders
+ * as a flight starts, passes its middle and lands; re-rendering every room's
+ * contents each time — the art rows' hundred pictures, the Azoth scene, the
+ * Extincts' panels — was a stall in the move. Now a room renders again only
+ * when its own props change: becoming the camera's or not (`live`), its
+ * pictures coming within reach (`near`).
+ */
+const RoomBody = memo(function RoomBody({
+  item,
+  logic,
+  live,
+  soon,
+  near,
+  moving,
+  reduceMotion,
+  artThumbs,
+  covers,
+}: {
+  item: Showcase;
+  logic: boolean;
+  live: boolean;
+  /** The camera is here or a step away (on this side). */
+  soon: boolean;
+  near: boolean;
+  moving: MotionValue<number>;
+  reduceMotion: boolean;
+  artThumbs: ArtThumb[];
+  covers: Record<string, string | undefined>;
+}) {
+  return (
+    <NearContext.Provider value={near}>
+      {/* Left: the project's page, on the whole slide, or its own scene.
+          Right: each room its own (owner, 2026-10-15). */}
+      {logic ? (
+        item.id === "azoth-biotech" ? (
+          <AzothSlide item={item} />
+        ) : item.id === "abs" ? (
+          <AbsSlide item={item} active={live && !reduceMotion} />
+        ) : item.id === "zabraku" ? (
+          <ZabrakuSlide item={item} live={live} soon={soon} moving={moving} />
+        ) : item.id === "newsmobile" ? (
+          <NewsMobileSlide item={item} live={live} soon={soon} moving={moving} reduceMotion={reduceMotion} />
+        ) : item.id === "vivid" ? (
+          <ProjectSlide item={item} extra={VIVID_SITE} />
+        ) : (
+          <ProjectSlide item={item} />
+        )
+      ) : item.id === "the-extincts-project" ? (
+        <ExtinctsSlide reduceMotion={reduceMotion} />
+      ) : item.id === "arts-and-crafts" ? (
+        <ArtSlide thumbs={artThumbs} active={live && !reduceMotion} />
+      ) : item.id === "ai-projects" ? (
+        <AiSlide reduceMotion={reduceMotion} />
+      ) : (
+        <WritingsSlide covers={covers} />
+      )}
+    </NearContext.Provider>
+  );
+});
+const VIVID_SITE = { label: "Visit vividprotech.com", href: "https://vividprotech.com" };
 
 export function Flythrough({
   children,
@@ -533,14 +627,18 @@ export function Flythrough({
   // Set while a flight is under way, so the landing's track reset below
   // never undoes a pin's or the menu's own choice of track mid-flight.
   const flyingRef = useRef(false);
-  // …and the same as state, for the slides that start something heavy (the
-  // robot, the globe) only once the camera has LANDED on them — never
-  // mid-flight, where its setting-up would stall the move.
-  const [moving, setMoving] = useState(false);
-  const setFlying = useCallback((v: boolean) => {
-    flyingRef.current = v;
-    setMoving(v);
-  }, []);
+  // …and the same as a motion value, for the slides that start something
+  // heavy (the robot, the globe) only once the camera has LANDED on them —
+  // never mid-flight, where its setting-up would stall the move. ⚠ Not
+  // state: a re-render as every flight began was itself a stall.
+  const movingMV = useMotionValue(0);
+  const setFlying = useCallback(
+    (v: boolean) => {
+      flyingRef.current = v;
+      movingMV.set(v ? 1 : 0);
+    },
+    [movingMV],
+  );
 
   // The slide the camera is nearest — only changes on a crossing.
   const [current, setCurrent] = useState(0);
@@ -655,6 +753,19 @@ export function Flythrough({
   // screen is a waste.
   const circuitLive = roomsLive && (track === "logic" || panning);
   const creativeLive = roomsLive && (track === "creative" || panning);
+  // ⚠ The grounds are SET UP AHEAD of need (2026-10-15): they used to mount
+  // the moment the camera left the landing or a pan began — a WebGL context,
+  // its shaders, a film — and that froze the move just after it started.
+  // Now they mount in a quiet moment once the visitor is past the orb (or
+  // the page has settled), held still; the Live flags above only run them.
+  const [groundsReady, setGroundsReady] = useState(false);
+  useEffect(() => {
+    if (groundsReady || !(leftOrb || pageSettled)) return;
+    const idle = window.requestIdleCallback ?? ((cb: () => void) => window.setTimeout(cb, 300));
+    const cancel = window.cancelIdleCallback ?? window.clearTimeout;
+    const id = idle(() => setGroundsReady(true), { timeout: 2000 });
+    return () => cancel(id);
+  }, [groundsReady, leftOrb, pageSettled]);
   const zone = current < FIRST_ROOM ? "landing" : track;
   const here = arriving ?? (current >= FIRST_ROOM ? roomAt(current, track) : undefined);
 
@@ -1062,21 +1173,21 @@ export function Flythrough({
             · CREATIVE: the Mood Field — rainbow veins drifting over white,
               stirred by the pointer (MoodField). */}
         <motion.div aria-hidden className="pointer-events-none absolute inset-0 bg-white" style={{ x: logicGroundX }}>
-          {circuitLive && <CircuitBackdrop />}
+          {groundsReady && <CircuitBackdrop active={circuitLive} />}
           <div className="absolute inset-0 hidden lg:block">
             <Corner3DGrid corner="tl" />
             <Corner3DGrid corner="bl" />
             <Corner3DGrid corner="tr" />
             <Corner3DGrid corner="br" />
           </div>
-          {circuitLive && <SectionParticles />}
+          {groundsReady && <SectionParticles />}
         </motion.div>
         <motion.div
           aria-hidden
           className="pointer-events-none absolute inset-0"
           style={{ x: creativeGroundX, backgroundColor: MOOD_BG }}
         >
-          {creativeLive && <MoodField />}
+          {groundsReady && <MoodField active={creativeLive} />}
         </motion.div>
 
         {/* (The blinking direction squares stood here, 2026-10-14 → 15 —
@@ -1105,8 +1216,6 @@ export function Flythrough({
         {ROOMS.map(({ item, track: t, index }) => {
           const logic = t === "logic";
           const live = current === index && track === t;
-          // Whether this slide is the camera's, and has been landed on.
-          const arrived = live && !moving;
           return (
             <Slide
               key={item.id}
@@ -1123,34 +1232,17 @@ export function Flythrough({
               reduceMotion={reduceMotion}
               current={live}
             >
-              <NearContext.Provider value={pageSettled || index <= reach}>
-                {/* Left: the project's page, on the whole slide. Right: each
-                    room its own (owner, 2026-10-15). The four quadrants
-                    (ShowcaseRoom) are unlinked. */}
-                {logic ? (
-                  item.id === "azoth-biotech" ? (
-                    <AzothSlide item={item} />
-                  ) : item.id === "abs" ? (
-                    <AbsSlide item={item} active={live && !reduceMotion} />
-                  ) : item.id === "zabraku" ? (
-                    <ZabrakuSlide item={item} live={live} arrived={arrived} />
-                  ) : item.id === "newsmobile" ? (
-                    <NewsMobileSlide item={item} live={live} arrived={arrived} reduceMotion={reduceMotion} />
-                  ) : item.id === "vivid" ? (
-                    <ProjectSlide item={item} extra={{ label: "Visit vividprotech.com", href: "https://vividprotech.com" }} />
-                  ) : (
-                    <ProjectSlide item={item} />
-                  )
-                ) : item.id === "the-extincts-project" ? (
-                  <ExtinctsSlide reduceMotion={reduceMotion} />
-                ) : item.id === "arts-and-crafts" ? (
-                  <ArtSlide thumbs={artThumbs} active={live && !reduceMotion} />
-                ) : item.id === "ai-projects" ? (
-                  <AiSlide reduceMotion={reduceMotion} />
-                ) : (
-                  <WritingsSlide covers={covers} />
-                )}
-              </NearContext.Provider>
+              <RoomBody
+                item={item}
+                logic={logic}
+                live={live}
+                soon={track === t && Math.abs(current - index) <= 1}
+                near={pageSettled || index <= reach}
+                moving={movingMV}
+                reduceMotion={reduceMotion}
+                artThumbs={artThumbs}
+                covers={covers}
+              />
             </Slide>
           );
         })}

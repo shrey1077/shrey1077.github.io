@@ -60,6 +60,28 @@ const SCENE_URL = "https://prod.spline.design/AqtlWJlNbO-ZMkvz/scene.splinecode"
 const VIEWER_SRC = "https://unpkg.com/@splinetool/viewer@1.3.5/build/spline-viewer.js";
 const VIEWER_ID = "spline-viewer-module";
 
+/** Warm the way for a scene before it is shown (2026-10-15, owner: the robot
+ *  "takes time to load, can it be made faster"): open the connections to
+ *  both hosts, fetch the viewer's module, and ask for the scene file ahead,
+ *  so when the scene mounts its downloads are already done or under way.
+ *  Once per document and scene. */
+const warmed = new Set<string>();
+export function preloadSpline(url: string = SCENE_URL) {
+  if (typeof document === "undefined" || warmed.has(url)) return;
+  warmed.add(url);
+  const link = (rel: string, href: string, extra: Record<string, string> = {}) => {
+    const l = document.createElement("link");
+    l.rel = rel;
+    l.href = href;
+    for (const [k, v] of Object.entries(extra)) l.setAttribute(k, v);
+    document.head.appendChild(l);
+  };
+  link("preconnect", "https://unpkg.com", { crossorigin: "" });
+  link("preconnect", new URL(url).origin, { crossorigin: "" });
+  link("modulepreload", VIEWER_SRC, { crossorigin: "" });
+  link("prefetch", url, { as: "fetch", crossorigin: "anonymous" });
+}
+
 export function SplineScene({
   url = SCENE_URL,
   className = "",
@@ -82,6 +104,7 @@ export function SplineScene({
    *  The scene sits left-of-centre in its own frame, so this is what puts the
    *  robot clear of the wordmark rather than behind it. */
   offsetX = "14%",
+  onReady,
 }: {
   url?: string;
   className?: string;
@@ -90,7 +113,13 @@ export function SplineScene({
   opacity?: number;
   scale?: number;
   offsetX?: string;
+  /** Called once the scene has loaded and is drawing. */
+  onReady?: () => void;
 }) {
+  const readyRef = useRef(onReady);
+  useEffect(() => {
+    readyRef.current = onReady;
+  });
   const reduceMotion = useReducedMotion();
   const { ref, inView } = useInViewport<HTMLDivElement>({ rootMargin: "300px" });
   const hostRef = useRef<HTMLDivElement>(null);
@@ -117,11 +146,15 @@ export function SplineScene({
     el.style.height = "100%";
     el.style.display = "block";
     host.appendChild(el);
+    // The viewer says when its scene is in.
+    const ready = () => readyRef.current?.();
+    el.addEventListener("load-complete", ready);
 
     return () => {
       // Drop the element on the way out so its WebGL context and render loop go
       // with it — the script tag stays, since re-parsing the module is wasted
       // work and custom elements can only be defined once anyway.
+      el.removeEventListener("load-complete", ready);
       host.replaceChildren();
     };
   }, [url, inView, reduceMotion]);

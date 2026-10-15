@@ -69,7 +69,7 @@ export const AZOTH_SPECIES: AzothSpecies[] = [
     atPortrait: { x: 40, y: 55, w: 5.4 },
     color: "#d4620a",
     accent: "#f59e4a",
-    image: `${HERO}/mushrooms/cordyceps.webp`,
+    image: `${HERO}/mushrooms/solid/cordyceps.webp`,
     qualities: [
       "Supports ATP production",
       "Enhances athletic performance",
@@ -89,7 +89,7 @@ export const AZOTH_SPECIES: AzothSpecies[] = [
     // next to orange, green and red. Gold keeps the cream of the real thing.
     color: "#c99a3a",
     accent: "#f0d58c",
-    image: `${HERO}/mushrooms/lionsmane.webp`,
+    image: `${HERO}/mushrooms/solid/lionsmane.webp`,
     qualities: [
       "Supports cognitive function",
       "Promotes nerve regeneration",
@@ -106,7 +106,7 @@ export const AZOTH_SPECIES: AzothSpecies[] = [
     atPortrait: { x: 52.5, y: 47.5, w: 5.8 },
     color: "#4a7a38",
     accent: "#86b868",
-    image: `${HERO}/mushrooms/turkeystail.webp`,
+    image: `${HERO}/mushrooms/solid/turkeystail.webp`,
     qualities: [
       "Supports immune system",
       "Rich in antioxidants",
@@ -123,7 +123,7 @@ export const AZOTH_SPECIES: AzothSpecies[] = [
     atPortrait: { x: 59, y: 43.5, w: 5.4 },
     color: "#8b3a2a",
     accent: "#c47050",
-    image: `${HERO}/mushrooms/ganoderma.webp`,
+    image: `${HERO}/mushrooms/solid/ganoderma.webp`,
     qualities: [
       "Supports stress relief & relaxation",
       "Promotes restful sleep",

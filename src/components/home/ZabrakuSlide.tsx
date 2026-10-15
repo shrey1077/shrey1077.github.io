@@ -10,33 +10,64 @@
  * The robot is the Spline scene that stood behind the Zabraku page until
  * then (SplineScene — read its header: the scene is the TEMPLATE AUTHOR'S,
  * hosted on their Spline account, and should be replaced with one of the
- * owner's own). It follows the cursor across its box. It starts only once
- * the camera has LANDED on the slide — its downloads and setting-up froze a
- * flight for half a second when it started on the way in — and stops when
- * the camera leaves, so its WebGL costs nothing anywhere else on the page.
+ * owner's own). It follows the cursor across its box.
+ *
+ * LOADING (owner, same day: it "takes time to load, can it be made faster"):
+ * the viewer's module and the scene are fetched AHEAD, as soon as the camera
+ * is a step away (`soon`, preloadSpline), so arriving finds them in hand; the
+ * scene itself starts once the camera has landed and the scrolling has gone
+ * quiet (useQuietStart — its setting-up would stall a move), and stops when
+ * the camera leaves. Until it is drawing, the box says so: "Sending Robot
+ * from future…" (owner's words).
+ *
+ * Where the words on the left run over the robot — a portrait screen; on a
+ * landscape one they stand clear of it — they turn light (owner: "when grey
+ * text overlaps with robot it should become white in affected area"): drawn
+ * white in `difference` blending, at an opacity that comes out the usual grey
+ * on white and near white over the robot's dark body. That blending needs the
+ * slide's own white under it, so on a portrait screen this one slide is plain
+ * white, without the drifting field behind.
  */
 
-import { useQuietStart } from "@/components/home/quietStart";
+import { useState } from "react";
+import type { MotionValue } from "framer-motion";
 import { RoomImage as Image } from "@/components/home/nearness";
-import { SplineScene } from "@/components/client/SplineScene";
+import { SplineScene, preloadSpline } from "@/components/client/SplineScene";
 import { PixelButton } from "@/components/home/PixelButton";
+import { useQuietStart } from "@/components/home/quietStart";
 import type { Showcase } from "@/constants/showcase";
 import { typeVoiceClass } from "@/constants/typography";
 
-const META = `${typeVoiceClass("logic", "meta")} text-[0.58rem] tracking-[0.28em] text-neutral-500`;
+const META = `${typeVoiceClass("logic", "meta")} text-[0.58rem] tracking-[0.28em]`;
 /** The robot — the template author's scene; see SplineScene. */
 const SCENE = "https://prod.spline.design/AqtlWJlNbO-ZMkvz/scene.splinecode";
 
-export function ZabrakuSlide({ item, live, arrived }: { item: Showcase; live: boolean; arrived: boolean }) {
-  // Started once the camera has landed here (its setting-up would stall a
-  // move), kept while the slide is the camera's, dropped when it leaves.
-  // After landing, once scrolling has gone quiet (useQuietStart).
-  const on = useQuietStart(arrived, live);
+export function ZabrakuSlide({
+  item,
+  live,
+  soon,
+  moving,
+}: {
+  item: Showcase;
+  live: boolean;
+  /** The camera is here or a step away: fetch ahead. */
+  soon: boolean;
+  moving: MotionValue<number>;
+}) {
+  if (soon) preloadSpline(SCENE);
+  const on = useQuietStart(live, moving);
+  const [ready, setReady] = useState(false);
+  if (!on && ready) setReady(false);
+
   return (
-    <section aria-label={item.name} data-side="logic" className="absolute inset-0 overflow-hidden">
+    // ⚠ White under everything on a portrait screen: a slide is a layer of
+    // its own, so the words' `difference` blending (below) can only meet what
+    // is IN the slide — without this it met nothing, and white words on the
+    // page's white came out invisible.
+    <section aria-label={item.name} data-side="logic" className="absolute inset-0 overflow-hidden portrait:bg-white">
       <h2 className="sr-only">{item.name}</h2>
-      {/* The robot: the right side, 75% of the screen's height, centred. */}
-      {/* On a portrait screen: the lower part, under the words. */}
+      {/* The robot: the right side, 75% of the screen's height, centred; on a
+          portrait screen the lower part, under the words. */}
       <div className="absolute right-0 top-1/2 h-[75svh] w-[min(62vw,75svh)] -translate-y-1/2 sm:right-[3vw] portrait:bottom-[calc(7svh+3.5rem)] portrait:top-auto portrait:h-[52svh] portrait:w-[80vw] portrait:translate-y-0">
         {on && (
           <SplineScene
@@ -45,16 +76,28 @@ export function ZabrakuSlide({ item, live, arrived }: { item: Showcase; live: bo
             scale={1.12}
             opacity={0.85}
             filter="grayscale(1) brightness(1.55) contrast(0.85)"
+            onReady={() => setReady(true)}
           />
         )}
+        {live && !ready && (
+          <p
+            aria-live="polite"
+            className="font-graff pointer-events-none absolute inset-0 grid place-items-center text-center text-[clamp(0.7rem,1.2vw,0.95rem)] uppercase tracking-[0.24em] text-neutral-500"
+          >
+            <span className="animate-pulse">Sending Robot from future…</span>
+          </p>
+        )}
       </div>
-      {/* Zabraku, and the way in, on the left. */}
-      <div className="pointer-events-none absolute left-4 top-1/2 z-10 flex -translate-y-1/2 flex-col items-start gap-4 sm:left-8 lg:left-[5vw] portrait:top-[calc(max(2vh,0.75rem)+var(--strip-h)+1.25rem)] portrait:translate-y-0">
-        <p className={META}>{item.sector}</p>
+      {/* Zabraku, and the way in, on the left. ⚠ No transform and no
+          z-index on this box: either would make it a layer of its own, and
+          the words' `difference` blending would then meet only the empty box,
+          never the robot. Centred by flex instead; above the robot by order. */}
+      <div className="pointer-events-none absolute inset-y-0 left-4 flex flex-col items-start justify-center gap-4 sm:left-8 lg:left-[5vw] portrait:justify-start portrait:pt-[calc(max(2vh,0.75rem)+var(--strip-h)+1.25rem)]">
+        <p className={`${META} text-neutral-500 portrait:text-white/70 portrait:mix-blend-difference`}>{item.sector}</p>
         <span className="relative block aspect-[4/1] w-[min(36vw,26rem)] portrait:w-[58vw]">
           <Image src={item.mark ?? ""} alt="Zabraku" fill sizes="(orientation: portrait) 58vw, 36vw" className="object-contain object-left" />
         </span>
-        <p className="font-helv max-w-[22rem] text-[0.86rem] leading-snug text-neutral-600 portrait:max-w-[60vw]">
+        <p className="font-helv max-w-[22rem] text-[0.86rem] leading-snug text-neutral-600 portrait:max-w-[60vw] portrait:text-white/[0.66] portrait:mix-blend-difference">
           A media house with a story-first spine — its identity, RKB Entertainment&apos;s, and a year of event campaigns.
         </p>
         <span className="pointer-events-auto">

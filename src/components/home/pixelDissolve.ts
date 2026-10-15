@@ -42,7 +42,12 @@ export const PAN_CELL = Math.round(CELL / PHI);
  *  1 − WINDOW, so it has just turned as the move lands. */
 export const WINDOW = 0.36;
 /** The flights' ease, as a CSS cubic-bezier — Flythrough's flights and pans. */
-export const FLY_EASE = [0.65, 0, 0.35, 1] as const;
+// ⚠ A GENTLE START since 2026-10-15 (owner: "it feels like it stops for a
+// while just after beginning of transition and then continues. make it a
+// smooth and continuous movement"): it was (0.65, 0, 0.35, 1), which covers
+// barely 7% of the way in the first quarter of the time — a hold, then a
+// lunge. This one is under way at once and settles long and soft.
+export const FLY_EASE = [0.33, 0, 0.22, 1] as const;
 
 /** Where a move's wave comes from: the middle (a fly-through), or a side. */
 export type WaveFrom = "centre" | "below" | "below-left" | "below-right" | "left" | "right";

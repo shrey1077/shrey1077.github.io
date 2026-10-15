@@ -180,6 +180,13 @@ export function AzothHero({ variant = "page" }: { variant?: "page" | "slide" } =
   const active = AZOTH_SPECIES.find((s) => s.id === activeId) ?? null;
   // Whether a mouse is over the scene — the intro strip shows only then.
   const [hovering, setHovering] = useState(false);
+  // The mushrooms, for the tick to fade, and which one is hovered (held in
+  // full whatever the spotlight does).
+  const mushRefs = useRef(new Map<string, HTMLDivElement>());
+  const activeRef = useRef<string | null>(null);
+  useEffect(() => {
+    activeRef.current = activeId;
+  }, [activeId]);
 
   useEffect(() => {
     const el = rootRef.current;
@@ -208,6 +215,16 @@ export function AzothHero({ variant = "page" }: { variant?: "page" | "slide" } =
       smooth.current.y += (target.current.y - smooth.current.y) * EASE;
       el.style.setProperty("--spot-x", `${smooth.current.x.toFixed(1)}px`);
       el.style.setProperty("--spot-y", `${smooth.current.y.toFixed(1)}px`);
+      // Each mushroom, whole: full inside the spotlight's core, gone past
+      // its edge — measured from the plant's middle, a little low.
+      const r = el.getBoundingClientRect();
+      for (const [id, node] of mushRefs.current) {
+        const q = node.getBoundingClientRect();
+        const d = Math.hypot(q.left + q.width / 2 - r.left - smooth.current.x, q.top + q.height * 0.6 - r.top - smooth.current.y);
+        const t = Math.max(0, Math.min(1, (d - SPOTLIGHT_R * 0.35) / (SPOTLIGHT_R * 0.45)));
+        const o = activeRef.current === id ? 1 : 1 - t * t * (3 - 2 * t);
+        node.style.opacity = o.toFixed(3);
+      }
       raf.current = requestAnimationFrame(tick);
     };
 
@@ -293,25 +310,30 @@ export function AzothHero({ variant = "page" }: { variant?: "page" | "slide" } =
         </div>
         )}
         <Image src={AZOTH_HERO.revealCut} alt="" fill priority={priority} sizes="100vw" className="object-cover" />
-        {/* The four species, standing on the flowering ridge. ⚠ INSIDE the
-            masked layer on purpose: they exist only where the spotlight is, so
-            they are found by hovering the scene, never shown outright. */}
+      </div>
+
+      {/* The four species, standing on the flowering ridge — found by the
+          spotlight, each fading in and out WHOLE as it comes near (the tick
+          below), not cut by the spotlight's soft edge: inside the mask they
+          showed through in patches (owner, 2026-10-15: "address the
+          transparency patches"). Solid cutouts (scripts/make-solid-
+          mushrooms.mjs), and no glow (owner: "i dont like that much glow
+          around it") — a hovered one only lifts a little. On touch, and with
+          reduced motion, they simply stand. */}
+      <div className="pointer-events-none absolute inset-0 z-40 overflow-hidden">
         <div className={ART_FRAME}>
           {AZOTH_SPECIES.map((s) => (
-            // Colour-coded (owner, 2026-10-03): each mushroom glows in its own
-            // hue — the one its strip is washed with — harder while hovered.
             <div
               key={s.id}
-              className={`absolute aspect-square transition-[filter,transform] duration-300 ${
-                active?.id === s.id ? "scale-[1.04]" : ""
-              }`}
-              style={{
-                ...footStyle(s, portrait),
-                filter:
-                  active?.id === s.id
-                    ? `drop-shadow(0 0 18px ${s.color}) drop-shadow(0 0 6px ${s.accent}) brightness(1.1)`
-                    : `drop-shadow(0 0 10px ${s.color}aa)`,
+              ref={(n) => {
+                if (n) mushRefs.current.set(s.id, n);
+                else mushRefs.current.delete(s.id);
               }}
+              data-mushroom={s.id}
+              className={`absolute aspect-square transition-[transform,filter] duration-300 ${
+                active?.id === s.id ? "scale-[1.04] brightness-110" : ""
+              }`}
+              style={{ ...footStyle(s, portrait), opacity: isTouch || reduceMotion ? 1 : 0 }}
             >
               <Image src={s.image} alt={s.name} fill sizes="16vw" className="object-contain object-bottom" />
             </div>

@@ -178,6 +178,7 @@ export function MoodField({
   flow = { warp: 100, turbulence: 100, contrast: 100 },
   /** The preset's stirring: a 260px reach, full strength, a 90° swirl. */
   cursor = { reach: 260, hover: 100, swirl: 90 },
+  active = true,
 }: {
   background?: string;
   colors?: string[];
@@ -185,8 +186,19 @@ export function MoodField({
   density?: number;
   flow?: { warp: number; turbulence: number; contrast: number };
   cursor?: { reach: number; hover: number; swirl: number };
+  /** False: set up but still — no frames drawn. The Flythrough mounts the
+   *  field ahead of time (2026-10-15: starting its GL at the start of a pan
+   *  stalled the pan) and runs it only while the creative side shows. */
+  active?: boolean;
 }) {
   const rootRef = useRef<HTMLDivElement>(null);
+  const activeRef = useRef(active);
+  const loop = useRef<{ start: () => void; stop: () => void } | null>(null);
+  useEffect(() => {
+    activeRef.current = active;
+    if (active) loop.current?.start();
+    else loop.current?.stop();
+  }, [active]);
   const reduceMotion = useReducedMotion() ?? false;
 
   // The settings the frame loop reads — refreshed every render, so a prop
@@ -339,10 +351,26 @@ export function MoodField({
       });
       ro.observe(root);
     } else {
-      raf = requestAnimationFrame(frame);
+      // Run only while active (see `active`): drawn once now either way,
+      // so the canvas is ready the moment it is shown.
+      resize();
+      draw();
+      loop.current = {
+        start: () => {
+          if (raf) return;
+          last = -1;
+          raf = requestAnimationFrame(frame);
+        },
+        stop: () => {
+          cancelAnimationFrame(raf);
+          raf = 0;
+        },
+      };
+      if (activeRef.current) loop.current.start();
     }
 
     return () => {
+      loop.current = null;
       cancelAnimationFrame(raf);
       ro?.disconnect();
       window.removeEventListener("pointermove", onMove);

@@ -22,7 +22,7 @@ import { useReducedMotion } from "framer-motion";
 import { useInViewport } from "@/hooks/useInViewport";
 import { useFirstScreenUp } from "@/components/home/nearness";
 
-export function CircuitBackdrop() {
+export function CircuitBackdrop({ active = true }: { active?: boolean } = {}) {
   const reduceMotion = useReducedMotion();
   const videoRef = useRef<HTMLVideoElement>(null);
   const { ref, inView } = useInViewport<HTMLDivElement>({ initial: false });
@@ -31,13 +31,13 @@ export function CircuitBackdrop() {
   useEffect(() => {
     const v = videoRef.current;
     if (!v) return;
-    if (reduceMotion || !firstScreenUp || !inView) {
+    if (reduceMotion || !firstScreenUp || !inView || !active) {
       v.pause();
       return;
     }
     v.preload = "auto";
     v.play().catch(() => {});
-  }, [reduceMotion, firstScreenUp, inView]);
+  }, [reduceMotion, firstScreenUp, inView, active]);
 
   // The footage has a bright chip "patch" that pulses dead-centre — right where
   // the brain sits. An inverted radial mask fades the centre out, so the patch
