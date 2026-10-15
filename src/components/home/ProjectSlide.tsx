@@ -11,7 +11,9 @@
  * portrait one — by scripts/make-showcase-previews.mjs, so it looks like the
  * page itself at any size and never needs a scroll. A click anywhere on it,
  * or the "View Full Project" button in the bottom-right corner, opens the
- * page. The strip runs over its top, the band over its foot.
+ * page. The strip runs over its top, the band over its foot. Vivid's is a
+ * still of the company's own website (owner: "full screen Vivid ProTech
+ * website preview"), with a second button to the live site.
  *
  * It waits for its room like every picture here (nearness).
  */
@@ -22,7 +24,7 @@ import { NearContext } from "@/components/home/nearness";
 import { PixelButton } from "@/components/home/PixelButton";
 import type { Showcase } from "@/constants/showcase";
 
-export function ProjectSlide({ item }: { item: Showcase }) {
+export function ProjectSlide({ item, extra }: { item: Showcase; extra?: { label: string; href: string } }) {
   const near = useContext(NearContext);
   const href = item.report.href ?? "/";
   const src = item.preview?.src;
@@ -43,7 +45,12 @@ export function ProjectSlide({ item }: { item: Showcase }) {
           </picture>
         )}
       </Link>
-      <div className="absolute bottom-[calc(7svh+0.75rem)] right-4 z-10 sm:right-8 lg:right-[5vw]">
+      <div className="absolute bottom-[calc(7svh+0.75rem)] right-4 z-10 flex flex-col items-end gap-2 sm:right-8 sm:flex-row sm:items-center lg:right-[5vw]">
+        {extra && (
+          <PixelButton side="logic" size="sm" href={extra.href}>
+            {extra.label} <span aria-hidden>↗</span>
+          </PixelButton>
+        )}
         <PixelButton side="logic" href={href}>
           {item.report.label} <span aria-hidden>→</span>
         </PixelButton>

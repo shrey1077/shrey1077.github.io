@@ -104,6 +104,10 @@ import { CircuitBackdrop } from "@/components/home/CircuitBackdrop";
 import { MOOD_BG, MoodField } from "@/components/home/MoodField";
 import { Corner3DGrid } from "@/components/home/Corner3DGrid";
 import { ProjectSlide } from "@/components/home/ProjectSlide";
+import { AzothSlide } from "@/components/home/AzothSlide";
+import { AbsSlide } from "@/components/home/AbsSlide";
+import { ZabrakuSlide } from "@/components/home/ZabrakuSlide";
+import { NewsMobileSlide } from "@/components/home/NewsMobileSlide";
 import { ExtinctsSlide } from "@/components/home/ExtinctsSlide";
 import { ArtSlide, type ArtThumb } from "@/components/home/ArtSlide";
 import { AiSlide } from "@/components/home/AiSlide";
@@ -359,6 +363,12 @@ function Slide({
     return "visible";
   });
 
+  // ⚠ A slide out of sight is see-through as well as hidden: a 3D scene
+  // inside one (the Zabraku robot, SplineScene) draws into a canvas that sets
+  // its own visibility and showed through the slides around it. Opacity on an
+  // ancestor is the one thing nothing inside can undo.
+  const shown = useTransform(visibility, (v) => (v === "hidden" ? 0 : 1));
+
   // The squares: written straight to the DOM, only on a fly-through step.
   useLayoutEffect(() => {
     const el = outerRef.current;
@@ -430,6 +440,7 @@ function Slide({
         y,
         zIndex,
         visibility,
+        opacity: shown,
         // ⚠ Here, not on the stage: a perspective only reaches an element's
         // direct children, and the inner layer is the one that flies.
         perspective: PERSPECTIVE,
@@ -522,6 +533,14 @@ export function Flythrough({
   // Set while a flight is under way, so the landing's track reset below
   // never undoes a pin's or the menu's own choice of track mid-flight.
   const flyingRef = useRef(false);
+  // …and the same as state, for the slides that start something heavy (the
+  // robot, the globe) only once the camera has LANDED on them — never
+  // mid-flight, where its setting-up would stall the move.
+  const [moving, setMoving] = useState(false);
+  const setFlying = useCallback((v: boolean) => {
+    flyingRef.current = v;
+    setMoving(v);
+  }, []);
 
   // The slide the camera is nearest — only changes on a crossing.
   const [current, setCurrent] = useState(0);
@@ -668,7 +687,7 @@ export function Flythrough({
         opts.onLanded?.();
         return;
       }
-      flyingRef.current = true;
+      setFlying(true);
       // The rooms on the way, and the one it lands in, start their pictures now.
       if (to >= BRAIN) extendReach(to);
       const slides = opts.single ? 1 : Math.abs(target - from) / (geomRef.current.step || 1);
@@ -679,7 +698,7 @@ export function Flythrough({
         ease: FLY_EASE,
         onUpdate: (v) => window.scrollTo({ top: v, behavior: "instant" }),
         onComplete: () => {
-          flyingRef.current = false;
+          setFlying(false);
           landedAt = performance.now();
           opts.onLanded?.();
         },
@@ -749,7 +768,7 @@ export function Flythrough({
         start(() => {
           // In flight BEFORE the warp is read in — or, from the orb, the
           // landing's track reset (sync) would undo the side just chosen.
-          flyingRef.current = true;
+          setFlying(true);
           setWarp({ a, b, ta: tb, tb, pan: false, A, B });
           flyTo(b, {
             single: true,
@@ -765,14 +784,14 @@ export function Flythrough({
       // Across: pan, the arriving side showing the room chosen, then land
       // the page on it.
       start(() => {
-        flyingRef.current = true;
+        setFlying(true);
         if (b !== a) setWarp({ a, b, ta, tb, pan: true, A: a, B: a });
         setArriving(roomAt(b, tb) ?? null);
         switchTrack(tb, false, () => {
           measure();
           window.scrollTo({ top: scrollTop(b), behavior: "instant" });
           setWarp(null);
-          flyingRef.current = false;
+          setFlying(false);
           landedAt = performance.now();
           land();
         });
@@ -950,7 +969,7 @@ export function Flythrough({
       window.removeEventListener(PIN_OPEN_EVENT, onPin);
       window.removeEventListener(GO_EVENT, onGo);
     };
-  }, [reduceMotion, switchTrack, extendReach, measure, position, sync, trackX, warpTick]);
+  }, [reduceMotion, switchTrack, extendReach, measure, position, sync, trackX, warpTick, setFlying]);
 
   const goId = (id: string) => window.dispatchEvent(new CustomEvent<GoDetail>(GO_EVENT, { detail: { id } }));
   const goHome = () => window.dispatchEvent(new CustomEvent<GoDetail>(GO_EVENT, { detail: { k: BRAIN } }));
@@ -1025,6 +1044,8 @@ export function Flythrough({
         {ROOMS.map(({ item, track: t, index }) => {
           const logic = t === "logic";
           const live = current === index && track === t;
+          // Whether this slide is the camera's, and has been landed on.
+          const arrived = live && !moving;
           return (
             <Slide
               key={item.id}
@@ -1046,7 +1067,19 @@ export function Flythrough({
                     room its own (owner, 2026-10-15). The four quadrants
                     (ShowcaseRoom) are unlinked. */}
                 {logic ? (
-                  <ProjectSlide item={item} />
+                  item.id === "azoth-biotech" ? (
+                    <AzothSlide item={item} />
+                  ) : item.id === "abs" ? (
+                    <AbsSlide item={item} />
+                  ) : item.id === "zabraku" ? (
+                    <ZabrakuSlide item={item} live={live} arrived={arrived} />
+                  ) : item.id === "newsmobile" ? (
+                    <NewsMobileSlide item={item} live={live} arrived={arrived} reduceMotion={reduceMotion} />
+                  ) : item.id === "vivid" ? (
+                    <ProjectSlide item={item} extra={{ label: "Visit vividprotech.com", href: "https://vividprotech.com" }} />
+                  ) : (
+                    <ProjectSlide item={item} />
+                  )
                 ) : item.id === "the-extincts-project" ? (
                   <ExtinctsSlide reduceMotion={reduceMotion} />
                 ) : item.id === "arts-and-crafts" ? (

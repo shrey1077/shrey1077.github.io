@@ -18,8 +18,10 @@
  * and a strip along the top (ShowcaseStrip) names every room on that side —
  * the logos on the left, ending in "See all" (the All Works page).
  *
- * THE ORDER IS THE OWNER'S. Left: Tata IIS, Azoth Biotech, ABS Wholesale
- * (USA), Luzid, Kartpipe, Zabraku, NewsMobile, Post Grad. UID, Vivid ProTech.
+ * THE ORDER IS THE OWNER'S. Left (2026-10-15, second pass): Tata IIS, Azoth
+ * Biotech, ABS Wholesale (USA) with Luzid and Kartpipe on the same slide,
+ * Zabraku, Vivid ProTech, NewsMobile — and Post Grad. UID after them, where
+ * the owner's list left it.
  * Right: The Extincts Project ("1st and topmost", owner 2026-10-15), Arts &
  * Crafts, AI Projects, Writings & Publications. Everything else that stood
  * on the old boards is on /all-works.
@@ -207,6 +209,124 @@ export const LOGIC_SHOWCASE: readonly Showcase[] = [
     report: { label: "View Full Project", href: "/clients/abs" },
   },
   {
+    id: "zabraku",
+    side: "logic",
+    name: "Zabraku",
+    short: "Zabraku",
+    mark: "/content/clients/zabraku-media/zabraku-logo-dark.png",
+    sector: "Media · Content",
+    treeLabel: "Brand family",
+    tree: {
+      name: "Zabraku Media",
+      logo: "/content/clients/zabraku-media/zabraku-logo-dark.png",
+      children: [{ name: "RKB Entertainment", logo: "/content/clients/zabraku-media/rkb-logo.png", tone: "light" }],
+    },
+    preview: { src: `${PREVIEW}/zabraku.webp`, url: "shrey107.com/clients/zabraku-media" },
+    role: "Graphic Designer",
+    years: "2020 — 2024",
+    points: [
+      "The Zabraku identity — the wordmark cut into a radial line field, built to move.",
+      "A second identity, for RKB Entertainment.",
+      "Four waves of event campaigns across a year-long party calendar.",
+      "The 2021 company portfolio, page by page.",
+    ],
+    facts: [{ label: "Based", value: "Malviya Nagar, Delhi" }],
+    report: { label: "View Full Project", href: "/clients/zabraku-media" },
+  },
+  {
+    id: "vivid",
+    side: "logic",
+    name: "Vivid ProTech",
+    short: "Vivid ProTech",
+    mark: "/content/clients/vivid/vivid-mark.png",
+    sector: "Filtration & containment · Pharma",
+    treeLabel: "Brand family",
+    tree: {
+      name: "Vivid Process Technology",
+      logo: "/content/clients/vivid/vivid-mark.png",
+      children: [
+        { name: "Process maps", group: true, children: [{ name: "API" }, { name: "Biopharma" }, { name: "Formulation" }] },
+      ],
+    },
+    preview: { src: `${PREVIEW}/vivid-site.webp`, url: "vividprotech.com" },
+    role: "Brand & Web Designer · Freelance",
+    points: [
+      "A full identity and website for a filtration and containment supplier to pharma.",
+      "Process maps placing every Vivid product inside the API, biopharma and formulation lines a plant runs.",
+      "A catalogue of stainless housings, turned into a story a process engineer already believes.",
+    ],
+    facts: [{ label: "Website", value: "vividprotech.com", href: "https://vividprotech.com" }],
+    report: { label: "View Full Project", href: "/clients/vivid" },
+  },
+  {
+    id: "newsmobile",
+    side: "logic",
+    name: "NewsMobile",
+    short: "NewsMobile",
+    mark: "/content/career/newsmobile.png",
+    sector: "Digital news",
+    treeLabel: "Brand family",
+    tree: {
+      name: "NewsMobile",
+      logo: "/content/career/newsmobile.png",
+      children: [{ name: "newsmobile.in" }, { name: "newsmobile.asia" }],
+    },
+    preview: { src: `${PREVIEW}/newsmobile.webp`, url: "shrey107.com/clients/newsmobile" },
+    role: "Graphic Designer · Video Editor · Copy Editor",
+    years: "2017 — 2018",
+    points: [
+      "Data infographics that made the numbers shareable.",
+      "News and quote cards — the soundbite, framed.",
+      "Explainers and listicles built to land before the thumb moves on.",
+      "Wrote as well as designed — the bylines are in Writings & Publications.",
+    ],
+    facts: [
+      { label: "Website", value: "newsmobile.in", href: "https://newsmobile.in" },
+      { label: "Based", value: "Gurugram, Haryana" },
+    ],
+    report: { label: "View Full Project", href: "/clients/newsmobile" },
+  },
+  {
+    id: "uid",
+    side: "logic",
+    name: "Post Grad. — UID",
+    short: "Post Grad. UID",
+    mark: "/content/clients/uid/brand/uid-logo.png",
+    sector: "Unitedworld Institute of Design",
+    treeLabel: "Projects",
+    tree: {
+      name: "Unitedworld Institute of Design",
+      logo: "/content/clients/uid/brand/uid-logo.png",
+      children: [
+        { name: "Puran Studios", logo: `${LOGO}/puran-studios.png` },
+        { name: "Farm Stacks" },
+        { name: "Nirvaan" },
+        { name: "The Trip" },
+      ],
+    },
+    preview: { src: `${PREVIEW}/uid.webp`, url: "shrey107.com/clients/uid" },
+    role: "M.Des — Visual Communication",
+    years: "2018 — 2020",
+    points: [
+      "Puran Studios — an identity worked through to production.",
+      "Farm Stacks — packaging for a hydroponics brand.",
+      "Nirvaan — a performance identity; posters, and The Trip.",
+      "Fieldwork and writing — the block printers of Pethapur.",
+    ],
+    facts: [
+      { label: "Website", value: "uid.edu.in", href: "https://uid.edu.in" },
+      { label: "Email", value: "admissions@uid.edu.in", href: "mailto:admissions@uid.edu.in" },
+      { label: "Campuses", value: "Ahmedabad · NCR · Bengaluru" },
+    ],
+    report: { label: "View Full Project", href: "/clients/uid" },
+  },
+];
+
+/** The two brands built at ABS that share its slide (owner, 2026-10-15:
+ *  "ABS in top half, and Luzid and Kartpipe in lower half of slide, yes 3 in
+ *  one slide"). They had slides of their own for a day. */
+export const ABS_BRANDS: readonly Showcase[] = [
+  {
     id: "luzid",
     side: "logic",
     name: "Luzid",
@@ -272,118 +392,6 @@ export const LOGIC_SHOWCASE: readonly Showcase[] = [
       { label: "Based", value: "Santa Fe Springs, California" },
     ],
     report: { label: "View Full Project", href: "/clients/abs#kartpipe" },
-  },
-  {
-    id: "zabraku",
-    side: "logic",
-    name: "Zabraku",
-    short: "Zabraku",
-    mark: "/content/clients/zabraku-media/zabraku-logo-dark.png",
-    sector: "Media · Content",
-    treeLabel: "Brand family",
-    tree: {
-      name: "Zabraku Media",
-      logo: "/content/clients/zabraku-media/zabraku-logo-dark.png",
-      children: [{ name: "RKB Entertainment", logo: "/content/clients/zabraku-media/rkb-logo.png", tone: "light" }],
-    },
-    preview: { src: `${PREVIEW}/zabraku.webp`, url: "shrey107.com/clients/zabraku-media" },
-    role: "Graphic Designer",
-    years: "2020 — 2024",
-    points: [
-      "The Zabraku identity — the wordmark cut into a radial line field, built to move.",
-      "A second identity, for RKB Entertainment.",
-      "Four waves of event campaigns across a year-long party calendar.",
-      "The 2021 company portfolio, page by page.",
-    ],
-    facts: [{ label: "Based", value: "Malviya Nagar, Delhi" }],
-    report: { label: "View Full Project", href: "/clients/zabraku-media" },
-  },
-  {
-    id: "newsmobile",
-    side: "logic",
-    name: "NewsMobile",
-    short: "NewsMobile",
-    mark: "/content/career/newsmobile.png",
-    sector: "Digital news",
-    treeLabel: "Brand family",
-    tree: {
-      name: "NewsMobile",
-      logo: "/content/career/newsmobile.png",
-      children: [{ name: "newsmobile.in" }, { name: "newsmobile.asia" }],
-    },
-    preview: { src: `${PREVIEW}/newsmobile.webp`, url: "shrey107.com/clients/newsmobile" },
-    role: "Web & Graphic Designer / Content Writer",
-    years: "2017 — 2018",
-    points: [
-      "Data infographics that made the numbers shareable.",
-      "News and quote cards — the soundbite, framed.",
-      "Explainers and listicles built to land before the thumb moves on.",
-      "Wrote as well as designed — the bylines are in Writings & Publications.",
-    ],
-    facts: [
-      { label: "Website", value: "newsmobile.in", href: "https://newsmobile.in" },
-      { label: "Based", value: "Gurugram, Haryana" },
-    ],
-    report: { label: "View Full Project", href: "/clients/newsmobile" },
-  },
-  {
-    id: "uid",
-    side: "logic",
-    name: "Post Grad. — UID",
-    short: "Post Grad. UID",
-    mark: "/content/clients/uid/brand/uid-logo.png",
-    sector: "Unitedworld Institute of Design",
-    treeLabel: "Projects",
-    tree: {
-      name: "Unitedworld Institute of Design",
-      logo: "/content/clients/uid/brand/uid-logo.png",
-      children: [
-        { name: "Puran Studios", logo: `${LOGO}/puran-studios.png` },
-        { name: "Farm Stacks" },
-        { name: "Nirvaan" },
-        { name: "The Trip" },
-      ],
-    },
-    preview: { src: `${PREVIEW}/uid.webp`, url: "shrey107.com/clients/uid" },
-    role: "M.Des — Visual Communication",
-    years: "2018 — 2020",
-    points: [
-      "Puran Studios — an identity worked through to production.",
-      "Farm Stacks — packaging for a hydroponics brand.",
-      "Nirvaan — a performance identity; posters, and The Trip.",
-      "Fieldwork and writing — the block printers of Pethapur.",
-    ],
-    facts: [
-      { label: "Website", value: "uid.edu.in", href: "https://uid.edu.in" },
-      { label: "Email", value: "admissions@uid.edu.in", href: "mailto:admissions@uid.edu.in" },
-      { label: "Campuses", value: "Ahmedabad · NCR · Bengaluru" },
-    ],
-    report: { label: "View Full Project", href: "/clients/uid" },
-  },
-  {
-    id: "vivid",
-    side: "logic",
-    name: "Vivid ProTech",
-    short: "Vivid ProTech",
-    mark: "/content/clients/vivid/vivid-mark.png",
-    sector: "Filtration & containment · Pharma",
-    treeLabel: "Brand family",
-    tree: {
-      name: "Vivid Process Technology",
-      logo: "/content/clients/vivid/vivid-mark.png",
-      children: [
-        { name: "Process maps", group: true, children: [{ name: "API" }, { name: "Biopharma" }, { name: "Formulation" }] },
-      ],
-    },
-    preview: { src: `${PREVIEW}/vivid.webp`, url: "shrey107.com/clients/vivid" },
-    role: "Brand & Web Designer · Freelance",
-    points: [
-      "A full identity and website for a filtration and containment supplier to pharma.",
-      "Process maps placing every Vivid product inside the API, biopharma and formulation lines a plant runs.",
-      "A catalogue of stainless housings, turned into a story a process engineer already believes.",
-    ],
-    facts: [{ label: "Website", value: "vividprotech.com", href: "https://vividprotech.com" }],
-    report: { label: "View Full Project", href: "/clients/vivid" },
   },
 ];
 

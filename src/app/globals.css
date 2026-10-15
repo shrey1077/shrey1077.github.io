@@ -687,6 +687,32 @@ html[data-guard] :is(img, video, svg) {
   }
 }
 
+/* The left side's framed slides (AbsSlide, NewsMobileSlide): the same frame
+ * mirrored — the edge tab stands on the RIGHT there. */
+.slide-frame.is-logic {
+  padding-left: 1rem;
+  padding-right: 2.75rem;
+}
+@media (min-width: 640px) {
+  .slide-frame.is-logic {
+    padding-left: 2rem;
+    padding-right: 3.25rem;
+  }
+}
+@media (min-width: 1024px) {
+  .slide-frame.is-logic {
+    padding-left: 5vw;
+    padding-right: max(5vw, 3.25rem);
+  }
+}
+
+/* The Azoth opening on the home page (AzothSlide) keeps its own serif: the
+ * home page's blanket Helvetica (.type-home) would take it otherwise. */
+.type-home .azoth-hero .font-azoth-display,
+.type-home .azoth-hero .font-azoth-display :where(*) {
+  font-family: var(--font-azoth-display);
+}
+
 /* Arts & Crafts' three rows (ArtSlide): each runs its pieces twice over and
  * slides by exactly one run, so the loop has no seam; the middle row runs
  * the other way. A row holds still under the pointer. Reduced motion: still. */

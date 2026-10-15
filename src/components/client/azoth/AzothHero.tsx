@@ -21,10 +21,20 @@
  *  3. Touch devices have no cursor, so the spotlight would simply never appear.
  *     There, the reveal layer holds a slow drift instead (and reduced-motion
  *     settles it in the centre).
+ *
+ * ⚠ IT ALSO STANDS ON THE HOME PAGE (owner, 2026-10-15: "for azoth slide, i
+ * want the users to experience the rocky artwork with mushroom on hover, on
+ * the slide itself"), as the Azoth slide — `variant="slide"`. The same scene,
+ * spotlight and mushrooms, with three differences: it fills its slide rather
+ * than the viewport; its pictures wait for their room (nearness) rather than
+ * loading first; and its headline is a paragraph — the home page has its own
+ * h1 — and its strip stands clear of the home page's band and corner buttons,
+ * its button opening the Azoth page.
  */
 
 import { useEffect, useRef, useState } from "react";
-import Image from "next/image";
+import NextImage from "next/image";
+import { RoomImage } from "@/components/home/nearness";
 import { useReducedMotion } from "framer-motion";
 import { AZOTH_HERO, AZOTH_SPECIES, type AzothSpecies } from "@/constants/azothHero";
 import { useMediaQuery } from "@/hooks/useMediaQuery";
@@ -62,12 +72,22 @@ function footStyle(s: AzothSpecies, portrait: boolean): React.CSSProperties {
  *     touch, which has no hover; and whenever the CTA has keyboard focus).
  *  Its contents swap rather than stack, so moving between mushrooms never
  *  shows two. */
-function HeroStrip({ species, intro }: { species: AzothSpecies | null; intro: boolean }) {
+function HeroStrip({
+  species,
+  intro,
+  slide,
+  href,
+}: {
+  species: AzothSpecies | null;
+  intro: boolean;
+  slide: boolean;
+  href: string;
+}) {
   const shown = !!species || intro;
   return (
     <div
       aria-live="polite"
-      className={`absolute inset-x-0 bottom-0 z-[55] transition-[opacity,transform] duration-300 ease-[cubic-bezier(0.16,1,0.3,1)] focus-within:pointer-events-auto focus-within:translate-y-0 focus-within:opacity-100 ${
+      className={`absolute inset-x-0 z-[55] ${slide ? "bottom-[calc(7svh+0.75rem+2.75rem+0.75rem)]" : "bottom-0"} transition-[opacity,transform] duration-300 ease-[cubic-bezier(0.16,1,0.3,1)] focus-within:pointer-events-auto focus-within:translate-y-0 focus-within:opacity-100 ${
         shown ? "translate-y-0 opacity-100" : "pointer-events-none translate-y-4 opacity-0"
       }`}
     >
@@ -111,12 +131,14 @@ function HeroStrip({ species, intro }: { species: AzothSpecies | null; intro: bo
           <div className="mx-auto flex w-full flex-col gap-4 px-6 py-4 md:flex-row md:items-center md:gap-10 md:px-14 md:py-5">
             <p className="text-xs leading-relaxed text-white/80 md:w-[34%] md:text-sm">{AZOTH_HERO.leftNote}</p>
             <p className="flex-1 text-xs leading-relaxed text-white/80 md:text-sm">{AZOTH_HERO.rightNote}</p>
+            {!slide && (
             <a
-              href="#work"
+              href={href}
               className="w-fit shrink-0 rounded-full bg-[#e8702a] px-7 py-3 text-sm font-medium text-white outline-none transition-all duration-300 hover:scale-[1.03] hover:bg-[#d2611f] hover:shadow-lg hover:shadow-[#e8702a]/30 focus-visible:ring-2 focus-visible:ring-white/70 active:scale-95"
             >
               {AZOTH_HERO.cta}
             </a>
+            )}
           </div>
         </div>
       )}
@@ -124,7 +146,13 @@ function HeroStrip({ species, intro }: { species: AzothSpecies | null; intro: bo
   );
 }
 
-export function AzothHero() {
+export function AzothHero({ variant = "page" }: { variant?: "page" | "slide" } = {}) {
+  const slide = variant === "slide";
+  // On the home page the pictures wait for their slide, and nothing jumps the
+  // queue ahead of the landing.
+  const Image = slide ? RoomImage : NextImage;
+  const priority = !slide;
+  const Headline = slide ? "p" : "h1";
   const rootRef = useRef<HTMLElement>(null);
   const target = useRef({ x: -9999, y: -9999 });
   const smooth = useRef({ x: -9999, y: -9999 });
@@ -197,7 +225,7 @@ export function AzothHero() {
     <section
       ref={rootRef}
       aria-label="Azoth Biotech — inspired by nature"
-      className="azoth-hero relative h-[100svh] min-h-[560px] w-full overflow-hidden bg-black"
+      className={`azoth-hero relative w-full overflow-hidden bg-black ${slide ? "h-full" : "h-[100svh] min-h-[560px]"}`}
       onPointerEnter={(e) => {
         if (e.pointerType === "mouse") setHovering(true);
       }}
@@ -217,16 +245,16 @@ export function AzothHero() {
           its own copy the same way, so inside the spotlight it reads through
           the flowering ridge too. */}
       <div className="azoth-hero-zoom absolute inset-0 z-10">
-        <Image src={AZOTH_HERO.base} alt={`Azoth Biotech — the landscape behind “${AZOTH_HERO.headline}”`} fill priority sizes="100vw" className="object-cover" />
+        <Image src={AZOTH_HERO.base} alt={`Azoth Biotech — the landscape behind “${AZOTH_HERO.headline}”`} fill priority={priority} sizes="100vw" className="object-cover" />
         <div className="absolute inset-x-0 top-[16%] flex justify-center px-5 text-center">
-          <h1
+          <Headline
             className="azoth-hero-anim azoth-hero-reveal font-azoth-display whitespace-nowrap text-[clamp(1.5rem,10.2vw,11.25rem)] italic leading-none text-white"
             style={{ letterSpacing: "-0.06em", animationDelay: "0.25s" }}
           >
             {AZOTH_HERO.headline}
-          </h1>
+          </Headline>
         </div>
-        <Image src={AZOTH_HERO.baseCut} alt="" fill priority sizes="100vw" className="object-cover" />
+        <Image src={AZOTH_HERO.baseCut} alt="" fill priority={priority} sizes="100vw" className="object-cover" />
       </div>
 
       {/* The spotlit exposure, revealed through the cursor mask. Its headline
@@ -236,7 +264,7 @@ export function AzothHero() {
         className={`pointer-events-none absolute inset-0 z-30 ${isTouch && !reduceMotion ? "azoth-hero-drift" : ""}`}
         style={{ maskImage: mask, WebkitMaskImage: mask }}
       >
-        <Image src={AZOTH_HERO.reveal} alt="" fill priority sizes="100vw" className="object-cover" />
+        <Image src={AZOTH_HERO.reveal} alt="" fill priority={priority} sizes="100vw" className="object-cover" />
         {/* The headline, BEHIND THE ROCK: a quarter smaller than the
             client's (2026-10-02), between this exposure and its sky-cut copy. */}
         <div className="absolute inset-x-0 top-[16%] flex justify-center px-5 text-center">
@@ -247,7 +275,7 @@ export function AzothHero() {
             {AZOTH_HERO.headline}
           </p>
         </div>
-        <Image src={AZOTH_HERO.revealCut} alt="" fill priority sizes="100vw" className="object-cover" />
+        <Image src={AZOTH_HERO.revealCut} alt="" fill priority={priority} sizes="100vw" className="object-cover" />
         {/* The four species, standing on the flowering ridge. ⚠ INSIDE the
             masked layer on purpose: they exist only where the spotlight is, so
             they are found by hovering the scene, never shown outright. */}
@@ -297,7 +325,12 @@ export function AzothHero() {
         </div>
       </div>
 
-      <HeroStrip species={active} intro={!active && (hovering || isTouch)} />
+      <HeroStrip
+        species={active}
+        intro={!active && (hovering || (isTouch && !slide))}
+        slide={slide}
+        href={slide ? "/clients/azoth-biotech/" : "#work"}
+      />
     </section>
   );
 }
