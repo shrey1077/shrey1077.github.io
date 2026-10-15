@@ -15,8 +15,8 @@
 // ⚠ VENDORED THIRD-PARTY CODE, kept as close to as-supplied as possible so it
 // can be diffed against a future Originkit release. Do not restyle it and do
 // not bake this site's colours in here — configuration goes in the caller (see
-// SectionParticles). Exactly two changes were made to the code the owner pasted
-// on 2026-08-25, both noted inline and both forced:
+// SectionParticles). These are the changes made to the code the owner pasted
+// on 2026-08-25 (and one after), each noted inline:
 //   1. `accentColor` default #FDFF00 -> #FFFFFF — the owner asked for white
 //      instead of yellow, and this is the value's only definition.
 //   2. The root wrapper's `minWidth: 1200 / minHeight: 800` are dropped, with
@@ -24,6 +24,10 @@
 //   3. `pointermove` is listened for on the WINDOW rather than the canvas, so
 //      the pointer's links still form when the field is used as a
 //      `pointer-events: none` background. See the note at the listener.
+//   4. A `paused` prop (2026-10-15): while true the loop stops asking for
+//      frames, and it picks up where it left off when false. The field is
+//      now set up ahead of need and kept, so without this its loop — and its
+//      O(n²) pass — ran for the life of the page, unseen, on every screen.
 // The shaders, the physics and every other constant are untouched.
 
 "use client"
@@ -216,6 +220,8 @@ interface Props {
     hover?: number
     linkDistance?: number
     linkThickness?: number
+    /** Change 4: hold the loop still (see the header). */
+    paused?: boolean
 }
 
 export default function ParticleDrift(props: Props) {
@@ -235,7 +241,11 @@ export default function ParticleDrift(props: Props) {
         linkThickness = 1,
         width,
         height,
+        paused = false,
     } = props
+    const pausedRef = useRef(paused)
+    pausedRef.current = paused
+    const kickRef = useRef<() => void>(() => {})
 
     const canvasRef = useRef<HTMLCanvasElement>(null)
     const sizeRef = useRef({ w: 0, h: 0 })
@@ -342,6 +352,11 @@ export default function ParticleDrift(props: Props) {
         let builtH = 0
 
         const render = (now: number) => {
+            // Change 4: paused — ask for no more frames until kicked.
+            if (pausedRef.current) {
+                raf = 0
+                return
+            }
             const dt = Math.min(0.05, (now - last) / 1000)
             last = now
             const v = vRef.current
@@ -561,16 +576,28 @@ export default function ParticleDrift(props: Props) {
         canvas.addEventListener("pointerleave", onLeave)
 
         raf = requestAnimationFrame(render)
+        kickRef.current = () => {
+            if (!raf) {
+                last = performance.now()
+                raf = requestAnimationFrame(render)
+            }
+        }
 
         // Never loseContext(): getContext returns the same context per canvas, so
         // StrictMode's mount -> cleanup -> mount would reuse a force-lost one.
         return () => {
             cancelAnimationFrame(raf)
+            kickRef.current = () => {}
             window.removeEventListener("pointermove", track)
             canvas.removeEventListener("pointerenter", track)
             canvas.removeEventListener("pointerleave", onLeave)
         }
     }, [])
+
+    // Change 4: unpaused — start the loop again.
+    useEffect(() => {
+        if (!paused) kickRef.current()
+    }, [paused])
 
     return (
         <div

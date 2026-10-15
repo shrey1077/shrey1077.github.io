@@ -46,6 +46,8 @@ import { useInViewport } from "@/hooks/useInViewport";
 import { DURATION, EASE_IN_OUT, EASE_OUT } from "@/constants/motion";
 import { CircuitBackdrop } from "@/components/home/CircuitBackdrop";
 import { BrainFooter } from "@/components/home/BrainFooter";
+import { EducationMark } from "@/components/home/HomeMarks";
+import { EDUCATION } from "@/components/home/AboutFacts";
 import { useFlight } from "@/components/home/flight";
 import { useMediaQuery } from "@/hooks/useMediaQuery";
 import { SITE } from "@/constants/site";
@@ -239,7 +241,12 @@ export function HeroStage() {
   const markRef = useRef<HTMLDivElement>(null);
   const markH = useLayoutHeight(markRef);
   const nameRef = useRef<HTMLHeadingElement>(null);
-  const captionH = useLayoutHeight(nameRef);
+  const nameH = useLayoutHeight(nameRef);
+  // The education line under the orb (2026-10-15) — part of the stack, so it
+  // counts into the room the orb has.
+  const eduRef = useRef<HTMLDivElement>(null);
+  const eduH = useLayoutHeight(eduRef);
+  const captionH = nameH + eduH;
 
   // The orb slide's foot: the mark at half size, sitting on the band. (From
   // 2026-10-11 to 2026-10-13 it sat on the facts tab rising out of the band's
@@ -417,8 +424,11 @@ export function HeroStage() {
               {NAME_FIRST} {NAME_REST.join(" ")}
             </span>
             <span className="sr-only"> — Visual Communication </span>
+            {/* "Designer & AI Filmmaker" since 2026-10-15 (owner: "under my
+                name say Designer & AI Filmmaker"); SITE.title, used for the
+                page's title elsewhere, is still "Designer". */}
             <span className="mt-1 text-[clamp(0.84375rem,1.5625vw,1.40625rem)] font-normal leading-none tracking-[0.02em] text-neutral-500">
-              {SITE.title}
+              {`${SITE.title} & AI Filmmaker`}
             </span>
           </h1>
 
@@ -435,6 +445,34 @@ export function HeroStage() {
               <PortraitOrb />
             </motion.div>
           )}
+
+          {/* Education, under the pictures — on this slide only (owner,
+              2026-10-15: "Remove the Education only part from off the clock
+              section and put it under the images on 1st slide, fixed there
+              on slide 1 only"). It left the brain slide's "Off the clock"
+              row (BrainFooter) the same day. */}
+          {/* Laid out from the start (the orb's room counts it), but shown
+              only with the orb, fading in with it — before, it would stand
+              under the name and then jump down as the orb arrived. */}
+          <div
+            ref={eduRef}
+            className="pointer-events-none pt-[clamp(0.6rem,1.6vh,1.1rem)]"
+            style={{ visibility: orbW > 0 ? "visible" : "hidden" }}
+          >
+            <motion.p
+              initial={reduceMotion ? false : { opacity: 0 }}
+              animate={{ opacity: orbW > 0 ? 1 : 0 }}
+              transition={{ duration: DURATION.verySlow, ease: EASE_OUT }}
+              className="font-graff flex items-center justify-center gap-[0.5em] whitespace-nowrap text-[clamp(0.72rem,1.1vw,0.95rem)] leading-none text-neutral-600"
+            >
+              <span className="flex shrink-0 [&_svg]:size-[1.2em] [&_svg]:text-neutral-900">
+                <EducationMark />
+              </span>
+              <span className="font-extrabold text-neutral-900">Education</span>
+              <span aria-hidden className="text-neutral-300">|</span>
+              <span>{EDUCATION.join(" · ")}</span>
+            </motion.p>
+          </div>
         </div>
       </motion.div>
 

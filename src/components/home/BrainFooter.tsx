@@ -11,9 +11,11 @@
  * (usePixelPresence) as the other leaves:
  *   · MY STACK — the tools behind the work, each mark with its name and what
  *     it is (MyStack's own TOOLS and lines; the pop-up it was is gone);
- *   · THE FACTS — Chess, Education, Part-time, Hobbies, the words of the last
- *     two still turning over in place (AboutFacts, HobbiesRotator), as they
- *     did in the band's corners until now.
+ *   · THE FACTS — Chess, Part-time, Hobbies, the words of the last two still
+ *     turning over in place (AboutFacts, HobbiesRotator), as they did in the
+ *     band's corners until now. (Education stood among them until the next
+ *     round, the same day: it is under the orb on the first slide now —
+ *     HeroStage.)
  * The section pins that stood here (BrainPins, and their wires, BrainTraces)
  * are unlinked; the band below is the way into either side now.
  *
@@ -27,8 +29,8 @@ import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
 import { RoomImage as Image } from "@/components/home/nearness";
 import { usePixelPresence } from "@/components/home/pixelReveal";
 import { GROUPS, ROLE } from "@/components/home/MyStack";
-import { EducationMark, PartTimeMark } from "@/components/home/HomeMarks";
-import { CHESS_RATING, EDUCATION, PART_TIME, WORD_MS } from "@/components/home/AboutFacts";
+import { PartTimeMark } from "@/components/home/HomeMarks";
+import { CHESS_RATING, PART_TIME, WORD_MS } from "@/components/home/AboutFacts";
 import { CYCLE_MS, HOBBIES } from "@/components/home/HobbiesRotator";
 import { TOOLS, type Tool } from "@/constants/tools";
 import { EASE_OUT } from "@/constants/motion";
@@ -116,18 +118,6 @@ function FactsRow() {
       ),
     },
     {
-      key: "education",
-      heading: "Education",
-      value: (
-        <>
-          <span className={MARK}>
-            <EducationMark />
-          </span>
-          <span className="truncate">{EDUCATION.join(" · ")}</span>
-        </>
-      ),
-    },
-    {
       key: "parttime",
       heading: "Part-time",
       value: (
@@ -144,7 +134,7 @@ function FactsRow() {
   return (
     <div className="flex h-full flex-col justify-end gap-2">
       <p className={META}>Off the clock</p>
-      <ul className="grid grid-cols-2 gap-x-6 gap-y-2.5 lg:grid-cols-4 [@media(max-height:31.25rem)]:grid-cols-4">
+      <ul className="grid grid-cols-3 gap-x-6 gap-y-2.5">
         {facts.map((f) => (
           <li key={f.key} className="flex min-w-0 flex-col gap-1">
             <span className="font-graff text-[0.82rem] font-extrabold leading-none text-neutral-900">{f.heading}</span>

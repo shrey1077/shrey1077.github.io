@@ -3,27 +3,31 @@
 /**
  * ExtinctsSlide — the right side's first slide (owner, 2026-10-15: "For
  * Extincts Project (1st and topmost of right sections) i want my snow leopard
- * character cutout on right corner, and the three reports, a 1. Story button,
- * 2. Characters, 3. AI Creations buttons on the left side of frame").
+ * character … on right corner, and the three reports, a 1. Story button,
+ * 2. Characters, 3. AI Creations buttons"). Since the same day's next round
+ * ("put the buttons below the reports … use whole images not cutout (for
+ * main slide as well)") the buttons sit under the reports, and the snow
+ * leopard is his whole concept sheet, not the cutout lifted off it.
  *
  *   LANDSCAPE                                PORTRAIT (9:16)
- *   ┌─────────┬───────────────┬─────────┐    ┌───────────────────┐
- *   │ title   │               │         │    │ title             │
- *   │         │  the three    │ Himch-  │    │ the three reports │
- *   │ 1 Story │   reports     │ haya    │    ├─────────┬─────────┤
- *   │ 2 Chars │               │ (cut-   │    │ 1 Story │ Himch-  │
- *   │ 3 AI    │               │  out)   │    │ 2 Chars │ haya    │
- *   └─────────┴───────────────┴─────────┘    │ 3 AI    │         │
+ *   ┌─────────────────────────┬─────────┐    ┌───────────────────┐
+ *   │ title                   │         │    │ title             │
+ *   │                         │ Himch-  │    │ the three reports │
+ *   │   the three reports     │ haya    │    ├─────────┬─────────┤
+ *   │                         │ (sheet) │    │ 1 Story │ Himch-  │
+ *   │ 1 Story  2 Chars  3 AI  │         │    │ 2 Chars │ haya    │
+ *   └─────────────────────────┴─────────┘    │ 3 AI    │         │
  *                                            └─────────┴─────────┘
  * A report opens the room's own reader (ExtinctsRoom's, untouched); the
  * three buttons open panels over the slide (SlidePanel): the six stories;
- * Himchhaya, the snow leopard — the character concept the owner sent; and
- * the AI creations, his EXMANGA character sheet so far. "View Full Project"
- * (bottom left) opens /extincts. Everything is sized to the screen — the
- * covers by a container query — so nothing ever scrolls.
+ * the characters — every character sheet the owner has made, one at a time
+ * with a grid of picks (scripts/make-extincts-characters.mjs); and the AI
+ * creations. "View Full Project" (bottom left) opens /extincts. Everything is
+ * sized to the screen — the covers by a container query — so nothing ever
+ * scrolls.
  */
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { RoomImage as Image } from "@/components/home/nearness";
 import { PixelButton } from "@/components/home/PixelButton";
 import { SlidePanel } from "@/components/home/SlidePanel";
@@ -31,15 +35,20 @@ import { ExtinctsReader } from "@/components/home/ExtinctsRoom";
 import { EXTINCTS_REPORTS, EXTINCTS_STORIES, type ExtinctsReport } from "@/constants/extincts";
 import { EXTINCTS_REPORT_PAGES } from "@/constants/extinctsReportPages";
 import { typeVoiceClass } from "@/constants/typography";
+import CHARACTERS from "../../../public/content/extincts/characters/characters.json";
 
 const META = `${typeVoiceClass("logic", "meta")} text-[0.55rem] tracking-[0.24em]`;
 const RED = "#e3262b";
 const pad = (n: number) => String(n).padStart(2, "0");
 
-/** The character the owner sent (2026-10-15): the cutout, lifted off his
- *  concept sheet, and the sheet itself. */
-const CUTOUT = { src: "/content/extincts/himchhaya.webp", w: 705, h: 1227 };
-const SHEET = { src: "/content/extincts/himchhaya-sheet.webp", w: 1122, h: 1402 };
+/** Himchhaya's concept sheet, whole — the first of the characters. (The
+ *  cutout lifted off it, /content/extincts/himchhaya.webp, and the earlier
+ *  copy of the sheet, himchhaya-sheet.webp, are no longer shown.) */
+const SHEET = CHARACTERS[0];
+/** A line under a character, where there is more to say than the name. */
+const NOTES: Record<string, string> = {
+  Himchhaya: "Antagonist · Panthera uncia, the snow leopard — “Some species go quietly. I learned to adapt.”",
+};
 
 type Panel = "story" | "characters" | "ai" | null;
 
@@ -74,37 +83,67 @@ function Stories() {
   );
 }
 
-function Characters() {
-  const facts: [string, string][] = [
-    ["Species", "Panthera uncia — the snow leopard"],
-    ["Role", "Antagonist"],
-    ["Theme", "Heritage · Intelligence · Control · Survival beyond extinction"],
-  ];
+/** Every character sheet, one at a time: the one picked, whole, and a grid
+ *  of them all to pick from (beside it on a wide screen, under it on a tall
+ *  one) — all sized to the panel, so nothing scrolls. ← and → step through
+ *  while the pop-up is open. */
+function Characters({ open }: { open: boolean }) {
+  const [at, setAt] = useState(0);
+  const n = CHARACTERS.length;
+  const c = CHARACTERS[at];
+  useEffect(() => {
+    if (!open) return;
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === "ArrowRight") setAt((v) => (v + 1) % n);
+      else if (e.key === "ArrowLeft") setAt((v) => (v - 1 + n) % n);
+    };
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, [open, n]);
+  const step = (d: number) => setAt((v) => (v + d + n) % n);
+  const arrow =
+    "absolute top-1/2 z-10 grid h-9 w-9 -translate-y-1/2 place-items-center rounded-full bg-white/90 text-lg leading-none text-neutral-900 shadow ring-1 ring-neutral-200 outline-none transition hover:bg-neutral-900 hover:text-white focus-visible:ring-2 focus-visible:ring-neutral-900/50";
   return (
-    <div className="grid h-full grid-rows-[minmax(0,1fr)_auto] gap-3 landscape:grid-cols-[minmax(0,0.8fr)_minmax(0,1.2fr)] landscape:grid-rows-1">
-      <div className="relative min-h-0">
-        <Image src={CUTOUT.src} alt="Himchhaya, the snow leopard" fill sizes="(orientation: landscape) 30vw, 60vw" className="object-contain" />
-      </div>
-      <div className="flex min-h-0 flex-col justify-center gap-3">
-        <p className={`${META}`} style={{ color: RED }}>
-          Character concept 01 · EXMANGA
-        </p>
-        <p className="font-graff text-[clamp(1.4rem,3.4vw,3rem)] font-bold uppercase leading-none">
-          Himchhaya <span className="text-[0.45em] tracking-[0.1em] text-neutral-400">(working name)</span>
-        </p>
-        <dl className="grid gap-1.5 text-[0.82rem]">
-          {facts.map(([k, v]) => (
-            <div key={k} className="flex gap-3">
-              <dt className={`${META} w-16 shrink-0 self-center text-neutral-500`}>{k}</dt>
-              <dd className="text-neutral-800">{v}</dd>
-            </div>
-          ))}
-        </dl>
-        <p className="font-helv border-l-2 pl-3 text-[0.9rem] italic text-neutral-700" style={{ borderColor: RED }}>
-          “Some species go quietly. I learned to adapt.”
-        </p>
-        <p className="font-helv text-xs text-neutral-500">More characters are still to come.</p>
-      </div>
+    <div className="grid h-full grid-cols-[minmax(0,1fr)] grid-rows-[minmax(0,1fr)_auto] gap-3 landscape:grid-cols-[minmax(0,1fr)_minmax(8rem,26%)] landscape:grid-rows-1">
+      <figure className="flex min-h-0 min-w-0 flex-col gap-2">
+        <div className="relative min-h-0 flex-1 overflow-hidden rounded-lg bg-neutral-100">
+          <Image key={c.src} src={c.src} alt={c.name} fill sizes="(orientation: landscape) 66vw, 92vw" className="object-contain" />
+          <button type="button" onClick={() => step(-1)} aria-label="Previous character" className={`${arrow} left-2`}>
+            ‹
+          </button>
+          <button type="button" onClick={() => step(1)} aria-label="Next character" className={`${arrow} right-2`}>
+            ›
+          </button>
+        </div>
+        <figcaption className="shrink-0">
+          <span className="flex items-baseline justify-between gap-3">
+            <span className="font-graff truncate text-[clamp(0.9rem,1.6vw,1.25rem)] font-bold uppercase leading-tight text-neutral-900">{c.name}</span>
+            <span className={`${META} shrink-0 tabular-nums text-neutral-500`}>
+              {pad(at + 1)} / {pad(n)}
+            </span>
+          </span>
+          {NOTES[c.name] && <span className="font-helv mt-0.5 block truncate text-xs text-neutral-600 [@media(max-height:31.25rem)]:hidden">{NOTES[c.name]}</span>}
+        </figcaption>
+      </figure>
+      {/* The picks: two rows of six on a tall screen, four rows of three
+          beside the picture on a wide one. */}
+      <ul className="grid h-[min(8.5rem,20svh)] grid-cols-6 grid-rows-2 gap-1.5 landscape:h-full landscape:grid-cols-3 landscape:grid-rows-4">
+        {CHARACTERS.map((k, i) => (
+          <li key={k.src} className="min-h-0 min-w-0">
+            <button
+              type="button"
+              onClick={() => setAt(i)}
+              aria-label={k.name}
+              aria-current={i === at}
+              className={`relative block h-full w-full overflow-hidden rounded-md bg-neutral-100 outline-none transition focus-visible:ring-2 focus-visible:ring-neutral-900/50 ${
+                i === at ? "ring-2 ring-[#e3262b]" : "opacity-70 ring-1 ring-neutral-200 hover:opacity-100"
+              }`}
+            >
+              <Image src={k.thumb} alt="" fill sizes="8vw" className="object-cover object-top" />
+            </button>
+          </li>
+        ))}
+      </ul>
     </div>
   );
 }
@@ -143,7 +182,7 @@ export function ExtinctsSlide({ reduceMotion }: { reduceMotion: boolean }) {
 
   return (
     <section aria-label="The Extincts Project" data-side="creative" className="absolute inset-0 overflow-hidden">
-      <div className="slide-frame absolute inset-0 grid gap-3 [grid-template-areas:'t_t'_'r_r'_'b_l'] grid-cols-[minmax(0,1fr)_minmax(0,1fr)] grid-rows-[auto_minmax(0,0.8fr)_minmax(0,1.2fr)] landscape:gap-5 landscape:[grid-template-areas:'t_r_l'_'b_r_l'] landscape:grid-cols-[minmax(min-content,0.7fr)_minmax(0,1.75fr)_minmax(0,0.85fr)] landscape:grid-rows-[auto_minmax(0,1fr)]">
+      <div className="slide-frame absolute inset-0 grid gap-3 [grid-template-areas:'t_t'_'r_r'_'b_l'] grid-cols-[minmax(0,1fr)_minmax(0,1fr)] grid-rows-[auto_minmax(0,0.8fr)_minmax(0,1.2fr)] landscape:gap-x-6 landscape:gap-y-4 landscape:[grid-template-areas:'t_l'_'r_l'_'b_l'] landscape:grid-cols-[minmax(0,2.3fr)_minmax(0,1fr)] landscape:grid-rows-[auto_minmax(0,1fr)_auto] [@media(max-height:31.25rem)]:landscape:gap-y-2">
         {/* The title. */}
         <div className="[grid-area:t]">
           <p className={`${META} text-neutral-500 [@media(max-height:31.25rem)]:hidden`}>Creative · 01 / 04</p>
@@ -155,9 +194,10 @@ export function ExtinctsSlide({ reduceMotion }: { reduceMotion: boolean }) {
           </p>
         </div>
 
-        {/* The three buttons, on the left. */}
-        {/* On a short screen (a phone on its side) they step down a size. */}
-        <div className="flex min-h-0 flex-col items-start gap-2.5 [grid-area:b] landscape:justify-center [@media(max-height:31.25rem)]:gap-1.5 [@media(max-height:31.25rem)]:[&_span.h-11]:h-8">
+        {/* The three buttons, under the reports — in a row on a wide
+            screen, a column beside Himchhaya on a tall one. On a short
+            screen (a phone on its side) they step down a size. */}
+        <div className="flex min-h-0 flex-col items-start gap-2.5 [grid-area:b] landscape:flex-row landscape:flex-wrap landscape:items-center landscape:justify-center landscape:gap-3 [@media(max-height:31.25rem)]:gap-1.5 [@media(max-height:31.25rem)]:[&_span.h-11]:h-8">
           {buttons.map(([id, label], i) => (
             <PixelButton key={id} side="creative" onClick={() => setPanel(id)} ariaHaspopup="dialog">
               <span className="tabular-nums opacity-60">{i + 1}.</span> {label}
@@ -166,8 +206,9 @@ export function ExtinctsSlide({ reduceMotion }: { reduceMotion: boolean }) {
         </div>
 
         {/* The three reports — one height for all, by their own shapes, as
-            large as the cell allows (a container query). */}
-        <ul className="flex min-h-0 items-end justify-center gap-3 [container-type:size] [grid-area:r] landscape:items-center sm:gap-4">
+            large as the cell allows (a container query) — standing on the
+            buttons, so the two read as one. */}
+        <ul className="flex min-h-0 items-end justify-center gap-3 [container-type:size] [grid-area:r] sm:gap-4">
           {EXTINCTS_REPORTS.map((r, i) => {
             const cover = (EXTINCTS_REPORT_PAGES[r.id] ?? [])[0];
             if (!cover) return null;
@@ -208,15 +249,24 @@ export function ExtinctsSlide({ reduceMotion }: { reduceMotion: boolean }) {
           })}
         </ul>
 
-        {/* Himchhaya, in the right corner. */}
-        <div className="relative min-h-0 [grid-area:l]">
-          <Image
-            src={CUTOUT.src}
-            alt="Himchhaya, the snow leopard of the Extincts Project"
-            fill
-            sizes="(orientation: landscape) 28vw, 48vw"
-            className="object-contain object-[right_bottom] drop-shadow-[0_18px_24px_rgba(0,0,0,0.25)]"
-          />
+        {/* Himchhaya, in the right corner: his whole sheet, as large as the
+            cell allows (a container query), against its foot and right. */}
+        <div className="relative min-h-0 [container-type:size] [grid-area:l]">
+          <span
+            className="absolute bottom-0 right-0 block overflow-hidden rounded-lg shadow-[0_18px_34px_-16px_rgba(0,0,0,0.45)] ring-1 ring-neutral-200 landscape:bottom-auto landscape:top-1/2 landscape:-translate-y-1/2"
+            style={{
+              width: `min(100cqw, ${(SHEET.w / SHEET.h).toFixed(4)} * 100cqh)`,
+              height: `min(100cqh, 100cqw / ${(SHEET.w / SHEET.h).toFixed(4)})`,
+            }}
+          >
+            <Image
+              src={SHEET.src}
+              alt="Himchhaya, the snow leopard of the Extincts Project — his character concept sheet"
+              fill
+              sizes="(orientation: landscape) 28vw, 48vw"
+              className="object-cover"
+            />
+          </span>
         </div>
       </div>
 
@@ -231,7 +281,7 @@ export function ExtinctsSlide({ reduceMotion }: { reduceMotion: boolean }) {
         <Stories />
       </SlidePanel>
       <SlidePanel open={panel === "characters"} onClose={close} side="creative" eyebrow="The Extincts Project · 2" title="Characters" reduceMotion={reduceMotion}>
-        <Characters />
+        <Characters open={panel === "characters"} />
       </SlidePanel>
       <SlidePanel open={panel === "ai"} onClose={close} side="creative" eyebrow="The Extincts Project · 3" title="AI Creations" reduceMotion={reduceMotion}>
         <AiCreations />

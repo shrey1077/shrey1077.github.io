@@ -62,7 +62,11 @@ const NODE = "#525252";
 const DENSITY = 200;
 const NODE_LIT = "#262626";
 
-export function SectionParticles() {
+/** `active`: the logic track can be seen. Set up ahead of need and kept
+ *  (Flythrough's groundsReady), the field only RUNS while active — its loop
+ *  held still otherwise (ParticleDrift's change 4). Until 2026-10-15 it ran
+ *  for the life of the page once set up, unseen, on every screen. */
+export function SectionParticles({ active = true }: { active?: boolean } = {}) {
   const reduceMotion = useReducedMotion();
   if (reduceMotion) return null;
 
@@ -77,6 +81,7 @@ export function SectionParticles() {
         baseColor={NODE}
         accentColor={NODE_LIT}
         density={DENSITY}
+        paused={!active}
       />
     </div>
   );

@@ -54,10 +54,10 @@ const PERSON_LD = {
 };
 
 export default function Home() {
-  // Arts & Crafts' moving rows: the small copies of every piece and their
-  // sizes (scripts/make-art-thumbs.mjs writes the list).
+  // Arts & Crafts' slider: the slide-size copies of the pieces it plays, in
+  // order, and their sizes (scripts/make-art-slides.mjs writes the list).
   const artThumbs: ArtThumb[] = JSON.parse(
-    fs.readFileSync(path.join(process.cwd(), "public", "content", "art", "_thumbs.json"), "utf8"),
+    fs.readFileSync(path.join(process.cwd(), "public", "content", "art", "_slides.json"), "utf8"),
   );
 
   // The six writings' covers — each one's first rendered page.

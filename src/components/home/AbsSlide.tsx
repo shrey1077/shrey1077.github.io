@@ -4,16 +4,18 @@
  * AbsSlide — ABS Wholesale with the two brands built there, Luzid and
  * Kartpipe, three in one (owner, 2026-10-15). Second version, the same day:
  * "keep three circles at top with brand logos and below them show portrait
- * sliders, 2 square images vertically, for each".
+ * sliders, 2 square images vertically, for each"; third, the next round:
+ * "dont use circles behind logos, and make logos bigger".
  *
- *        ( ABS )          ( Luzid )        ( Kartpipe )
+ *          ABS              Luzid           Kartpipe
  *        ┌─────┐          ┌─────┐          ┌─────┐
  *        │  ■  │          │  ■  │ ↓        │  ■  │
  *        │  ■  │ ↑        │  ■  │          │  ■  │ ↑
  *        └─────┘          └─────┘          └─────┘
  *
- * Each circle is the brand's mark (Kartpipe has none on disk: its name, set
- * in type) and opens its part of the ABS page. Under each, a portrait window
+ * Each logo — the brand's mark, as wide as its column, on the slide's own
+ * ground (Kartpipe has none on disk: its name, set in type) — opens its part
+ * of the ABS page. Under each, a portrait window
  * two squares tall, through which the brand's own plates slide steadily —
  * the middle one the other way — holding still under the pointer and while
  * the slide isn't on screen. Every plate is cropped to a square. Each column
@@ -27,6 +29,9 @@ import { PixelButton } from "@/components/home/PixelButton";
 import { ABS_BRANDS, type Showcase } from "@/constants/showcase";
 
 const WORK = "/content/clients/abs/work";
+/** ABS's badge on a clear ground — the strip's copy (item.mark) sits on white,
+ *  which showed as a box once the circles went. */
+const ABS_LOGO = "/content/clients/abs/abs-logo.png";
 /** Seconds for one plate to slide by. */
 const SECONDS_PER_PLATE = 3.2;
 
@@ -43,19 +48,19 @@ function BrandColumn({ col, reverse, active }: { col: Column; reverse: boolean; 
   const run = col.plates.length < 4 ? [...col.plates, ...col.plates] : col.plates;
   return (
     <li className="flex min-h-0 flex-col items-center gap-[clamp(0.5rem,2vh,1.1rem)]">
-      {/* The circle. */}
+      {/* The logo, bare, as wide as the column. */}
       <Link
         href={col.href}
         prefetch={false}
         aria-label={`${col.name} — open its page`}
-        className="group relative grid aspect-square w-[var(--disc)] shrink-0 place-items-center overflow-hidden rounded-full bg-white shadow-[0_14px_34px_-18px_rgba(0,0,0,0.55)] ring-1 ring-neutral-900/15 outline-none transition-[box-shadow,transform] duration-300 hover:-translate-y-0.5 hover:ring-2 hover:ring-neutral-900 focus-visible:ring-2 focus-visible:ring-neutral-900"
+        className="group relative grid h-[var(--logo)] w-[var(--col)] shrink-0 place-items-center rounded-lg outline-none transition-transform duration-300 hover:-translate-y-0.5 focus-visible:ring-2 focus-visible:ring-neutral-900"
       >
         {col.mark ? (
-          <span className="relative block h-[58%] w-[64%]">
-            <Image src={col.mark} alt="" fill sizes="120px" className="object-contain" />
+          <span className="relative block h-full w-full">
+            <Image src={col.mark} alt="" fill sizes="(orientation: portrait) 30vw, 16rem" className="object-contain" />
           </span>
         ) : (
-          <span className="face-logic px-2 text-center text-[calc(var(--disc)*0.15)] leading-none text-neutral-900">{col.name}</span>
+          <span className="face-logic text-center text-[calc(var(--col)*0.2)] leading-none text-neutral-900">{col.name}</span>
         )}
       </Link>
       {/* The window: two squares tall. */}
@@ -78,7 +83,7 @@ function BrandColumn({ col, reverse, active }: { col: Column; reverse: boolean; 
 export function AbsSlide({ item, active }: { item: Showcase; active: boolean }) {
   const [luzid, kartpipe] = ABS_BRANDS;
   const cols: Column[] = [
-    { name: "ABS Wholesale", mark: item.mark, href: item.report.href ?? "/clients/abs", plates: ["01", "02", "03", "04", "05", "06"].map((n) => `${WORK}/abs-house/${n}.webp`) },
+    { name: "ABS Wholesale", mark: ABS_LOGO, href: item.report.href ?? "/clients/abs", plates: ["01", "02", "03", "04", "05", "06"].map((n) => `${WORK}/abs-house/${n}.webp`) },
     { name: luzid.name, mark: luzid.mark, href: luzid.report.href ?? "/clients/abs#luzid", plates: ["01", "02", "03", "04", "06", "07"].map((n) => `${WORK}/luzid/${n}.webp`) },
     { name: kartpipe.name, href: kartpipe.report.href ?? "/clients/abs#kartpipe", plates: ["01", "02", "03"].map((n) => `${WORK}/kartpipe/${n}.webp`) },
   ];
@@ -86,11 +91,11 @@ export function AbsSlide({ item, active }: { item: Showcase; active: boolean }) 
     <section aria-label={`${item.name}, Luzid and Kartpipe`} data-side="logic" className="absolute inset-0 overflow-hidden">
       <h2 className="sr-only">{item.name} — with Luzid and Kartpipe</h2>
       {/* --col: one square's side — a third of the width less the gaps, or
-          whatever lets the circle and two squares fit the frame's height,
-          whichever is smaller. --disc: the circle. */}
+          whatever lets the logo and two squares fit the frame's height,
+          whichever is smaller. --logo: the logo's height. */}
       <div className="slide-frame is-logic absolute inset-0 flex items-center justify-center [container-type:size]">
         <ul
-          className="grid grid-cols-3 items-start gap-[var(--gap)] [--gap:clamp(0.6rem,3vw,3rem)] [--col:min(calc((100cqw-2*var(--gap))/3),calc((100cqh-2.5rem)/2.6),15rem)] [--disc:calc(var(--col)*0.55)]"
+          className="grid grid-cols-3 items-start gap-[var(--gap)] [--gap:clamp(0.6rem,3vw,3rem)] [--col:min(calc((100cqw-2*var(--gap))/3),calc((100cqh-2.5rem)/2.6),15rem)] [--logo:calc(var(--col)*0.55)]"
         >
           {cols.map((c, i) => (
             <BrandColumn key={c.name} col={c} reverse={i === 1} active={active} />

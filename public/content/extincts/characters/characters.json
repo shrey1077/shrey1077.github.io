@@ -1,0 +1,86 @@
+[
+ {
+  "name": "Himchhaya",
+  "src": "/content/extincts/characters/himchhaya.webp",
+  "thumb": "/content/extincts/characters/_thumbs/himchhaya.webp",
+  "w": 1122,
+  "h": 1402
+ },
+ {
+  "name": "Shaitra",
+  "src": "/content/extincts/characters/shaitra.webp",
+  "thumb": "/content/extincts/characters/_thumbs/shaitra.webp",
+  "w": 1122,
+  "h": 1402
+ },
+ {
+  "name": "The Living Shield",
+  "src": "/content/extincts/characters/living-shield.webp",
+  "thumb": "/content/extincts/characters/_thumbs/living-shield.webp",
+  "w": 1122,
+  "h": 1402
+ },
+ {
+  "name": "Southwind",
+  "src": "/content/extincts/characters/southwind.webp",
+  "thumb": "/content/extincts/characters/_thumbs/southwind.webp",
+  "w": 1122,
+  "h": 1402
+ },
+ {
+  "name": "NoMad",
+  "src": "/content/extincts/characters/nomad.webp",
+  "thumb": "/content/extincts/characters/_thumbs/nomad.webp",
+  "w": 1536,
+  "h": 1024
+ },
+ {
+  "name": "NoMad — Main Character",
+  "src": "/content/extincts/characters/nomad-01.webp",
+  "thumb": "/content/extincts/characters/_thumbs/nomad-01.webp",
+  "w": 1280,
+  "h": 1600
+ },
+ {
+  "name": "NoMad — Age 95, Anatomy & Gear",
+  "src": "/content/extincts/characters/nomad-02.webp",
+  "thumb": "/content/extincts/characters/_thumbs/nomad-02.webp",
+  "w": 1280,
+  "h": 1600
+ },
+ {
+  "name": "NoMad — Norway Semi-Cyborg Cat",
+  "src": "/content/extincts/characters/nomad-03.webp",
+  "thumb": "/content/extincts/characters/_thumbs/nomad-03.webp",
+  "w": 1280,
+  "h": 1600
+ },
+ {
+  "name": "NoMad — Snow Leopard Family",
+  "src": "/content/extincts/characters/nomad-04.webp",
+  "thumb": "/content/extincts/characters/_thumbs/nomad-04.webp",
+  "w": 1280,
+  "h": 1600
+ },
+ {
+  "name": "NoMad — Species-Specific Cybernetics",
+  "src": "/content/extincts/characters/nomad-05.webp",
+  "thumb": "/content/extincts/characters/_thumbs/nomad-05.webp",
+  "w": 1280,
+  "h": 1600
+ },
+ {
+  "name": "NoMad — Seven-Year Pandemic",
+  "src": "/content/extincts/characters/nomad-06.webp",
+  "thumb": "/content/extincts/characters/_thumbs/nomad-06.webp",
+  "w": 1280,
+  "h": 1600
+ },
+ {
+  "name": "NoMad — Supersized Piloted Robot",
+  "src": "/content/extincts/characters/nomad-07.webp",
+  "thumb": "/content/extincts/characters/_thumbs/nomad-07.webp",
+  "w": 1280,
+  "h": 1600
+ }
+]

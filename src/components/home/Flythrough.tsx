@@ -69,8 +69,8 @@
  * side's slides in from the other. The sections menu and the arrow keys ← →
  * do it; the keys to the room level with this one, or the other side's last
  * where it is shorter. (The brain's circle in each column's outer foot,
- * BrainDock, did it until 2026-10-15; its corners hold the Stack and Tools
- * buttons now, KitButton.) Back up on the orb the track resets to logic.
+ * BrainDock, did it until 2026-10-15, and so does the band along the foot
+ * now, FootBand.) Back up on the orb the track resets to logic.
  *
  * ONE SCROLL, ONE SLIDE. Inside the run a wheel gesture is taken over and flies
  * exactly one slide, with a lock that outlasts a trackpad's inertia tail so one
@@ -114,7 +114,6 @@ import { AiSlide } from "@/components/home/AiSlide";
 import { WritingsSlide } from "@/components/home/WritingsSlide";
 import { ShowcaseStrip } from "@/components/home/ShowcaseStrip";
 import { SectionMenu } from "@/components/home/SectionMenu";
-import { KitButton } from "@/components/home/KitButton";
 import { NearContext, useFirstScreenUp, usePageSettled } from "@/components/home/nearness";
 import { CREATIVE_SHOWCASE, LOGIC_SHOWCASE, type Showcase } from "@/constants/showcase";
 import { typeVoiceClass } from "@/constants/typography";
@@ -1180,7 +1179,7 @@ export function Flythrough({
             <Corner3DGrid corner="tr" />
             <Corner3DGrid corner="br" />
           </div>
-          {groundsReady && <SectionParticles />}
+          {groundsReady && <SectionParticles active={circuitLive} />}
         </motion.div>
         <motion.div
           aria-hidden
@@ -1279,12 +1278,12 @@ export function Flythrough({
             them, across the whole screen. */}
         <PixelVeil p={cam} trackX={trackX} track={track} firstRoom={FIRST_ROOM} reduceMotion={reduceMotion} />
 
-        {/* My Tools in the bottom-right of the right side — a pop-up over
-            the top. (My Stack's button stood in the left's corner until
-            2026-10-15; the stack is on the brain slide now, BrainFooter. The
-            tabs at the edges that crossed sides, EdgeJump, went the same day
-            — the band does that.) */}
-        <KitButton side="creative" show={inRooms} away={track !== "creative" && !panning} x={creativeGroundX} reduceMotion={reduceMotion} />
+        {/* (My Tools stood in the bottom-right of the right side, KitButton,
+            until 2026-10-15 — owner: "Remove My tools button on right side
+            sections, irrelevant now". My Stack's, in the left's corner, went
+            earlier the same day; the stack is on the brain slide now,
+            BrainFooter. The tabs at the edges that crossed sides, EdgeJump,
+            went too — the band does that.) */}
 
         {/* The sections button, top right, from the first room on — any room
             from any room, in one step. (The three circles at the top centre,

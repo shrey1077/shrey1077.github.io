@@ -73,12 +73,14 @@ export function SlidePanel({
         tabIndex={-1}
         className="flex min-h-0 w-full flex-col overflow-hidden rounded-2xl bg-white/95 p-4 shadow-[0_24px_60px_-24px_rgba(0,0,0,0.35)] ring-1 ring-neutral-200 outline-none backdrop-blur-sm sm:p-6"
       >
-        <div className="mb-3 flex shrink-0 items-start justify-between gap-4 sm:mb-4">
+        {/* On a short screen (a phone on its side) the eyebrow goes and the
+            title closes up: the panel's contents need the height. */}
+        <div className="mb-3 flex shrink-0 items-start justify-between gap-4 sm:mb-4 [@media(max-height:31.25rem)]:mb-2 [@media(max-height:31.25rem)]:items-center">
           <div className="min-w-0">
-            <p className={`${typeVoiceClass("logic", "meta")} text-[0.58rem] tracking-[0.28em] text-neutral-500`}>{eyebrow}</p>
+            <p className={`${typeVoiceClass("logic", "meta")} text-[0.58rem] tracking-[0.28em] text-neutral-500 [@media(max-height:31.25rem)]:sr-only`}>{eyebrow}</p>
             <h3
               id={titleId}
-              className={`mt-1 truncate text-[clamp(1.2rem,2.6vw,2.2rem)] leading-none text-neutral-900 ${
+              className={`mt-1 truncate text-[clamp(1.2rem,2.6vw,2.2rem)] leading-none text-neutral-900 [@media(max-height:31.25rem)]:mt-0 [@media(max-height:31.25rem)]:text-[1.1rem] ${
                 side === "creative" ? "face-creative font-bold" : "face-logic"
               }`}
             >

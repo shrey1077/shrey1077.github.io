@@ -119,14 +119,18 @@ export function PortraitOrb({ className = "" }: { className?: string }) {
   /** The arrow's bend: 1 points it left (the paint gaining), −1 right (the line
    *  gaining), and between, on its way round. Eased in the loop below. */
   const bendRef = useRef(1);
+  /** The frame's size, kept by the ResizeObserver below. ⚠ NOT read off the
+   *  element each frame (speed, 2026-10-15): the sweep redraws every frame,
+   *  and a size read there made the browser lay the whole page out again
+   *  first — on a phone that was most of the main thread, the whole time the
+   *  first slide was up. */
+  const sizeRef = useRef({ w: 0, h: 0 });
 
   const renderSquares = () => {
-    const root = rootRef.current;
     const lineEl = lineRef.current;
     const paintEl = paintRef.current;
-    if (!root || !lineEl || !paintEl) return;
-    const W = root.offsetWidth;
-    const H = root.offsetHeight;
+    if (!lineEl || !paintEl) return;
+    const { w: W, h: H } = sizeRef.current;
     if (!W || !H) return;
     const u = split.get();
     const c = SEAM_CELL;
@@ -188,10 +192,14 @@ export function PortraitOrb({ className = "" }: { className?: string }) {
   };
   useMotionValueEvent(split, "change", renderSquares);
   useLayoutEffect(() => {
-    renderSquares();
     const root = rootRef.current;
     if (!root) return;
-    const ro = new ResizeObserver(renderSquares);
+    const measure = () => {
+      sizeRef.current = { w: root.offsetWidth, h: root.offsetHeight };
+      renderSquares();
+    };
+    measure();
+    const ro = new ResizeObserver(measure);
     ro.observe(root);
     return () => ro.disconnect();
     // eslint-disable-next-line react-hooks/exhaustive-deps

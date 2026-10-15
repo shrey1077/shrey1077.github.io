@@ -647,6 +647,20 @@ html[data-guard] :is(img, video, svg) {
 .pixel-blink {
   animation: pixel-blink var(--blink, 2s) steps(3, jump-both) var(--delay, 0s) infinite;
 }
+/* ⚠ HELD STILL WHERE IT CAN'T BE SEEN (speed, 2026-10-15): every slide is
+ * built up front, and its buttons' squares — some three thousand — blinked on
+ * in the slides out of sight too. A blink nobody can see isn't handed to the
+ * graphics card, so the page restyled all of them on every frame: on a phone
+ * most of its time went there, the whole while the first slide was up. A
+ * slide not on screen is `inert` (Flythrough), a pop-up or a pixel-faded
+ * element not shown is `.invisible` (usePixelPresence). */
+[inert] .pixel-blink,
+.invisible .pixel-blink,
+.invisible.pixel-blink {
+  /* Not merely paused: a paused animation is still looked after every frame.
+   * Off, it is gone until shown, then starts again on its own random beat. */
+  animation: none;
+}
 @media (prefers-reduced-motion: reduce) {
   .pixel-blink {
     animation: none;
