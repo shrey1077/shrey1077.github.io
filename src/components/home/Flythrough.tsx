@@ -396,7 +396,8 @@ function Slide({
     const a = Math.abs(o);
     if (k !== null) {
       const d = k - v;
-      const role = d < 0 && d > -1 ? "out" : d > 0 && d < 1 && k !== FIRST_ROOM ? "in" : null;
+      // A slide within a whisker of its place counts as there: no squares.
+      const role = d < -0.004 && d > -1 ? "out" : d > 0.004 && d < 1 && k !== FIRST_ROOM ? "in" : null;
       if (role && !reduceMotion && a < 0.999 && w && h) {
         clip = clipFor(gridFor(w, h), easeTime(role === "out" ? -d : 1 - d), role) || "inset(50%)";
       } else if (!role && !reduceMotion && Math.abs(d) < 0.5 && a > 0.001 && a < 0.999 && w && h) {
@@ -608,8 +609,19 @@ export function Flythrough({
   useEffect(() => {
     const run = runRef.current;
     if (!run) return;
+    // ⚠ A resize changes one slide's scroll (100svh), so the same scroll
+    // position lands between two slides — and a slide half-way through its
+    // squares has holes in it (on Azoth's dark artwork they read as
+    // see-through patches, owner 2026-10-15). At rest, the page is put back
+    // on the slide it was on.
     const re = () => {
+      const before = position();
       measure();
+      const k = Math.round(before);
+      if (!flyingRef.current && !warpRef.current && before > -EPS && before < runLastRef.current + 0.5) {
+        const top = geomRef.current.top + Math.min(k, runLastRef.current) * geomRef.current.step;
+        if (Math.abs(window.scrollY - top) > 0.5) window.scrollTo({ top, behavior: "instant" });
+      }
       sync();
     };
     const ro = new ResizeObserver(re);
@@ -619,7 +631,7 @@ export function Flythrough({
       ro.disconnect();
       window.removeEventListener("resize", re);
     };
-  }, [measure, sync]);
+  }, [measure, sync, position]);
 
   // Each ground only runs while its track can be seen — a film decoding off
   // screen is a waste.
@@ -890,6 +902,9 @@ export function Flythrough({
         const pos = position();
         if (pos <= EPS || pos >= runLastRef.current - EPS) return;
         if (Math.abs(pos - Math.round(pos)) > EPS) flyTo(Math.round(pos));
+        // A hair off (rounding, a zoom): set it exactly on the slide, or its
+        // squares stay a hair from whole.
+        else if (Math.abs(pos - Math.round(pos)) > 0.0005) window.scrollTo({ top: scrollTop(Math.round(pos)), behavior: "instant" });
       }, SETTLE_MS);
     };
     // ONE SWIPE, ONE SLIDE (owner, 2026-10-15: "one scroll moves you exactly

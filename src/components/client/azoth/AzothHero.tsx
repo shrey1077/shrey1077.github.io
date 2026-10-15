@@ -30,6 +30,12 @@
  * loading first; and its headline is a paragraph — the home page has its own
  * h1 — and its strip stands clear of the home page's band and corner buttons,
  * its button opening the Azoth page.
+ * ⚠ AND ON THE SLIDE THE HEADLINE IS THE LOGO (owner, 2026-10-15: "on top
+ * left keep a big Azoth Biotech white logo landscape, and under it write the
+ * inspired by nature in small letters matching logo width"): the white
+ * horizontal lockup, top left under the strip, and "Inspired by Nature" set
+ * to exactly its width (SVG text, textLength). The big headline behind the
+ * rock stays on the Azoth page only.
  */
 
 import { useEffect, useRef, useState } from "react";
@@ -38,6 +44,11 @@ import { RoomImage } from "@/components/home/nearness";
 import { useReducedMotion } from "framer-motion";
 import { AZOTH_HERO, AZOTH_SPECIES, type AzothSpecies } from "@/constants/azothHero";
 import { useMediaQuery } from "@/hooks/useMediaQuery";
+
+/** The white horizontal lockup, for the slide's top-left (482 × 123 — the
+ *  largest on disk; a bigger export would be sharper on high-density
+ *  screens). */
+const SLIDE_LOGO = { src: "/content/clients/azoth-biotech/brand/marks/lockup-horizontal-white.webp", w: 482, h: 123 };
 
 /** Spotlight radius in px. */
 const SPOTLIGHT_R = 260;
@@ -246,6 +257,7 @@ export function AzothHero({ variant = "page" }: { variant?: "page" | "slide" } =
           the flowering ridge too. */}
       <div className="azoth-hero-zoom absolute inset-0 z-10">
         <Image src={AZOTH_HERO.base} alt={`Azoth Biotech — the landscape behind “${AZOTH_HERO.headline}”`} fill priority={priority} sizes="100vw" className="object-cover" />
+        {!slide && (
         <div className="absolute inset-x-0 top-[16%] flex justify-center px-5 text-center">
           <Headline
             className="azoth-hero-anim azoth-hero-reveal font-azoth-display whitespace-nowrap text-[clamp(1.5rem,10.2vw,11.25rem)] italic leading-none text-white"
@@ -254,6 +266,7 @@ export function AzothHero({ variant = "page" }: { variant?: "page" | "slide" } =
             {AZOTH_HERO.headline}
           </Headline>
         </div>
+        )}
         <Image src={AZOTH_HERO.baseCut} alt="" fill priority={priority} sizes="100vw" className="object-cover" />
       </div>
 
@@ -267,6 +280,7 @@ export function AzothHero({ variant = "page" }: { variant?: "page" | "slide" } =
         <Image src={AZOTH_HERO.reveal} alt="" fill priority={priority} sizes="100vw" className="object-cover" />
         {/* The headline, BEHIND THE ROCK: a quarter smaller than the
             client's (2026-10-02), between this exposure and its sky-cut copy. */}
+        {!slide && (
         <div className="absolute inset-x-0 top-[16%] flex justify-center px-5 text-center">
           <p
             className="azoth-hero-anim azoth-hero-reveal font-azoth-display whitespace-nowrap text-[clamp(1.5rem,10.2vw,11.25rem)] italic leading-none text-white"
@@ -275,6 +289,7 @@ export function AzothHero({ variant = "page" }: { variant?: "page" | "slide" } =
             {AZOTH_HERO.headline}
           </p>
         </div>
+        )}
         <Image src={AZOTH_HERO.revealCut} alt="" fill priority={priority} sizes="100vw" className="object-cover" />
         {/* The four species, standing on the flowering ridge. ⚠ INSIDE the
             masked layer on purpose: they exist only where the spotlight is, so
@@ -324,6 +339,19 @@ export function AzothHero({ variant = "page" }: { variant?: "page" | "slide" } =
           ))}
         </div>
       </div>
+
+      {/* On the slide: the white logo, top left under the strip, with the
+          line set to its width. */}
+      {slide && (
+        <div className="azoth-hero-anim azoth-hero-fade pointer-events-none absolute left-4 top-[calc(max(2vh,0.75rem)+var(--strip-h,3.75rem)+1.25rem)] z-[50] w-[clamp(13rem,32vw,30rem)] sm:left-8 lg:left-[5vw] [@media(max-height:31.25rem)]:top-[calc(max(2vh,0.75rem)+var(--strip-h,3.75rem)+0.5rem)] [@media(max-height:31.25rem)]:w-[9.5rem]">
+          <Image src={SLIDE_LOGO.src} alt="Azoth Biotech" width={SLIDE_LOGO.w} height={SLIDE_LOGO.h} sizes="(min-width: 1024px) 32vw, 60vw" className="block h-auto w-full" />
+          <svg viewBox={`0 0 ${SLIDE_LOGO.w} 26`} className="mt-[2%] block w-full overflow-visible" role="img" aria-label={AZOTH_HERO.headline}>
+            <text x="0" y="19" textLength={SLIDE_LOGO.w} lengthAdjust="spacing" fontSize="17" fill="rgba(255,255,255,0.88)" style={{ textTransform: "uppercase" }}>
+              {AZOTH_HERO.headline}
+            </text>
+          </svg>
+        </div>
+      )}
 
       <HeroStrip
         species={active}
