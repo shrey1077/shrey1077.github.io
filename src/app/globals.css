@@ -738,3 +738,29 @@ html[data-guard] :is(img, video, svg) {
     animation: none;
   }
 }
+
+/* The ABS slide's three portrait windows (AbsSlide): each column of plates
+ * runs twice over and slides UP by exactly one run — the middle one down —
+ * holding still under the pointer. Reduced motion: still. */
+@keyframes abs-slide {
+  from {
+    transform: translateY(0);
+  }
+  to {
+    transform: translateY(-50%);
+  }
+}
+.abs-track {
+  animation: abs-slide var(--abs-duration, 20s) linear infinite;
+}
+.abs-track-reverse {
+  animation-direction: reverse;
+}
+.art-row:hover .abs-track {
+  animation-play-state: paused;
+}
+@media (prefers-reduced-motion: reduce) {
+  .abs-track {
+    animation: none;
+  }
+}

@@ -16,7 +16,7 @@ import { RoomImage as Image } from "@/components/home/nearness";
 import { TOOLS, type Tool } from "@/constants/tools";
 
 /** What each tool is, in a line. */
-const ROLE: Record<string, string> = {
+export const ROLE: Record<string, string> = {
   "adobe-cc": "The design suite",
   "google-flow": "Film generation, on Veo",
   leonardo: "Images and motion",
@@ -29,7 +29,7 @@ const ROLE: Record<string, string> = {
 };
 
 /** The stack by what it is for, in reading order. */
-const GROUPS: { label: string; ids: string[] }[] = [
+export const GROUPS: { label: string; ids: string[] }[] = [
   { label: "Design", ids: ["adobe-cc"] },
   { label: "Generate", ids: ["google-flow", "leonardo", "lemonpeel"] },
   { label: "Think & build", ids: ["claude", "chatgpt", "gemini", "github"] },

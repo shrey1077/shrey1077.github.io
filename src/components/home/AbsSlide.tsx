@@ -1,98 +1,101 @@
 "use client";
 
 /**
- * AbsSlide — three in one (owner, 2026-10-15: "ABS in top half, and Luzid and
- * Kartpipe in lower half of slide, yes 3 in one slide"): ABS Wholesale across
- * the top, the two brands built there side by side under it.
+ * AbsSlide — ABS Wholesale with the two brands built there, Luzid and
+ * Kartpipe, three in one (owner, 2026-10-15). Second version, the same day:
+ * "keep three circles at top with brand logos and below them show portrait
+ * sliders, 2 square images vertically, for each".
  *
- * Each panel is a row of the brand's own plates (the ABS page's), its mark
- * and a button over the corner: Luzid's and Kartpipe's open their sections of
- * the ABS page, and "View Full Project" (bottom right, like every project)
- * the page itself. The rows thin out on a portrait screen — fewer, wider
- * plates — so the slide always fits whole.
+ *        ( ABS )          ( Luzid )        ( Kartpipe )
+ *        ┌─────┐          ┌─────┐          ┌─────┐
+ *        │  ■  │          │  ■  │ ↓        │  ■  │
+ *        │  ■  │ ↑        │  ■  │          │  ■  │ ↑
+ *        └─────┘          └─────┘          └─────┘
+ *
+ * Each circle is the brand's mark (Kartpipe has none on disk: its name, set
+ * in type) and opens its part of the ABS page. Under each, a portrait window
+ * two squares tall, through which the brand's own plates slide steadily —
+ * the middle one the other way — holding still under the pointer and while
+ * the slide isn't on screen. Every plate is cropped to a square. Each column
+ * is sized so the circle and its two squares fit the screen's height whole.
+ * Reduced motion: the columns stand still.
  */
 
+import Link from "next/link";
 import { RoomImage as Image } from "@/components/home/nearness";
 import { PixelButton } from "@/components/home/PixelButton";
 import { ABS_BRANDS, type Showcase } from "@/constants/showcase";
 
 const WORK = "/content/clients/abs/work";
+/** Seconds for one plate to slide by. */
+const SECONDS_PER_PLATE = 3.2;
 
-interface Panel {
+interface Column {
   name: string;
-  line: string;
   mark?: string;
-  /** The panel's own button; ABS's is the slide's corner button. */
-  href?: string;
+  href: string;
   plates: string[];
 }
 
-function BrandPanel({ panel, wide }: { panel: Panel; wide?: boolean }) {
+function BrandColumn({ col, reverse, active }: { col: Column; reverse: boolean; active: boolean }) {
+  // The plates run twice over, so sliding by one run loops without a seam;
+  // a short run is repeated until there are enough to fill the window.
+  const run = col.plates.length < 4 ? [...col.plates, ...col.plates] : col.plates;
   return (
-    <div className="relative min-h-0 overflow-hidden rounded-2xl bg-neutral-100 ring-1 ring-neutral-900/10">
-      {/* The plates, side by side — two for the top panel on a portrait
-          screen, one each for the two below. */}
-      <div
-        className={`absolute inset-0 flex gap-1.5 ${
-          wide ? "portrait:[&>*:nth-child(n+3)]:hidden" : "portrait:[&>*:nth-child(n+2)]:hidden"
-        }`}
+    <li className="flex min-h-0 flex-col items-center gap-[clamp(0.5rem,2vh,1.1rem)]">
+      {/* The circle. */}
+      <Link
+        href={col.href}
+        prefetch={false}
+        aria-label={`${col.name} — open its page`}
+        className="group relative grid aspect-square w-[var(--disc)] shrink-0 place-items-center overflow-hidden rounded-full bg-white shadow-[0_14px_34px_-18px_rgba(0,0,0,0.55)] ring-1 ring-neutral-900/15 outline-none transition-[box-shadow,transform] duration-300 hover:-translate-y-0.5 hover:ring-2 hover:ring-neutral-900 focus-visible:ring-2 focus-visible:ring-neutral-900"
       >
-        {panel.plates.map((src) => (
-          <span key={src} className="relative min-w-0 flex-1">
-            <Image src={src} alt="" fill sizes={wide ? "25vw" : "18vw"} className="object-cover" />
+        {col.mark ? (
+          <span className="relative block h-[58%] w-[64%]">
+            <Image src={col.mark} alt="" fill sizes="120px" className="object-contain" />
           </span>
-        ))}
-      </div>
-      <span aria-hidden className="absolute inset-0 bg-gradient-to-t from-neutral-950/55 via-transparent to-transparent" />
-      {/* The brand, over the corner. */}
-      <div className="absolute bottom-2.5 left-2.5 flex max-w-[calc(100%-1.25rem)] flex-col items-start gap-2 rounded-xl bg-white/90 p-2.5 shadow-[0_10px_30px_-14px_rgba(0,0,0,0.5)] backdrop-blur-sm sm:bottom-3.5 sm:left-3.5 sm:p-3">
-        <span className="flex min-w-0 items-center gap-2.5">
-          {panel.mark && (
-            <span className="relative block h-7 w-12 shrink-0 sm:h-9 sm:w-16">
-              <Image src={panel.mark} alt="" fill sizes="64px" className="object-contain object-left" />
-            </span>
-          )}
-          <span className="min-w-0">
-            <span className="face-logic block truncate text-[clamp(0.95rem,1.6vw,1.45rem)] leading-none text-neutral-900">
-              {panel.name}
-            </span>
-            <span className="mt-1 block truncate text-[0.66rem] text-neutral-500 max-sm:hidden">{panel.line}</span>
-          </span>
-        </span>
-        {panel.href && (
-          <PixelButton side="logic" size="sm" href={panel.href}>
-            View <span className="max-sm:hidden">{panel.name}</span> <span aria-hidden>→</span>
-          </PixelButton>
+        ) : (
+          <span className="face-logic px-2 text-center text-[calc(var(--disc)*0.15)] leading-none text-neutral-900">{col.name}</span>
         )}
+      </Link>
+      {/* The window: two squares tall. */}
+      <div className="art-row group relative w-[var(--col)] shrink-0 overflow-hidden rounded-2xl bg-neutral-100 ring-1 ring-neutral-900/10" style={{ height: "calc(var(--col) * 2 + 0.5rem)" }}>
+        <div
+          className={`abs-track flex flex-col ${reverse ? "abs-track-reverse" : ""} ${active ? "" : "[animation-play-state:paused]"}`}
+          style={{ "--abs-duration": `${run.length * SECONDS_PER_PLATE}s` } as unknown as React.CSSProperties}
+        >
+          {[...run, ...run].map((src, i) => (
+            <span key={`${src}-${i}`} className="relative mb-2 block aspect-square w-full shrink-0 overflow-hidden rounded-xl">
+              <Image src={src} alt="" fill sizes="20vw" className="object-cover" />
+            </span>
+          ))}
+        </div>
       </div>
-    </div>
+    </li>
   );
 }
 
-export function AbsSlide({ item }: { item: Showcase }) {
+export function AbsSlide({ item, active }: { item: Showcase; active: boolean }) {
   const [luzid, kartpipe] = ABS_BRANDS;
-  const abs: Panel = {
-    name: item.name,
-    line: "Wholesale · Distribution — Santa Fe Springs, California",
-    mark: item.mark,
-    plates: ["02", "03", "04", "06"].map((n) => `${WORK}/abs-house/${n}.webp`),
-  };
-  const brand = (b: Showcase, folder: string, plates: string[]): Panel => ({
-    name: b.name,
-    line: b.sector,
-    mark: b.mark,
-    href: b.report.href,
-    plates: plates.map((n) => `${WORK}/${folder}/${n}.webp`),
-  });
+  const cols: Column[] = [
+    { name: "ABS Wholesale", mark: item.mark, href: item.report.href ?? "/clients/abs", plates: ["01", "02", "03", "04", "05", "06"].map((n) => `${WORK}/abs-house/${n}.webp`) },
+    { name: luzid.name, mark: luzid.mark, href: luzid.report.href ?? "/clients/abs#luzid", plates: ["01", "02", "03", "04", "06", "07"].map((n) => `${WORK}/luzid/${n}.webp`) },
+    { name: kartpipe.name, href: kartpipe.report.href ?? "/clients/abs#kartpipe", plates: ["01", "02", "03"].map((n) => `${WORK}/kartpipe/${n}.webp`) },
+  ];
   return (
     <section aria-label={`${item.name}, Luzid and Kartpipe`} data-side="logic" className="absolute inset-0 overflow-hidden">
       <h2 className="sr-only">{item.name} — with Luzid and Kartpipe</h2>
-      <div className="slide-frame is-logic absolute inset-0 grid grid-rows-[minmax(0,1fr)_minmax(0,1fr)] gap-2.5 sm:gap-3">
-        <BrandPanel panel={abs} wide />
-        <div className="grid min-h-0 grid-cols-2 gap-2.5 sm:gap-3">
-          <BrandPanel panel={brand(luzid, "luzid", ["01", "02", "06"])} />
-          <BrandPanel panel={brand(kartpipe, "kartpipe", ["01", "02", "03"])} />
-        </div>
+      {/* --col: one square's side — a third of the width less the gaps, or
+          whatever lets the circle and two squares fit the frame's height,
+          whichever is smaller. --disc: the circle. */}
+      <div className="slide-frame is-logic absolute inset-0 flex items-center justify-center [container-type:size]">
+        <ul
+          className="grid grid-cols-3 items-start gap-[var(--gap)] [--gap:clamp(0.6rem,3vw,3rem)] [--col:min(calc((100cqw-2*var(--gap))/3),calc((100cqh-2.5rem)/2.6),15rem)] [--disc:calc(var(--col)*0.55)]"
+        >
+          {cols.map((c, i) => (
+            <BrandColumn key={c.name} col={c} reverse={i === 1} active={active} />
+          ))}
+        </ul>
       </div>
       <div className="absolute bottom-[calc(7svh+0.75rem)] right-4 z-10 sm:right-8 lg:right-[5vw]">
         <PixelButton side="logic" href={item.report.href}>

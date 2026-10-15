@@ -658,10 +658,12 @@ export function LeftRightBrain({
           <span className="font-lr-grotesk block text-sm font-light text-neutral-600 sm:text-lg">brain</span>
         </motion.p>
       </div>
-      {/* ⚠ Anchored to the Flythrough's "Scroll to explore" cue (bottom 8.5%)
-          plus the cue's own height — a plain percentage met it on some
-          heights, and the hint printed over "Scroll". */}
-      <div className="font-lr-serif absolute inset-x-5 bottom-[calc(8.5%+3.5rem)] text-[0.95rem] leading-[1.3] sm:inset-x-12 sm:text-[1.15rem] lg:hidden">
+      {/* ⚠ Stands clear of the row along the slide's foot (BrainFooter — the
+          band's 7%, its own 0.9rem lift and its height: 6.25rem on a phone,
+          3.4rem on a short screen). It sat over the scroll cue's place until
+          2026-10-15, when that row took the foot and the cue left the brain
+          slide. */}
+      <div className="font-lr-serif absolute inset-x-5 bottom-[calc(7%+0.9rem+6.25rem+0.9rem)] text-[0.95rem] leading-[1.3] sm:inset-x-12 sm:bottom-[calc(7%+0.9rem+min(max(4.5rem,13vh),6.5rem)+0.9rem)] sm:text-[1.15rem] lg:hidden [@media(max-height:31.25rem)]:bottom-[calc(7%+0.9rem+3.4rem+0.6rem)]">
         <AnimatePresence mode="wait" initial={false}>
           {leftOn || rightOn ? (
             <motion.div

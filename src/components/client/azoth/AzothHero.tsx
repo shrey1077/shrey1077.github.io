@@ -35,13 +35,15 @@
  * inspired by nature in small letters matching logo width"): the white
  * horizontal lockup, top left under the strip, and "Inspired by Nature" set
  * to exactly its width (SVG text, textLength). The big headline behind the
- * rock stays on the Azoth page only.
+ * rock stays on the Azoth page only. Its strip along the foot went too:
+ * the mushroom under the cursor is named in big serif italic in the lower
+ * right instead.
  */
 
 import { useEffect, useRef, useState } from "react";
 import NextImage from "next/image";
 import { RoomImage } from "@/components/home/nearness";
-import { useReducedMotion } from "framer-motion";
+import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
 import { AZOTH_HERO, AZOTH_SPECIES, type AzothSpecies } from "@/constants/azothHero";
 import { useMediaQuery } from "@/hooks/useMediaQuery";
 
@@ -353,12 +355,33 @@ export function AzothHero({ variant = "page" }: { variant?: "page" | "slide" } =
         </div>
       )}
 
-      <HeroStrip
-        species={active}
-        intro={!active && (hovering || (isTouch && !slide))}
-        slide={slide}
-        href={slide ? "/clients/azoth-biotech/" : "#work"}
-      />
+      {slide ? (
+        // On the slide, no strip (owner, 2026-10-15: "remove these bands,
+        // instead write the mushrooms' name in the previous font of 'Inspired
+        // by Nature' … at the lower right corner just above the button, and
+        // big size that accommodates all names in same size"): the name of
+        // the mushroom under the cursor, in the headline's serif, one size for
+        // all four — set so the longest, "Cordyceps Militaris", fits.
+        <div aria-live="polite" className="pointer-events-none absolute bottom-[calc(7svh+0.75rem+2.75rem+0.9rem)] right-4 z-[55] sm:right-8 lg:right-[5vw]">
+          <AnimatePresence mode="wait">
+            {active && (
+              <motion.p
+                key={active.id}
+                initial={reduceMotion ? { opacity: 0 } : { opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={reduceMotion ? { opacity: 0 } : { opacity: 0, y: -6 }}
+                transition={{ duration: 0.35, ease: [0.16, 1, 0.3, 1] }}
+                className="font-azoth-display whitespace-nowrap text-right text-[clamp(1.6rem,min(4.4vw,8.5svh),4.4rem)] italic leading-none text-white"
+                style={{ letterSpacing: "-0.03em", textShadow: `0 0 26px ${active.color}cc, 0 0 8px ${active.accent}66` }}
+              >
+                {active.name}
+              </motion.p>
+            )}
+          </AnimatePresence>
+        </div>
+      ) : (
+        <HeroStrip species={active} intro={!active && (hovering || isTouch)} slide={false} href="#work" />
+      )}
     </section>
   );
 }

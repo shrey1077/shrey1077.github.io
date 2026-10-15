@@ -45,8 +45,7 @@ import { clipFor, easeTime, gridFor } from "@/components/home/pixelDissolve";
 import { useInViewport } from "@/hooks/useInViewport";
 import { DURATION, EASE_IN_OUT, EASE_OUT } from "@/constants/motion";
 import { CircuitBackdrop } from "@/components/home/CircuitBackdrop";
-import { BrainPins } from "@/components/home/BrainPins";
-import { BrainTraces } from "@/components/home/BrainTraces";
+import { BrainFooter } from "@/components/home/BrainFooter";
 import { useFlight } from "@/components/home/flight";
 import { useMediaQuery } from "@/hooks/useMediaQuery";
 import { SITE } from "@/constants/site";
@@ -334,12 +333,8 @@ export function HeroStage() {
           pointerEvents: onBrain ? "auto" : "none",
         }}
       >
-        {/* The pins' runs into the brain. ⚠ HERE, immediately before the
-            footage and with no z-index, so the brain paints OVER the last
-            stretch of each line — that is how they end "behind" it. It is
-            handed the footage's own resting transform so it can find the
-            brain. */}
-        <BrainTraces scale={CENTER_SCALE} shiftX={BRAIN_SHIFT_X} rise={BRAIN_RISE} />
+        {/* (The pins' runs into the brain, BrainTraces, stood here until
+            2026-10-15, when the pins came off — see BrainFooter.) */}
 
         {/* Left brain / Right brain — on this slide only (owner, 2026-10-03).
             ⚠ ALSO before the footage: its LINES carry no z-index, so the brain
@@ -367,8 +362,11 @@ export function HeroStage() {
           <BrainSequence active={inView && zone === "landing" && brainUp} />
         </motion.div>
 
-        {/* The sections, annotated onto the brain. */}
-        <BrainPins />
+        {/* Along the foot, just above the band: My Stack, then the facts,
+            taking turns (owner, 2026-10-15: "below brain artwork, remove
+            sections …"). The section pins that stood here (BrainPins) are
+            unlinked — the band is the way into either side now. */}
+        <BrainFooter active={onBrain} />
 
         {/* The facts' tab stood here, under the brain, until 2026-10-11: it
             is part of the fixed band now (FootBand, FactsTab). */}

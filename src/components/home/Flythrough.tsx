@@ -97,7 +97,7 @@ import {
 import { FlightContext, HERO_SLIDES, PERSPECTIVE } from "@/components/home/flight";
 import { PixelVeil } from "@/components/home/PixelVeil";
 import { FLY_EASE, PAN_CELL, clipFor, easeTime, gridFor } from "@/components/home/pixelDissolve";
-import { FootBand } from "@/components/home/FootBand";
+import { FootBand, type BandPart } from "@/components/home/FootBand";
 import { PIN_OPEN_EVENT } from "@/components/home/BrainPins";
 import { SectionParticles } from "@/components/home/SectionParticles";
 import { CircuitBackdrop } from "@/components/home/CircuitBackdrop";
@@ -112,7 +112,6 @@ import { ExtinctsSlide } from "@/components/home/ExtinctsSlide";
 import { ArtSlide, type ArtThumb } from "@/components/home/ArtSlide";
 import { AiSlide } from "@/components/home/AiSlide";
 import { WritingsSlide } from "@/components/home/WritingsSlide";
-import { EdgeJump } from "@/components/home/EdgeJump";
 import { ShowcaseStrip } from "@/components/home/ShowcaseStrip";
 import { SectionMenu } from "@/components/home/SectionMenu";
 import { KitButton } from "@/components/home/KitButton";
@@ -563,6 +562,19 @@ export function Flythrough({
   const firstScreenUp = useFirstScreenUp();
   const pageSettled = usePageSettled();
 
+  // ── The band's split (FootBand): its black part's share of the width —
+  //    half on the landing and at the footer, three quarters in a logic room,
+  //    a quarter in a creative one, travelling with the camera into the rooms
+  //    and with the pan between them.
+  const bandShare = useMotionValue(0.5);
+  const pastRef = useRef(0);
+  const updateBand = useCallback(() => {
+    const into = clamp01(cam.get() - BRAIN);
+    const room = 0.75 - 0.5 * clamp01(trackX.get());
+    bandShare.set(0.5 + (room - 0.5) * into * (1 - pastRef.current));
+  }, [bandShare, cam, trackX]);
+  useMotionValueEvent(trackX, "change", updateBand);
+
   /** Read the page's place into the camera, and everything that follows it. */
   const sync = useCallback(() => {
     const raw = position();
@@ -588,11 +600,17 @@ export function Flythrough({
     if (c >= BRAIN) extendReach(c);
     const camNow = cam.get();
     setRoomsLive(camNow > BRAIN + EPS);
-    if (!w) setPastRun(raw > last + 0.35);
+    if (!w) {
+      setPastRun(raw > last + 0.35);
+      // The footer is short (a tenth of a screen): the split is back to half by
+      // the time it is in.
+      pastRef.current = clamp01((raw - last) / 0.08);
+    }
+    updateBand();
     // Back up on the orb, the track rests on logic again. (Not on the brain
     // slide: there the side the pointer is on has just chosen it.)
     if (v < BRAIN - EPS && trackRef.current !== "logic" && !flyingRef.current) switchTrack("logic", true);
-  }, [cam, extendReach, p, position, switchTrack]);
+  }, [cam, extendReach, p, position, switchTrack, updateBand]);
   useMotionValueEvent(scrollY, "change", sync);
 
   // The run's geometry: on mount, as anything resizes, and whenever its
@@ -726,6 +744,13 @@ export function Flythrough({
     /** Go to slide `b` on track `tb` in one move — see THE WARP. */
     const goTo = (b: number, tb: Track) => {
       if (flyingRef.current || (trackX.get() > 0.001 && trackX.get() < 0.999)) return;
+      // From the footer (the band's halves): back up onto the brain slide at
+      // once, the stage still out of sight, and fly in from there.
+      if (position() > runLastRef.current + 0.3 && b >= FIRST_ROOM) {
+        switchTrack(tb, true);
+        window.scrollTo({ top: scrollTop(BRAIN), behavior: "instant" });
+        sync();
+      }
       const pos = position();
       const here = Math.round(pos);
       const ta = trackRef.current;
@@ -991,14 +1016,35 @@ export function Flythrough({
 
   // What the fixed band along the foot carries: the room the camera is in,
   // or — on the landing and past the rooms — the name.
-  const bandRoom = here && !pastRun ? { label: here.item.short, side: track } : null;
-  const inRooms = current >= FIRST_ROOM && !pastRun;
-
-  // The way across from here (EdgeJump): the room level with this one on
+  // The way across from here (the band's smaller part): the room level with this one on
   // the other side — the right side's last, where it is shorter.
   const level = here?.level ?? 0;
   const acrossFromLogic = CREATIVE[Math.min(level, CREATIVE.length - 1)];
   const acrossFromCreative = LOGIC[Math.min(level, LOGIC.length - 1)];
+  // The band's words (FootBand): in a room, the room on its side and the
+  // one level with it across; on the landing and at the footer, the way into
+  // each side.
+  const pad2 = (n: number) => String(n).padStart(2, "0");
+  const band: { left: BandPart; right: BandPart; major: "left" | "right" | null } =
+    here && !pastRun
+      ? track === "logic"
+        ? {
+            left: { title: here.item.short, sub: `Projects · ${pad2(here.level + 1)} / ${pad2(LOGIC.length)}` },
+            right: { title: acrossFromLogic.short, sub: "Creative →", onGo: () => goId(acrossFromLogic.id) },
+            major: "left",
+          }
+        : {
+            left: { title: acrossFromCreative.short, sub: "← Projects", onGo: () => goId(acrossFromCreative.id) },
+            right: { title: here.item.short, sub: `Creative · ${pad2(here.level + 1)} / ${pad2(CREATIVE.length)}` },
+            major: "right",
+          }
+      : {
+          left: { title: "Projects", sub: "Left brain · Logic", onGo: () => goId(LOGIC[0].id) },
+          right: { title: "Creative", sub: "Right brain · Art", onGo: () => goId(CREATIVE[0].id) },
+          major: null,
+        };
+  const inRooms = current >= FIRST_ROOM && !pastRun;
+
   return (
     <FlightContext.Provider value={{ p, current, zone, reduceMotion }}>
     <div ref={runRef} className="relative w-full" style={{ height: `${(runLast + 1) * 100}svh` }}>
@@ -1085,7 +1131,7 @@ export function Flythrough({
                   item.id === "azoth-biotech" ? (
                     <AzothSlide item={item} />
                   ) : item.id === "abs" ? (
-                    <AbsSlide item={item} />
+                    <AbsSlide item={item} active={live && !reduceMotion} />
                   ) : item.id === "zabraku" ? (
                     <ZabrakuSlide item={item} live={live} arrived={arrived} />
                   ) : item.id === "newsmobile" ? (
@@ -1141,31 +1187,12 @@ export function Flythrough({
             them, across the whole screen. */}
         <PixelVeil p={cam} trackX={trackX} track={track} firstRoom={FIRST_ROOM} reduceMotion={reduceMotion} />
 
-        {/* My Stack in the bottom-left corner of the left side, My Tools in
-            the bottom-right of the right — each a pop-up over the top. */}
-        <KitButton side="logic" show={inRooms} away={track !== "logic" && !panning} x={logicGroundX} reduceMotion={reduceMotion} />
+        {/* My Tools in the bottom-right of the right side — a pop-up over
+            the top. (My Stack's button stood in the left's corner until
+            2026-10-15; the stack is on the brain slide now, BrainFooter. The
+            tabs at the edges that crossed sides, EdgeJump, went the same day
+            — the band does that.) */}
         <KitButton side="creative" show={inRooms} away={track !== "creative" && !panning} x={creativeGroundX} reduceMotion={reduceMotion} />
-
-        {/* The way across to the room level with this one, at the middle of
-            the edge facing the other side (EdgeJump). */}
-        <EdgeJump
-          side="logic"
-          label={acrossFromLogic.short}
-          show={inRooms}
-          away={track !== "logic" && !panning}
-          x={logicGroundX}
-          onGo={() => goId(acrossFromLogic.id)}
-          reduceMotion={reduceMotion}
-        />
-        <EdgeJump
-          side="creative"
-          label={acrossFromCreative.short}
-          show={inRooms}
-          away={track !== "creative" && !panning}
-          x={creativeGroundX}
-          onGo={() => goId(acrossFromCreative.id)}
-          reduceMotion={reduceMotion}
-        />
 
         {/* The sections button, top right, from the first room on — any room
             from any room, in one step. (The three circles at the top centre,
@@ -1190,7 +1217,7 @@ export function Flythrough({
           aria-hidden
           className={`pointer-events-none absolute inset-x-0 z-[150] flex transition-opacity duration-500 ${
             current === 0 ? "bottom-[calc(7%+14px)] justify-end pr-[5vw]" : "bottom-[8.5%] justify-center"
-          } ${current === 0 ? "opacity-100" : current < FIRST_ROOM ? "opacity-100 lg:opacity-0" : "opacity-0"}`}
+          } ${current === 0 ? "opacity-100" : "opacity-0"}`}
         >
           <div className="flex flex-col items-center gap-1">
             <span className={`${typeVoiceClass("logic", "meta")} text-[0.58rem] tracking-[0.3em] text-neutral-500`}>
@@ -1209,7 +1236,7 @@ export function Flythrough({
 
       {/* The black band along the foot — fixed to the screen for the whole
           page, over the stage and under the dialogs (FootBand). */}
-      <FootBand room={bandRoom} />
+      <FootBand share={bandShare} left={band.left} right={band.right} major={band.major} />
     </div>
     </FlightContext.Provider>
   );
