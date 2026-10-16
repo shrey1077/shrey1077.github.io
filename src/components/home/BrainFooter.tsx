@@ -44,6 +44,7 @@ import { CYCLE_MS, HOBBIES } from "@/components/home/HobbiesRotator";
 import { TOOLS, type Tool } from "@/constants/tools";
 import { EASE_OUT } from "@/constants/motion";
 import { typeVoiceClass } from "@/constants/typography";
+import { HOME_TYPE } from "@/constants/faces";
 
 /** How long each face holds, ms. */
 const TURN_MS = 10000;
@@ -209,6 +210,9 @@ function CertificateDialog({ open, onClose, reduceMotion }: { open: boolean; onC
     const root = document.documentElement;
     const opener = document.activeElement as HTMLElement | null;
     root.dataset.modal = "certificate";
+    // The page behind stays put: no wheel or swipe scrolls it while open.
+    const prevOverflow = root.style.overflow;
+    root.style.overflow = "hidden";
     panelRef.current?.focus({ preventScroll: true });
     const onKey = (e: KeyboardEvent) => {
       if (e.key === "Escape") close.current();
@@ -217,6 +221,7 @@ function CertificateDialog({ open, onClose, reduceMotion }: { open: boolean; onC
     return () => {
       window.removeEventListener("keydown", onKey);
       if (root.dataset.modal === "certificate") delete root.dataset.modal;
+      root.style.overflow = prevOverflow;
       opener?.focus?.({ preventScroll: true });
     };
   }, [open]);
@@ -226,7 +231,7 @@ function CertificateDialog({ open, onClose, reduceMotion }: { open: boolean; onC
   return createPortal(
     <div
       ref={ref}
-      className={`fixed inset-0 z-[300] grid place-items-center bg-neutral-950/70 p-4 backdrop-blur-sm ${open ? "" : "invisible"}`}
+      className={`${HOME_TYPE} fixed inset-0 z-[300] grid place-items-center bg-neutral-950/70 p-4 backdrop-blur-sm ${open ? "" : "invisible"}`}
       aria-hidden={!open}
       onClick={onClose}
     >

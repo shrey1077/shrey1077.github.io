@@ -51,6 +51,17 @@ import { useMediaQuery } from "@/hooks/useMediaQuery";
  *  largest on disk; a bigger export would be sharper on high-density
  *  screens). */
 const SLIDE_LOGO = { src: "/content/clients/azoth-biotech/brand/marks/lockup-horizontal-white.webp", w: 482, h: 123 };
+/** The family under Azoth, in white, under the lockup on the slide (owner,
+ *  2026-10-16: "include Azoth brands except mycoveda in azoth slide as white
+ *  logos"; scripts/prepare-azoth-white-brands.mjs). `h` sets each one's
+ *  height against the row's, so the four read as one size: a stacked mark
+ *  stands taller than a long wordmark. */
+const SLIDE_BRANDS = [
+  { slug: "naturalist", name: "Naturalist", w: 720, h: 225, size: 0.95 },
+  { slug: "mushroomworks", name: "Mushroomworks", w: 689, h: 570, size: 1.45 },
+  { slug: "mycoactive", name: "MycoActives", w: 720, h: 340, size: 1.2 },
+  { slug: "kavaka", name: "Kavaka", w: 720, h: 115, size: 0.62 },
+] as const;
 
 /** Spotlight radius in px. */
 const SPOTLIGHT_R = 260;
@@ -374,6 +385,14 @@ export function AzothHero({ variant = "page" }: { variant?: "page" | "slide" } =
               {AZOTH_HERO.headline}
             </text>
           </svg>
+          {/* The family, one row, the lockup's width. */}
+          <ul aria-label="Brands under Azoth Biotech" className="mt-[7%] flex items-center justify-between gap-[5%] [--row:clamp(1.05rem,2.3vw,2rem)] [@media(max-height:31.25rem)]:[--row:0.85rem]">
+            {SLIDE_BRANDS.map((b) => (
+              <li key={b.slug} className="relative shrink-0" style={{ height: `calc(var(--row) * ${b.size})`, aspectRatio: `${b.w} / ${b.h}` }}>
+                <Image src={`/content/clients/azoth-biotech/brand/brands/white/${b.slug}.png`} alt={b.name} fill sizes="10rem" className="object-contain opacity-90" />
+              </li>
+            ))}
+          </ul>
         </div>
       )}
 

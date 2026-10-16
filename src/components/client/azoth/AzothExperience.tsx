@@ -32,7 +32,7 @@ import Link from "next/link";
 import Image from "next/image";
 import { ExperienceTransition } from "@/components/transition/ExperienceTransition";
 import { AzothHero } from "@/components/client/azoth/AzothHero";
-import { AzothStrip } from "@/components/client/azoth/AzothStrip";
+import { WorkGallery } from "@/components/client/WorkGallery";
 import { AzothZoom } from "@/components/client/azoth/AzothZoom";
 import {
   AZOTH,
@@ -470,10 +470,17 @@ export function AzothExperience() {
                 </div>
               </div>
 
-              <div className={`mt-8 border-t ${RULE} pt-6`}>
-                <AzothStrip posts={naturalistPosts} label={naturalist.name} accent={naturalist.accent} />
-              </div>
             </div>
+          </div>
+          {/* Every post, at once — a grid under the chapter, the width of the
+              page (owner, 2026-10-16: "show all my posts as were visible
+              earlier, not few of them like now"; a sideways strip in the
+              column, AzothStrip, from 2026-10-06 until then). */}
+          <div className={`${SHELL} pb-16 lg:pb-24`}>
+            <p className={`${LABEL} mb-5`} style={{ color: naturalist.accent }}>
+              The social system · {naturalistPosts.length} posts
+            </p>
+            <WorkGallery posts={naturalistPosts} accent={naturalist.accent} />
           </div>
         </section>
 
@@ -489,9 +496,6 @@ export function AzothExperience() {
                 {mushroomworks.descriptor}
               </p>
               <p className={`${BODY} mt-4 max-w-[60ch]`}>{mushroomworks.blurb}</p>
-              <div className={`mt-8 border-t ${RULE} pt-6`}>
-                <AzothStrip posts={mushroomworksPosts} label={mushroomworks.name} accent={mushroomworks.accent} />
-              </div>
             </div>
             <AzothZoom
               plates={[{ src: AZOTH_MUSHROOMWORKS_SHEET.src, name: "Mushroomworks — the system sheet" }]}
@@ -510,6 +514,13 @@ export function AzothExperience() {
                 <span className={`border-t ${RULE} px-4 py-3 ${LABEL}`}>{mushroomworks.caption}</span>
               </span>
             </AzothZoom>
+          </div>
+          {/* Every post, at once (see Naturalist's). */}
+          <div className={`${SHELL} pb-16 lg:pb-24`}>
+            <p className={`${LABEL} mb-5`} style={{ color: mushroomworks.accent }}>
+              The social system · {mushroomworksPosts.length} posts
+            </p>
+            <WorkGallery posts={mushroomworksPosts} accent={mushroomworks.accent} />
           </div>
         </section>
 

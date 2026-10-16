@@ -48,6 +48,7 @@ import { CircuitBackdrop } from "@/components/home/CircuitBackdrop";
 import { BrainFooter } from "@/components/home/BrainFooter";
 import { EducationMark } from "@/components/home/HomeMarks";
 import { EDUCATION } from "@/components/home/AboutFacts";
+import { AboutMe } from "@/components/home/AboutMe";
 import { useFlight } from "@/components/home/flight";
 import { useMediaQuery } from "@/hooks/useMediaQuery";
 import { SITE } from "@/constants/site";
@@ -472,6 +473,15 @@ export function HeroStage() {
               <span aria-hidden className="text-neutral-300">|</span>
               <span>{EDUCATION.join(" · ")}</span>
             </motion.p>
+            {/* About me — opens over the page (AboutMe; owner, 2026-10-16). */}
+            <motion.div
+              initial={reduceMotion ? false : { opacity: 0 }}
+              animate={{ opacity: orbW > 0 ? 1 : 0 }}
+              transition={{ duration: DURATION.verySlow, ease: EASE_OUT }}
+              className="mt-[clamp(0.6rem,1.6vh,1rem)] flex justify-center"
+            >
+              <AboutMe />
+            </motion.div>
           </div>
         </div>
       </motion.div>
