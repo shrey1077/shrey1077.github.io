@@ -1,41 +1,181 @@
 [
  {
   "name": "Himchhaya",
+  "species": "Snow Leopard",
+  "lead": true,
   "src": "/content/extincts/characters/himchhaya.webp",
   "thumb": "/content/extincts/characters/_thumbs/himchhaya.webp",
   "w": 1122,
   "h": 1402
  },
  {
-  "name": "Shaitra",
+  "name": "Shaitra — The White Reckoning",
+  "species": "Snow Leopard",
   "src": "/content/extincts/characters/shaitra.webp",
   "thumb": "/content/extincts/characters/_thumbs/shaitra.webp",
   "w": 1122,
   "h": 1402
  },
  {
-  "name": "The Living Shield",
-  "src": "/content/extincts/characters/living-shield.webp",
-  "thumb": "/content/extincts/characters/_thumbs/living-shield.webp",
+  "name": "Kaaldra",
+  "species": "Snow Leopard",
+  "src": "/content/extincts/characters/kaaldra.webp",
+  "thumb": "/content/extincts/characters/_thumbs/kaaldra.webp",
+  "w": 1122,
+  "h": 1402
+ },
+ {
+  "name": "Veyrak — Assassin",
+  "species": "Snow Leopard",
+  "src": "/content/extincts/characters/veyrak.webp",
+  "thumb": "/content/extincts/characters/_thumbs/veyrak.webp",
+  "w": 1122,
+  "h": 1402
+ },
+ {
+  "name": "Winter Warlord",
+  "species": "Snow Leopard",
+  "src": "/content/extincts/characters/winter-warlord.webp",
+  "thumb": "/content/extincts/characters/_thumbs/winter-warlord.webp",
+  "w": 1122,
+  "h": 1402
+ },
+ {
+  "name": "Kaalshard",
+  "species": "Snow Leopard",
+  "src": "/content/extincts/characters/kaalshard.webp",
+  "thumb": "/content/extincts/characters/_thumbs/kaalshard.webp",
+  "w": 1122,
+  "h": 1402
+ },
+ {
+  "name": "Shailraj — The White Throne",
+  "species": "Snow Leopard",
+  "src": "/content/extincts/characters/shailraj.webp",
+  "thumb": "/content/extincts/characters/_thumbs/shailraj.webp",
+  "w": 1122,
+  "h": 1402
+ },
+ {
+  "name": "Shikhar — Apex Predator",
+  "species": "Snow Leopard",
+  "src": "/content/extincts/characters/shikhar.webp",
+  "thumb": "/content/extincts/characters/_thumbs/shikhar.webp",
   "w": 1122,
   "h": 1402
  },
  {
   "name": "Southwind",
+  "species": "Tasmanian Tiger",
+  "lead": true,
   "src": "/content/extincts/characters/southwind.webp",
   "thumb": "/content/extincts/characters/_thumbs/southwind.webp",
   "w": 1122,
   "h": 1402
  },
  {
-  "name": "NoMad",
+  "name": "Southwind — Original Concept",
+  "species": "Tasmanian Tiger",
+  "src": "/content/extincts/characters/southwind-01.webp",
+  "thumb": "/content/extincts/characters/_thumbs/southwind-01.webp",
+  "w": 1122,
+  "h": 1402
+ },
+ {
+  "name": "Southwind — Pilot Goggles & Tail",
+  "species": "Tasmanian Tiger",
+  "src": "/content/extincts/characters/southwind-02.webp",
+  "thumb": "/content/extincts/characters/_thumbs/southwind-02.webp",
+  "w": 1122,
+  "h": 1402
+ },
+ {
+  "name": "Ghosthorn & Whisper",
+  "species": "Rhino & Pigeon",
+  "lead": true,
+  "src": "/content/extincts/characters/ghosthorn.webp",
+  "thumb": "/content/extincts/characters/_thumbs/ghosthorn.webp",
+  "w": 1122,
+  "h": 1402
+ },
+ {
+  "name": "Ghosthorn & Whisper — Stealth Rhino",
+  "species": "Rhino & Pigeon",
+  "src": "/content/extincts/characters/ghosthorn-01.webp",
+  "thumb": "/content/extincts/characters/_thumbs/ghosthorn-01.webp",
+  "w": 1122,
+  "h": 1402
+ },
+ {
+  "name": "Ghosthorn & Whisper — Heavy Rhino, Metal Pigeon",
+  "species": "Rhino & Pigeon",
+  "src": "/content/extincts/characters/ghosthorn-02.webp",
+  "thumb": "/content/extincts/characters/_thumbs/ghosthorn-02.webp",
+  "w": 1122,
+  "h": 1402
+ },
+ {
+  "name": "Dodohuf",
+  "species": "Dodo",
+  "lead": true,
+  "src": "/content/extincts/characters/dodohuf.webp",
+  "thumb": "/content/extincts/characters/_thumbs/dodohuf.webp",
+  "w": 1122,
+  "h": 1402
+ },
+ {
+  "name": "Dodohuf — Original Design",
+  "species": "Dodo",
+  "src": "/content/extincts/characters/dodohuf-01.webp",
+  "thumb": "/content/extincts/characters/_thumbs/dodohuf-01.webp",
+  "w": 1122,
+  "h": 1402
+ },
+ {
+  "name": "The Living Shield",
+  "species": "Pangolin",
+  "lead": true,
+  "src": "/content/extincts/characters/living-shield.webp",
+  "thumb": "/content/extincts/characters/_thumbs/living-shield.webp",
+  "w": 1122,
+  "h": 1402
+ },
+ {
+  "name": "NoMad — The Last Human",
+  "species": "Human",
+  "lead": true,
+  "src": "/content/extincts/characters/nomad-sheet.webp",
+  "thumb": "/content/extincts/characters/_thumbs/nomad-sheet.webp",
+  "w": 1122,
+  "h": 1402
+ },
+ {
+  "name": "NoMad — Seven Frames, A",
+  "species": "Human",
   "src": "/content/extincts/characters/nomad.webp",
   "thumb": "/content/extincts/characters/_thumbs/nomad.webp",
   "w": 1536,
   "h": 1024
  },
  {
+  "name": "NoMad — Seven Frames, B",
+  "species": "Human",
+  "src": "/content/extincts/characters/nomad-b.webp",
+  "thumb": "/content/extincts/characters/_thumbs/nomad-b.webp",
+  "w": 1536,
+  "h": 1024
+ },
+ {
+  "name": "NoMad — Seven Frames, C",
+  "species": "Human",
+  "src": "/content/extincts/characters/nomad-c.webp",
+  "thumb": "/content/extincts/characters/_thumbs/nomad-c.webp",
+  "w": 1484,
+  "h": 1060
+ },
+ {
   "name": "NoMad — Main Character",
+  "species": "Human",
   "src": "/content/extincts/characters/nomad-01.webp",
   "thumb": "/content/extincts/characters/_thumbs/nomad-01.webp",
   "w": 1280,
@@ -43,6 +183,7 @@
  },
  {
   "name": "NoMad — Age 95, Anatomy & Gear",
+  "species": "Human",
   "src": "/content/extincts/characters/nomad-02.webp",
   "thumb": "/content/extincts/characters/_thumbs/nomad-02.webp",
   "w": 1280,
@@ -50,6 +191,7 @@
  },
  {
   "name": "NoMad — Norway Semi-Cyborg Cat",
+  "species": "Human",
   "src": "/content/extincts/characters/nomad-03.webp",
   "thumb": "/content/extincts/characters/_thumbs/nomad-03.webp",
   "w": 1280,
@@ -57,6 +199,7 @@
  },
  {
   "name": "NoMad — Snow Leopard Family",
+  "species": "Human",
   "src": "/content/extincts/characters/nomad-04.webp",
   "thumb": "/content/extincts/characters/_thumbs/nomad-04.webp",
   "w": 1280,
@@ -64,6 +207,7 @@
  },
  {
   "name": "NoMad — Species-Specific Cybernetics",
+  "species": "Human",
   "src": "/content/extincts/characters/nomad-05.webp",
   "thumb": "/content/extincts/characters/_thumbs/nomad-05.webp",
   "w": 1280,
@@ -71,6 +215,7 @@
  },
  {
   "name": "NoMad — Seven-Year Pandemic",
+  "species": "Human",
   "src": "/content/extincts/characters/nomad-06.webp",
   "thumb": "/content/extincts/characters/_thumbs/nomad-06.webp",
   "w": 1280,
@@ -78,6 +223,7 @@
  },
  {
   "name": "NoMad — Supersized Piloted Robot",
+  "species": "Human",
   "src": "/content/extincts/characters/nomad-07.webp",
   "thumb": "/content/extincts/characters/_thumbs/nomad-07.webp",
   "w": 1280,

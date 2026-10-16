@@ -543,7 +543,7 @@ const RoomBody = memo(function RoomBody({
           <ProjectSlide item={item} />
         )
       ) : item.id === "the-extincts-project" ? (
-        <ExtinctsSlide reduceMotion={reduceMotion} />
+        <ExtinctsSlide reduceMotion={reduceMotion} live={live} />
       ) : item.id === "arts-and-crafts" ? (
         <ArtSlide thumbs={artThumbs} active={live && !reduceMotion} />
       ) : item.id === "ai-projects" ? (

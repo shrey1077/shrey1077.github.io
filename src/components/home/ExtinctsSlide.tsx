@@ -25,9 +25,19 @@
  * creations. "View Full Project" (bottom left) opens /extincts. Everything is
  * sized to the screen — the covers by a container query — so nothing ever
  * scrolls.
+ *
+ * THE SHEETS, IN TURN (owner, 2026-10-17: "i want my character sheet to take
+ * entire height of screen on right and half character visible, and keep them
+ * changing every 7 seconds, one per species"): each species' lead sheet —
+ * Himchhaya, Southwind, Ghosthorn & Whisper, Dodohuf, The Living Shield,
+ * NoMad — the full height of the screen at its right edge, its left half in
+ * view and the rest past the edge; every SHEET_MS the next arrives over it in
+ * squares (SheetCycle). On a tall screen they stand in the lower right,
+ * beside the buttons. The Characters pop-up holds all 28 artworks.
  */
 
 import { useEffect, useState } from "react";
+import { usePixelPresence } from "@/components/home/pixelReveal";
 import { RoomImage as Image } from "@/components/home/nearness";
 import { PixelButton } from "@/components/home/PixelButton";
 import { SlidePanel } from "@/components/home/SlidePanel";
@@ -125,9 +135,9 @@ function Characters({ open }: { open: boolean }) {
           {NOTES[c.name] && <span className="font-helv mt-0.5 block truncate text-xs text-neutral-600 [@media(max-height:31.25rem)]:hidden">{NOTES[c.name]}</span>}
         </figcaption>
       </figure>
-      {/* The picks: two rows of six on a tall screen, four rows of three
-          beside the picture on a wide one. */}
-      <ul className="grid h-[min(8.5rem,20svh)] grid-cols-6 grid-rows-2 gap-1.5 landscape:h-full landscape:grid-cols-3 landscape:grid-rows-4">
+      {/* The picks — all 28, scrolled in their own box: seven across under
+          the picture on a tall screen, four across beside it on a wide one. */}
+      <ul className="grid h-[min(8.5rem,20svh)] auto-rows-[3.9rem] grid-cols-7 gap-1.5 overflow-y-auto overscroll-contain landscape:h-full landscape:auto-rows-[5.5rem] landscape:grid-cols-4 [@media(max-height:31.25rem)]:landscape:auto-rows-[3.4rem]">
         {CHARACTERS.map((k, i) => (
           <li key={k.src} className="min-h-0 min-w-0">
             <button
@@ -167,7 +177,59 @@ function AiCreations() {
   );
 }
 
-export function ExtinctsSlide({ reduceMotion }: { reduceMotion: boolean }) {
+/** Each species' lead sheet, in the order the archive gives them. */
+const LEADS = CHARACTERS.filter((c) => "lead" in c && c.lead);
+/** How long each sheet holds. */
+const SHEET_MS = 7000;
+
+/** One sheet of the cycle: the full height of its box, its left half in
+ *  view (the box is half the sheet's width; the picture twice the box's). */
+function SheetLayer({ sheet, shown, top, load, reduceMotion }: { sheet: (typeof LEADS)[number]; shown: boolean; top: boolean; load: boolean; reduceMotion: boolean }) {
+  const ref = usePixelPresence<HTMLDivElement>(shown, { cell: 14, duration: 0.9, reduceMotion });
+  return (
+    <div ref={ref} aria-hidden={!top} className={`absolute inset-0 overflow-hidden ${shown ? "" : "invisible"}`} style={{ zIndex: top ? 2 : 1 }}>
+      {load && (
+        // eslint-disable-next-line @next/next/no-img-element -- half a sheet, placed by its own width
+        <img src={sheet.src} alt={top ? `${sheet.name} — ${sheet.species}, character sheet` : ""} className="absolute left-0 top-0 h-full w-[200%] max-w-none object-cover object-left" />
+      )}
+    </div>
+  );
+}
+
+function SheetCycle({ live, reduceMotion }: { live: boolean; reduceMotion: boolean }) {
+  const [{ cur, prev }, setTurn] = useState<{ cur: number; prev: number | null }>({ cur: 0, prev: null });
+  useEffect(() => {
+    if (!live || LEADS.length < 2) return;
+    const id = window.setInterval(() => {
+      if (!document.hidden) setTurn((t) => ({ cur: (t.cur + 1) % LEADS.length, prev: t.cur }));
+    }, SHEET_MS);
+    return () => window.clearInterval(id);
+  }, [live]);
+  // Once the new one has come in over it, the last one goes.
+  useEffect(() => {
+    if (prev === null) return;
+    const id = window.setTimeout(() => setTurn((t) => (t.prev === prev ? { ...t, prev: null } : t)), 1100);
+    return () => window.clearTimeout(id);
+  }, [prev]);
+  const next = (cur + 1) % LEADS.length;
+  const here = LEADS[cur];
+  return (
+    <>
+      {LEADS.map((sh, i) => (
+        <SheetLayer key={sh.src} sheet={sh} shown={i === cur || i === prev} top={i === cur} load={i === cur || i === prev || i === next} reduceMotion={reduceMotion} />
+      ))}
+      {/* Whose sheet it is. */}
+      <p aria-live="polite" className="pointer-events-none absolute bottom-[calc(7svh+0.9rem)] left-3 z-[3] rounded-full bg-neutral-950/75 px-3 py-1.5 backdrop-blur-sm">
+        <span className="font-graff block text-[0.72rem] font-bold uppercase leading-none tracking-[0.06em] text-white">{here.name}</span>
+        <span className={`${META} mt-1 block text-white/60`}>
+          {here.species} · {pad(cur + 1)} / {pad(LEADS.length)}
+        </span>
+      </p>
+    </>
+  );
+}
+
+export function ExtinctsSlide({ reduceMotion, live = true }: { reduceMotion: boolean; live?: boolean }) {
   const [panel, setPanel] = useState<Panel>(null);
   const [reading, setReading] = useState<ExtinctsReport | null>(null);
   // The reader mounts on the first open, never in the static render.
@@ -182,7 +244,7 @@ export function ExtinctsSlide({ reduceMotion }: { reduceMotion: boolean }) {
 
   return (
     <section aria-label="The Extincts Project" data-side="creative" className="absolute inset-0 overflow-hidden">
-      <div className="slide-frame absolute inset-0 grid gap-3 [grid-template-areas:'t_t'_'r_r'_'b_l'] grid-cols-[minmax(0,1fr)_minmax(0,1fr)] grid-rows-[auto_minmax(0,0.8fr)_minmax(0,1.2fr)] landscape:gap-x-6 landscape:gap-y-4 landscape:[grid-template-areas:'t_l'_'r_l'_'b_l'] landscape:grid-cols-[minmax(0,2.3fr)_minmax(0,1fr)] landscape:grid-rows-[auto_minmax(0,1fr)_auto] [@media(max-height:31.25rem)]:landscape:gap-y-2">
+      <div className="slide-frame absolute inset-0 grid gap-3 [grid-template-areas:'t_t'_'r_r'_'b_l'] grid-cols-[minmax(0,1fr)_minmax(0,1fr)] grid-rows-[auto_minmax(0,0.8fr)_minmax(0,1.2fr)] landscape:gap-y-4 landscape:!pr-[calc(40svh+1.75rem)] landscape:[grid-template-areas:'t'_'r'_'b'] landscape:grid-cols-[minmax(0,1fr)] landscape:grid-rows-[auto_minmax(0,1fr)_auto] [@media(max-height:31.25rem)]:landscape:gap-y-2">
         {/* The title. */}
         <div className="[grid-area:t]">
           <p className={`${META} text-neutral-500 [@media(max-height:31.25rem)]:hidden`}>Creative · 01 / 04</p>
@@ -249,25 +311,13 @@ export function ExtinctsSlide({ reduceMotion }: { reduceMotion: boolean }) {
           })}
         </ul>
 
-        {/* Himchhaya, in the right corner: his whole sheet, as large as the
-            cell allows (a container query), against its foot and right. */}
-        <div className="relative min-h-0 [container-type:size] [grid-area:l]">
-          <span
-            className="absolute bottom-0 right-0 block overflow-hidden rounded-lg shadow-[0_18px_34px_-16px_rgba(0,0,0,0.45)] ring-1 ring-neutral-200 landscape:bottom-auto landscape:top-1/2 landscape:-translate-y-1/2"
-            style={{
-              width: `min(100cqw, ${(SHEET.w / SHEET.h).toFixed(4)} * 100cqh)`,
-              height: `min(100cqh, 100cqw / ${(SHEET.w / SHEET.h).toFixed(4)})`,
-            }}
-          >
-            <Image
-              src={SHEET.src}
-              alt="Himchhaya, the snow leopard of the Extincts Project — his character concept sheet"
-              fill
-              sizes="(orientation: landscape) 28vw, 48vw"
-              className="object-cover"
-            />
-          </span>
-        </div>
+      </div>
+
+      {/* The sheets, in turn: the full height of the screen at its right edge,
+          half of each in view (box 40% of the height wide = half a 1122 × 1402
+          sheet); on a tall screen, the lower right beside the buttons. */}
+      <div aria-label="Character sheets" className="absolute bottom-0 right-0 top-0 w-[40svh] portrait:top-auto portrait:h-[calc(100%-var(--strip-h,3.75rem)-max(2vh,0.75rem)-40svh)] portrait:w-[calc((100svh-var(--strip-h,3.75rem)-40svh)*0.4)] portrait:max-w-[50vw]">
+        <SheetCycle live={live} reduceMotion={reduceMotion} />
       </div>
 
       {/* The way into the whole project, bottom left. */}
