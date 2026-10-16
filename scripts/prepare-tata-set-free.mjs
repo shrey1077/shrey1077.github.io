@@ -113,8 +113,9 @@ for (let k = 0; k < n; k++) {
       else runs.push([x, e + 1]);
       x = e;
     }
-    // A speck of compression noise is not ink.
-    bands.push(runs.filter(([a, c]) => c - a >= 2).map(([a, c]) => `${a},${c}`).join(","));
+    // A speck of compression noise is not ink — except along the frame's
+    // top edge, where a wing tip coming in is only a pixel wide.
+    bands.push(runs.filter(([a, c]) => c - a >= 2 || b === 0).map(([a, c]) => `${a},${c}`).join(","));
   }
   frames.push(bands.join(";").replace(/;+$/, ""));
 }

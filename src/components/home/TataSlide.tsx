@@ -196,8 +196,8 @@ function layout(
 function inkOf(wrap: Wrap, f: number, fx: number, fy: number, fw: number, size: number): Ink {
   const runs = wrap.frames[f] ?? [];
   const s = fw / wrap.w; // film px → block px
-  const padX = size * 0.65;
-  const padY = size * 0.3;
+  const padX = size * 0.85;
+  const padY = size * 0.35;
   return (top, bottom) => {
     // The bands this line passes, a hair beyond it either way.
     const b0 = Math.max(0, Math.floor((top - fy - padY) / s / wrap.band));
