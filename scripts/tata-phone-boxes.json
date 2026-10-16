@@ -1,0 +1,1580 @@
+[
+ {
+  "file": "public/content/clients/tata-iis/catalogue/Banners/august-batch-header.webp",
+  "w": 1920,
+  "h": 696,
+  "regions": [
+   {
+    "x": 1448,
+    "y": 640,
+    "w": 392,
+    "h": 36
+   }
+  ]
+ },
+ {
+  "file": "public/content/clients/tata-iis/catalogue/Banners/iti-courses-banner.webp",
+  "w": 2000,
+  "h": 1503,
+  "regions": [
+   {
+    "x": 732,
+    "y": 1405,
+    "w": 204,
+    "h": 43
+   },
+   {
+    "x": 1135,
+    "y": 1406,
+    "w": 124,
+    "h": 39
+   },
+   {
+    "x": 830,
+    "y": 1430,
+    "w": 95,
+    "h": 15
+   }
+  ]
+ },
+ {
+  "file": "public/content/clients/tata-iis/catalogue/Banners/web-banner-iisa.webp",
+  "w": 1920,
+  "h": 696,
+  "regions": [
+   {
+    "x": 1448,
+    "y": 640,
+    "w": 392,
+    "h": 36
+   }
+  ]
+ },
+ {
+  "file": "public/content/clients/tata-iis/catalogue/Brochures/admissions-brochure-page-08.webp",
+  "w": 1600,
+  "h": 2262,
+  "regions": [
+   {
+    "x": 1158,
+    "y": 1845,
+    "w": 225,
+    "h": 104
+   },
+   {
+    "x": 1226,
+    "y": 1886,
+    "w": 137,
+    "h": 22
+   },
+   {
+    "x": 1230,
+    "y": 1927,
+    "w": 137,
+    "h": 22
+   }
+  ]
+ },
+ {
+  "file": "public/content/clients/tata-iis/catalogue/Brochures/brochure-final-2024-ahmedabad-plus30k-08.webp",
+  "w": 1273,
+  "h": 1800,
+  "regions": [
+   {
+    "x": 920,
+    "y": 1468,
+    "w": 181,
+    "h": 84
+   },
+   {
+    "x": 976,
+    "y": 1501,
+    "w": 109,
+    "h": 17
+   },
+   {
+    "x": 979,
+    "y": 1535,
+    "w": 109,
+    "h": 17
+   }
+  ]
+ },
+ {
+  "file": "public/content/clients/tata-iis/catalogue/Brochures/brochure-final-2024-mumbai-plus30k-08.webp",
+  "w": 1273,
+  "h": 1800,
+  "regions": [
+   {
+    "x": 938,
+    "y": 1468,
+    "w": 161,
+    "h": 113
+   },
+   {
+    "x": 961,
+    "y": 1499,
+    "w": 109,
+    "h": 17
+   },
+   {
+    "x": 969,
+    "y": 1534,
+    "w": 104,
+    "h": 17
+   },
+   {
+    "x": 978,
+    "y": 1564,
+    "w": 109,
+    "h": 17
+   }
+  ]
+ },
+ {
+  "file": "public/content/clients/tata-iis/catalogue/Brochures/funding-brochure-impact.webp",
+  "w": 2000,
+  "h": 1414,
+  "regions": [
+   {
+    "x": 372,
+    "y": 1109,
+    "w": 180,
+    "h": 93
+   },
+   {
+    "x": 372,
+    "y": 1177,
+    "w": 119,
+    "h": 20
+   }
+  ]
+ },
+ {
+  "file": "public/content/clients/tata-iis/catalogue/Brochures/funding-brochure-spread-ii.webp",
+  "w": 2000,
+  "h": 1414,
+  "regions": [
+   {
+    "x": 656,
+    "y": 1150,
+    "w": 133,
+    "h": 37
+   },
+   {
+    "x": 686,
+    "y": 1171,
+    "w": 93,
+    "h": 16
+   }
+  ]
+ },
+ {
+  "file": "public/content/clients/tata-iis/catalogue/Brochures/iisa-true-8-pager-edit-08.webp",
+  "w": 1273,
+  "h": 1800,
+  "regions": [
+   {
+    "x": 911,
+    "y": 1426,
+    "w": 189,
+    "h": 95
+   },
+   {
+    "x": 971,
+    "y": 1453,
+    "w": 109,
+    "h": 16
+   },
+   {
+    "x": 935,
+    "y": 1478,
+    "w": 109,
+    "h": 17
+   },
+   {
+    "x": 977,
+    "y": 1503,
+    "w": 111,
+    "h": 17
+   }
+  ]
+ },
+ {
+  "file": "public/content/clients/tata-iis/catalogue/Brochures/iisahmdabad-august-2025-01.webp",
+  "w": 1800,
+  "h": 1271,
+  "regions": [
+   {
+    "x": 645,
+    "y": 1009,
+    "w": 135,
+    "h": 67
+   },
+   {
+    "x": 662,
+    "y": 1027,
+    "w": 77,
+    "h": 12
+   },
+   {
+    "x": 689,
+    "y": 1045,
+    "w": 77,
+    "h": 12
+   },
+   {
+    "x": 692,
+    "y": 1063,
+    "w": 78,
+    "h": 12
+   }
+  ]
+ },
+ {
+  "file": "public/content/clients/tata-iis/catalogue/Brochures/iism-brochure-web-version-v2-08.webp",
+  "w": 1273,
+  "h": 1800,
+  "regions": [
+   {
+    "x": 933,
+    "y": 1424,
+    "w": 170,
+    "h": 95
+   },
+   {
+    "x": 948,
+    "y": 1449,
+    "w": 112,
+    "h": 17
+   },
+   {
+    "x": 961,
+    "y": 1475,
+    "w": 111,
+    "h": 17
+   },
+   {
+    "x": 978,
+    "y": 1501,
+    "w": 112,
+    "h": 17
+   }
+  ]
+ },
+ {
+  "file": "public/content/clients/tata-iis/catalogue/Brochures/iismumbai-august-2025-01.webp",
+  "w": 1800,
+  "h": 1247,
+  "regions": [
+   {
+    "x": 643,
+    "y": 986,
+    "w": 122,
+    "h": 83
+   },
+   {
+    "x": 655,
+    "y": 1004,
+    "w": 77,
+    "h": 12
+   },
+   {
+    "x": 664,
+    "y": 1022,
+    "w": 77,
+    "h": 12
+   },
+   {
+    "x": 679,
+    "y": 1040,
+    "w": 77,
+    "h": 12
+   },
+   {
+    "x": 677,
+    "y": 1058,
+    "w": 77,
+    "h": 12
+   }
+  ]
+ },
+ {
+  "file": "public/content/clients/tata-iis/catalogue/Flyers & Campaigns/5coursesflyers-iisa-01.webp",
+  "w": 1273,
+  "h": 1800,
+  "regions": [
+   {
+    "x": 738,
+    "y": 1683,
+    "w": 186,
+    "h": 90
+   },
+   {
+    "x": 762,
+    "y": 1707,
+    "w": 106,
+    "h": 17
+   },
+   {
+    "x": 797,
+    "y": 1730,
+    "w": 106,
+    "h": 17
+   },
+   {
+    "x": 803,
+    "y": 1756,
+    "w": 109,
+    "h": 17
+   }
+  ]
+ },
+ {
+  "file": "public/content/clients/tata-iis/catalogue/Flyers & Campaigns/5coursesflyers-iisa-02.webp",
+  "w": 1273,
+  "h": 1800,
+  "regions": [
+   {
+    "x": 738,
+    "y": 1683,
+    "w": 186,
+    "h": 90
+   },
+   {
+    "x": 762,
+    "y": 1707,
+    "w": 106,
+    "h": 17
+   },
+   {
+    "x": 797,
+    "y": 1730,
+    "w": 106,
+    "h": 17
+   },
+   {
+    "x": 803,
+    "y": 1756,
+    "w": 109,
+    "h": 17
+   }
+  ]
+ },
+ {
+  "file": "public/content/clients/tata-iis/catalogue/Flyers & Campaigns/5coursesflyers-iisa-03.webp",
+  "w": 1273,
+  "h": 1800,
+  "regions": [
+   {
+    "x": 738,
+    "y": 1683,
+    "w": 186,
+    "h": 90
+   },
+   {
+    "x": 762,
+    "y": 1707,
+    "w": 106,
+    "h": 17
+   },
+   {
+    "x": 797,
+    "y": 1730,
+    "w": 106,
+    "h": 17
+   },
+   {
+    "x": 803,
+    "y": 1756,
+    "w": 109,
+    "h": 17
+   }
+  ]
+ },
+ {
+  "file": "public/content/clients/tata-iis/catalogue/Flyers & Campaigns/5coursesflyers-iisa-04.webp",
+  "w": 1273,
+  "h": 1800,
+  "regions": [
+   {
+    "x": 738,
+    "y": 1683,
+    "w": 186,
+    "h": 90
+   },
+   {
+    "x": 762,
+    "y": 1707,
+    "w": 106,
+    "h": 17
+   },
+   {
+    "x": 797,
+    "y": 1730,
+    "w": 106,
+    "h": 17
+   },
+   {
+    "x": 803,
+    "y": 1756,
+    "w": 109,
+    "h": 17
+   }
+  ]
+ },
+ {
+  "file": "public/content/clients/tata-iis/catalogue/Flyers & Campaigns/5coursesflyers-iisa-05.webp",
+  "w": 1273,
+  "h": 1800,
+  "regions": [
+   {
+    "x": 738,
+    "y": 1683,
+    "w": 186,
+    "h": 90
+   },
+   {
+    "x": 762,
+    "y": 1707,
+    "w": 106,
+    "h": 17
+   },
+   {
+    "x": 797,
+    "y": 1730,
+    "w": 106,
+    "h": 17
+   },
+   {
+    "x": 803,
+    "y": 1756,
+    "w": 109,
+    "h": 17
+   }
+  ]
+ },
+ {
+  "file": "public/content/clients/tata-iis/catalogue/Flyers & Campaigns/5coursesflyers-iism-01.webp",
+  "w": 1273,
+  "h": 1800,
+  "regions": [
+   {
+    "x": 781,
+    "y": 1688,
+    "w": 167,
+    "h": 95
+   },
+   {
+    "x": 796,
+    "y": 1714,
+    "w": 109,
+    "h": 16
+   },
+   {
+    "x": 808,
+    "y": 1739,
+    "w": 109,
+    "h": 17
+   },
+   {
+    "x": 826,
+    "y": 1765,
+    "w": 109,
+    "h": 17
+   }
+  ]
+ },
+ {
+  "file": "public/content/clients/tata-iis/catalogue/Flyers & Campaigns/5coursesflyers-iism-02.webp",
+  "w": 1273,
+  "h": 1800,
+  "regions": [
+   {
+    "x": 729,
+    "y": 1688,
+    "w": 219,
+    "h": 95
+   },
+   {
+    "x": 796,
+    "y": 1714,
+    "w": 109,
+    "h": 16
+   },
+   {
+    "x": 729,
+    "y": 1739,
+    "w": 188,
+    "h": 17
+   },
+   {
+    "x": 826,
+    "y": 1765,
+    "w": 109,
+    "h": 17
+   }
+  ]
+ },
+ {
+  "file": "public/content/clients/tata-iis/catalogue/Flyers & Campaigns/5coursesflyers-iism-03.webp",
+  "w": 1273,
+  "h": 1800,
+  "regions": [
+   {
+    "x": 729,
+    "y": 1688,
+    "w": 219,
+    "h": 95
+   },
+   {
+    "x": 796,
+    "y": 1714,
+    "w": 109,
+    "h": 16
+   },
+   {
+    "x": 729,
+    "y": 1739,
+    "w": 188,
+    "h": 17
+   },
+   {
+    "x": 826,
+    "y": 1765,
+    "w": 109,
+    "h": 17
+   }
+  ]
+ },
+ {
+  "file": "public/content/clients/tata-iis/catalogue/Flyers & Campaigns/5coursesflyers-iism-04.webp",
+  "w": 1273,
+  "h": 1800,
+  "regions": [
+   {
+    "x": 780,
+    "y": 1688,
+    "w": 168,
+    "h": 95
+   },
+   {
+    "x": 796,
+    "y": 1714,
+    "w": 109,
+    "h": 16
+   },
+   {
+    "x": 808,
+    "y": 1739,
+    "w": 109,
+    "h": 17
+   },
+   {
+    "x": 826,
+    "y": 1765,
+    "w": 109,
+    "h": 17
+   }
+  ]
+ },
+ {
+  "file": "public/content/clients/tata-iis/catalogue/Flyers & Campaigns/5coursesflyers-iism-05.webp",
+  "w": 1273,
+  "h": 1800,
+  "regions": [
+   {
+    "x": 780,
+    "y": 1688,
+    "w": 168,
+    "h": 94
+   },
+   {
+    "x": 796,
+    "y": 1714,
+    "w": 109,
+    "h": 16
+   },
+   {
+    "x": 808,
+    "y": 1739,
+    "w": 109,
+    "h": 17
+   },
+   {
+    "x": 826,
+    "y": 1765,
+    "w": 109,
+    "h": 17
+   }
+  ]
+ },
+ {
+  "file": "public/content/clients/tata-iis/catalogue/Flyers & Campaigns/akrsp-combo-v3.webp",
+  "w": 1273,
+  "h": 1800,
+  "regions": [
+   {
+    "x": 1013,
+    "y": 1737,
+    "w": 242,
+    "h": 46
+   },
+   {
+    "x": 1013,
+    "y": 1763,
+    "w": 173,
+    "h": 16
+   }
+  ]
+ },
+ {
+  "file": "public/content/clients/tata-iis/catalogue/Flyers & Campaigns/arai-ev-partnership-front.webp",
+  "w": 1280,
+  "h": 905,
+  "regions": [
+   {
+    "x": 180,
+    "y": 755,
+    "w": 130,
+    "h": 63
+   },
+   {
+    "x": 188,
+    "y": 772,
+    "w": 80,
+    "h": 12
+   },
+   {
+    "x": 214,
+    "y": 788,
+    "w": 81,
+    "h": 12
+   },
+   {
+    "x": 218,
+    "y": 805,
+    "w": 83,
+    "h": 13
+   }
+  ]
+ },
+ {
+  "file": "public/content/clients/tata-iis/catalogue/Flyers & Campaigns/awt-workshop-v8.webp",
+  "w": 1273,
+  "h": 1800,
+  "regions": [
+   {
+    "x": 761,
+    "y": 1678,
+    "w": 158,
+    "h": 18
+   }
+  ]
+ },
+ {
+  "file": "public/content/clients/tata-iis/catalogue/Flyers & Campaigns/course-flyer-cnc.webp",
+  "w": 600,
+  "h": 847,
+  "regions": [
+   {
+    "x": 307,
+    "y": 789,
+    "w": 128,
+    "h": 43
+   },
+   {
+    "x": 350,
+    "y": 800,
+    "w": 58,
+    "h": 8
+   },
+   {
+    "x": 370,
+    "y": 823,
+    "w": 58,
+    "h": 8
+   }
+  ]
+ },
+ {
+  "file": "public/content/clients/tata-iis/catalogue/Flyers & Campaigns/course-flyer-ev.webp",
+  "w": 600,
+  "h": 847,
+  "regions": [
+   {
+    "x": 347,
+    "y": 789,
+    "w": 64,
+    "h": 43
+   }
+  ]
+ },
+ {
+  "file": "public/content/clients/tata-iis/catalogue/Flyers & Campaigns/course-flyer-gefc.webp",
+  "w": 600,
+  "h": 847,
+  "regions": [
+   {
+    "x": 347,
+    "y": 789,
+    "w": 88,
+    "h": 43
+   },
+   {
+    "x": 375,
+    "y": 811,
+    "w": 50,
+    "h": 8
+   },
+   {
+    "x": 370,
+    "y": 823,
+    "w": 59,
+    "h": 8
+   }
+  ]
+ },
+ {
+  "file": "public/content/clients/tata-iis/catalogue/Flyers & Campaigns/course-flyer-welding.webp",
+  "w": 600,
+  "h": 847,
+  "regions": [
+   {
+    "x": 307,
+    "y": 789,
+    "w": 125,
+    "h": 43
+   }
+  ]
+ },
+ {
+  "file": "public/content/clients/tata-iis/catalogue/Flyers & Campaigns/culinary-program.webp",
+  "w": 1280,
+  "h": 1810,
+  "regions": [
+   {
+    "x": 619,
+    "y": 1703,
+    "w": 415,
+    "h": 59
+   },
+   {
+    "x": 619,
+    "y": 1740,
+    "w": 399,
+    "h": 22
+   }
+  ]
+ },
+ {
+  "file": "public/content/clients/tata-iis/catalogue/Flyers & Campaigns/ev-skilling-program.webp",
+  "w": 1280,
+  "h": 1810,
+  "regions": [
+   {
+    "x": 1084,
+    "y": 1481,
+    "w": 180,
+    "h": 85
+   },
+   {
+    "x": 1132,
+    "y": 1503,
+    "w": 117,
+    "h": 17
+   },
+   {
+    "x": 1136,
+    "y": 1525,
+    "w": 116,
+    "h": 17
+   },
+   {
+    "x": 1107,
+    "y": 1547,
+    "w": 110,
+    "h": 17
+   }
+  ]
+ },
+ {
+  "file": "public/content/clients/tata-iis/catalogue/Flyers & Campaigns/flagship-courses.webp",
+  "w": 1280,
+  "h": 1810,
+  "regions": [
+   {
+    "x": 1082,
+    "y": 1765,
+    "w": 170,
+    "h": 20
+   }
+  ]
+ },
+ {
+  "file": "public/content/clients/tata-iis/catalogue/Flyers & Campaigns/flyers-april-2025-01.webp",
+  "w": 1273,
+  "h": 1800,
+  "regions": [
+   {
+    "x": 738,
+    "y": 1688,
+    "w": 183,
+    "h": 88
+   },
+   {
+    "x": 799,
+    "y": 1711,
+    "w": 110,
+    "h": 17
+   },
+   {
+    "x": 762,
+    "y": 1735,
+    "w": 106,
+    "h": 17
+   },
+   {
+    "x": 797,
+    "y": 1759,
+    "w": 106,
+    "h": 17
+   }
+  ]
+ },
+ {
+  "file": "public/content/clients/tata-iis/catalogue/Flyers & Campaigns/flyers-april-2025-02.webp",
+  "w": 1273,
+  "h": 1800,
+  "regions": [
+   {
+    "x": 738,
+    "y": 1683,
+    "w": 183,
+    "h": 88
+   },
+   {
+    "x": 799,
+    "y": 1707,
+    "w": 110,
+    "h": 17
+   },
+   {
+    "x": 762,
+    "y": 1730,
+    "w": 106,
+    "h": 17
+   },
+   {
+    "x": 797,
+    "y": 1754,
+    "w": 106,
+    "h": 17
+   }
+  ]
+ },
+ {
+  "file": "public/content/clients/tata-iis/catalogue/Flyers & Campaigns/flyers-april-2025-03.webp",
+  "w": 1273,
+  "h": 1800,
+  "regions": [
+   {
+    "x": 738,
+    "y": 1683,
+    "w": 183,
+    "h": 88
+   },
+   {
+    "x": 799,
+    "y": 1707,
+    "w": 110,
+    "h": 17
+   },
+   {
+    "x": 762,
+    "y": 1730,
+    "w": 106,
+    "h": 17
+   },
+   {
+    "x": 797,
+    "y": 1754,
+    "w": 106,
+    "h": 17
+   }
+  ]
+ },
+ {
+  "file": "public/content/clients/tata-iis/catalogue/Flyers & Campaigns/flyers-april-2025-04.webp",
+  "w": 1273,
+  "h": 1800,
+  "regions": [
+   {
+    "x": 738,
+    "y": 1683,
+    "w": 183,
+    "h": 88
+   },
+   {
+    "x": 799,
+    "y": 1707,
+    "w": 110,
+    "h": 17
+   },
+   {
+    "x": 762,
+    "y": 1730,
+    "w": 106,
+    "h": 17
+   },
+   {
+    "x": 797,
+    "y": 1754,
+    "w": 106,
+    "h": 17
+   }
+  ]
+ },
+ {
+  "file": "public/content/clients/tata-iis/catalogue/Flyers & Campaigns/flyers-april-2025-05.webp",
+  "w": 1273,
+  "h": 1800,
+  "regions": [
+   {
+    "x": 738,
+    "y": 1683,
+    "w": 183,
+    "h": 88
+   },
+   {
+    "x": 799,
+    "y": 1707,
+    "w": 110,
+    "h": 17
+   },
+   {
+    "x": 762,
+    "y": 1730,
+    "w": 106,
+    "h": 17
+   },
+   {
+    "x": 797,
+    "y": 1754,
+    "w": 106,
+    "h": 17
+   }
+  ]
+ },
+ {
+  "file": "public/content/clients/tata-iis/catalogue/Flyers & Campaigns/flyers-april-2025-06.webp",
+  "w": 1273,
+  "h": 1800,
+  "regions": [
+   {
+    "x": 738,
+    "y": 1683,
+    "w": 183,
+    "h": 87
+   },
+   {
+    "x": 799,
+    "y": 1706,
+    "w": 110,
+    "h": 17
+   },
+   {
+    "x": 762,
+    "y": 1730,
+    "w": 106,
+    "h": 17
+   },
+   {
+    "x": 797,
+    "y": 1753,
+    "w": 106,
+    "h": 17
+   }
+  ]
+ },
+ {
+  "file": "public/content/clients/tata-iis/catalogue/Flyers & Campaigns/flyers-april-2025-07.webp",
+  "w": 1273,
+  "h": 1800,
+  "regions": [
+   {
+    "x": 738,
+    "y": 1683,
+    "w": 183,
+    "h": 88
+   },
+   {
+    "x": 799,
+    "y": 1707,
+    "w": 110,
+    "h": 17
+   },
+   {
+    "x": 762,
+    "y": 1730,
+    "w": 106,
+    "h": 17
+   },
+   {
+    "x": 797,
+    "y": 1754,
+    "w": 106,
+    "h": 17
+   }
+  ]
+ },
+ {
+  "file": "public/content/clients/tata-iis/catalogue/Flyers & Campaigns/flyers-april-2025-08.webp",
+  "w": 1273,
+  "h": 1800,
+  "regions": [
+   {
+    "x": 781,
+    "y": 1666,
+    "w": 167,
+    "h": 95
+   },
+   {
+    "x": 796,
+    "y": 1692,
+    "w": 109,
+    "h": 17
+   },
+   {
+    "x": 808,
+    "y": 1718,
+    "w": 109,
+    "h": 17
+   },
+   {
+    "x": 826,
+    "y": 1743,
+    "w": 109,
+    "h": 17
+   }
+  ]
+ },
+ {
+  "file": "public/content/clients/tata-iis/catalogue/Flyers & Campaigns/flyers-april-2025-09.webp",
+  "w": 1273,
+  "h": 1800,
+  "regions": [
+   {
+    "x": 781,
+    "y": 1666,
+    "w": 167,
+    "h": 95
+   },
+   {
+    "x": 796,
+    "y": 1692,
+    "w": 109,
+    "h": 17
+   },
+   {
+    "x": 808,
+    "y": 1718,
+    "w": 109,
+    "h": 17
+   },
+   {
+    "x": 826,
+    "y": 1743,
+    "w": 109,
+    "h": 17
+   }
+  ]
+ },
+ {
+  "file": "public/content/clients/tata-iis/catalogue/Flyers & Campaigns/flyers-april-2025-10.webp",
+  "w": 1273,
+  "h": 1800,
+  "regions": [
+   {
+    "x": 781,
+    "y": 1666,
+    "w": 167,
+    "h": 95
+   },
+   {
+    "x": 796,
+    "y": 1692,
+    "w": 109,
+    "h": 17
+   },
+   {
+    "x": 808,
+    "y": 1718,
+    "w": 109,
+    "h": 17
+   },
+   {
+    "x": 826,
+    "y": 1743,
+    "w": 109,
+    "h": 17
+   }
+  ]
+ },
+ {
+  "file": "public/content/clients/tata-iis/catalogue/Flyers & Campaigns/flyers-april-2025-11.webp",
+  "w": 1273,
+  "h": 1800,
+  "regions": [
+   {
+    "x": 781,
+    "y": 1666,
+    "w": 167,
+    "h": 95
+   },
+   {
+    "x": 796,
+    "y": 1692,
+    "w": 109,
+    "h": 17
+   },
+   {
+    "x": 808,
+    "y": 1718,
+    "w": 109,
+    "h": 17
+   },
+   {
+    "x": 826,
+    "y": 1743,
+    "w": 109,
+    "h": 17
+   }
+  ]
+ },
+ {
+  "file": "public/content/clients/tata-iis/catalogue/Flyers & Campaigns/flyers-april-2025-12.webp",
+  "w": 1273,
+  "h": 1800,
+  "regions": [
+   {
+    "x": 781,
+    "y": 1666,
+    "w": 167,
+    "h": 95
+   },
+   {
+    "x": 796,
+    "y": 1692,
+    "w": 109,
+    "h": 17
+   },
+   {
+    "x": 808,
+    "y": 1718,
+    "w": 109,
+    "h": 17
+   },
+   {
+    "x": 826,
+    "y": 1743,
+    "w": 109,
+    "h": 17
+   }
+  ]
+ },
+ {
+  "file": "public/content/clients/tata-iis/catalogue/Flyers & Campaigns/flyers-april-2025-13.webp",
+  "w": 1273,
+  "h": 1800,
+  "regions": [
+   {
+    "x": 765,
+    "y": 1647,
+    "w": 169,
+    "h": 95
+   },
+   {
+    "x": 780,
+    "y": 1673,
+    "w": 109,
+    "h": 17
+   },
+   {
+    "x": 777,
+    "y": 1698,
+    "w": 125,
+    "h": 17
+   },
+   {
+    "x": 811,
+    "y": 1724,
+    "w": 110,
+    "h": 17
+   }
+  ]
+ },
+ {
+  "file": "public/content/clients/tata-iis/catalogue/Flyers & Campaigns/flyers-april-2025-14.webp",
+  "w": 1273,
+  "h": 1800,
+  "regions": [
+   {
+    "x": 781,
+    "y": 1666,
+    "w": 167,
+    "h": 95
+   },
+   {
+    "x": 796,
+    "y": 1692,
+    "w": 109,
+    "h": 17
+   },
+   {
+    "x": 808,
+    "y": 1718,
+    "w": 109,
+    "h": 17
+   },
+   {
+    "x": 826,
+    "y": 1743,
+    "w": 109,
+    "h": 17
+   }
+  ]
+ },
+ {
+  "file": "public/content/clients/tata-iis/catalogue/Flyers & Campaigns/job-fair.webp",
+  "w": 1280,
+  "h": 1811,
+  "regions": [
+   {
+    "x": 120,
+    "y": 1468,
+    "w": 210,
+    "h": 26
+   }
+  ]
+ },
+ {
+  "file": "public/content/clients/tata-iis/catalogue/Flyers & Campaigns/labs-and-equipment.webp",
+  "w": 1280,
+  "h": 1810,
+  "regions": [
+   {
+    "x": 1082,
+    "y": 1765,
+    "w": 170,
+    "h": 20
+   }
+  ]
+ },
+ {
+  "file": "public/content/clients/tata-iis/catalogue/Flyers & Campaigns/notepad-v5-01.webp",
+  "w": 1279,
+  "h": 1800,
+  "regions": [
+   {
+    "x": 411,
+    "y": 1418,
+    "w": 596,
+    "h": 36
+   }
+  ]
+ },
+ {
+  "file": "public/content/clients/tata-iis/catalogue/Flyers & Campaigns/skills-conclave-2025.webp",
+  "w": 1280,
+  "h": 1807,
+  "regions": [
+   {
+    "x": 214,
+    "y": 1742,
+    "w": 186,
+    "h": 44
+   },
+   {
+    "x": 229,
+    "y": 1765,
+    "w": 106,
+    "h": 17
+   }
+  ]
+ },
+ {
+  "file": "public/content/clients/tata-iis/catalogue/Flyers & Campaigns/wmt-v1.webp",
+  "w": 1273,
+  "h": 1800,
+  "regions": [
+   {
+    "x": 740,
+    "y": 1650,
+    "w": 183,
+    "h": 65
+   },
+   {
+    "x": 794,
+    "y": 1674,
+    "w": 117,
+    "h": 17
+   },
+   {
+    "x": 799,
+    "y": 1697,
+    "w": 109,
+    "h": 17
+   }
+  ]
+ },
+ {
+  "file": "public/content/clients/tata-iis/catalogue/ID Cards/ahmedabad-back.webp",
+  "w": 752,
+  "h": 1148,
+  "regions": [
+   {
+    "x": 265,
+    "y": 398,
+    "w": 168,
+    "h": 15
+   },
+   {
+    "x": 398,
+    "y": 518,
+    "w": 170,
+    "h": 19
+   }
+  ]
+ },
+ {
+  "file": "public/content/clients/tata-iis/catalogue/ID Cards/mockup-studio.webp",
+  "w": 1600,
+  "h": 1200,
+  "regions": [
+   {
+    "x": 722,
+    "y": 466,
+    "w": 116,
+    "h": 13
+   },
+   {
+    "x": 812,
+    "y": 549,
+    "w": 119,
+    "h": 14
+   }
+  ]
+ },
+ {
+  "file": "public/content/clients/tata-iis/catalogue/ID Cards/mumbai-back.webp",
+  "w": 653,
+  "h": 1075,
+  "regions": [
+   {
+    "x": 288,
+    "y": 249,
+    "w": 168,
+    "h": 16
+   },
+   {
+    "x": 421,
+    "y": 369,
+    "w": 170,
+    "h": 19
+   }
+  ]
+ },
+ {
+  "file": "public/content/clients/tata-iis/catalogue/Lab Standees/4x3-industrial-3d-design-iisa.webp",
+  "w": 1801,
+  "h": 1350,
+  "regions": [
+   {
+    "x": 743,
+    "y": 1181,
+    "w": 139,
+    "h": 46
+   },
+   {
+    "x": 1046,
+    "y": 1181,
+    "w": 137,
+    "h": 42
+   },
+   {
+    "x": 766,
+    "y": 1207,
+    "w": 104,
+    "h": 16
+   }
+  ]
+ },
+ {
+  "file": "public/content/clients/tata-iis/catalogue/Lab Standees/4x3-industrial-3d-design-iism.webp",
+  "w": 1801,
+  "h": 1350,
+  "regions": [
+   {
+    "x": 761,
+    "y": 1181,
+    "w": 424,
+    "h": 43
+   },
+   {
+    "x": 776,
+    "y": 1207,
+    "w": 106,
+    "h": 16
+   }
+  ]
+ },
+ {
+  "file": "public/content/clients/tata-iis/catalogue/Lab Standees/mockup-studio.webp",
+  "w": 1600,
+  "h": 1200,
+  "regions": [
+   {
+    "x": 699,
+    "y": 898,
+    "w": 269,
+    "h": 30
+   },
+   {
+    "x": 706,
+    "y": 915,
+    "w": 254,
+    "h": 12
+   }
+  ]
+ },
+ {
+  "file": "public/content/clients/tata-iis/catalogue/Stationery/letterhead-black.webp",
+  "w": 1600,
+  "h": 2248,
+  "regions": [
+   {
+    "x": 223,
+    "y": 672,
+    "w": 151,
+    "h": 16
+   }
+  ]
+ },
+ {
+  "file": "public/content/clients/tata-iis/catalogue/Trifolds/artboard-1.webp",
+  "w": 1800,
+  "h": 1273,
+  "regions": [
+   {
+    "x": 143,
+    "y": 1085,
+    "w": 158,
+    "h": 50
+   },
+   {
+    "x": 227,
+    "y": 1105,
+    "w": 64,
+    "h": 11
+   },
+   {
+    "x": 230,
+    "y": 1125,
+    "w": 63,
+    "h": 10
+   }
+  ]
+ },
+ {
+  "file": "public/content/clients/tata-iis/catalogue/Visiting Cards/visiting-card-01.webp",
+  "w": 504,
+  "h": 288,
+  "regions": [
+   {
+    "x": 47,
+    "y": 211,
+    "w": 118,
+    "h": 17
+   }
+  ]
+ },
+ {
+  "file": "public/content/clients/tata-iis/catalogue/Visiting Cards/visiting-card-03.webp",
+  "w": 504,
+  "h": 288,
+  "regions": [
+   {
+    "x": 47,
+    "y": 211,
+    "w": 118,
+    "h": 17
+   }
+  ]
+ },
+ {
+  "file": "public/content/clients/tata-iis/catalogue/Visiting Cards/visiting-card-2026-ahm-mum-01.webp",
+  "w": 1008,
+  "h": 576,
+  "regions": [
+   {
+    "x": 95,
+    "y": 423,
+    "w": 235,
+    "h": 35
+   }
+  ]
+ },
+ {
+  "file": "public/content/clients/tata-iis/catalogue/Visiting Cards/visiting-card-2026-ahm-mum-03.webp",
+  "w": 1008,
+  "h": 576,
+  "regions": [
+   {
+    "x": 95,
+    "y": 423,
+    "w": 235,
+    "h": 35
+   }
+  ]
+ },
+ {
+  "file": "public/content/clients/tata-iis/catalogue/Website Banners/iisa-august-batch-head.webp",
+  "w": 1800,
+  "h": 653,
+  "regions": [
+   {
+    "x": 1357,
+    "y": 601,
+    "w": 369,
+    "h": 32
+   }
+  ]
+ },
+ {
+  "file": "public/content/clients/tata-iis/catalogue/Website Banners/iisa-iisa-web-big-banner.webp",
+  "w": 1800,
+  "h": 653,
+  "regions": [
+   {
+    "x": 1357,
+    "y": 601,
+    "w": 369,
+    "h": 32
+   }
+  ]
+ },
+ {
+  "file": "public/content/clients/tata-iis/catalogue/Visiting Cards/mockup-visiting-card-holder.webp",
+  "w": 1648,
+  "h": 650,
+  "regions": [
+   {
+    "x": 1140,
+    "y": 448,
+    "w": 120,
+    "h": 22
+   }
+  ]
+ }
+]
