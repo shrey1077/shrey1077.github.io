@@ -32,11 +32,17 @@ const SRC = process.argv[2];
 if (!SRC || !fs.existsSync(SRC)) throw new Error('usage: node scripts/prepare-tata-turn.mjs "<film.mp4>"');
 const OUT = path.resolve("public/content/clients/tata-iis/hero/turn");
 const FPS = 24;
-/** The cut: 00:01:10 — one second and ten frames. */
-const CUT = 1 + 10 / FPS;
+/** The cut: first at 00:01:10 — one second and ten frames — then, the same
+ *  day, five frames earlier, at the owner's own screenshot of the frame that
+ *  should end it ("cut frames after this, this shud be last frame"): frame
+ *  29, 1.21 s. */
+const CUT = 29 / FPS;
 const SIZES = [1600, 960];
 
-for (const w of SIZES) fs.mkdirSync(path.join(OUT, String(w)), { recursive: true });
+for (const w of SIZES) {
+  fs.rmSync(path.join(OUT, String(w)), { recursive: true, force: true });
+  fs.mkdirSync(path.join(OUT, String(w)), { recursive: true });
+}
 const server = http
   .createServer((req, res) => {
     if (req.url.startsWith("/f.mp4")) {

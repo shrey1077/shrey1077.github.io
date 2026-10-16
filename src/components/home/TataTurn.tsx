@@ -27,7 +27,8 @@ import { useContext, useEffect, useLayoutEffect, useRef } from "react";
 import { NearContext } from "@/components/home/nearness";
 
 const DIR = "/content/clients/tata-iis/hero/turn";
-const FRAMES = 35;
+/** Frames 0 … 29 of the film (the owner's cut; scripts/prepare-tata-turn.mjs). */
+const FRAMES = 30;
 const SRC_W = 1920;
 const SRC_H = 1080;
 /** The share of the frame the student mode keeps, from its right edge. */

@@ -69,11 +69,16 @@ export function NewsMobileSlide({
       </div>
       <div className="slide-frame is-logic pointer-events-none absolute inset-0 flex flex-col justify-center portrait:justify-start">
         <div className="pointer-events-auto flex max-w-[min(40vw,30rem)] flex-col items-start gap-3.5 portrait:max-w-none">
-          <span className="relative block h-[clamp(2.2rem,5vw,3.6rem)] w-[clamp(9rem,20vw,15rem)]">
-            <Image src={item.mark ?? ""} alt="NewsMobile" fill sizes="240px" className="object-contain object-left" />
+          {/* The mark, bigger, in a white pill (owner, 2026-10-16: "make
+              newsmobile logo bigger and inside a horizontal pill"). */}
+          <span className="block rounded-full bg-white px-[clamp(1.1rem,2.4vw,2rem)] py-[clamp(0.55rem,1.2vw,0.95rem)] shadow-[0_12px_30px_-18px_rgba(0,0,0,0.45)] ring-1 ring-neutral-900/12">
+            <span className="relative block h-[clamp(2.6rem,5.6vw,4.4rem)] w-[clamp(11.5rem,25vw,19.5rem)]">
+              <Image src={item.mark ?? ""} alt="NewsMobile" fill sizes="320px" className="object-contain" />
+            </span>
           </span>
           <p className={META}>{item.years} · Gurugram, Haryana</p>
-          <p className="face-logic text-[clamp(1.25rem,2.6vw,2.3rem)] leading-[1.05] text-neutral-900">
+          {/* Bold Helvetica (owner, 2026-10-16: "this info in bold helvetica"). */}
+          <p className="font-helv text-[clamp(1.25rem,2.6vw,2.3rem)] font-bold leading-[1.08] tracking-[-0.015em] text-neutral-900">
             Graphic Designer, Video Editor &amp; Copy Editor
           </p>
           <p className="font-helv text-[0.88rem] leading-snug text-neutral-600">

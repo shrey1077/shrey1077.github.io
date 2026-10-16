@@ -50,6 +50,9 @@ import { useMediaQuery } from "@/hooks/useMediaQuery";
 /** The white horizontal lockup, for the slide's top-left (482 × 123 — the
  *  largest on disk; a bigger export would be sharper on high-density
  *  screens). */
+/** A found mushroom's stay, and its fade after it. */
+const FOUND_HOLD_MS = 5000;
+const FOUND_FADE_MS = 700;
 const SLIDE_LOGO = { src: "/content/clients/azoth-biotech/brand/marks/lockup-horizontal-white.webp", w: 482, h: 123 };
 /** The family under Azoth, in white, under the lockup on the slide (owner,
  *  2026-10-16: "include Azoth brands except mycoveda in azoth slide as white
@@ -194,6 +197,11 @@ export function AzothHero({ variant = "page" }: { variant?: "page" | "slide" } =
   // The mushrooms, for the tick to fade, and which one is hovered (held in
   // full whatever the spotlight does).
   const mushRefs = useRef(new Map<string, HTMLDivElement>());
+  /** When each mushroom was last found — fully in the spotlight, or hovered.
+   *  A found one stays FOUND_HOLD_MS after the spotlight leaves it, then
+   *  fades (owner, 2026-10-16: "once a mushroom is found it ll not disappear
+   *  back until 5 seconds (if not hovered upon again)"). */
+  const foundAt = useRef(new Map<string, number>());
   const activeRef = useRef<string | null>(null);
   useEffect(() => {
     activeRef.current = activeId;
@@ -233,8 +241,12 @@ export function AzothHero({ variant = "page" }: { variant?: "page" | "slide" } =
         const q = node.getBoundingClientRect();
         const d = Math.hypot(q.left + q.width / 2 - r.left - smooth.current.x, q.top + q.height * 0.6 - r.top - smooth.current.y);
         const t = Math.max(0, Math.min(1, (d - SPOTLIGHT_R * 0.35) / (SPOTLIGHT_R * 0.45)));
-        const o = activeRef.current === id ? 1 : 1 - t * t * (3 - 2 * t);
-        node.style.opacity = o.toFixed(3);
+        const lit = 1 - t * t * (3 - 2 * t);
+        const now = performance.now();
+        if (lit > 0.9 || activeRef.current === id) foundAt.current.set(id, now);
+        const since = now - (foundAt.current.get(id) ?? -Infinity);
+        const held = since < FOUND_HOLD_MS ? 1 : Math.max(0, 1 - (since - FOUND_HOLD_MS) / FOUND_FADE_MS);
+        node.style.opacity = Math.max(lit, held).toFixed(3);
       }
       raf.current = requestAnimationFrame(tick);
     };
@@ -329,7 +341,9 @@ export function AzothHero({ variant = "page" }: { variant?: "page" | "slide" } =
           showed through in patches (owner, 2026-10-15: "address the
           transparency patches"). Solid cutouts (scripts/make-solid-
           mushrooms.mjs), and no glow (owner: "i dont like that much glow
-          around it") — a hovered one only lifts a little. On touch, and with
+          around it") — and still under the pointer (owner, 2026-10-16: "they pop up
+          a bit, i dont want that, keep it still"). Once found, one stays found
+          for five seconds (foundAt). On touch, and with
           reduced motion, they simply stand. */}
       <div className="pointer-events-none absolute inset-0 z-40 overflow-hidden">
         <div className={ART_FRAME}>
@@ -341,9 +355,7 @@ export function AzothHero({ variant = "page" }: { variant?: "page" | "slide" } =
                 else mushRefs.current.delete(s.id);
               }}
               data-mushroom={s.id}
-              className={`absolute aspect-square transition-[transform,filter] duration-300 ${
-                active?.id === s.id ? "scale-[1.04] brightness-110" : ""
-              }`}
+              className="absolute aspect-square"
               style={{ ...footStyle(s, portrait), opacity: isTouch || reduceMotion ? 1 : 0 }}
             >
               <Image src={s.image} alt={s.name} fill sizes="16vw" className="object-contain object-bottom" />
@@ -385,15 +397,25 @@ export function AzothHero({ variant = "page" }: { variant?: "page" | "slide" } =
               {AZOTH_HERO.headline}
             </text>
           </svg>
-          {/* The family, one row, the lockup's width. */}
-          <ul aria-label="Brands under Azoth Biotech" className="mt-[7%] flex items-center justify-between gap-[5%] [--row:clamp(1.05rem,2.3vw,2rem)] [@media(max-height:31.25rem)]:[--row:0.85rem]">
-            {SLIDE_BRANDS.map((b) => (
-              <li key={b.slug} className="relative shrink-0" style={{ height: `calc(var(--row) * ${b.size})`, aspectRatio: `${b.w} / ${b.h}` }}>
-                <Image src={`/content/clients/azoth-biotech/brand/brands/white/${b.slug}.png`} alt={b.name} fill sizes="10rem" className="object-contain opacity-90" />
-              </li>
-            ))}
-          </ul>
         </div>
+      )}
+
+      {/* The family under Azoth, in white, along the foot just above the
+          band, its left on the lockup's (owner, 2026-10-16: "keep Naturalist
+          to kavaka logos at the bottom, just above black band, naturalist
+          aligned left with Azoth logo at top, sizes also slightly bigger"). On
+          a tall screen it stands over the button rather than beside it. */}
+      {slide && (
+        <ul
+          aria-label="Brands under Azoth Biotech"
+          className="azoth-hero-anim azoth-hero-fade pointer-events-none absolute bottom-[calc(7svh+1rem)] left-4 z-[50] flex items-end gap-[clamp(0.9rem,2.4vw,2.25rem)] [--row:clamp(1.3rem,2.9vw,2.6rem)] sm:left-8 lg:left-[5vw] portrait:bottom-[calc(7svh+0.75rem+2.75rem+1rem)] [@media(max-height:31.25rem)]:[--row:1.05rem]"
+        >
+          {SLIDE_BRANDS.map((b) => (
+            <li key={b.slug} className="relative shrink-0" style={{ height: `calc(var(--row) * ${b.size})`, aspectRatio: `${b.w} / ${b.h}` }}>
+              <Image src={`/content/clients/azoth-biotech/brand/brands/white/${b.slug}.png`} alt={b.name} fill sizes="12rem" className="object-contain object-bottom opacity-90" />
+            </li>
+          ))}
+        </ul>
       )}
 
       {slide ? (

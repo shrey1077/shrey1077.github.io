@@ -77,6 +77,18 @@ const SHOWN_ELSEWHERE = new Set(["tata-iis", "azoth-biotech", "abs", "luzid", "f
 /** The chess site — a static site of its own (constants/clients). */
 const CHESS: Tile = { key: "chess", name: "Three Steps Ahead", logo: "/chess/images/logo.png", action: { href: "/chess/index.html" } };
 
+/** Marks lifted off the work where none shipped as a file (owner,
+ *  2026-10-16: "use original logos wherever possible and use helvetica bold
+ *  if not available"; scripts/prepare-freelance-logos.mjs,
+ *  prepare-kartpipe-logo.mjs). Sotai and Maler Oswald have none: their names
+ *  are set in Helvetica Bold. */
+const LIFTED: Record<string, string> = {
+  leder: "/content/clients/freelance/logos/leder.png",
+  tsus: "/content/clients/freelance/logos/tsus.png",
+  maxbox: "/content/clients/freelance/logos/maxbox.png",
+  kartpipe: "/content/clients/abs/kartpipe-logo-black.png",
+};
+
 /** The tiles' shape, width ÷ height. */
 const TILE = 4 / 3;
 
@@ -84,14 +96,14 @@ function tilesOf(wall: Wall): Tile[] {
   const slide = (it: Showcase, go = it.id): Tile => ({
     key: it.id,
     name: it.short,
-    logo: it.id === "abs" ? ABS_LOGO : it.mark,
+    logo: it.id === "abs" ? ABS_LOGO : (LIFTED[it.id] ?? it.mark),
     action: { go },
   });
   return [
     ...LOGIC_SHOWCASE.filter((it) => it.id !== ALL_PROJECTS_ID).map((it) => slide(it)),
     ...ABS_BRANDS.map((it) => slide(it, "abs")),
     ...PAGE_PROJECTS.map((it) => ({ key: it.id, name: it.short, logo: it.mark, action: { href: it.report.href ?? "/" } })),
-    ...wall.studies.map((s) => ({ key: s.id, name: s.name, logo: s.logo, action: { study: s } })),
+    ...wall.studies.map((s) => ({ key: s.id, name: s.name, logo: s.logo ?? LIFTED[s.id], action: { study: s } })),
     CHESS,
     ...wall.marks.filter((m) => !SHOWN_ELSEWHERE.has(m.slug)).map((m) => ({ key: `mark-${m.slug}`, name: m.name, logo: m.url, action: MARK_HOME[m.slug] ?? null })),
   ];
@@ -176,7 +188,7 @@ export function AllProjectsSlide({ item, wall }: { item: Showcase; wall: Wall })
                         <Image src={t.logo} alt="" fill sizes={`${Math.round(size)}px`} className="object-contain" />
                       </span>
                     ) : (
-                      <span className={`face-logic absolute inset-x-2 grid place-items-center text-center leading-tight text-neutral-900 ${named ? "bottom-[30%] top-[10%] text-[0.78rem]" : "inset-y-1 text-[0.6rem]"}`}>
+                      <span className={`font-helv absolute inset-x-2 grid place-items-center text-center font-bold leading-tight tracking-[-0.01em] text-neutral-900 ${named ? "bottom-[30%] top-[10%] text-[0.92rem]" : "inset-y-1 text-[0.62rem]"}`}>
                         {t.name}
                       </span>
                     )}
