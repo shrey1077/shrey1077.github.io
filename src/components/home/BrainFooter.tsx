@@ -7,14 +7,15 @@
  * in 10 seconds with the education and chess and all that group of info, and
  * remove it from the black band").
  *
- * Three faces, taking turns every TURN_MS, each arriving in squares
- * (usePixelPresence) as the last leaves:
- *   · AT A GLANCE (first since 2026-10-16; owner: "I want facts (with icons)
- *     about me like 14+ years Experience. Worked with 50+ Brands (developed
- *     7+). Upskilled: AI film Making (click to view certificate, display in
- *     popup) add my certificate, AI agents and products") — the years, the
- *     brands, and the two new skills: the certificate opens over the page
- *     (CertificateDialog), the agents fly to AI Projects;
+ * AT A GLANCE stands on top, always (2026-10-16; owner: "I want facts (with
+ * icons) about me like 14+ years Experience. Worked with 50+ Brands
+ * (developed 7+). Upskilled: AI film Making (click to view certificate,
+ * display in popup) add my certificate, AI agents and products", then "will
+ * always be visible just below brain artwork, and above My stack and other
+ * elements") — the years, the brands, and the two new skills: the
+ * certificate opens over the page (CertificateDialog), the agents fly to AI
+ * Projects. Under it, two faces take turns every TURN_MS, each arriving in
+ * squares (usePixelPresence) as the other leaves:
  *   · MY STACK — the tools behind the work, each mark with its name and what
  *     it is (MyStack's own TOOLS and lines; the pop-up it was is gone);
  *   · THE FACTS — Chess, Part-time, Hobbies, the words of the last two still
@@ -168,9 +169,9 @@ function GlanceRow({ onCertificate }: { onCertificate: () => void }) {
     },
   ];
   return (
-    <div className="flex h-full flex-col justify-end gap-2">
-      <p className={META}>At a glance</p>
-      <ul className="grid grid-cols-2 gap-x-6 gap-y-2.5 lg:grid-cols-4 [@media(max-height:31.25rem)]:grid-cols-4">
+    <div className="flex flex-col gap-2">
+      <p className={`${META} [@media(max-height:31.25rem)]:hidden`}>At a glance</p>
+      <ul className="grid grid-cols-2 gap-x-6 gap-y-2 lg:grid-cols-4 [@media(max-height:31.25rem)]:grid-cols-4">
         {facts.map((f) => (
           <li key={f.key} className="flex min-w-0 flex-col gap-1">
             <span className="font-graff flex min-w-0 items-center gap-[0.45em] text-[0.82rem] font-extrabold leading-none text-neutral-900">
@@ -314,26 +315,40 @@ function FactsRow() {
 
 export function BrainFooter({ active }: { active: boolean }) {
   const reduceMotion = useReducedMotion() ?? false;
-  // Which face is up: the glance first, then the stack, then off the clock.
+  // Which face is up under the glance: the stack first, then off the clock.
   // It turns only while the brain slide is on screen, and holds while the
   // certificate is open.
-  const [face, setFace] = useState<"glance" | "stack" | "facts">("glance");
+  const [face, setFace] = useState<"stack" | "facts">("stack");
   const [certificate, setCertificate] = useState(false);
   useEffect(() => {
     if (!active || certificate) return;
-    const id = window.setInterval(() => setFace((f) => (f === "glance" ? "stack" : f === "stack" ? "facts" : "glance")), TURN_MS);
+    const id = window.setInterval(() => setFace((f) => (f === "stack" ? "facts" : "stack")), TURN_MS);
     return () => window.clearInterval(id);
   }, [active, certificate]);
-  const glanceRef = usePixelPresence<HTMLDivElement>(face === "glance", { cell: 8, duration: 0.7, reduceMotion });
+  // Its whole height, published as --brain-foot on the page, so what stands
+  // above it on a phone (LeftRightBrain's hint) clears it at any size.
+  const footRef = useRef<HTMLDivElement>(null);
+  useEffect(() => {
+    const el = footRef.current;
+    if (!el) return;
+    const root = document.documentElement;
+    const ro = new ResizeObserver(() => root.style.setProperty("--brain-foot", `${el.offsetHeight}px`));
+    ro.observe(el);
+    return () => {
+      ro.disconnect();
+      root.style.removeProperty("--brain-foot");
+    };
+  }, []);
   const stackRef = usePixelPresence<HTMLDivElement>(face === "stack", { cell: 8, duration: 0.7, reduceMotion });
   const factsRef = usePixelPresence<HTMLDivElement>(face === "facts", { cell: 8, duration: 0.7, reduceMotion });
 
   return (
-    <div className="pointer-events-none absolute inset-x-0 bottom-[calc(7%+0.9rem)] z-20 px-4 sm:px-8 lg:px-[5vw]">
+    <div ref={footRef} className="pointer-events-none absolute inset-x-0 bottom-[calc(7%+0.9rem)] z-20 px-4 sm:px-8 lg:px-[5vw]">
+      {/* At a glance — always, just under the brain. */}
+      <div className="mb-[clamp(0.5rem,1.8vh,1rem)] border-b border-neutral-900/10 pb-[clamp(0.5rem,1.6vh,0.9rem)] [@media(max-height:31.25rem)]:mb-1 [@media(max-height:31.25rem)]:pb-1">
+        <GlanceRow onCertificate={() => setCertificate(true)} />
+      </div>
       <div className="relative h-[clamp(4.5rem,13vh,6.5rem)] max-sm:h-[6.25rem] [@media(max-height:31.25rem)]:h-[3.4rem]">
-        <div ref={glanceRef} className={`absolute inset-0 ${face === "glance" ? "" : "invisible"}`} aria-hidden={face !== "glance"}>
-          <GlanceRow onCertificate={() => setCertificate(true)} />
-        </div>
         <div ref={stackRef} className={`absolute inset-0 ${face === "stack" ? "" : "invisible"}`} aria-hidden={face !== "stack"}>
           <StackRow />
         </div>

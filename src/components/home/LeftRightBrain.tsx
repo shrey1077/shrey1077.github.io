@@ -663,7 +663,7 @@ export function LeftRightBrain({
           3.4rem on a short screen). It sat over the scroll cue's place until
           2026-10-15, when that row took the foot and the cue left the brain
           slide. */}
-      <div className="font-lr-serif absolute inset-x-5 bottom-[calc(7%+0.9rem+6.25rem+0.9rem)] text-[0.95rem] leading-[1.3] sm:inset-x-12 sm:bottom-[calc(7%+0.9rem+min(max(4.5rem,13vh),6.5rem)+0.9rem)] sm:text-[1.15rem] lg:hidden [@media(max-height:31.25rem)]:bottom-[calc(7%+0.9rem+3.4rem+0.6rem)]">
+      <div className="font-lr-serif absolute inset-x-5 bottom-[calc(7%+0.9rem+var(--brain-foot,6.25rem)+0.9rem)] text-[0.95rem] leading-[1.3] sm:inset-x-12 sm:text-[1.15rem] lg:hidden [@media(max-height:31.25rem)]:bottom-[calc(7%+0.9rem+var(--brain-foot,3.4rem)+0.6rem)]">
         <AnimatePresence mode="wait" initial={false}>
           {leftOn || rightOn ? (
             <motion.div
