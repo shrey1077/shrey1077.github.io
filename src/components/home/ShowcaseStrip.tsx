@@ -11,6 +11,9 @@
  *            it opened the All Works page until then);
  *   · RIGHT  the mirror: the four creative rooms by name and icon, running
  *            in from the right edge, "Creative" at the end.
+ * Every tile is a pill — round ends — and so is the strip (owner,
+ * 2026-10-16: "All rounded rectangle to be pills"); on a phone, where it
+ * stands in two rows, its ends are as round as two rows allow.
  * The slide on screen is marked — its tile edged in black (left) or paint
  * (right), with a row of blinking pixels under it — and a click flies there
  * in ONE step, however far (the Flythrough's warp), never through the slides
@@ -80,7 +83,7 @@ export function ShowcaseStrip({
           mark on a phone. Everything fits: no sideways scroll at any size. */}
       <div className={`flex w-full min-w-0 pr-[3.5rem] sm:pr-[7.25rem] ${creative ? "justify-end" : "justify-start"}`}>
         <div
-          className={`pointer-events-auto grid w-full min-w-0 gap-x-1 gap-y-1.5 rounded-2xl bg-white/85 p-1.5 pb-2.5 ring-1 ring-neutral-200/90 backdrop-blur-sm sm:flex sm:w-auto sm:max-w-full sm:items-center sm:gap-1.5 sm:px-2 sm:pt-1.5 ${
+          className={`pointer-events-auto grid w-full min-w-0 gap-x-1 gap-y-1.5 rounded-[1.6rem] bg-white/85 p-1.5 px-3 pb-2.5 ring-1 ring-neutral-200/90 backdrop-blur-sm sm:flex sm:w-auto sm:max-w-full sm:items-center sm:gap-1.5 sm:rounded-full sm:px-3 sm:pt-1.5 ${
             creative ? "grid-cols-2 sm:flex-row-reverse" : "grid-cols-5"
           }`}
         >
@@ -117,13 +120,13 @@ export function ShowcaseStrip({
                 aria-label={it.short}
                 title={it.short}
                 onClick={() => onGo(it.id)}
-                className={`group relative h-8 min-w-0 rounded-lg bg-white outline-none transition-[box-shadow,opacity] duration-200 focus-visible:ring-2 focus-visible:ring-neutral-900/40 sm:h-11 sm:w-[6.2rem] sm:shrink ${
+                className={`group relative h-8 min-w-0 rounded-full bg-white outline-none transition-[box-shadow,opacity] duration-200 focus-visible:ring-2 focus-visible:ring-neutral-900/40 sm:h-11 sm:w-[6.2rem] sm:shrink ${
                   on ? "ring-2 ring-neutral-900" : "ring-1 ring-neutral-900/12 hover:ring-neutral-900/40"
                 }`}
               >
                 {it.mark ? (
                   <span
-                    className={`absolute inset-x-1 inset-y-1 transition-[filter,opacity] duration-200 sm:inset-x-1.5 ${
+                    className={`absolute inset-x-2.5 inset-y-1 transition-[filter,opacity] duration-200 sm:inset-x-4 ${
                       on ? "" : "opacity-60 grayscale group-hover:opacity-100 group-hover:grayscale-0"
                     }`}
                   >
@@ -148,7 +151,7 @@ export function ShowcaseStrip({
               onClick={() => onGo(ALL_PROJECTS_ID)}
               aria-current={activeId === ALL_PROJECTS_ID ? "true" : undefined}
               aria-label="All Projects"
-              className={`font-graff group relative flex h-8 min-w-0 shrink-0 items-center justify-center gap-1 whitespace-nowrap rounded-lg text-[0.5rem] uppercase tracking-[0.14em] outline-none transition-colors focus-visible:ring-2 focus-visible:ring-neutral-900/40 sm:ml-1 sm:h-11 sm:px-3 sm:text-[0.62rem] sm:tracking-[0.18em] ${
+              className={`font-graff group relative flex h-8 min-w-0 shrink-0 items-center justify-center gap-1 whitespace-nowrap rounded-full text-[0.5rem] uppercase tracking-[0.14em] outline-none transition-colors focus-visible:ring-2 focus-visible:ring-neutral-900/40 sm:ml-1 sm:h-11 sm:px-3 sm:text-[0.62rem] sm:tracking-[0.18em] ${
                 activeId === ALL_PROJECTS_ID ? "bg-white text-neutral-900 ring-2 ring-neutral-900" : "text-neutral-600 ring-1 ring-neutral-900/12 hover:text-neutral-900 sm:ring-0"
               }`}
             >
