@@ -224,3 +224,50 @@ export function PickleballMark() {
     </Mark>
   );
 }
+
+/* ── At a glance (the brain slide's career facts, 2026-10-16). ─────────── */
+
+/** Experience — a briefcase. */
+export function ExperienceMark() {
+  return (
+    <Mark>
+      <path d="M8.6 6.2V5a1.8 1.8 0 0 1 1.8-1.8h3.2A1.8 1.8 0 0 1 15.4 5v1.2h3.8A2.3 2.3 0 0 1 21.5 8.5v3.2H2.5V8.5a2.3 2.3 0 0 1 2.3-2.3zm1.9 0h3V5.1h-3z" />
+      <path d="M2.5 13.3h7.7v1.3a1 1 0 0 0 1 1h1.6a1 1 0 0 0 1-1v-1.3h7.7v4.4a2.3 2.3 0 0 1-2.3 2.3H4.8a2.3 2.3 0 0 1-2.3-2.3z" />
+    </Mark>
+  );
+}
+
+/** Brands — a seal: a scalloped badge with a star struck through it. */
+export function BrandsMark() {
+  return (
+    <Mark>
+      <path
+        fillRule="evenodd"
+        d="M12 1.8l2.3 1.7 2.8-.3 1.1 2.6 2.6 1.1-.3 2.8 1.7 2.3-1.7 2.3.3 2.8-2.6 1.1-1.1 2.6-2.8-.3L12 22.2l-2.3-1.7-2.8.3-1.1-2.6-2.6-1.1.3-2.8L1.8 12l1.7-2.3-.3-2.8 2.6-1.1 1.1-2.6 2.8.3zm0 5.1l1.5 3.1 3.4.5-2.5 2.4.6 3.4-3-1.6-3 1.6.6-3.4-2.5-2.4 3.4-.5z"
+      />
+    </Mark>
+  );
+}
+
+/** AI film making — a clapperboard, a spark over it. */
+export function FilmMark() {
+  return (
+    <Mark>
+      <path d="M3 10.2h16.4v8.3a2.1 2.1 0 0 1-2.1 2.1H5.1A2.1 2.1 0 0 1 3 18.5z" />
+      <path d="M2.6 8.6l-.4-1.9a1.3 1.3 0 0 1 1-1.5l11.4-2.4a1.3 1.3 0 0 1 1.5 1l.4 1.9zm3.2-3.8L7.9 7.4l2-.4-2.1-2.6zm4.2-.9 2.1 2.6 2-.4-2.1-2.6z" />
+      <path d="M20.3 2.6l.6 1.6 1.6.6-1.6.6-.6 1.6-.6-1.6-1.6-.6 1.6-.6z" />
+    </Mark>
+  );
+}
+
+/** AI agents & products — a chip with a spark at its heart. */
+export function AgentMark() {
+  return (
+    <Mark>
+      <path
+        fillRule="evenodd"
+        d="M8 1.8h1.6v2.4h4.8V1.8H16v2.4h1.5a2.3 2.3 0 0 1 2.3 2.3V8h2.4v1.6h-2.4v4.8h2.4V16h-2.4v1.5a2.3 2.3 0 0 1-2.3 2.3H16v2.4h-1.6v-2.4H9.6v2.4H8v-2.4H6.5a2.3 2.3 0 0 1-2.3-2.3V16H1.8v-1.6h2.4V9.6H1.8V8h2.4V6.5a2.3 2.3 0 0 1 2.3-2.3H8zm4 5.4l1.2 3.6 3.6 1.2-3.6 1.2L12 16.8l-1.2-3.6-3.6-1.2 3.6-1.2z"
+      />
+    </Mark>
+  );
+}

@@ -7,8 +7,14 @@
  * in 10 seconds with the education and chess and all that group of info, and
  * remove it from the black band").
  *
- * Two faces, taking turns every TURN_MS, each arriving in squares
- * (usePixelPresence) as the other leaves:
+ * Three faces, taking turns every TURN_MS, each arriving in squares
+ * (usePixelPresence) as the last leaves:
+ *   · AT A GLANCE (first since 2026-10-16; owner: "I want facts (with icons)
+ *     about me like 14+ years Experience. Worked with 50+ Brands (developed
+ *     7+). Upskilled: AI film Making (click to view certificate, display in
+ *     popup) add my certificate, AI agents and products") — the years, the
+ *     brands, and the two new skills: the certificate opens over the page
+ *     (CertificateDialog), the agents fly to AI Projects;
  *   · MY STACK — the tools behind the work, each mark with its name and what
  *     it is (MyStack's own TOOLS and lines; the pop-up it was is gone);
  *   · THE FACTS — Chess, Part-time, Hobbies, the words of the last two still
@@ -20,16 +26,18 @@
  * are unlinked; the band below is the way into either side now.
  *
  * Graphite on the slide's light ground. It fits any screen: on a phone the
- * tools lose their lines and stand in two rows, the facts in a 2 × 2.
+ * tools lose their lines and stand in two rows, the glance in a 2 × 2.
  * Reduced motion: the faces still take turns, without the squares.
  */
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
+import { createPortal } from "react-dom";
 import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
 import { RoomImage as Image } from "@/components/home/nearness";
 import { usePixelPresence } from "@/components/home/pixelReveal";
 import { GROUPS, ROLE } from "@/components/home/MyStack";
-import { PartTimeMark } from "@/components/home/HomeMarks";
+import { AgentMark, BrandsMark, ExperienceMark, FilmMark, PartTimeMark } from "@/components/home/HomeMarks";
+import { PixelButton } from "@/components/home/PixelButton";
 import { CHESS_RATING, PART_TIME, WORD_MS } from "@/components/home/AboutFacts";
 import { CYCLE_MS, HOBBIES } from "@/components/home/HobbiesRotator";
 import { TOOLS, type Tool } from "@/constants/tools";
@@ -102,6 +110,162 @@ function Turning({ items, ms }: { items: { label: string; mark?: React.ReactNode
 
 const MARK = "flex shrink-0 [&_svg]:size-[1.15em] [&_svg]:text-neutral-900";
 
+/** The certificate the owner supplied (scripts/prepare-certificate.mjs). */
+const CERTIFICATE = {
+  src: "/content/about/ai-film-making-certificate.webp",
+  pdf: "/content/about/ai-film-making-certificate.pdf",
+  w: 1800,
+  h: 1013,
+  alt: "Certificate of completion: Shrey Singh, the 8-Week AI Film Making Program, Videopreneur Studios",
+};
+
+/** A small action inside a fact — ink-outlined, filled on hover. */
+const CHIP =
+  "pointer-events-auto inline-flex items-center gap-1 rounded-[3px] border border-neutral-900/80 px-1.5 py-[0.22rem] font-graff text-[0.54rem] uppercase leading-none tracking-[0.16em] text-neutral-900 outline-none transition-colors hover:bg-neutral-950 hover:text-white focus-visible:bg-neutral-950 focus-visible:text-white";
+
+function GlanceRow({ onCertificate }: { onCertificate: () => void }) {
+  const facts: { key: string; mark: React.ReactNode; heading: string; value: React.ReactNode }[] = [
+    { key: "years", mark: <ExperienceMark />, heading: "14+ Years", value: "of experience" },
+    {
+      key: "brands",
+      mark: <BrandsMark />,
+      heading: "50+ Brands",
+      value: (
+        <>
+          worked with <span aria-hidden>·</span> <span className="font-bold text-neutral-900">7+</span> developed
+        </>
+      ),
+    },
+    {
+      key: "film",
+      mark: <FilmMark />,
+      heading: "AI Film Making",
+      value: (
+        <>
+          Upskilled <span aria-hidden>·</span>
+          <button type="button" onClick={onCertificate} aria-haspopup="dialog" className={CHIP}>
+            Certificate <span aria-hidden>↗</span>
+          </button>
+        </>
+      ),
+    },
+    {
+      key: "agents",
+      mark: <AgentMark />,
+      heading: "AI Agents & Products",
+      value: (
+        <>
+          Upskilled <span aria-hidden>·</span>
+          <button
+            type="button"
+            onClick={() => window.dispatchEvent(new CustomEvent("flythrough:go", { detail: { id: "ai-projects" } }))}
+            className={CHIP}
+          >
+            See them <span aria-hidden>→</span>
+          </button>
+        </>
+      ),
+    },
+  ];
+  return (
+    <div className="flex h-full flex-col justify-end gap-2">
+      <p className={META}>At a glance</p>
+      <ul className="grid grid-cols-2 gap-x-6 gap-y-2.5 lg:grid-cols-4 [@media(max-height:31.25rem)]:grid-cols-4">
+        {facts.map((f) => (
+          <li key={f.key} className="flex min-w-0 flex-col gap-1">
+            <span className="font-graff flex min-w-0 items-center gap-[0.45em] text-[0.82rem] font-extrabold leading-none text-neutral-900">
+              <span className={MARK}>{f.mark}</span>
+              <span className="truncate">{f.heading}</span>
+            </span>
+            <span className="font-graff flex min-w-0 items-center gap-[0.4em] whitespace-nowrap text-[0.8rem] leading-tight text-neutral-600 max-sm:text-[0.72rem]">
+              {f.value}
+            </span>
+          </li>
+        ))}
+      </ul>
+    </div>
+  );
+}
+
+/**
+ * The certificate, over the page. Portalled to <body>: the footer lives in
+ * the Flythrough's transformed stage, which would make a `position: fixed`
+ * box fixed to IT. While open it marks the root `data-modal`, which the
+ * Flythrough reads to leave the wheel and the keys alone; Escape, the close
+ * button or a click outside shuts it, and the focus goes back.
+ */
+function CertificateDialog({ open, onClose, reduceMotion }: { open: boolean; onClose: () => void; reduceMotion: boolean }) {
+  const ref = usePixelPresence<HTMLDivElement>(open, { cell: 12, duration: 0.55, reduceMotion });
+  const panelRef = useRef<HTMLDivElement>(null);
+  const close = useRef(onClose);
+  useEffect(() => {
+    close.current = onClose;
+  });
+  const [ever, setEver] = useState(open);
+  if (open && !ever) setEver(true);
+  useEffect(() => {
+    if (!open) return;
+    const root = document.documentElement;
+    const opener = document.activeElement as HTMLElement | null;
+    root.dataset.modal = "certificate";
+    panelRef.current?.focus({ preventScroll: true });
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === "Escape") close.current();
+    };
+    window.addEventListener("keydown", onKey);
+    return () => {
+      window.removeEventListener("keydown", onKey);
+      if (root.dataset.modal === "certificate") delete root.dataset.modal;
+      opener?.focus?.({ preventScroll: true });
+    };
+  }, [open]);
+  // Nothing until first asked for — the page is built ahead of time, and a
+  // portal there would not match it when the page comes alive.
+  if (!ever) return null;
+  return createPortal(
+    <div
+      ref={ref}
+      className={`fixed inset-0 z-[300] grid place-items-center bg-neutral-950/70 p-4 backdrop-blur-sm ${open ? "" : "invisible"}`}
+      aria-hidden={!open}
+      onClick={onClose}
+    >
+      <div
+        ref={panelRef}
+        role="dialog"
+        aria-modal="true"
+        aria-label="AI Film Making — certificate of completion"
+        tabIndex={-1}
+        onClick={(e) => e.stopPropagation()}
+        className="flex w-[min(92vw,64rem,calc((100svh-9rem)*16/9))] flex-col gap-3 outline-none"
+      >
+        <div
+          className="relative w-full overflow-hidden rounded-lg shadow-[0_30px_80px_-30px_rgba(0,0,0,0.8)]"
+          style={{ aspectRatio: `${CERTIFICATE.w} / ${CERTIFICATE.h}` }}
+        >
+          {ever && (
+            // eslint-disable-next-line @next/next/no-img-element -- loaded only once asked for
+            <img src={CERTIFICATE.src} alt={CERTIFICATE.alt} className="absolute inset-0 h-full w-full object-cover" />
+          )}
+        </div>
+        <div className="flex flex-wrap items-center justify-between gap-3">
+          <p className="font-helv text-[0.78rem] leading-snug text-white/80">
+            Certificate of completion · 8-Week AI Film Making Program · Videopreneur Studios
+          </p>
+          <div className="flex items-center gap-2">
+            <PixelButton side="logic" size="sm" href={CERTIFICATE.pdf}>
+              Open PDF <span aria-hidden>↗</span>
+            </PixelButton>
+            <PixelButton side="logic" size="sm" onClick={onClose} ariaLabel="Close the certificate">
+              Close ✕
+            </PixelButton>
+          </div>
+        </div>
+      </div>
+    </div>,
+    document.body,
+  );
+}
+
 function FactsRow() {
   const facts: { key: string; heading: string; value: React.ReactNode }[] = [
     {
@@ -150,20 +314,26 @@ function FactsRow() {
 
 export function BrainFooter({ active }: { active: boolean }) {
   const reduceMotion = useReducedMotion() ?? false;
-  // Which face is up: the stack first. It turns only while the brain slide
-  // is on screen.
-  const [face, setFace] = useState<"stack" | "facts">("stack");
+  // Which face is up: the glance first, then the stack, then off the clock.
+  // It turns only while the brain slide is on screen, and holds while the
+  // certificate is open.
+  const [face, setFace] = useState<"glance" | "stack" | "facts">("glance");
+  const [certificate, setCertificate] = useState(false);
   useEffect(() => {
-    if (!active) return;
-    const id = window.setInterval(() => setFace((f) => (f === "stack" ? "facts" : "stack")), TURN_MS);
+    if (!active || certificate) return;
+    const id = window.setInterval(() => setFace((f) => (f === "glance" ? "stack" : f === "stack" ? "facts" : "glance")), TURN_MS);
     return () => window.clearInterval(id);
-  }, [active]);
+  }, [active, certificate]);
+  const glanceRef = usePixelPresence<HTMLDivElement>(face === "glance", { cell: 8, duration: 0.7, reduceMotion });
   const stackRef = usePixelPresence<HTMLDivElement>(face === "stack", { cell: 8, duration: 0.7, reduceMotion });
   const factsRef = usePixelPresence<HTMLDivElement>(face === "facts", { cell: 8, duration: 0.7, reduceMotion });
 
   return (
     <div className="pointer-events-none absolute inset-x-0 bottom-[calc(7%+0.9rem)] z-20 px-4 sm:px-8 lg:px-[5vw]">
       <div className="relative h-[clamp(4.5rem,13vh,6.5rem)] max-sm:h-[6.25rem] [@media(max-height:31.25rem)]:h-[3.4rem]">
+        <div ref={glanceRef} className={`absolute inset-0 ${face === "glance" ? "" : "invisible"}`} aria-hidden={face !== "glance"}>
+          <GlanceRow onCertificate={() => setCertificate(true)} />
+        </div>
         <div ref={stackRef} className={`absolute inset-0 ${face === "stack" ? "" : "invisible"}`} aria-hidden={face !== "stack"}>
           <StackRow />
         </div>
@@ -171,6 +341,7 @@ export function BrainFooter({ active }: { active: boolean }) {
           <FactsRow />
         </div>
       </div>
+      <CertificateDialog open={certificate} onClose={() => setCertificate(false)} reduceMotion={reduceMotion} />
     </div>
   );
 }
