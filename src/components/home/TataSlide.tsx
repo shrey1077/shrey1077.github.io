@@ -66,6 +66,8 @@ import { flushSync } from "react-dom";
 import { RoomImage as Image, NearContext } from "@/components/home/nearness";
 import { PixelButton } from "@/components/home/PixelButton";
 import type { Showcase } from "@/constants/showcase";
+import { useMediaQuery } from "@/hooks/useMediaQuery";
+import { TataTurn } from "@/components/home/TataTurn";
 import { FILM, FILM_RATIO, FIRST, HOLD_MS, LAST_FRAME, inkOf, layout, loadWrap, paintLetters, wake, type Painted, type Wrap } from "@/components/film/setFree";
 
 // The Tata page's own files (TATA_GRID, TATA_GUIDELINES.wordmark, TATA_HERO.art
@@ -73,7 +75,6 @@ import { FILM, FILM_RATIO, FIRST, HOLD_MS, LAST_FRAME, inkOf, layout, loadWrap, 
 // so the home page doesn't carry the Tata page's copy).
 const GRID = "/content/clients/tata-iis/brand/grid-2026.webp";
 const WORDMARK = "/content/clients/tata-iis/brand/wordmark-black.png";
-const ART = "/content/clients/tata-iis/hero/skills-build-stronger-india.webp";
 /** The two campuses' own lockups, for under the first column (owner: "Under
  *  1st column put IISA and IISM … logos", then "Use original IISA and IISM
  *  logos" — the stacked versions, iisa-portrait.png and iism-portrait.png,
@@ -453,23 +454,25 @@ function FilmWrap({
 export function TataSlide({ item, live, reduceMotion }: { item: Showcase; live: boolean; reduceMotion: boolean }) {
   const href = item.report.href ?? "/clients/tata-iis";
   const groundRef = useRef<HTMLDivElement>(null);
+  const tall = useMediaQuery("(orientation: portrait)");
   return (
     <section aria-label={item.name} data-side="logic" className="absolute inset-0 overflow-hidden bg-white">
       <h2 className="sr-only">{item.name}</h2>
-      {/* The Tata page's grid wash, the whole slide. */}
-      <div aria-hidden className="pointer-events-none absolute inset-0">
-        <Image src={GRID} alt="" fill sizes="100vw" className="object-cover opacity-70" />
-      </div>
-
-      {/* The hero artwork, bleeding right, from under the strip to the band.
-          On a tall screen it stands between the wordmark and the words
-          instead (FilmWrap's `middle`). */}
-      <div
-        aria-hidden
-        className="pointer-events-none absolute bottom-[7svh] right-0 top-[calc(max(2vh,0.75rem)+var(--strip-h,3.75rem))] w-[50%] portrait:hidden"
-      >
-        <Image src={ART} alt="" fill sizes="50vw" className="object-contain object-right-bottom" />
-      </div>
+      {/* The ground. On a wide screen: the student turning to the camera,
+          the whole slide, scrubbed by the pointer across its right half
+          (TataTurn; owner, 2026-10-16) — it took the place of the grid wash
+          and the hero artwork, both of which its frames carry. On a tall
+          screen: the grid wash, and the turn between the wordmark and the
+          words (FilmWrap's `middle`). */}
+      {tall ? (
+        <div aria-hidden className="pointer-events-none absolute inset-0">
+          <Image src={GRID} alt="" fill sizes="100vw" className="object-cover opacity-70" />
+        </div>
+      ) : (
+        <div aria-hidden className="pointer-events-none absolute inset-0">
+          <TataTurn live={live} reduceMotion={reduceMotion} fit="cover" />
+        </div>
+      )}
 
       {/* The left: the wordmark, then the words with the film among their
           last lines. On a tall screen, the upper part, clear of the artwork
@@ -486,7 +489,7 @@ export function TataSlide({ item, live, reduceMotion }: { item: Showcase; live: 
             campuses={<CampusMarks />}
             middle={
               <>
-                <Image src={ART} alt="" fill sizes="70vw" className="object-contain object-right" />
+                <TataTurn live={live && tall} reduceMotion={reduceMotion} fit="student" className="absolute inset-0 mix-blend-multiply" />
                 <span className="pointer-events-auto absolute bottom-0 left-0">
                   <PixelButton side="logic" href={href}>
                     {item.report.label} <span aria-hidden>→</span>
