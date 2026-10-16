@@ -116,7 +116,11 @@ export function TataExperience() {
         <Image src={TATA_GRID} alt="" fill priority sizes="100vw" className="object-cover opacity-70" />
       </div>
 
-      <div className="relative z-10">
+      {/* ⚠ No z-index here (it was z-10 until 2026-10-16): one would seal
+          the page's content off from the grid wash behind it, and the band 03
+          film's "multiply" (FilmFlow) would then show its white as a box over
+          the grid. Being later in the page keeps it above the wash anyway. */}
+      <div className="relative">
         <ExperienceTransition>
           {/* ── Hero ─────────────────────────────────────────────────────────
               ⚠ IT HOLDS THE WHOLE VIEWPORT (owner, 2026-09-23): "the 01, 02…
