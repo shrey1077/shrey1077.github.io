@@ -41,6 +41,17 @@
  * frames, end OVERLAP of the way down it. It never moves while it plays; only
  * the words do. On a screen too small for all the words, the last sentences
  * of the longer column go first (a screen reader still has them all).
+ *
+ * THE BOY STANDS ON THE BAND (owner, the same day: "i want the boy to be
+ * standing on the black pixelated band at bottom"): the film and the words
+ * are let down together until the boy's feet in the film's first frame meet
+ * the band's top edge (`ground`, a marker at the band's height). As the
+ * camera moves in he grows, and his legs pass behind the band — which also
+ * hides the film's foot, where the frame crops him. The wordmark keeps the
+ * top of the column. On a tall screen the hero artwork, which stood at the
+ * foot on the right, fills the room between the wordmark and the words
+ * instead (`middle`) — some of it kept for the artwork before the words are
+ * fitted.
  */
 
 import { useCallback, useContext, useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
@@ -94,9 +105,12 @@ const MAX_REM = 40;
 const GUTTER_EM = 1.8;
 /** The film's width, as a share of the block's — half what it was. */
 const FILM_SHARE = 0.5;
-/** How far down the film the columns end: its top part (the cage, the arms,
- *  the flock) among their last lines, the rest beneath them. */
-const OVERLAP = 0.55;
+/** How far down the film the columns end: its top part — the cage's crown
+ *  and the flock rising from it — among their last lines, the rest beneath
+ *  them. 0.25 since the owner's next word ("move the text further up, fix
+ *  animation at current point"): the film stays standing on the band, the
+ *  words lift clear of the boy (it was 0.55, down to his shoulders). */
+const OVERLAP = 0.25;
 
 interface Wrap {
   w: number;
@@ -207,13 +221,28 @@ function inkOf(wrap: Wrap, f: number, fx: number, fy: number, fw: number, size: 
 
 /** The film and the words round it, under `head` (the wordmark): the two
  *  centred together in the room the column gives them. */
-function FilmWrap({ live, reduceMotion, head }: { live: boolean; reduceMotion: boolean; head: React.ReactNode }) {
+function FilmWrap({
+  live,
+  reduceMotion,
+  head,
+  middle,
+  groundRef,
+}: {
+  live: boolean;
+  reduceMotion: boolean;
+  head: React.ReactNode;
+  /** What fills the room between the wordmark and the words on a tall
+   *  screen (the hero artwork). */
+  middle?: React.ReactNode;
+  /** A marker at the band's top edge, in the same frame as this box. */
+  groundRef: React.RefObject<HTMLDivElement | null>;
+}) {
   const near = useContext(NearContext);
   const boxRef = useRef<HTMLDivElement>(null);
   const headRef = useRef<HTMLDivElement>(null);
   const probeRef = useRef<HTMLSpanElement>(null);
   const filmRef = useRef<HTMLVideoElement>(null);
-  const [box, setBox] = useState({ w: 0, h: 0, head: 0 });
+  const [box, setBox] = useState({ w: 0, h: 0, head: 0, ground: 0, tall: false });
   const [wrap, setWrap] = useState<Wrap | null>(null);
   const [frame, setFrame] = useState(0);
   // The type: read off the probe (the slide's own CSS), measured on a canvas.
@@ -227,7 +256,16 @@ function FilmWrap({ live, reduceMotion, head }: { live: boolean; reduceMotion: b
     const el = boxRef.current;
     if (!el) return;
     const read = () => {
-      setBox({ w: el.clientWidth, h: el.clientHeight, head: headRef.current?.offsetHeight ?? 0 });
+      // The band's top edge, measured down from this box's top — by layout,
+      // never by screen boxes, which carry the flight's scale.
+      const g = groundRef.current;
+      setBox({
+        w: el.clientWidth,
+        h: el.clientHeight,
+        head: headRef.current?.offsetHeight ?? 0,
+        ground: g ? g.offsetTop - el.offsetTop : el.clientHeight,
+        tall: window.matchMedia("(orientation: portrait)").matches,
+      });
       const cs = probeRef.current && getComputedStyle(probeRef.current);
       if (cs) {
         const size = parseFloat(cs.fontSize);
@@ -241,7 +279,7 @@ function FilmWrap({ live, reduceMotion, head }: { live: boolean; reduceMotion: b
     // The face may arrive after the first measure.
     document.fonts?.ready.then(read);
     return () => ro.disconnect();
-  }, []);
+  }, [groundRef]);
 
   // Playing: while the slide is on screen, from the start; at the end a
   // hold, then again. Off screen it waits on its first frame. The words
@@ -312,7 +350,19 @@ function FilmWrap({ live, reduceMotion, head }: { live: boolean; reduceMotion: b
   // film half that, centred across the gutter — smaller still if the room is
   // too short for it.
   const width = Math.min(box.w, MAX_REM * 16);
-  const room = box.h - box.head;
+  // On a tall screen a share of it is kept for the artwork (`middle`).
+  const room = box.ground - box.head - (box.tall ? box.ground * 0.3 : 0);
+  // Where the boy's feet are in the film's first frame (the lowest ink in
+  // its left half), as a share of its height — the line that meets the band.
+  const feet = useMemo(() => {
+    if (!wrap) return 0.9;
+    const first = wrap.frames[0] ?? [];
+    let low = 0;
+    first.forEach((r, b) => {
+      for (let k = 0; k < r.length; k += 2) if (r[k] < wrap.w * 0.45) low = b + 1;
+    });
+    return low ? Math.min(1, (low * wrap.band) / wrap.h) : 0.9;
+  }, [wrap]);
   const filmW = Math.max(0, Math.min(width * FILM_SHARE, (room * 0.5) / FILM_RATIO));
   const filmH = filmW * FILM_RATIO;
   const filmX = (width - filmW) / 2;
@@ -330,8 +380,8 @@ function FilmWrap({ live, reduceMotion, head }: { live: boolean; reduceMotion: b
 
   // THE PLAN, once per size: how many sentences fit, and where the film sits.
   // Worked out in an idle moment — a few dozen layouts — and kept.
-  const [plan, setPlan] = useState<{ key: string; filmY: number; cut: number[]; height: number } | null>(null);
-  const planKey = `${width}|${room}|${type?.font}|${!!wrap}`;
+  const [plan, setPlan] = useState<{ key: string; filmY: number; cut: number[]; height: number; reach: number } | null>(null);
+  const planKey = `${width}|${room}|${type?.font}|${!!wrap}|${feet}`;
   useEffect(() => {
     if (!wrap || !type || !measure || width <= 0) return;
     const run = () => {
@@ -350,24 +400,26 @@ function FilmWrap({ live, reduceMotion, head }: { live: boolean; reduceMotion: b
           if (Math.abs(next - filmY) < 1) break;
           filmY = next;
         }
-        return { filmY: Math.max(0, filmY), height: Math.max(filmY + filmH, tallest) };
+        filmY = Math.max(0, filmY);
+        // How far down the block the feet stand: what must fit above the band.
+        return { filmY, height: Math.max(filmY + filmH, tallest), reach: filmY + feet * filmH };
       };
       // All the words if they fit; else the longer column's last sentence
       // goes, and again, keeping two in each.
       const cut = [COLUMNS[0].length, COLUMNS[1].length];
       let p = place(cut);
-      while (p.height > room && (cut[0] > 2 || cut[1] > 2)) {
+      while (p.reach > room && (cut[0] > 2 || cut[1] > 2)) {
         const longer = (cut[0] > 2 && (COLUMNS[0].slice(0, cut[0]).join(" ").length >= COLUMNS[1].slice(0, cut[1]).join(" ").length || cut[1] <= 2)) ? 0 : 1;
         cut[longer]--;
         p = place(cut);
       }
-      setPlan({ key: planKey, filmY: p.filmY, cut: [...cut], height: p.height });
+      setPlan({ key: planKey, filmY: p.filmY, cut: [...cut], height: p.height, reach: p.reach });
     };
     const idle = window.requestIdleCallback ?? ((cb: () => void) => window.setTimeout(cb, 1));
     const cancel = window.cancelIdleCallback ?? window.clearTimeout;
     const id = idle(run, { timeout: 500 });
     return () => cancel(id);
-  }, [planKey, wrap, type, measure, width, room, filmW, filmH, filmX, columnsAt]);
+  }, [planKey, wrap, type, measure, width, room, filmW, filmH, filmX, columnsAt, feet]);
   const ready = plan && plan.key === planKey ? plan : null;
 
   // Reduced motion: the last frame, still, and the words round it.
@@ -390,16 +442,25 @@ function FilmWrap({ live, reduceMotion, head }: { live: boolean; reduceMotion: b
           <p key={c[0]}>{c.join(" ")}</p>
         ))}
       </div>
-      {/* The wordmark, then the words and the film — centred, together, in
-          the room the column leaves them.
-          ⚠ Centred by flex, never by a transform: a transform would make this
-          a layer of its own, and the film's \`multiply\` would then meet only
-          the empty layer — its white would stand over the grid as a box. */}
-      <div className="absolute inset-0 flex flex-col justify-center">
-        <div ref={headRef} className="pb-[clamp(0.75rem,4.5vh,2.75rem)]">
-          {head}
+      {/* The wordmark at the top; the words and the film let down until the
+          boy's feet meet the band.
+          ⚠ Placed by top offsets, never by a transform: a transform would make
+          this a layer of its own, and the film's "multiply" would then meet
+          only the empty layer — its white would stand over the grid as a box. */}
+      <div ref={headRef} className="absolute inset-x-0 top-0 pb-[clamp(0.75rem,4.5vh,2.75rem)]">
+        {head}
+      </div>
+      {/* A tall screen's artwork, between the wordmark and the words. */}
+      {middle && box.tall && ready && (
+        <div aria-hidden className="pointer-events-none absolute inset-x-0" style={{ top: box.head, height: Math.max(0, box.ground - ready.reach - box.head - 12) }}>
+          {middle}
         </div>
-        <div aria-hidden className="relative" style={{ width, height: ready?.height ?? 0, visibility: ready ? "visible" : "hidden" }}>
+      )}
+      <div
+        aria-hidden
+        className="absolute left-0"
+        style={{ top: ready ? box.ground - ready.reach : 0, width, height: ready?.height ?? 0, visibility: ready ? "visible" : "hidden" }}
+      >
           {reduceMotion ? (
             near && (
               // eslint-disable-next-line @next/next/no-img-element -- a still in the film's own box
@@ -438,7 +499,6 @@ function FilmWrap({ live, reduceMotion, head }: { live: boolean; reduceMotion: b
               </div>
             ))}
           </div>
-        </div>
       </div>
     </div>
   );
@@ -446,6 +506,7 @@ function FilmWrap({ live, reduceMotion, head }: { live: boolean; reduceMotion: b
 
 export function TataSlide({ item, live, reduceMotion }: { item: Showcase; live: boolean; reduceMotion: boolean }) {
   const href = item.report.href ?? "/clients/tata-iis";
+  const groundRef = useRef<HTMLDivElement>(null);
   return (
     <section aria-label={item.name} data-side="logic" className="absolute inset-0 overflow-hidden bg-white">
       <h2 className="sr-only">{item.name}</h2>
@@ -454,13 +515,14 @@ export function TataSlide({ item, live, reduceMotion }: { item: Showcase; live: 
         <Image src={GRID} alt="" fill sizes="100vw" className="object-cover opacity-70" />
       </div>
 
-      {/* The hero artwork, bleeding right, from under the strip to the band;
-          on a tall screen, the lower right, under the words. */}
+      {/* The hero artwork, bleeding right, from under the strip to the band.
+          On a tall screen it stands between the wordmark and the words
+          instead (FilmWrap's `middle`). */}
       <div
         aria-hidden
-        className="pointer-events-none absolute bottom-[7svh] right-0 top-[calc(max(2vh,0.75rem)+var(--strip-h,3.75rem))] w-[50%] portrait:top-auto portrait:h-[34svh] portrait:w-[56vw]"
+        className="pointer-events-none absolute bottom-[7svh] right-0 top-[calc(max(2vh,0.75rem)+var(--strip-h,3.75rem))] w-[50%] portrait:hidden"
       >
-        <Image src={ART} alt="" fill sizes="(orientation: portrait) 56vw, 50vw" className="object-contain object-right-bottom" />
+        <Image src={ART} alt="" fill sizes="50vw" className="object-contain object-right-bottom" />
       </div>
 
       {/* The left: the wordmark, then the words with the film among their
@@ -468,10 +530,23 @@ export function TataSlide({ item, live, reduceMotion }: { item: Showcase; live: 
           below; on a short one (a phone on its side) wider, the artwork being
           small there. */}
       <div className="slide-frame is-logic absolute inset-0 flex">
-        <div className="flex min-h-0 w-[54%] flex-col portrait:w-full portrait:pb-[calc(34svh-4.25rem)] [@media(max-height:31.25rem)]:landscape:w-[72%]">
+        {/* The band's top edge (FootBand: 7svh), where the boy stands. */}
+        <div ref={groundRef} aria-hidden className="pointer-events-none absolute inset-x-0 bottom-[7svh] h-0" />
+        <div className="flex min-h-0 w-[54%] flex-col portrait:w-full [@media(max-height:31.25rem)]:landscape:w-[72%]">
           <FilmWrap
             live={live}
             reduceMotion={reduceMotion}
+            groundRef={groundRef}
+            middle={
+              <>
+                <Image src={ART} alt="" fill sizes="70vw" className="object-contain object-right" />
+                <span className="pointer-events-auto absolute bottom-0 left-0">
+                  <PixelButton side="logic" href={href}>
+                    {item.report.label} <span aria-hidden>→</span>
+                  </PixelButton>
+                </span>
+              </>
+            }
             head={
               <span className="relative block aspect-[1020/257] w-[min(100%,24rem,calc(13vh*1020/257))] portrait:w-[min(100%,18rem,calc(10vh*1020/257))]">
                 <Image src={WORDMARK} alt="TATA IIS — Tata Indian Institute of Skills" fill sizes="24rem" className="object-contain object-left" />
@@ -481,8 +556,10 @@ export function TataSlide({ item, live, reduceMotion }: { item: Showcase; live: 
         </div>
       </div>
 
-      {/* The way in, where every left slide keeps it. */}
-      <div className="absolute bottom-[calc(7svh+0.75rem)] right-4 z-10 sm:right-8 lg:right-[5vw]">
+      {/* The way in, where every left slide keeps it — on a wide screen. On
+          a tall one the words come down into that corner, so it stands beside
+          the artwork instead (`middle`, above). */}
+      <div className="absolute bottom-[calc(7svh+0.75rem)] right-4 z-10 sm:right-8 lg:right-[5vw] portrait:hidden">
         <PixelButton side="logic" href={href}>
           {item.report.label} <span aria-hidden>→</span>
         </PixelButton>
