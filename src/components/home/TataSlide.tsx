@@ -6,38 +6,38 @@
  * left with the grid bg. For the text I want all the info about Tata IIS
  * written in 100 words, and arranged in two paragraphs with the silhouette
  * animation at the bottom, and birds are animating upwards into the text,
- * perfect animated text wrap is required, i want very small text font, with
- * min line height, so that the text wrap effect is easily visible around the
- * silhouette animation"). It was the page's still, ProjectSlide, until then.
+ * perfect animated text wrap is required … so that the text wrap effect is
+ * easily visible around the silhouette animation"). It was the page's still,
+ * ProjectSlide, until then.
  *
- *   ┌──────────────────────────┬───────────────────────┐
- *   │ TATA IIS (the wordmark)  │                       │
- *   │                          │    the hero artwork   │
- *   │ two paragraphs, small,   │    (the Tata page's,  │
- *   │ tight, flowing round  ↗  │     bleeding right)   │
- *   │ the birds as they rise   │                       │
- *   │ ☐  the boy and the cage  │ [View Full Project →] │
- *   └──────────────────────────┴───────────────────────┘
+ *   ┌──────────────────────────────┬───────────────────┐
+ *   │ TATA IIS (the wordmark)      │                   │
+ *   │                              │  the hero artwork │
+ *   │ the institute ·  my part     │  (the Tata page's,│
+ *   │ in one column ↗  in the other│   bleeding right) │
+ *   │ ☐ the film: the boy, the     │                   │
+ *   │   cage, the birds            │ [View Full ... →] │
+ *   └──────────────────────────────┴───────────────────┘
  *   over the Tata page's own grid wash, the whole slide.
  *
- * The drawing is the handbook's flipbook (the Tata page's band 03) — a boy
- * raises a birdcage and the birds fly free, up and to the right. Here it
- * plays by itself while the slide is on screen, and the text is laid out
- * line by line AROUND ITS INK (FlipbookWrap): every frame, each line asks
- * where the drawing is across its height and fills only the room either side
- * of it — so a bird climbing into the paragraph parts the words around it,
- * on both sides, as it goes.
+ * THE FILM (owner, the same day): the boy raising the birdcage and the birds
+ * flying free — the handbook flipbook's drawing, made into four seconds by the
+ * owner in Google Flow, wings beating, his hair in the wind, the camera
+ * travelling in under him as the flock leaves (scripts/prepare-tata-set-
+ * free.mjs). It plays while the slide is on screen, holds on its last frame,
+ * and plays again. It is black on white, drawn in `multiply`, so its white
+ * drops out and the grid shows through.
+ *
+ * THE WORDS lie over it in two columns — the institute in one, the owner's
+ * part in the other ("i wanted my text in 2 columns") — and are laid out
+ * line by line AROUND THE FILM'S INK (FilmWrap): for every frame the film
+ * shows, each line asks where the boy, the cage and the birds are across its
+ * height and fills only the room either side of them. So a bird flying up
+ * through a paragraph parts the words round it, on both sides, as it goes.
  */
 
-import {
-  useCallback,
-  useContext,
-  useEffect,
-  useLayoutEffect,
-  useMemo,
-  useRef,
-  useState,
-} from "react";
+import { useCallback, useContext, useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
+import { flushSync } from "react-dom";
 import { RoomImage as Image, NearContext } from "@/components/home/nearness";
 import { PixelButton } from "@/components/home/PixelButton";
 import type { Showcase } from "@/constants/showcase";
@@ -46,49 +46,38 @@ import type { Showcase } from "@/constants/showcase";
 // in constants/tataExperience and tataStory — named here rather than imported,
 // so the home page doesn't carry the Tata page's copy).
 const GRID = "/content/clients/tata-iis/brand/grid-2026.webp";
-const WORDMARK = {
-  src: "/content/clients/tata-iis/brand/wordmark-black.png",
-  w: 1020,
-  h: 257,
-};
-const ART = {
-  src: "/content/clients/tata-iis/hero/skills-build-stronger-india.webp",
-  w: 1071,
-  h: 1469,
-};
+const WORDMARK = "/content/clients/tata-iis/brand/wordmark-black.png";
+const ART = "/content/clients/tata-iis/hero/skills-build-stronger-india.webp";
 
-/** The flipbook: one sheet of 75 frames, 10 × 8, each 440 × 492
- *  (constants/tataFlipbookFlow), and where its ink is, frame by frame
- *  (scripts/prepare-tata-flipbook-wrap.mjs). */
-const SPRITE = "/content/clients/tata-iis/handbook/flipbook-sprite.webp";
-const WRAP = "/content/clients/tata-iis/handbook/flipbook-wrap.json";
-const SHEET = { frames: 75, cols: 10, rows: 8, w: 440, h: 492 };
-const LAST = SHEET.frames - 1;
-/** Frames a second, and how long the last one holds before it starts again. */
-const FPS = 12;
-const HOLD_MS = 3200;
+/** The film, its first and last frames, and where its ink is, frame by
+ *  frame (scripts/prepare-tata-set-free.mjs). 16:9, four seconds. */
+const FILM = "/content/clients/tata-iis/handbook/set-free.mp4";
+const FIRST = "/content/clients/tata-iis/handbook/set-free-first.webp";
+const LAST_FRAME = "/content/clients/tata-iis/handbook/set-free-last.webp";
+const WRAP = "/content/clients/tata-iis/handbook/set-free-wrap.json";
+const FILM_RATIO = 9 / 16;
+/** How long the last frame holds before the film plays again. */
+const HOLD_MS = 3000;
 
 /** The words — about a hundred, all of them already established on the Tata
  *  page or in the showcase (TATA_DESCRIPTION, TATA_WHO, the role's points):
- *  the institute, then the owner's part in it. */
+ *  the institute in the first column, the owner's part in the second. */
 const COPY = [
   "Tata Indian Institute of Skills is a Tata Group initiative — a Section 8 company set up in partnership with the Ministry of Skill Development and Entrepreneurship to build world-class skill institutes. Backed by Tata values, its two campuses, in Ahmedabad and Mumbai, deliver industry-grade, outcome-driven training in emerging technical and service skills, turning India’s demographic advantage into workplace excellence.",
   "As Lead Manager — Graphic Designer, 2024 to 2026, I built its identity on a strict construction grid, drew the logo system for the institute and both campuses, and set the brand guidelines for each. In all: 180+ artifacts across 13 categories, and five films.",
 ] as const;
 
-/** The drawing's width, as a share of the text's (less, where the screen is
- *  too short for it). Its top is the text's — so the birds' last climb
- *  reaches the first lines — and the boy stands below the words. */
-const DRAW_SHARE = 0.84;
-/** The text block's widest, in rem: narrow enough that the words run down
- *  past the birds to the cage, so the whole climb is through them. */
-const MAX_REM = 22;
+/** The block's widest, in rem — the film and the two columns over it. */
+const MAX_REM = 46;
+/** The gap between the columns, in ems of the text. */
+const GUTTER_EM = 1.6;
 
 interface Wrap {
   w: number;
   h: number;
   band: number;
-  /** Per frame, per band: runs of ink as [start, end, start, end…], frame px. */
+  fps: number;
+  /** Per frame, per band: runs of ink as [start, end, start, end…], film px. */
   frames: number[][][];
 }
 
@@ -96,11 +85,9 @@ let wrapLoad: Promise<Wrap> | null = null;
 function loadWrap(): Promise<Wrap> {
   wrapLoad ??= fetch(WRAP)
     .then((r) => r.json())
-    .then((j: { w: number; h: number; band: number; frames: string[] }) => ({
+    .then((j: Omit<Wrap, "frames"> & { frames: string[] }) => ({
       ...j,
-      frames: j.frames.map((f) =>
-        f.split(";").map((b) => (b ? b.split(",").map(Number) : [])),
-      ),
+      frames: j.frames.map((f) => f.split(";").map((b) => (b ? b.split(",").map(Number) : []))),
     }));
   return wrapLoad;
 }
@@ -110,16 +97,16 @@ interface Run {
   y: number;
   w: number;
   words: string[];
-  /** Spread the words to the run's ends (every run but a paragraph's last). */
+  /** Spread the words to the run's ends. */
   justify: boolean;
 }
 
-/** The text, line by line, round the drawing. `ink` gives, for a line's
- *  top and bottom (block px), the drawing's spans across it; each line is
- *  filled, left to right, in whatever room is left between them. */
+/** Each column's words, line by line, round the film. `ink` gives, for a
+ *  line's top and bottom (block px), the film's spans across it; each line of
+ *  a column is filled, left to right, in whatever room the spans leave
+ *  between the column's edges. */
 function layout(
-  paragraphs: string[][],
-  width: number,
+  columns: { x0: number; x1: number; words: string[] }[],
   lineH: number,
   measure: (w: string) => number,
   space: number,
@@ -127,18 +114,19 @@ function layout(
   minRoom: number,
 ): { runs: Run[]; height: number } {
   const runs: Run[] = [];
-  let y = 0;
-  paragraphs.forEach((words, p) => {
+  let height = 0;
+  for (const { x0, x1, words } of columns) {
+    let y = 0;
     let i = 0;
-    while (i < words.length) {
-      // This line's rooms: the width less the drawing's spans.
+    while (i < words.length && y < 4000) {
       const rooms: [number, number][] = [];
-      let at = 0;
+      let at = x0;
       for (const [a, b] of ink(y, y + lineH)) {
+        if (b <= x0 || a >= x1) continue;
         if (a - at >= minRoom) rooms.push([at, a]);
         at = Math.max(at, b);
       }
-      if (width - at >= minRoom) rooms.push([at, width]);
+      if (x1 - at >= minRoom) rooms.push([at, x1]);
       for (const [a, b] of rooms) {
         if (i >= words.length) break;
         const line: string[] = [];
@@ -150,50 +138,30 @@ function layout(
           used += add;
           i++;
         }
-        // Spread to the room's ends — the drawing's edge held crisp — only
-        // where the words nearly fill it anyway; never into wide gaps.
-        if (line.length)
-          runs.push({
-            x: a,
-            y,
-            w: b - a,
-            words: line,
-            justify:
-              i < words.length && line.length > 2 && used > (b - a) * 0.86,
-          });
+        // Spread to the room's ends — the film's edge held crisp — only where
+        // the words nearly fill it anyway; never into wide gaps.
+        if (line.length) runs.push({ x: a, y, w: b - a, words: line, justify: i < words.length && line.length > 2 && used > (b - a) * 0.86 });
       }
       y += lineH;
-      if (y > 4000) return; // a word wider than every room: never loop for ever
     }
-    if (p < paragraphs.length - 1) y += lineH * 0.7;
-  });
-  return { runs, height: y };
+    height = Math.max(height, y);
+  }
+  return { runs, height };
 }
 
-/** The words round the drawing, under `head` (the wordmark): the two
+/** The film and the words round it, under `head` (the wordmark): the two
  *  centred together in the room the column gives them. */
-function FlipbookWrap({
-  live,
-  reduceMotion,
-  head,
-}: {
-  live: boolean;
-  reduceMotion: boolean;
-  head: React.ReactNode;
-}) {
+function FilmWrap({ live, reduceMotion, head }: { live: boolean; reduceMotion: boolean; head: React.ReactNode }) {
   const near = useContext(NearContext);
   const boxRef = useRef<HTMLDivElement>(null);
   const headRef = useRef<HTMLDivElement>(null);
   const probeRef = useRef<HTMLSpanElement>(null);
+  const filmRef = useRef<HTMLVideoElement>(null);
   const [box, setBox] = useState({ w: 0, h: 0, head: 0 });
   const [wrap, setWrap] = useState<Wrap | null>(null);
-  const [frame, setFrame] = useState(reduceMotion ? LAST : 0);
+  const [frame, setFrame] = useState(0);
   // The type: read off the probe (the slide's own CSS), measured on a canvas.
-  const [type, setType] = useState<{
-    font: string;
-    size: number;
-    lineH: number;
-  } | null>(null);
+  const [type, setType] = useState<{ font: string; size: number; lineH: number } | null>(null);
 
   useEffect(() => {
     if (near) loadWrap().then(setWrap, () => {});
@@ -203,19 +171,11 @@ function FlipbookWrap({
     const el = boxRef.current;
     if (!el) return;
     const read = () => {
-      setBox({
-        w: el.clientWidth,
-        h: el.clientHeight,
-        head: headRef.current?.offsetHeight ?? 0,
-      });
+      setBox({ w: el.clientWidth, h: el.clientHeight, head: headRef.current?.offsetHeight ?? 0 });
       const cs = probeRef.current && getComputedStyle(probeRef.current);
       if (cs) {
         const size = parseFloat(cs.fontSize);
-        setType({
-          font: `${cs.fontStyle} ${cs.fontWeight} ${cs.fontSize} ${cs.fontFamily}`,
-          size,
-          lineH: parseFloat(cs.lineHeight) || size * 1.1,
-        });
+        setType({ font: `${cs.fontStyle} ${cs.fontWeight} ${cs.fontSize} ${cs.fontFamily}`, size, lineH: parseFloat(cs.lineHeight) || size * 1.15 });
       }
     };
     read();
@@ -227,33 +187,56 @@ function FlipbookWrap({
     return () => ro.disconnect();
   }, []);
 
-  // Playing: while on screen, frame by frame to the last, a hold, again.
-  // Off screen it rests on the first frame — the boy, and room for the words
-  // — so the climb starts as the slide arrives. Reduced motion: the last
-  // frame, still.
-  if (reduceMotion && frame !== LAST) setFrame(LAST);
-  const [restart, setRestart] = useState(0);
-  if (!live && !reduceMotion && frame !== 0) setFrame(0);
+  // Playing: while the slide is on screen, from the start; at the end a
+  // hold, then again. Off screen it waits on its first frame. The words
+  // follow the frame the film is SHOWING (requestVideoFrameCallback), laid
+  // out there and then (flushSync) so they reach the screen in the same
+  // frame as the picture — a frame late, a fast bird would land on a word.
+  if (!live && frame !== 0) setFrame(0);
   useEffect(() => {
-    if (!live || reduceMotion) return;
-    let f = -1;
-    let id = 0;
-    const tick = () => {
-      if (document.hidden) {
-        id = window.setTimeout(tick, 500);
-        return;
-      }
-      f++;
-      if (f > LAST) {
-        id = window.setTimeout(() => setRestart((r) => r + 1), HOLD_MS);
-        return;
-      }
-      setFrame(f);
-      id = window.setTimeout(tick, 1000 / FPS);
+    const v = filmRef.current;
+    if (!v || reduceMotion) return;
+    if (!live) {
+      v.pause();
+      if (v.currentTime) v.currentTime = 0;
+      return;
+    }
+    const fps = wrap?.fps ?? 24;
+    const count = wrap?.frames.length ?? 96;
+    const at = (t: number) => Math.min(count - 1, Math.max(0, Math.floor(t * fps + 0.01)));
+    const show = (t: number) => setFrame(at(t));
+    let cb = 0;
+    let raf = 0;
+    let hold = 0;
+    const byFrame = "requestVideoFrameCallback" in v;
+    const onFrame = (_: number, meta: VideoFrameCallbackMetadata) => {
+      flushSync(() => show(meta.mediaTime));
+      cb = v.requestVideoFrameCallback(onFrame);
     };
-    id = window.setTimeout(tick, restart ? 0 : 600);
-    return () => window.clearTimeout(id);
-  }, [live, reduceMotion, restart]);
+    const onTick = () => {
+      show(v.currentTime);
+      raf = requestAnimationFrame(onTick);
+    };
+    if (byFrame) cb = v.requestVideoFrameCallback(onFrame);
+    else raf = requestAnimationFrame(onTick);
+    const onEnded = () => {
+      show(v.duration);
+      hold = window.setTimeout(() => {
+        v.currentTime = 0;
+        v.play().catch(() => {});
+      }, HOLD_MS);
+    };
+    v.addEventListener("ended", onEnded);
+    v.currentTime = 0;
+    v.play().catch(() => {});
+    return () => {
+      window.clearTimeout(hold);
+      v.removeEventListener("ended", onEnded);
+      if (byFrame && cb) v.cancelVideoFrameCallback(cb);
+      cancelAnimationFrame(raf);
+      v.pause();
+    };
+  }, [live, reduceMotion, wrap]);
 
   // The canvas the words are measured on, and each word's width, kept.
   const measure = useMemo(() => {
@@ -272,34 +255,28 @@ function FlipbookWrap({
 
   const words = useMemo(() => COPY.map((p) => p.split(/\s+/)), []);
 
-  // The block: the text as wide as the column allows (to MAX_REM); the
-  // drawing from its top left, DRAW_SHARE of it wide unless the room is too
-  // short for that.
+  // The block: the columns as wide as the column allows (to MAX_REM); the
+  // film from its top left, as wide as them unless the room is too short.
   const width = Math.min(box.w, MAX_REM * 16);
-  const drawW = Math.max(
-    0,
-    Math.min(width * DRAW_SHARE, (box.h - box.head) * (SHEET.w / SHEET.h)),
-  );
-  const drawH = drawW * (SHEET.h / SHEET.w);
+  const filmW = Math.max(0, Math.min(width, (box.h - box.head) / FILM_RATIO));
+  const filmH = filmW * FILM_RATIO;
+  // Reduced motion: the last frame, still, and the words round it.
+  const shown = reduceMotion ? (wrap ? wrap.frames.length - 1 : 0) : frame;
 
   const ink = useCallback(
     (top: number, bottom: number): [number, number][] => {
       if (!wrap || !type) return [];
-      const runs = wrap.frames[frame] ?? [];
-      const s = drawW / wrap.w; // frame px → block px
-      const padX = type.size * 0.7;
-      const padY = type.size * 0.15;
+      const runs = wrap.frames[shown] ?? [];
+      const s = filmW / wrap.w; // film px → block px
+      const padX = type.size * 0.65;
+      const padY = type.size * 0.3;
       // The bands this line passes, a hair beyond it either way.
       const b0 = Math.max(0, Math.floor((top - padY) / s / wrap.band));
-      const b1 = Math.min(
-        runs.length - 1,
-        Math.floor((bottom + padY) / s / wrap.band),
-      );
+      const b1 = Math.min(runs.length - 1, Math.floor((bottom + padY) / s / wrap.band));
       const spans: [number, number][] = [];
       for (let b = b0; b <= b1; b++) {
         const r = runs[b];
-        for (let k = 0; k < r.length; k += 2)
-          spans.push([r[k] * s - padX, r[k + 1] * s + padX]);
+        for (let k = 0; k < r.length; k += 2) spans.push([r[k] * s - padX, r[k + 1] * s + padX]);
       }
       spans.sort((p, q) => p[0] - q[0]);
       const merged: [number, number][] = [];
@@ -310,14 +287,18 @@ function FlipbookWrap({
       }
       return merged;
     },
-    [wrap, type, frame, drawW],
+    [wrap, type, shown, filmW],
   );
 
   const flow = useMemo(() => {
     if (!measure || !type || width <= 0) return null;
+    const gutter = type.size * GUTTER_EM;
+    const half = (width - gutter) / 2;
     return layout(
-      words,
-      width,
+      [
+        { x0: 0, x1: half, words: words[0] },
+        { x0: half + gutter, x1: width, words: words[1] },
+      ],
       type.lineH,
       measure.m,
       measure.space,
@@ -326,18 +307,12 @@ function FlipbookWrap({
     );
   }, [measure, type, width, words, ink]);
 
-  const col = frame % SHEET.cols;
-  const row = Math.floor(frame / SHEET.cols);
-  const height = Math.max(drawH, flow?.height ?? 0);
+  const height = Math.max(filmH, flow?.height ?? 0);
 
   return (
     <div ref={boxRef} className="relative min-h-0 w-full flex-1">
       {/* The type the words are set in — read, never seen. */}
-      <span
-        ref={probeRef}
-        aria-hidden
-        className="tata-flow-type pointer-events-none invisible absolute"
-      >
+      <span ref={probeRef} aria-hidden className="tata-flow-type pointer-events-none invisible absolute">
         x
       </span>
       {/* For a screen reader, and a search engine: the words, in order. */}
@@ -346,24 +321,35 @@ function FlipbookWrap({
           <p key={p}>{p}</p>
         ))}
       </div>
-      {/* The wordmark, then the drawing and the words — centred, together,
-          in the room the column leaves them. */}
-      <div className="absolute inset-x-0 top-1/2 -translate-y-1/2">
+      {/* The wordmark, then the film and the words — centred, together, in
+          the room the column leaves them.
+          ⚠ Centred by flex, never by a transform: a transform would make this
+          a layer of its own, and the film's `multiply` would then meet only
+          the empty layer — its white would stand over the grid as a box. */}
+      <div className="absolute inset-0 flex flex-col justify-center">
         <div ref={headRef} className="pb-[clamp(0.75rem,4.5vh,2.75rem)]">
           {head}
         </div>
         <div aria-hidden className="relative" style={{ width, height }}>
-          <div
-            className="absolute left-0 top-0"
-            style={{
-              width: drawW,
-              height: drawH,
-              backgroundImage: near ? `url(${SPRITE})` : undefined,
-              backgroundSize: `${SHEET.cols * 100}% ${SHEET.rows * 100}%`,
-              backgroundPosition: `${(col / (SHEET.cols - 1)) * 100}% ${(row / (SHEET.rows - 1)) * 100}%`,
-            }}
-          />
-          {/* The words, from the drawing's top edge down. */}
+          {reduceMotion ? (
+            near && (
+              // eslint-disable-next-line @next/next/no-img-element -- a still in the film's own box
+              <img src={LAST_FRAME} alt="" className="absolute left-0 top-0 mix-blend-multiply" style={{ width: filmW, height: filmH }} />
+            )
+          ) : (
+            <video
+              ref={filmRef}
+              src={near ? FILM : undefined}
+              poster={near ? FIRST : undefined}
+              muted
+              playsInline
+              preload={near ? "auto" : "none"}
+              disablePictureInPicture
+              className="absolute left-0 top-0 mix-blend-multiply"
+              style={{ width: filmW, height: filmH }}
+            />
+          )}
+          {/* The words, two columns, from the film's top edge down. */}
           <div className="tata-flow-type absolute left-0 top-0">
             {flow?.runs.map((r, k) => (
               <div
@@ -389,32 +375,14 @@ function FlipbookWrap({
   );
 }
 
-export function TataSlide({
-  item,
-  live,
-  reduceMotion,
-}: {
-  item: Showcase;
-  live: boolean;
-  reduceMotion: boolean;
-}) {
+export function TataSlide({ item, live, reduceMotion }: { item: Showcase; live: boolean; reduceMotion: boolean }) {
   const href = item.report.href ?? "/clients/tata-iis";
   return (
-    <section
-      aria-label={item.name}
-      data-side="logic"
-      className="absolute inset-0 overflow-hidden bg-white"
-    >
+    <section aria-label={item.name} data-side="logic" className="absolute inset-0 overflow-hidden bg-white">
       <h2 className="sr-only">{item.name}</h2>
       {/* The Tata page's grid wash, the whole slide. */}
       <div aria-hidden className="pointer-events-none absolute inset-0">
-        <Image
-          src={GRID}
-          alt=""
-          fill
-          sizes="100vw"
-          className="object-cover opacity-70"
-        />
+        <Image src={GRID} alt="" fill sizes="100vw" className="object-cover opacity-70" />
       </div>
 
       {/* The hero artwork, bleeding right, from under the strip to the band;
@@ -423,31 +391,22 @@ export function TataSlide({
         aria-hidden
         className="pointer-events-none absolute bottom-[7svh] right-0 top-[calc(max(2vh,0.75rem)+var(--strip-h,3.75rem))] w-[50%] portrait:top-auto portrait:h-[40svh] portrait:w-[62vw]"
       >
-        <Image
-          src={ART.src}
-          alt=""
-          fill
-          sizes="(orientation: portrait) 62vw, 50vw"
-          className="object-contain object-right-bottom"
-        />
+        <Image src={ART} alt="" fill sizes="(orientation: portrait) 62vw, 50vw" className="object-contain object-right-bottom" />
       </div>
 
-      {/* The left: the wordmark, then the words round the drawing. On a tall
-          screen, the upper part, clear of the artwork below. */}
+      {/* The left: the wordmark, then the film with the words round it. On a
+          tall screen, the upper part, clear of the artwork below; on a short
+          one (a phone on its side) wider, the artwork being small there —
+          the film is held small by the height, and the columns need the
+          width or they run down into the band. */}
       <div className="slide-frame is-logic absolute inset-0 flex">
-        <div className="flex min-h-0 w-[46%] flex-col portrait:w-full portrait:pb-[calc(40svh-4.25rem)]">
-          <FlipbookWrap
+        <div className="flex min-h-0 w-[54%] flex-col portrait:w-full portrait:pb-[calc(40svh-4.25rem)] [@media(max-height:31.25rem)]:landscape:w-[72%]">
+          <FilmWrap
             live={live}
             reduceMotion={reduceMotion}
             head={
               <span className="relative block aspect-[1020/257] w-[min(100%,24rem,calc(13vh*1020/257))]">
-                <Image
-                  src={WORDMARK.src}
-                  alt="TATA IIS — Tata Indian Institute of Skills"
-                  fill
-                  sizes="24rem"
-                  className="object-contain object-left"
-                />
+                <Image src={WORDMARK} alt="TATA IIS — Tata Indian Institute of Skills" fill sizes="24rem" className="object-contain object-left" />
               </span>
             }
           />
