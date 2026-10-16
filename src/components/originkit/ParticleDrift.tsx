@@ -28,6 +28,10 @@
 //      frames, and it picks up where it left off when false. The field is
 //      now set up ahead of need and kept, so without this its loop — and its
 //      O(n²) pass — ran for the life of the page, unseen, on every screen.
+//   5. The canvas's size is kept by a ResizeObserver (2026-10-16) instead of
+//      read off the element every frame: each read made the browser lay the
+//      page out again first, about a fifth of the main thread on every
+//      left-side slide.
 // The shaders, the physics and every other constant are untouched.
 
 "use client"
@@ -345,6 +349,14 @@ export default function ParticleDrift(props: Props) {
             gl.bufferData(gl.ARRAY_BUFFER, gLit.byteLength, gl.DYNAMIC_DRAW)
         }
 
+        // Change 5: the canvas's CSS size, kept current — never read per frame.
+        let boxW = canvas.clientWidth
+        let boxH = canvas.clientHeight
+        const sizeObs = new ResizeObserver(() => {
+            boxW = canvas.clientWidth
+            boxH = canvas.clientHeight
+        })
+        sizeObs.observe(canvas)
         let raf = 0
         let last = performance.now()
         let builtN = -1
@@ -363,8 +375,8 @@ export default function ParticleDrift(props: Props) {
             const sp = v.speed as number
 
             const dpr = Math.min(window.devicePixelRatio || 1, MAX_DPR)
-            const cw = sizeRef.current.w || canvas.clientWidth || 1200
-            const ch = sizeRef.current.h || canvas.clientHeight || 800
+            const cw = sizeRef.current.w || boxW || 1200
+            const ch = sizeRef.current.h || boxH || 800
             const bw = Math.max(1, Math.round(cw * dpr))
             const bh = Math.max(1, Math.round(ch * dpr))
             if (canvas.width !== bw || canvas.height !== bh) {
@@ -546,8 +558,8 @@ export default function ParticleDrift(props: Props) {
         const track = (e: PointerEvent) => {
             const r = canvas.getBoundingClientRect()
             if (r.width <= 0 || r.height <= 0) return
-            const cw = sizeRef.current.w || canvas.clientWidth || 1200
-            const ch = sizeRef.current.h || canvas.clientHeight || 800
+            const cw = sizeRef.current.w || boxW || 1200
+            const ch = sizeRef.current.h || boxH || 800
             ptrRef.current.x = ((e.clientX - r.left) / r.width) * cw
             ptrRef.current.y = ((e.clientY - r.top) / r.height) * ch
         }
@@ -587,6 +599,7 @@ export default function ParticleDrift(props: Props) {
         // StrictMode's mount -> cleanup -> mount would reuse a force-lost one.
         return () => {
             cancelAnimationFrame(raf)
+            sizeObs.disconnect()
             kickRef.current = () => {}
             window.removeEventListener("pointermove", track)
             canvas.removeEventListener("pointerenter", track)

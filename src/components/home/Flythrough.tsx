@@ -104,6 +104,7 @@ import { CircuitBackdrop } from "@/components/home/CircuitBackdrop";
 import { MOOD_BG, MoodField } from "@/components/home/MoodField";
 import { Corner3DGrid } from "@/components/home/Corner3DGrid";
 import { ProjectSlide } from "@/components/home/ProjectSlide";
+import { TataSlide } from "@/components/home/TataSlide";
 import { AzothSlide } from "@/components/home/AzothSlide";
 import { AbsSlide } from "@/components/home/AbsSlide";
 import { ZabrakuSlide } from "@/components/home/ZabrakuSlide";
@@ -521,7 +522,9 @@ const RoomBody = memo(function RoomBody({
       {/* Left: the project's page, on the whole slide, or its own scene.
           Right: each room its own (owner, 2026-10-15). */}
       {logic ? (
-        item.id === "azoth-biotech" ? (
+        item.id === "tata-iis" ? (
+          <TataSlide item={item} live={live} reduceMotion={reduceMotion} />
+        ) : item.id === "azoth-biotech" ? (
           <AzothSlide item={item} />
         ) : item.id === "abs" ? (
           <AbsSlide item={item} active={live && !reduceMotion} />

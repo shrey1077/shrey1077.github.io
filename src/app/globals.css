@@ -720,6 +720,18 @@ html[data-guard] :is(img, video, svg) {
   }
 }
 
+/* The Tata slide's words round the flipbook (TataSlide, 2026-10-16; owner:
+ * "very small text font, with min line height, so that the text wrap effect
+ * is easily visible"). Laid out in script from these very values — read off
+ * the page, measured on a canvas — so no letter-spacing: a canvas would not
+ * count it. */
+.tata-flow-type {
+  font-family: var(--font-helv);
+  font-size: clamp(0.53rem, 0.5vw + 0.2rem, 0.68rem);
+  line-height: 1.12;
+  color: #3f3f3f;
+}
+
 /* The Azoth opening on the home page (AzothSlide) keeps its own serif: the
  * home page's blanket Helvetica (.type-home) would take it otherwise. */
 .type-home .azoth-hero .font-azoth-display,

@@ -4,8 +4,21 @@
     {
       "name": "brain-folio-dev",
       "runtimeExecutable": "npm",
-      "runtimeArgs": ["run", "dev"],
+      "runtimeArgs": [
+        "run",
+        "dev"
+      ],
       "autoPort": true
+    },
+    {
+      "name": "static-out",
+      "runtimeExecutable": "node",
+      "runtimeArgs": [
+        ".perf-tools/serve.cjs",
+        "out",
+        "4100"
+      ],
+      "port": 4100
     }
   ]
 }
