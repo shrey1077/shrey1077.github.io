@@ -77,8 +77,9 @@ export default function Home() {
     marks: readLogofolio().map((m) => ({ slug: m.slug, name: m.name, url: m.url })),
   };
 
-  // The six writings' covers — each one's first rendered page.
-  const covers = Object.fromEntries(SIX_WRITINGS.map((slug) => [slug, readPublicationPages(slug)[0]]));
+  // The six writings' pages, in order — the slide's reader shows them
+  // (WritingsSlide; the first page was all it took until 2026-10-16).
+  const covers = Object.fromEntries(SIX_WRITINGS.map((slug) => [slug, readPublicationPages(slug)]));
 
   return (
     <main

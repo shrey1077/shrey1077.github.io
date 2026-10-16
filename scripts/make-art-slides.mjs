@@ -8,6 +8,11 @@
  * each one's size — in the order the slide plays them, the collections taken
  * in turn so one never runs on for long.
  *
+ * Since the next round each piece also names its COLUMN (owner, 2026-10-16:
+ * "three columns, one with pencil sketches and paintings, second with
+ * typography and craft pics, and third for photography"): 0 sketches and
+ * paintings, 1 typography and craft, 2 photography.
+ *
  *   node scripts/make-art-slides.mjs
  *
  * LEFT OUT of the slide (they stay in the collections, and on /arts-and-crafts)
@@ -32,6 +37,20 @@ const LEAVE_OUT = new Set([
   "Painting/08", "Painting/09", "Painting/10", "Painting/11",
 ]);
 
+/** Which column each collection goes to; Ink and Pattern's first piece — a
+ *  stippled drawing — stands with the sketches, its other pieces (pattern
+ *  and layout studies) with the craft. */
+const COLUMN = {
+  "Drawing Studies": 0,
+  Sketchbooks: 0,
+  Portraits: 0,
+  Painting: 0,
+  "Type Studies": 1,
+  "Model Making": 1,
+  "Ink and Pattern": 1,
+  "Field Photographs": 2,
+};
+const columnOf = (collection, stem) => (collection === "Ink and Pattern" && stem === "01" ? 0 : (COLUMN[collection] ?? 1));
 const byCollection = [];
 let kb = 0;
 for (const collection of fs.readdirSync(ROOT, { withFileTypes: true }).filter((d) => d.isDirectory()).map((d) => d.name).sort()) {
@@ -49,7 +68,7 @@ for (const collection of fs.readdirSync(ROOT, { withFileTypes: true }).filter((d
       .webp({ quality: 76 })
       .toFile(path.join(out, name));
     kb += info.size / 1024;
-    pieces.push({ collection, src: `/content/art/${collection}/_slide/${name}`, w: info.width, h: info.height });
+    pieces.push({ collection, column: columnOf(collection, stem), src: `/content/art/${collection}/_slide/${name}`, w: info.width, h: info.height });
   }
   if (pieces.length) byCollection.push(pieces);
 }

@@ -517,7 +517,7 @@ const RoomBody = memo(function RoomBody({
   moving: MotionValue<number>;
   reduceMotion: boolean;
   artThumbs: ArtThumb[];
-  covers: Record<string, string | undefined>;
+  covers: Record<string, string[]>;
   wall: Wall;
 }) {
   return (
@@ -567,7 +567,7 @@ export function Flythrough({
   /** Arts & Crafts' pieces, small (scripts/make-art-thumbs.mjs). */
   artThumbs: ArtThumb[];
   /** Each writing's first page, by slug — read at build time (app/page.tsx). */
-  covers: Record<string, string | undefined>;
+  covers: Record<string, string[]>;
   /** The All Projects wall's commissions and marks (app/page.tsx). */
   wall: Wall;
 }) {
@@ -978,9 +978,13 @@ export function Flythrough({
     // reader) marks the root `data-modal` while open; the wheel and the keys
     // are its then.
     const modal = () => !!document.documentElement.dataset.modal;
+    // A panel that scrolls itself (`data-own-scroll` — the Writings viewer,
+    // 2026-10-16) keeps the wheel and the finger while they are over it; it
+    // contains its own overscroll, so the page never moves under it.
+    const ownScroll = (t: EventTarget | null) => t instanceof Element && !!t.closest("[data-own-scroll]");
 
     const onWheel = (e: WheelEvent) => {
-      if (reduceMotion || e.ctrlKey || modal()) return;
+      if (reduceMotion || e.ctrlKey || modal() || ownScroll(e.target)) return;
       const now = performance.now();
       const delta = Math.abs(e.deltaY);
       recent = recent.filter(([t]) => now - t <= PUSH_WINDOW_MS);
@@ -1071,7 +1075,7 @@ export function Flythrough({
       if (t) pickSide(t.clientX);
     };
     const onTouchMove = (e: TouchEvent) => {
-      if (!swipe || reduceMotion || modal() || e.touches.length !== 1) return;
+      if (!swipe || reduceMotion || modal() || ownScroll(e.target) || e.touches.length !== 1) return;
       const t = e.touches[0];
       const dy = swipe.y - t.clientY;
       const dx = swipe.x - t.clientX;

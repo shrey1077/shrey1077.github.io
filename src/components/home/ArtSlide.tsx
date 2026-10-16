@@ -18,6 +18,14 @@
  * one on screen and the next are ever loaded. A click on one opens the
  * collections in full (/arts-and-crafts), as does "View Full Collection".
  * Reduced motion: the pieces change without moving or dissolving.
+ *
+ * THREE COLUMNS since 2026-10-16 (owner: "three columns, one with pencil
+ * sketches and paintings, second with typography and craft pics, and third
+ * for photography, and rotate all pics that are inverted" — the sideways
+ * ones turned upright at the source, scripts/fix-art-rotation.mjs): each
+ * column its own slider, one piece at a time, as above; the three turn a
+ * beat apart (STAGGER_MS) so the slide never changes all at once. On a tall
+ * screen the three stand one above the other.
  */
 
 import { useEffect, useRef, useState } from "react";
@@ -29,6 +37,9 @@ import { clipFor, gridFor } from "@/components/home/pixelDissolve";
 
 export interface ArtThumb {
   collection: string;
+  /** 0 sketches and paintings, 1 typography and craft, 2 photography
+   *  (scripts/make-art-slides.mjs). */
+  column?: number;
   src: string;
   w: number;
   h: number;
@@ -43,6 +54,9 @@ const ART_CELL = 18;
 /** How far each piece drifts left over the hand-over, as a share of the
  *  stage's width. */
 const DRIFT = 0.14;
+/** The columns' titles, and the beat between their turns. */
+const COLUMNS = ["Sketches & Paintings", "Typography & Craft", "Photography"] as const;
+const STAGGER_MS = 1600;
 
 /** One piece, whole, as big as the stage allows. The stage is a size
  *  container, so its sides are 100cqw × 100cqh. */
@@ -58,7 +72,8 @@ function Piece({ t }: { t: ArtThumb }) {
   );
 }
 
-export function ArtSlide({ thumbs, active }: { thumbs: ArtThumb[]; active: boolean }) {
+/** One column: its pieces, one at a time, under its title. */
+function ArtColumn({ thumbs, active, title, delay }: { thumbs: ArtThumb[]; active: boolean; title: string; delay: number }) {
   const reduceMotion = useReducedMotion() ?? false;
   const n = thumbs.length;
   // Two layers that take turns: the one in FRONT shows the piece on screen,
@@ -88,10 +103,10 @@ export function ArtSlide({ thumbs, active }: { thumbs: ArtThumb[]; active: boole
       if (reduceMotion) advance();
       else setMoving(true);
     };
-    id = window.setTimeout(step, reduceMotion ? STEP_MS : STEP_MS - MOVE_S * 1000);
+    id = window.setTimeout(step, (reduceMotion ? STEP_MS : STEP_MS - MOVE_S * 1000) + (at === 0 ? delay : 0));
     return () => window.clearTimeout(id);
     // eslint-disable-next-line react-hooks/exhaustive-deps -- advance only sets state
-  }, [active, n, moving, at, reduceMotion]);
+  }, [active, n, moving, at, reduceMotion, delay]);
 
   useEffect(() => {
     if (!moving) return;
@@ -141,33 +156,44 @@ export function ArtSlide({ thumbs, active }: { thumbs: ArtThumb[]; active: boole
   const here = thumbs[at];
 
   return (
+    <div className="flex min-h-0 min-w-0 flex-col gap-2">
+      <p className="face-creative shrink-0 text-[clamp(0.8rem,1.3vw,1.05rem)] font-bold leading-none text-neutral-900">{title}</p>
+      <Link
+        href="/arts-and-crafts"
+        prefetch={false}
+        aria-label={`${title}: ${here.collection} — open Arts & Crafts`}
+        className="relative block min-h-0 flex-1 outline-none [container-type:size] focus-visible:ring-2 focus-visible:ring-neutral-900/40"
+      >
+        <div ref={stageRef} className="absolute inset-0">
+          {/* The two layers; the one behind waits hidden, its piece
+              already loading, for its turn. */}
+          {slot.map((k, i) => (
+            <div
+              key={i}
+              ref={i === 0 ? layerA : layerB}
+              aria-hidden={i !== front}
+              className={`absolute inset-0 will-change-transform ${i === front ? "" : "invisible"}`}
+            >
+              <Piece t={thumbs[k]} />
+            </div>
+          ))}
+        </div>
+      </Link>
+      <p className="font-helv shrink-0 text-center text-[0.6rem] uppercase tracking-[0.2em] text-neutral-500">
+        {here.collection} <span className="tabular-nums text-neutral-400">· {at + 1} / {n}</span>
+      </p>
+    </div>
+  );
+}
+
+export function ArtSlide({ thumbs, active }: { thumbs: ArtThumb[]; active: boolean }) {
+  return (
     <section aria-label="Arts & Crafts" data-side="creative" className="absolute inset-0 overflow-hidden">
       <h2 className="sr-only">Arts &amp; Crafts</h2>
-      <div className="slide-frame absolute inset-0 flex flex-col">
-        <Link
-          href="/arts-and-crafts"
-          prefetch={false}
-          aria-label={`${here.collection} — open Arts & Crafts`}
-          className="relative block min-h-0 flex-1 outline-none [container-type:size] focus-visible:ring-2 focus-visible:ring-neutral-900/40"
-        >
-          <div ref={stageRef} className="absolute inset-0">
-            {/* The two layers; the one behind waits hidden, its piece
-                already loading, for its turn. */}
-            {slot.map((k, i) => (
-              <div
-                key={i}
-                ref={i === 0 ? layerA : layerB}
-                aria-hidden={i !== front}
-                className={`absolute inset-0 will-change-transform ${i === front ? "" : "invisible"}`}
-              >
-                <Piece t={thumbs[k]} />
-              </div>
-            ))}
-          </div>
-        </Link>
-        <p className="font-helv mt-2 shrink-0 text-center text-[0.62rem] uppercase tracking-[0.22em] text-neutral-500">
-          {here.collection} <span className="tabular-nums text-neutral-400">· {at + 1} / {n}</span>
-        </p>
+      <div className="slide-frame absolute inset-0 grid grid-cols-3 gap-[clamp(0.75rem,2vw,1.75rem)] portrait:grid-cols-1 portrait:grid-rows-3">
+        {COLUMNS.map((title, c) => (
+          <ArtColumn key={title} title={title} thumbs={thumbs.filter((t) => (t.column ?? 1) === c)} active={active} delay={c * STAGGER_MS} />
+        ))}
       </div>
       <div className="slide-corner-left absolute z-10">
         <PixelButton side="creative" href="/arts-and-crafts">
