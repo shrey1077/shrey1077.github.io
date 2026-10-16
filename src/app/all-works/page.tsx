@@ -3,9 +3,12 @@
  * project slides (owner, 2026-10-15), linked by "See all" after the last mark
  * in the strip and in the sections menu.
  *
+ *   · Vivid ProTech and Post Grad. UID — slides of their own until
+ *     2026-10-16, on the home page's All Projects wall since — opening their
+ *     pages;
  *   · the independent commissions (FREELANCE_EXPERIENCE's brands, through
- *     PROJECT_STUDIES) — all but Vivid, which has a slide and a page of its
- *     own — each opening its preview in place;
+ *     PROJECT_STUDIES) — all but Vivid, which has a page of its own — each
+ *     opening its preview in place;
  *   · the 2022 chess site, shipped verbatim under /chess.
  * The plates are read here, server-side, as the home page used to for its
  * Projects board.
@@ -17,6 +20,7 @@ import { RoomPage } from "@/components/pages/RoomPage";
 import { AllWorksGrid, type WorkCard } from "@/components/pages/AllWorksGrid";
 import { PROJECT_STUDIES, STUDY_CONTENT_SLUG } from "@/constants/projectStudies";
 import { clientBySlug } from "@/constants/clients";
+import { PAGE_PROJECTS } from "@/constants/showcase";
 import { readCasePlates } from "@/content/catalogue";
 
 export const metadata: Metadata = pageMeta({
@@ -25,7 +29,7 @@ export const metadata: Metadata = pageMeta({
   path: "/all-works/",
 });
 
-/** On their own slides and pages already. */
+/** With pages of their own — shown as those, not as a commission. */
 const ON_SLIDES = new Set(["vivid"]);
 
 export default function AllWorksPage() {
@@ -42,7 +46,9 @@ export default function AllWorksPage() {
     };
   });
   const chess = clientBySlug("chess");
+  const pages: WorkCard[] = PAGE_PROJECTS.map((it) => ({ key: it.id, name: it.name, kind: it.sector, image: it.mark, mark: true, href: it.report.href }));
   const cards: WorkCard[] = [
+    ...pages,
     ...studies,
     ...(chess
       ? [{ key: chess.slug, name: chess.name, kind: chess.sector, image: chess.cardLogo, mark: true, href: chess.href }]

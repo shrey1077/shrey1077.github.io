@@ -105,6 +105,7 @@ import { MOOD_BG, MoodField } from "@/components/home/MoodField";
 import { Corner3DGrid } from "@/components/home/Corner3DGrid";
 import { ProjectSlide } from "@/components/home/ProjectSlide";
 import { TataSlide } from "@/components/home/TataSlide";
+import { AllProjectsSlide, type Wall } from "@/components/home/AllProjectsSlide";
 import { AzothSlide } from "@/components/home/AzothSlide";
 import { AbsSlide } from "@/components/home/AbsSlide";
 import { ZabrakuSlide } from "@/components/home/ZabrakuSlide";
@@ -116,7 +117,7 @@ import { WritingsSlide } from "@/components/home/WritingsSlide";
 import { ShowcaseStrip } from "@/components/home/ShowcaseStrip";
 import { SectionMenu } from "@/components/home/SectionMenu";
 import { NearContext, useFirstScreenUp, usePageSettled } from "@/components/home/nearness";
-import { CREATIVE_SHOWCASE, LOGIC_SHOWCASE, type Showcase } from "@/constants/showcase";
+import { ALL_PROJECTS_ID, CREATIVE_SHOWCASE, LOGIC_SHOWCASE, type Showcase } from "@/constants/showcase";
 import { typeVoiceClass } from "@/constants/typography";
 
 export type Track = "logic" | "creative";
@@ -505,6 +506,7 @@ const RoomBody = memo(function RoomBody({
   reduceMotion,
   artThumbs,
   covers,
+  wall,
 }: {
   item: Showcase;
   logic: boolean;
@@ -516,13 +518,16 @@ const RoomBody = memo(function RoomBody({
   reduceMotion: boolean;
   artThumbs: ArtThumb[];
   covers: Record<string, string | undefined>;
+  wall: Wall;
 }) {
   return (
     <NearContext.Provider value={near}>
       {/* Left: the project's page, on the whole slide, or its own scene.
           Right: each room its own (owner, 2026-10-15). */}
       {logic ? (
-        item.id === "tata-iis" ? (
+        item.id === ALL_PROJECTS_ID ? (
+          <AllProjectsSlide item={item} wall={wall} />
+        ) : item.id === "tata-iis" ? (
           <TataSlide item={item} live={live} reduceMotion={reduceMotion} />
         ) : item.id === "azoth-biotech" ? (
           <AzothSlide item={item} />
@@ -555,6 +560,7 @@ export function Flythrough({
   children,
   artThumbs,
   covers,
+  wall,
 }: {
   /** The landing — slides 0 and 1. */
   children: React.ReactNode;
@@ -562,6 +568,8 @@ export function Flythrough({
   artThumbs: ArtThumb[];
   /** Each writing's first page, by slug — read at build time (app/page.tsx). */
   covers: Record<string, string | undefined>;
+  /** The All Projects wall's commissions and marks (app/page.tsx). */
+  wall: Wall;
 }) {
   const reduceMotion = useReducedMotion() ?? false;
   const runRef = useRef<HTMLDivElement>(null);
@@ -1243,6 +1251,7 @@ export function Flythrough({
                 moving={movingMV}
                 reduceMotion={reduceMotion}
                 artThumbs={artThumbs}
+                wall={wall}
                 covers={covers}
               />
             </Slide>
@@ -1259,7 +1268,7 @@ export function Flythrough({
             aria-hidden={!(inRooms && track === "logic")}
             inert={!(inRooms && track === "logic")}
           >
-            <ShowcaseStrip side="logic" items={LOGIC} activeId={track === "logic" ? (here?.item.id ?? null) : null} onGo={goId} />
+            <ShowcaseStrip side="logic" items={LOGIC.filter((it) => it.id !== ALL_PROJECTS_ID)} activeId={track === "logic" ? (here?.item.id ?? null) : null} onGo={goId} />
           </motion.div>
           <motion.div
             className="pointer-events-none absolute inset-0 z-[120]"

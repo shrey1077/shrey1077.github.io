@@ -98,7 +98,13 @@ export interface Showcase {
 const LOGO = "/content/logofolio";
 const PREVIEW = "/content/previews";
 
-/** The left side — the owner's nine, in order. */
+/** The last room on the left: every project, as a wall of marks
+ *  (AllProjectsSlide; owner, 2026-10-16). The strip's "See all" flies here. */
+export const ALL_PROJECTS_ID = "all-projects";
+
+/** The left side — the owner's nine, in order. Since 2026-10-16 Vivid and
+ *  UID are on the All Projects wall instead (PAGE_PROJECTS), and the wall is
+ *  the last room. */
 export const LOGIC_SHOWCASE: readonly Showcase[] = [
   {
     id: "tata-iis",
@@ -234,31 +240,6 @@ export const LOGIC_SHOWCASE: readonly Showcase[] = [
     report: { label: "View Full Project", href: "/clients/zabraku-media" },
   },
   {
-    id: "vivid",
-    side: "logic",
-    name: "Vivid ProTech",
-    short: "Vivid ProTech",
-    mark: "/content/clients/vivid/vivid-mark.png",
-    sector: "Filtration & containment · Pharma",
-    treeLabel: "Brand family",
-    tree: {
-      name: "Vivid Process Technology",
-      logo: "/content/clients/vivid/vivid-mark.png",
-      children: [
-        { name: "Process maps", group: true, children: [{ name: "API" }, { name: "Biopharma" }, { name: "Formulation" }] },
-      ],
-    },
-    preview: { src: `${PREVIEW}/vivid-site.webp`, url: "vividprotech.com" },
-    role: "Brand & Web Designer · Freelance",
-    points: [
-      "A full identity and website for a filtration and containment supplier to pharma.",
-      "Process maps placing every Vivid product inside the API, biopharma and formulation lines a plant runs.",
-      "A catalogue of stainless housings, turned into a story a process engineer already believes.",
-    ],
-    facts: [{ label: "Website", value: "vividprotech.com", href: "https://vividprotech.com" }],
-    report: { label: "View Full Project", href: "/clients/vivid" },
-  },
-  {
     id: "newsmobile",
     side: "logic",
     name: "NewsMobile",
@@ -285,6 +266,51 @@ export const LOGIC_SHOWCASE: readonly Showcase[] = [
       { label: "Based", value: "Gurugram, Haryana" },
     ],
     report: { label: "View Full Project", href: "/clients/newsmobile" },
+  },
+  {
+    id: ALL_PROJECTS_ID,
+    side: "logic",
+    name: "All Projects",
+    short: "All Projects",
+    sector: "Every project, as a wall of marks",
+    treeLabel: "Projects",
+    tree: { name: "All Projects" },
+    role: "",
+    points: [],
+    facts: [],
+    report: { label: "View All Works", href: "/all-works" },
+  },
+];
+
+/** Vivid ProTech and Post Grad. UID — slides of their own until 2026-10-16
+ *  (owner: "Move UID and Vivid pro tech to All Projects Slide"); they stand on
+ *  the All Projects wall now, and their pages are unchanged. Kept whole here,
+ *  should either ever take a slide again. */
+export const PAGE_PROJECTS: readonly Showcase[] = [
+  {
+    id: "vivid",
+    side: "logic",
+    name: "Vivid ProTech",
+    short: "Vivid ProTech",
+    mark: "/content/clients/vivid/vivid-mark.png",
+    sector: "Filtration & containment · Pharma",
+    treeLabel: "Brand family",
+    tree: {
+      name: "Vivid Process Technology",
+      logo: "/content/clients/vivid/vivid-mark.png",
+      children: [
+        { name: "Process maps", group: true, children: [{ name: "API" }, { name: "Biopharma" }, { name: "Formulation" }] },
+      ],
+    },
+    preview: { src: `${PREVIEW}/vivid-site.webp`, url: "vividprotech.com" },
+    role: "Brand & Web Designer · Freelance",
+    points: [
+      "A full identity and website for a filtration and containment supplier to pharma.",
+      "Process maps placing every Vivid product inside the API, biopharma and formulation lines a plant runs.",
+      "A catalogue of stainless housings, turned into a story a process engineer already believes.",
+    ],
+    facts: [{ label: "Website", value: "vividprotech.com", href: "https://vividprotech.com" }],
+    report: { label: "View Full Project", href: "/clients/vivid" },
   },
   {
     id: "uid",

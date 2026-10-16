@@ -11,7 +11,8 @@
  * It stands from the first room on, and comes and goes in squares
  * (usePixelPresence) as the camera crosses between the brain slide and the
  * rooms. The list: back to the start (the brain slide), every project on the
- * left and "See all", every room on the right — the one on screen marked.
+ * left (the All Projects wall the last of them), every room on the right — the
+ * one on screen marked.
  * A choice flies there in ONE step (the Flythrough's warp), switching side if
  * it has to. The button wears the side it is on: graphite or paint.
  *
@@ -20,12 +21,11 @@
  * (`data-modal` on the root, which the Flythrough respects).
  */
 
-import Link from "next/link";
 import { useEffect, useId, useRef, useState } from "react";
 import { PixelButton } from "@/components/home/PixelButton";
 import { usePixelPresence } from "@/components/home/pixelReveal";
 import { RAINBOW } from "@/components/home/MoodField";
-import { ALL_WORKS_HREF, CREATIVE_SHOWCASE, LOGIC_SHOWCASE } from "@/constants/showcase";
+import { CREATIVE_SHOWCASE, LOGIC_SHOWCASE } from "@/constants/showcase";
 import { typeVoiceClass } from "@/constants/typography";
 
 const META = `${typeVoiceClass("logic", "meta")} text-[0.56rem] tracking-[0.3em] text-neutral-500`;
@@ -139,10 +139,6 @@ export function SectionMenu({
               <span className="text-[0.82rem]">{it.short}</span>
             </button>
           ))}
-          <Link href={ALL_WORKS_HREF} role="menuitem" className={row(false)}>
-            <span className={`${META} w-6 !tracking-[0.1em] group-hover:text-white/60`}>→</span>
-            <span className="text-[0.82rem]">See all works</span>
-          </Link>
 
           <p className={`${META} mt-2 px-2.5 pb-1 pt-1.5`}>Creative</p>
           {CREATIVE_SHOWCASE.map((it, i) => (

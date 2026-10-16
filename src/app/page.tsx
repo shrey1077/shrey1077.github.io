@@ -31,7 +31,9 @@ import { SiteFooter } from "@/components/footer/SiteFooter";
 import { PortraitHint } from "@/components/home/PortraitHint";
 import fs from "node:fs";
 import path from "node:path";
-import { readPublicationPages } from "@/content/catalogue";
+import { readCasePlates, readLogofolio, readPublicationPages } from "@/content/catalogue";
+import { PROJECT_STUDIES, STUDY_CONTENT_SLUG } from "@/constants/projectStudies";
+import type { Wall } from "@/components/home/AllProjectsSlide";
 import { SIX_WRITINGS } from "@/constants/showcase";
 import type { ArtThumb } from "@/components/home/ArtSlide";
 import type { Metadata } from "next";
@@ -60,6 +62,21 @@ export default function Home() {
     fs.readFileSync(path.join(process.cwd(), "public", "content", "art", "_slides.json"), "utf8"),
   );
 
+  // The All Projects wall: the independent commissions with their plates
+  // (as /all-works reads them), and the marks the owner drew. Vivid is on
+  // the wall as a page of its own, so not as a commission.
+  const wall: Wall = {
+    studies: PROJECT_STUDIES.filter((s) => s.id !== "vivid").map((s) => ({
+      id: s.id,
+      name: s.name,
+      kind: s.kind,
+      logo: s.logo,
+      study: s,
+      plates: readCasePlates(STUDY_CONTENT_SLUG, s.folder),
+    })),
+    marks: readLogofolio().map((m) => ({ slug: m.slug, name: m.name, url: m.url })),
+  };
+
   // The six writings' covers — each one's first rendered page.
   const covers = Object.fromEntries(SIX_WRITINGS.map((slug) => [slug, readPublicationPages(slug)[0]]));
 
@@ -68,7 +85,7 @@ export default function Home() {
       className={`w-full bg-gallery ${HOME_TYPE}`}
     >
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(PERSON_LD) }} />
-      <Flythrough artThumbs={artThumbs} covers={covers}>
+      <Flythrough artThumbs={artThumbs} covers={covers} wall={wall}>
         <HeroStage />
       </Flythrough>
       <SiteFooter />

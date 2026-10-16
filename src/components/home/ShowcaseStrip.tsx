@@ -6,8 +6,9 @@
  * second slide, that will become the top of left side slide 3 … we can access
  * them through logos on top").
  *
- *   · LEFT   "Projects", then the nine marks in the owner's order, then
- *            "See all" — the All Works page, everything else;
+ *   · LEFT   "Projects", then the marks in the owner's order, then
+ *            "See all" — the All Projects wall, the last room (2026-10-16;
+ *            it opened the All Works page until then);
  *   · RIGHT  the mirror: the four creative rooms by name and icon, running
  *            in from the right edge, "Creative" at the end.
  * The slide on screen is marked — its tile edged in black (left) or paint
@@ -24,12 +25,11 @@
  * rows, five and five.
  */
 
-import Link from "next/link";
 import { RoomImage as Image } from "@/components/home/nearness";
 import { CreativeIcon } from "@/components/home/CreativeIcons";
 import { RAINBOW } from "@/components/home/MoodField";
 import { hash } from "@/components/home/pixelDissolve";
-import { ALL_WORKS_HREF, type Showcase } from "@/constants/showcase";
+import { ALL_PROJECTS_ID, type Showcase } from "@/constants/showcase";
 import { typeVoiceClass } from "@/constants/typography";
 
 const META = `${typeVoiceClass("logic", "meta")} text-[0.56rem] tracking-[0.3em] text-neutral-500`;
@@ -143,16 +143,21 @@ export function ShowcaseStrip({
             );
           })}
           {!creative && (
-            <Link
-              href={ALL_WORKS_HREF}
-              prefetch={false}
-              className="font-graff group flex h-8 min-w-0 shrink-0 items-center justify-center gap-1 whitespace-nowrap rounded-lg text-[0.5rem] uppercase tracking-[0.14em] text-neutral-600 outline-none ring-1 ring-neutral-900/12 transition-colors hover:text-neutral-900 focus-visible:ring-2 focus-visible:ring-neutral-900/40 sm:ml-1 sm:h-11 sm:px-3 sm:text-[0.62rem] sm:tracking-[0.18em] sm:ring-0"
+            <button
+              type="button"
+              onClick={() => onGo(ALL_PROJECTS_ID)}
+              aria-current={activeId === ALL_PROJECTS_ID ? "true" : undefined}
+              aria-label="All Projects"
+              className={`font-graff group relative flex h-8 min-w-0 shrink-0 items-center justify-center gap-1 whitespace-nowrap rounded-lg text-[0.5rem] uppercase tracking-[0.14em] outline-none transition-colors focus-visible:ring-2 focus-visible:ring-neutral-900/40 sm:ml-1 sm:h-11 sm:px-3 sm:text-[0.62rem] sm:tracking-[0.18em] ${
+                activeId === ALL_PROJECTS_ID ? "bg-white text-neutral-900 ring-2 ring-neutral-900" : "text-neutral-600 ring-1 ring-neutral-900/12 hover:text-neutral-900 sm:ring-0"
+              }`}
             >
               See all
               <span aria-hidden className="transition-transform duration-200 group-hover:translate-x-0.5">
                 →
               </span>
-            </Link>
+              {activeId === ALL_PROJECTS_ID && <Marker creative={false} />}
+            </button>
           )}
         </div>
       </div>
