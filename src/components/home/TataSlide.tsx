@@ -27,16 +27,23 @@
  * out and the grid shows through.
  *
  * THE WORDS, two columns — the institute in one, the owner's part in the
- * other — are laid out line by line AROUND THE FILM'S INK (FilmWrap): for
- * every frame the film shows, each line asks where the boy, the cage and the
- * birds are across its height and fills only the room either side of them.
+ * other — are laid out line by line, LETTER BY LETTER, AROUND THE FILM'S INK
+ * (FilmWrap): for every frame the film shows, each line asks where the boy,
+ * the cage and the birds are across its height and fills only the room
+ * either side of them, breaking a word where a bird cuts it. Then the birds'
+ * WAKE (owner, the next round: "break up words and rotate and push letters
+ * into above sentences which get further disturbed"): letters near a bird are
+ * pushed off it — up, mostly, the way the flock flies — and turned, and a
+ * letter lifted into the line above jostles that line in turn.
  *
  * WHERE THE FILM SITS (owner, the next round: "need half the size of
  * animation, and more text. place it such only the bottom of text in 1st and
- * 2nd column shud be affected by text wrap"): half the block wide, centred
- * across the gutter, its upper part (the cage, the boy's raised arms, the
- * flock) in the last lines of BOTH columns and the rest — the boy below the
- * shoulders — under the text. Where exactly is worked out once per size (the
+ * 2nd column shud be affected by text wrap"): half the block wide, its upper
+ * part among the last lines and the rest under the text. Since the next
+ * round it stands under the SECOND column, its left edge on the column's
+ * ("left Align the animation with 2nd column"), and under the first stand
+ * IIS Ahmedabad's and IIS Mumbai's marks, stacked ("Under 1st column put IISA
+ * and IISM portrait logos"). Where exactly is worked out once per size (the
  * plan): the film is let down until the columns, wrapped round its busiest
  * frames, end OVERLAP of the way down it. It never moves while it plays; only
  * the words do. On a screen too small for all the words, the last sentences
@@ -66,6 +73,44 @@ import type { Showcase } from "@/constants/showcase";
 const GRID = "/content/clients/tata-iis/brand/grid-2026.webp";
 const WORDMARK = "/content/clients/tata-iis/brand/wordmark-black.png";
 const ART = "/content/clients/tata-iis/hero/skills-build-stronger-india.webp";
+/** The two campuses' own lockups, for under the first column (owner: "Under
+ *  1st column put IISA and IISM … logos", then "Use original IISA and IISM
+ *  logos" — the stacked versions, iisa-portrait.png and iism-portrait.png,
+ *  are unused since). `ink` is where the artwork sits on its canvas: IIS
+ *  Mumbai's file has wide empty margins, so it is shown cropped to its ink. */
+const CAMPUS_MARKS = [
+  { src: "/content/clients/tata-iis/brand/iisa.png", alt: "IIS Ahmedabad", w: 800, h: 593, ink: { x: 0, y: 0, w: 800, h: 593 } },
+  { src: "/content/clients/tata-iis/brand/iism.png", alt: "IIS Mumbai", w: 800, h: 800, ink: { x: 20, y: 274, w: 760, h: 252 } },
+] as const;
+
+/** The campus marks side by side at one height, standing on their foot —
+ *  each box shaped like its ink, and the file placed in it so the ink fills
+ *  it exactly. They wait for the room like every picture here (nearness). */
+function CampusMarks() {
+  const near = useContext(NearContext);
+  return (
+    <span className="flex h-full items-end gap-[7%] pb-[0.35rem]">
+      {CAMPUS_MARKS.map((m) => (
+        <span key={m.src} className="relative block overflow-hidden" style={{ flex: `${m.ink.w / m.ink.h} 1 0`, aspectRatio: `${m.ink.w} / ${m.ink.h}` }}>
+          {near && (
+            // eslint-disable-next-line @next/next/no-img-element -- placed by its ink, which next/image's fill cannot do
+            <img
+              src={m.src}
+              alt={m.alt}
+              className="absolute max-w-none"
+              style={{
+                width: `${(m.w / m.ink.w) * 100}%`,
+                height: `${(m.h / m.ink.h) * 100}%`,
+                left: `${(-m.ink.x / m.ink.w) * 100}%`,
+                top: `${(-m.ink.y / m.ink.h) * 100}%`,
+              }}
+            />
+          )}
+        </span>
+      ))}
+    </span>
+  );
+}
 
 /** The film, its first and last frames, and where its ink is, frame by
  *  frame (scripts/prepare-tata-set-free.mjs). 16:9, four seconds. */
@@ -103,14 +148,16 @@ const COLUMNS: readonly (readonly string[])[] = [
 const MAX_REM = 40;
 /** The gap between the columns, in ems of the text. */
 const GUTTER_EM = 1.8;
-/** The film's width, as a share of the block's — half what it was. */
-const FILM_SHARE = 0.5;
 /** How far down the film the columns end: its top part — the cage's crown
  *  and the flock rising from it — among their last lines, the rest beneath
  *  them. 0.25 since the owner's next word ("move the text further up, fix
  *  animation at current point"): the film stays standing on the band, the
  *  words lift clear of the boy (it was 0.55, down to his shoulders). */
 const OVERLAP = 0.25;
+/** And the words lifted this many lines above that (owner: "move the text 4
+ *  lines height upwards") — the film stays standing on the band, so the
+ *  flock meets the columns' foot and its wake reaches up into them. */
+const LIFT_LINES = 4;
 
 interface Wrap {
   w: number;
@@ -132,35 +179,55 @@ function loadWrap(): Promise<Wrap> {
   return wrapLoad;
 }
 
-interface Run {
+/** One letter, placed in the flow. */
+interface Letter {
+  ch: string;
+  /** Its box's top-left, block px, and width. */
   x: number;
   y: number;
   w: number;
-  words: string[];
-  /** Spread the words to the run's ends. */
-  justify: boolean;
+  /** The column and the line it stands on. */
+  col: number;
+  line: number;
 }
 
 type Ink = (top: number, bottom: number) => [number, number][];
 
-/** Each column's words, line by line, round the film. `ink` gives, for a
- *  line's top and bottom (block px), the film's spans across it; each line of
- *  a column is filled, left to right, in whatever room the spans leave
- *  between the column's edges. */
+/** Each column's words, line by line and LETTER BY LETTER, round the film.
+ *  A line's rooms are the column less the film's spans across it; words go
+ *  in whole while they fit; where a room ends at the film's ink, a word that
+ *  will not fit is broken there and carried on past it (owner: "you have
+ *  freedom to break up words") — never leaving a single letter behind, or
+ *  sending one on. At the column's own edge words wrap whole, as type does. */
 function layout(
   columns: { x0: number; x1: number; words: string[] }[],
   lineH: number,
-  measure: (w: string) => number,
+  charW: (c: string) => number,
   space: number,
   ink: Ink,
   minRoom: number,
-): { runs: Run[]; height: number } {
-  const runs: Run[] = [];
-  let height = 0;
-  for (const { x0, x1, words } of columns) {
+): { letters: Letter[]; heights: number[] } {
+  const letters: Letter[] = [];
+  const heights: number[] = [];
+  const widthOf = (s: string) => {
+    let w = 0;
+    for (const c of s) w += charW(c);
+    return w;
+  };
+  columns.forEach(({ x0, x1, words }, col) => {
     let y = 0;
-    let i = 0;
-    while (i < words.length && y < 4000) {
+    let line = 0;
+    let wi = 0; // the word
+    let ci = 0; // how much of it is already placed
+    const put = (s: string, x: number) => {
+      for (const c of s) {
+        const w = charW(c);
+        letters.push({ ch: c, x, y, w, col, line });
+        x += w;
+      }
+      return x;
+    };
+    while (wi < words.length && y < 4000) {
       const rooms: [number, number][] = [];
       let at = x0;
       for (const [a, b] of ink(y, y + lineH)) {
@@ -170,62 +237,195 @@ function layout(
       }
       if (x1 - at >= minRoom) rooms.push([at, x1]);
       for (const [a, b] of rooms) {
-        if (i >= words.length) break;
-        const line: string[] = [];
-        let used = 0;
-        while (i < words.length) {
-          const add = measure(words[i]) + (line.length ? space : 0);
-          if (used + add > b - a) break;
-          line.push(words[i]);
-          used += add;
-          i++;
+        let x = a;
+        let fresh = true; // nothing in this room yet
+        const atInk = b < x1 - 0.5; // the room ends at a bird, not the column
+        while (wi < words.length) {
+          const word = words[wi];
+          const rest = word.slice(ci);
+          const gap = fresh || ci > 0 ? 0 : space;
+          if (x + gap + widthOf(rest) <= b) {
+            x = put(rest, x + gap);
+            wi++;
+            ci = 0;
+            fresh = false;
+            continue;
+          }
+          // Not whole: as many letters as the room still holds.
+          let k = 0;
+          let used = 0;
+          while (ci + k < word.length && x + gap + used + charW(word[ci + k]) <= b) {
+            used += charW(word[ci + k]);
+            k++;
+          }
+          const left = word.length - (ci + k);
+          // Break here only against ink — or a word longer than the room.
+          if ((atInk && k >= 2 && left >= 2) || (fresh && k >= 1 && widthOf(rest) > b - a)) {
+            put(word.slice(ci, ci + k), x + gap);
+            ci += k;
+            if (ci >= word.length) {
+              wi++;
+              ci = 0;
+            }
+          }
+          break; // this room is full
         }
-        // Spread to the room's ends — the film's edge held crisp — only where
-        // the words nearly fill it anyway; never into wide gaps.
-        if (line.length) runs.push({ x: a, y, w: b - a, words: line, justify: i < words.length && line.length > 2 && used > (b - a) * 0.86 });
       }
       y += lineH;
+      line++;
     }
-    height = Math.max(height, y);
-  }
-  return { runs, height };
+    heights.push(y);
+  });
+  return { letters, heights };
 }
 
-/** The film's spans across a line, for frame `f` with the film's top-left
- *  at (fx, fy) in the block and `fw` wide. */
-function inkOf(wrap: Wrap, f: number, fx: number, fy: number, fw: number, size: number): Ink {
+/** The film's ink for frame `f`, with the film's top-left at (fx, fy) in the
+ *  block and `fw` wide: its spans across a line (padded — the rooms the
+ *  letters flow in), and the nearest ink to a point (the push). */
+function inkOf(wrap: Wrap, f: number, fx: number, fy: number, fw: number, size: number) {
   const runs = wrap.frames[f] ?? [];
   const s = fw / wrap.w; // film px → block px
-  const padX = size * 0.85;
-  const padY = size * 0.35;
-  return (top, bottom) => {
-    // The bands this line passes, a hair beyond it either way.
-    const b0 = Math.max(0, Math.floor((top - fy - padY) / s / wrap.band));
-    const b1 = Math.min(runs.length - 1, Math.floor((bottom - fy + padY) / s / wrap.band));
+  const padX = size * 0.4;
+  const padY = size * 0.15;
+  const bandH = wrap.band * s;
+  const spans: Ink = (top, bottom) => {
+    const b0 = Math.max(0, Math.floor((top - fy - padY) / bandH));
+    const b1 = Math.min(runs.length - 1, Math.floor((bottom - fy + padY) / bandH));
     if (b1 < 0 || b0 > b1) return [];
-    const spans: [number, number][] = [];
+    const out: [number, number][] = [];
     for (let b = b0; b <= b1; b++) {
       const r = runs[b];
-      for (let k = 0; k < r.length; k += 2) spans.push([fx + r[k] * s - padX, fx + r[k + 1] * s + padX]);
+      for (let k = 0; k < r.length; k += 2) out.push([fx + r[k] * s - padX, fx + r[k + 1] * s + padX]);
     }
-    spans.sort((p, q) => p[0] - q[0]);
+    out.sort((p, q) => p[0] - q[0]);
     const merged: [number, number][] = [];
-    for (const sp of spans) {
+    for (const sp of out) {
       const last = merged[merged.length - 1];
       if (last && sp[0] <= last[1]) last[1] = Math.max(last[1], sp[1]);
       else merged.push([sp[0], sp[1]]);
     }
     return merged;
   };
+  /** The nearest ink to (cx, cy) within `reach`: its point and distance. */
+  const nearest = (cx: number, cy: number, reach: number) => {
+    const b0 = Math.max(0, Math.floor((cy - reach - fy) / bandH));
+    const b1 = Math.min(runs.length - 1, Math.floor((cy + reach - fy) / bandH));
+    let best = reach * reach;
+    let px = 0;
+    let py = 0;
+    let hit = false;
+    for (let b = b0; b <= b1; b++) {
+      const r = runs[b];
+      if (!r.length) continue;
+      const by = fy + (b + 0.5) * bandH;
+      const dy2 = (cy - by) * (cy - by);
+      if (dy2 >= best) continue;
+      for (let k = 0; k < r.length; k += 2) {
+        const a = fx + r[k] * s;
+        const e = fx + r[k + 1] * s;
+        const nx = cx < a ? a : cx > e ? e : cx;
+        const d2 = (cx - nx) * (cx - nx) + dy2;
+        if (d2 < best) {
+          best = d2;
+          px = nx;
+          py = by;
+          hit = true;
+        }
+      }
+    }
+    return hit ? { d: Math.sqrt(best), px, py } : null;
+  };
+  return { spans, nearest };
 }
 
-/** The film and the words round it, under `head` (the wordmark): the two
- *  centred together in the room the column gives them. */
+/** How far a bird's wake reaches, in lines; how far it pushes a letter, in
+ *  lines; how far it turns one, in degrees. */
+const WAKE = 2.2;
+const PUSH = 0.85;
+const TURN = 42;
+
+/**
+ * The birds' wake (owner: "rotate and push letters into above sentences
+ * which get further disturbed"): each letter near ink is pushed away from it
+ * — and UP, mostly, the way the flock flies — and turned; a letter pushed up
+ * into the line above jostles the letters it lands among, and they the line
+ * above them, fading as it goes. Returns per letter [dx, dy, degrees].
+ */
+function wake(letters: Letter[], lineH: number, size: number, nearest: (cx: number, cy: number, r: number) => { d: number; px: number; py: number } | null) {
+  const out = new Float32Array(letters.length * 3);
+  const reach = WAKE * lineH;
+  // Its own push, from the nearest ink.
+  letters.forEach((L, i) => {
+    const cx = L.x + L.w / 2;
+    const cy = L.y + lineH / 2;
+    const n = nearest(cx, cy, reach);
+    if (!n) return;
+    const t = 1 - n.d / reach;
+    const s = t * t * (3 - 2 * t);
+    let vx = n.d > 0.5 ? (cx - n.px) / n.d : 0;
+    let vy = n.d > 0.5 ? (cy - n.py) / n.d : -1;
+    vy -= 0.8; // the way the flock flies
+    const len = Math.hypot(vx, vy) || 1;
+    vx /= len;
+    vy /= len;
+    const jitter = 0.65 + 0.35 * Math.abs(Math.sin(i * 12.9898) * 43758.5453 % 1);
+    out[i * 3] = vx * s * PUSH * lineH;
+    out[i * 3 + 1] = vy * s * PUSH * lineH;
+    out[i * 3 + 2] = (vx >= 0 ? 1 : -1) * s * TURN * jitter;
+  });
+  // The knock-on, line by line upward: a letter lifted into the line above
+  // shoulders the letters there, a little less each line.
+  const byLine = new Map<string, number[]>();
+  letters.forEach((L, i) => {
+    const k = `${L.col}:${L.line}`;
+    const a = byLine.get(k);
+    if (a) a.push(i);
+    else byLine.set(k, [i]);
+  });
+  const lines = [...byLine.keys()].map((k) => k.split(":").map(Number)).sort((p, q) => q[1] - p[1]);
+  for (const [col, line] of lines) {
+    const above = byLine.get(`${col}:${line - 1}`);
+    if (!above) continue;
+    for (const i of byLine.get(`${col}:${line}`)!) {
+      const lift = -out[i * 3 + 1] - 0.25 * lineH; // how far into the line above
+      if (lift <= 0) continue;
+      const cx = letters[i].x + letters[i].w / 2 + out[i * 3];
+      for (const j of above) {
+        const dx = letters[j].x + letters[j].w / 2 - cx;
+        if (Math.abs(dx) > size * 1.1) continue;
+        const f = (1 - Math.abs(dx) / (size * 1.1)) * 0.6;
+        const ny = -lift * f;
+        if (ny < out[j * 3 + 1]) out[j * 3 + 1] = ny;
+        out[j * 3] += (dx >= 0 ? 1 : -1) * lift * f * 0.35;
+        out[j * 3 + 2] += out[i * 3 + 2] * f * 0.5;
+      }
+    }
+  }
+  // Where a push would land a letter on another bird, ease it back toward
+  // where it stood (which the flow keeps clear of ink).
+  letters.forEach((L, i) => {
+    if (!out[i * 3] && !out[i * 3 + 1]) return;
+    for (const k of [1, 0.6, 0.3, 0]) {
+      const n = nearest(L.x + L.w / 2 + out[i * 3] * k, L.y + lineH / 2 + out[i * 3 + 1] * k, size * 0.6);
+      if (!n || n.d >= size * 0.55 || k === 0) {
+        out[i * 3] *= k;
+        out[i * 3 + 1] *= k;
+        out[i * 3 + 2] *= k === 0 ? 0 : Math.max(k, 0.5);
+        break;
+      }
+    }
+  });
+  return out;
+}
+
+/** The film and the words round it, under `head` (the wordmark); the
+ *  campuses' marks under the first column. */
 function FilmWrap({
   live,
   reduceMotion,
   head,
   middle,
+  campuses,
   groundRef,
 }: {
   live: boolean;
@@ -234,6 +434,8 @@ function FilmWrap({
   /** What fills the room between the wordmark and the words on a tall
    *  screen (the hero artwork). */
   middle?: React.ReactNode;
+  /** What stands under the first column, on the band (the campus marks). */
+  campuses?: React.ReactNode;
   /** A marker at the band's top edge, in the same frame as this box. */
   groundRef: React.RefObject<HTMLDivElement | null>;
 }) {
@@ -242,6 +444,8 @@ function FilmWrap({
   const headRef = useRef<HTMLDivElement>(null);
   const probeRef = useRef<HTMLSpanElement>(null);
   const filmRef = useRef<HTMLVideoElement>(null);
+  const textRef = useRef<HTMLDivElement>(null);
+  const pool = useRef<{ el: HTMLSpanElement; ch: string; tf: string }[]>([]);
   const [box, setBox] = useState({ w: 0, h: 0, head: 0, ground: 0, tall: false });
   const [wrap, setWrap] = useState<Wrap | null>(null);
   const [frame, setFrame] = useState(0);
@@ -331,25 +535,28 @@ function FilmWrap({
     };
   }, [live, reduceMotion, wrap]);
 
-  // The canvas the words are measured on, and each word's width, kept.
+  // The canvas the letters are measured on, and each one's width, kept.
   const measure = useMemo(() => {
     if (!type || typeof document === "undefined") return null;
     const ctx = document.createElement("canvas").getContext("2d");
     if (!ctx) return null;
     ctx.font = type.font;
     const cache = new Map<string, number>();
-    const m = (w: string) => {
-      let v = cache.get(w);
-      if (v === undefined) cache.set(w, (v = ctx.measureText(w).width));
+    const m = (c: string) => {
+      let v = cache.get(c);
+      if (v === undefined) cache.set(c, (v = ctx.measureText(c).width));
       return v;
     };
     return { m, space: ctx.measureText(" ").width };
   }, [type]);
 
-  // The block: the columns as wide as the column allows (to MAX_REM); the
-  // film half that, centred across the gutter — smaller still if the room is
-  // too short for it.
+  // The block: two columns as wide as the column allows (to MAX_REM); the
+  // film under the second, its left edge on the column's (owner: "left Align
+  // the animation with 2nd column"), as wide as the column — smaller if the
+  // room is too short for it.
   const width = Math.min(box.w, MAX_REM * 16);
+  const gutter = (type?.size ?? 12) * GUTTER_EM;
+  const half = Math.max(0, (width - gutter) / 2);
   // On a tall screen a share of it is kept for the artwork (`middle`).
   const room = box.ground - box.head - (box.tall ? box.ground * 0.3 : 0);
   // Where the boy's feet are in the film's first frame (the lowest ink in
@@ -363,57 +570,63 @@ function FilmWrap({
     });
     return low ? Math.min(1, (low * wrap.band) / wrap.h) : 0.9;
   }, [wrap]);
-  const filmW = Math.max(0, Math.min(width * FILM_SHARE, (room * 0.5) / FILM_RATIO));
+  const filmW = Math.max(0, Math.min(half, (room * 0.5) / FILM_RATIO));
   const filmH = filmW * FILM_RATIO;
-  const filmX = (width - filmW) / 2;
+  const filmX = half + gutter;
   const columnsAt = useCallback(
-    (cut: number[]) => {
-      const gutter = (type?.size ?? 12) * GUTTER_EM;
-      const half = (width - gutter) / 2;
-      return [
-        { x0: 0, x1: half, words: COLUMNS[0].slice(0, cut[0]).join(" ").split(/\s+/) },
-        { x0: half + gutter, x1: width, words: COLUMNS[1].slice(0, cut[1]).join(" ").split(/\s+/) },
-      ];
-    },
-    [width, type],
+    (cut: number[]) => [
+      { x0: 0, x1: half, words: COLUMNS[0].slice(0, cut[0]).join(" ").split(/\s+/) },
+      { x0: half + gutter, x1: width, words: COLUMNS[1].slice(0, cut[1]).join(" ").split(/\s+/) },
+    ],
+    [width, half, gutter],
   );
 
-  // THE PLAN, once per size: how many sentences fit, and where the film sits.
-  // Worked out in an idle moment — a few dozen layouts — and kept.
-  const [plan, setPlan] = useState<{ key: string; filmY: number; cut: number[]; height: number; reach: number } | null>(null);
+  // THE PLAN, once per size: how many sentences fit, and where the film sits
+  // — the second column, wrapped round the film's busiest frames, ending
+  // OVERLAP of the way down it; the first leaving room under it for the
+  // campus marks. Worked out in an idle moment — a few dozen layouts — and
+  // kept.
+  const [plan, setPlan] = useState<{ key: string; filmY: number; cut: number[]; height: number; reach: number; first: number } | null>(null);
   const planKey = `${width}|${room}|${type?.font}|${!!wrap}|${feet}`;
   useEffect(() => {
     if (!wrap || !type || !measure || width <= 0) return;
     const run = () => {
-      const minRoom = type.size * 2.6;
-      // The film's busiest frames stand in for all of them.
+      const minRoom = type.size * 2;
+      const marks = type.lineH * 3.4; // the least room the campus marks need
       const sample = wrap.frames.map((_, f) => f).filter((f) => f % 6 === 0 || f === wrap.frames.length - 1);
       const place = (cut: number[]) => {
         const cols = columnsAt(cut);
-        const bare = layout(cols, type.lineH, measure.m, measure.space, () => [], minRoom).height;
-        let filmY = bare - OVERLAP * filmH;
-        let tallest = bare;
+        const bare = layout(cols, type.lineH, measure.m, measure.space, () => [], minRoom).heights;
+        const lift = LIFT_LINES * type.lineH;
+        let filmY = bare[1] - OVERLAP * filmH + lift;
+        let second = bare[1];
         for (let k = 0; k < 4; k++) {
-          tallest = 0;
-          for (const f of sample) tallest = Math.max(tallest, layout(cols, type.lineH, measure.m, measure.space, inkOf(wrap, f, filmX, filmY, filmW, type.size), minRoom).height);
-          const next = tallest - OVERLAP * filmH;
+          second = 0;
+          for (const f of sample) second = Math.max(second, layout(cols, type.lineH, measure.m, measure.space, inkOf(wrap, f, filmX, filmY, filmW, type.size).spans, minRoom).heights[1]);
+          const next = second - OVERLAP * filmH + lift;
           if (Math.abs(next - filmY) < 1) break;
           filmY = next;
         }
         filmY = Math.max(0, filmY);
-        // How far down the block the feet stand: what must fit above the band.
-        return { filmY, height: Math.max(filmY + filmH, tallest), reach: filmY + feet * filmH };
+        const reach = filmY + feet * filmH;
+        return { filmY, reach, first: bare[0], height: Math.max(filmY + filmH, second, bare[0]), marksFit: reach - bare[0] >= marks };
       };
-      // All the words if they fit; else the longer column's last sentence
-      // goes, and again, keeping two in each.
+      // All the words if they fit; else a last sentence goes — the first
+      // column's while the campus marks lack room, otherwise the longer's —
+      // keeping two in each.
       const cut = [COLUMNS[0].length, COLUMNS[1].length];
       let p = place(cut);
-      while (p.reach > room && (cut[0] > 2 || cut[1] > 2)) {
-        const longer = (cut[0] > 2 && (COLUMNS[0].slice(0, cut[0]).join(" ").length >= COLUMNS[1].slice(0, cut[1]).join(" ").length || cut[1] <= 2)) ? 0 : 1;
+      while ((p.reach > room || !p.marksFit) && (cut[0] > 2 || cut[1] > 2)) {
+        const longer =
+          !p.marksFit && cut[0] > 2
+            ? 0
+            : cut[0] > 2 && (COLUMNS[0].slice(0, cut[0]).join(" ").length >= COLUMNS[1].slice(0, cut[1]).join(" ").length || cut[1] <= 2)
+              ? 0
+              : 1;
         cut[longer]--;
         p = place(cut);
       }
-      setPlan({ key: planKey, filmY: p.filmY, cut: [...cut], height: p.height, reach: p.reach });
+      setPlan({ key: planKey, filmY: p.filmY, cut: [...cut], height: p.height, reach: p.reach, first: p.first });
     };
     const idle = window.requestIdleCallback ?? ((cb: () => void) => window.setTimeout(cb, 1));
     const cancel = window.cancelIdleCallback ?? window.clearTimeout;
@@ -425,10 +638,48 @@ function FilmWrap({
   // Reduced motion: the last frame, still, and the words round it.
   const shown = reduceMotion ? (wrap ? wrap.frames.length - 1 : 0) : frame;
 
+  // This frame's letters, and the birds' wake through them.
   const flow = useMemo(() => {
     if (!measure || !type || !wrap || !ready) return null;
-    return layout(columnsAt(ready.cut), type.lineH, measure.m, measure.space, inkOf(wrap, shown, filmX, ready.filmY, filmW, type.size), type.size * 2.6);
+    const ink = inkOf(wrap, shown, filmX, ready.filmY, filmW, type.size);
+    const { letters } = layout(columnsAt(ready.cut), type.lineH, measure.m, measure.space, ink.spans, type.size * 2);
+    return { letters, moves: wake(letters, type.lineH, type.size, ink.nearest) };
   }, [measure, type, wrap, ready, columnsAt, shown, filmX, filmW]);
+
+  // The letters, drawn straight to the page: one span each, kept and reused,
+  // and touched only when its letter or its place changes — most of them sit
+  // still above the film, frame after frame.
+  useLayoutEffect(() => {
+    const host = textRef.current;
+    if (!host || !flow) return;
+    const P = pool.current;
+    const { letters, moves } = flow;
+    for (let i = 0; i < letters.length; i++) {
+      const L = letters[i];
+      let p = P[i];
+      if (!p) {
+        const el = document.createElement("span");
+        el.className = "absolute left-0 top-0 whitespace-pre";
+        el.style.transformOrigin = "50% 60%";
+        host.appendChild(el);
+        p = P[i] = { el, ch: "", tf: "" };
+      }
+      if (p.ch !== L.ch) {
+        p.el.textContent = L.ch;
+        p.ch = L.ch;
+      }
+      const dx = moves[i * 3];
+      const dy = moves[i * 3 + 1];
+      const r = moves[i * 3 + 2];
+      const tf = `translate(${(L.x + dx).toFixed(1)}px,${(L.y + dy).toFixed(1)}px)${Math.abs(r) > 0.2 ? ` rotate(${r.toFixed(1)}deg)` : ""}`;
+      if (p.tf !== tf) {
+        p.el.style.transform = tf;
+        p.tf = tf;
+      }
+      if (p.el.hidden) p.el.hidden = false;
+    }
+    for (let i = letters.length; i < P.length; i++) if (!P[i].el.hidden) P[i].el.hidden = true;
+  }, [flow]);
 
   return (
     <div ref={boxRef} className="relative min-h-0 w-full flex-1">
@@ -461,48 +712,37 @@ function FilmWrap({
         className="absolute left-0"
         style={{ top: ready ? box.ground - ready.reach : 0, width, height: ready?.height ?? 0, visibility: ready ? "visible" : "hidden" }}
       >
-          {reduceMotion ? (
-            near && (
-              // eslint-disable-next-line @next/next/no-img-element -- a still in the film's own box
-              <img src={LAST_FRAME} alt="" className="absolute mix-blend-multiply" style={{ left: filmX, top: ready?.filmY ?? 0, width: filmW, height: filmH }} />
-            )
-          ) : (
-            <video
-              ref={filmRef}
-              src={near ? FILM : undefined}
-              poster={near ? FIRST : undefined}
-              muted
-              playsInline
-              preload={near ? "auto" : "none"}
-              disablePictureInPicture
-              className="absolute mix-blend-multiply"
-              style={{ left: filmX, top: ready?.filmY ?? 0, width: filmW, height: filmH }}
-            />
-          )}
-          {/* The words, two columns, from the block's top down. */}
-          <div className="tata-flow-type absolute left-0 top-0">
-            {flow?.runs.map((r, k) => (
-              <div
-                key={k}
-                className="absolute flex whitespace-nowrap"
-                style={{
-                  left: r.x,
-                  top: r.y,
-                  width: r.w,
-                  justifyContent: r.justify ? "space-between" : "flex-start",
-                  columnGap: r.justify ? 0 : measure?.space,
-                }}
-              >
-                {r.words.map((w, i) => (
-                  <span key={i}>{w}</span>
-                ))}
-              </div>
-            ))}
+        {reduceMotion ? (
+          near && (
+            // eslint-disable-next-line @next/next/no-img-element -- a still in the film's own box
+            <img src={LAST_FRAME} alt="" className="absolute mix-blend-multiply" style={{ left: filmX, top: ready?.filmY ?? 0, width: filmW, height: filmH }} />
+          )
+        ) : (
+          <video
+            ref={filmRef}
+            src={near ? FILM : undefined}
+            poster={near ? FIRST : undefined}
+            muted
+            playsInline
+            preload={near ? "auto" : "none"}
+            disablePictureInPicture
+            className="absolute mix-blend-multiply"
+            style={{ left: filmX, top: ready?.filmY ?? 0, width: filmW, height: filmH }}
+          />
+        )}
+        {/* The campus marks, under the first column, standing on the band. */}
+        {campuses && ready && (
+          <div className="absolute left-0" style={{ top: ready.first + (type?.lineH ?? 14) * 0.9, width: half, height: Math.max(0, ready.reach - ready.first - (type?.lineH ?? 14) * 0.9) }}>
+            {campuses}
           </div>
+        )}
+        {/* The letters, two columns (drawn by the effect above). */}
+        <div ref={textRef} className="tata-flow-type absolute left-0 top-0" />
       </div>
     </div>
   );
 }
+
 
 export function TataSlide({ item, live, reduceMotion }: { item: Showcase; live: boolean; reduceMotion: boolean }) {
   const href = item.report.href ?? "/clients/tata-iis";
@@ -537,6 +777,7 @@ export function TataSlide({ item, live, reduceMotion }: { item: Showcase; live: 
             live={live}
             reduceMotion={reduceMotion}
             groundRef={groundRef}
+            campuses={<CampusMarks />}
             middle={
               <>
                 <Image src={ART} alt="" fill sizes="70vw" className="object-contain object-right" />
