@@ -32,7 +32,7 @@
  * deleted 2026-09-10; the pins have been the way in for a long time.
  */
 
-import { useEffect, useLayoutEffect, useRef, useState } from "react";
+import { Fragment, useEffect, useLayoutEffect, useRef, useState } from "react";
 import { preload } from "react-dom";
 import { motion, useMotionValue, useMotionValueEvent, useReducedMotion, useTransform } from "framer-motion";
 import { BrainSequence } from "@/components/home/BrainSequence";
@@ -464,14 +464,16 @@ export function HeroStage() {
             className="pointer-events-none pt-[clamp(0.6rem,1.6vh,1.1rem)]"
             style={{ visibility: orbW > 0 ? "visible" : "hidden" }}
           >
-            {/* Three lines since 2026-10-17 (owner: "Education should be on
-                top line, and Btech and m des in bold in next two lines,
-                include full form for IT and VC in light font"). */}
+            {/* Education on the top line (owner, 2026-10-17: "Education
+                should be on top line, and Btech and m des in bold…, include
+                full form for IT and VC in light font"). */}
             <motion.div
               initial={reduceMotion ? false : { opacity: 0 }}
               animate={{ opacity: orbW > 0 ? 1 : 0 }}
               transition={{ duration: DURATION.verySlow, ease: EASE_OUT }}
-              className="font-graff flex flex-col items-center gap-[0.45em] whitespace-nowrap text-[clamp(0.72rem,1.1vw,0.95rem)] leading-none text-neutral-900"
+              // The degrees' line is about 30.5em long: on a narrow phone the
+              // type comes down so it keeps a 1rem gutter each side.
+              className="font-graff flex flex-col items-center gap-[0.45em] whitespace-nowrap text-[clamp(0.56rem,min(max(0.72rem,1.1vw),(100vw-2rem)/30.5),0.95rem)] leading-none text-neutral-900"
             >
               <p className="flex items-center gap-[0.5em]">
                 <span className="flex shrink-0 [&_svg]:size-[1.2em]">
@@ -479,11 +481,21 @@ export function HeroStage() {
                 </span>
                 <span className="font-extrabold">Education</span>
               </p>
-              {EDUCATION_FULL.map(([degree, field]) => (
-                <p key={degree}>
-                  <span className="font-bold">{degree}</span> <span className="type-light text-neutral-600">{field}</span>
-                </p>
-              ))}
+              {/* Both degrees on one line, a bar between (owner, 2026-10-18:
+                  "Keep Btech and mdes in one line separated by a |. Keep
+                  light full form in ()"). */}
+              <p data-degrees>
+                {EDUCATION_FULL.map(([degree, field], i) => (
+                  <Fragment key={degree}>
+                    {i > 0 && (
+                      <span aria-hidden className="type-light px-[0.6em] text-neutral-400">
+                        |
+                      </span>
+                    )}
+                    <span className="font-bold">{degree}</span> <span className="type-light text-neutral-600">({field})</span>
+                  </Fragment>
+                ))}
+              </p>
             </motion.div>
             {/* About me — opens over the page (AboutMe; owner, 2026-10-16). */}
             <motion.div
