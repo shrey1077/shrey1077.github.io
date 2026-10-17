@@ -219,6 +219,16 @@ canvas {
 .type-home .digibra-light {
   font-synthesis: none;
 }
+/* A LIGHT that every visitor sees alike (owner, 2026-10-17: the degrees'
+ * full forms "in light font"). Helvetica here is the visitor's own copy, and
+ * few have its Light — asked for 300, a machine picks whatever it holds (an
+ * outline cut, here) or none — so the light words are set in Juturu, which
+ * ships with the site (variable, 100–900). */
+.type-home .type-light,
+.type-home .type-light :where(*) {
+  font-family: "Juturu", ui-sans-serif, system-ui, sans-serif;
+  font-weight: 300;
+}
 
 /*
  * Tata IIS full-experience — a strict two-typeface system (client directive):

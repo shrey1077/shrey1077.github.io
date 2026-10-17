@@ -47,7 +47,11 @@ import { DURATION, EASE_IN_OUT, EASE_OUT } from "@/constants/motion";
 import { CircuitBackdrop } from "@/components/home/CircuitBackdrop";
 import { BrainFooter } from "@/components/home/BrainFooter";
 import { EducationMark } from "@/components/home/HomeMarks";
-import { EDUCATION } from "@/components/home/AboutFacts";
+/** The degrees, each with its field written out. */
+const EDUCATION_FULL = [
+  ["B.Tech.", "Information Technology"],
+  ["M.Des.", "Visual Communication"],
+] as const;
 import { AboutMe } from "@/components/home/AboutMe";
 import { useFlight } from "@/components/home/flight";
 import { useMediaQuery } from "@/hooks/useMediaQuery";
@@ -460,19 +464,27 @@ export function HeroStage() {
             className="pointer-events-none pt-[clamp(0.6rem,1.6vh,1.1rem)]"
             style={{ visibility: orbW > 0 ? "visible" : "hidden" }}
           >
-            <motion.p
+            {/* Three lines since 2026-10-17 (owner: "Education should be on
+                top line, and Btech and m des in bold in next two lines,
+                include full form for IT and VC in light font"). */}
+            <motion.div
               initial={reduceMotion ? false : { opacity: 0 }}
               animate={{ opacity: orbW > 0 ? 1 : 0 }}
               transition={{ duration: DURATION.verySlow, ease: EASE_OUT }}
-              className="font-graff flex items-center justify-center gap-[0.5em] whitespace-nowrap text-[clamp(0.72rem,1.1vw,0.95rem)] leading-none text-neutral-600"
+              className="font-graff flex flex-col items-center gap-[0.45em] whitespace-nowrap text-[clamp(0.72rem,1.1vw,0.95rem)] leading-none text-neutral-900"
             >
-              <span className="flex shrink-0 [&_svg]:size-[1.2em] [&_svg]:text-neutral-900">
-                <EducationMark />
-              </span>
-              <span className="font-extrabold text-neutral-900">Education</span>
-              <span aria-hidden className="text-neutral-300">|</span>
-              <span>{EDUCATION.join(" · ")}</span>
-            </motion.p>
+              <p className="flex items-center gap-[0.5em]">
+                <span className="flex shrink-0 [&_svg]:size-[1.2em]">
+                  <EducationMark />
+                </span>
+                <span className="font-extrabold">Education</span>
+              </p>
+              {EDUCATION_FULL.map(([degree, field]) => (
+                <p key={degree}>
+                  <span className="font-bold">{degree}</span> <span className="type-light text-neutral-600">{field}</span>
+                </p>
+              ))}
+            </motion.div>
             {/* About me — opens over the page (AboutMe; owner, 2026-10-16). */}
             <motion.div
               initial={reduceMotion ? false : { opacity: 0 }}
