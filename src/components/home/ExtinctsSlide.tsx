@@ -34,11 +34,25 @@
  * view and the rest past the edge; every SHEET_MS the next arrives over it in
  * squares (SheetCycle). On a tall screen they stand in the lower right,
  * beside the buttons. The Characters pop-up holds all 28 artworks.
+ *
+ * THE KEY ART, THE WHOLE SLIDE (owner, 2026-10-17: "for extincts page i need
+ * this bg on complete slide and the buttons on right side"; the same day,
+ * asked: the turning sheets go, the reports join the buttons on the right,
+ * no preference on the title): the EXMANGA key art fills the slide from the
+ * strip's foot down — the strip and the menu would stand over its own title,
+ * top right — and the room above takes on its sky (SKY, the colours along its
+ * top edge), the art fading into it. On a wide screen the art keeps its right
+ * edge and top (its title) whatever it crops; the reports and the three
+ * buttons stand in a column on the right, over the city, under its title, on
+ * a shade; the slide's own title is for screen readers only (the art carries
+ * it). On a tall screen the art shows its cast, the title stays (the art's is
+ * cropped off), and the reports and buttons stand at the foot. SheetCycle is
+ * kept, unused.
  */
 
-import { useEffect, useState } from "react";
+import { useContext, useEffect, useState } from "react";
 import { usePixelPresence } from "@/components/home/pixelReveal";
-import { RoomImage as Image } from "@/components/home/nearness";
+import { NearContext, RoomImage as Image } from "@/components/home/nearness";
 import { PixelButton } from "@/components/home/PixelButton";
 import { SlidePanel } from "@/components/home/SlidePanel";
 import { ExtinctsReader } from "@/components/home/ExtinctsRoom";
@@ -49,7 +63,15 @@ import CHARACTERS from "../../../public/content/extincts/characters/characters.j
 
 const META = `${typeVoiceClass("logic", "meta")} text-[0.55rem] tracking-[0.24em]`;
 const RED = "#e3262b";
+/** The red, lifted, where it stands on the dark art. */
+const RED_ON_DARK = "#ff5a5f";
 const pad = (n: number) => String(n).padStart(2, "0");
+
+/** The EXMANGA key art (owner's upload, 2026-10-17), and a copy for phones. */
+const ART = "/content/extincts/key-art.webp";
+const ART_SMALL = "/content/extincts/key-art-960.webp";
+/** The sky along the art's top edge, left to right (read off its pixels). */
+const SKY = "linear-gradient(90deg, rgb(50,72,114), rgb(10,39,78) 45%, rgb(4,21,46))";
 
 /** Himchhaya's concept sheet, whole — the first of the characters. (The
  *  cutout lifted off it, /content/extincts/himchhaya.webp, and the earlier
@@ -196,7 +218,7 @@ function SheetLayer({ sheet, shown, top, load, reduceMotion }: { sheet: (typeof 
   );
 }
 
-function SheetCycle({ live, reduceMotion }: { live: boolean; reduceMotion: boolean }) {
+export function SheetCycle({ live, reduceMotion }: { live: boolean; reduceMotion: boolean }) {
   const [{ cur, prev }, setTurn] = useState<{ cur: number; prev: number | null }>({ cur: 0, prev: null });
   useEffect(() => {
     if (!live || LEADS.length < 2) return;
@@ -229,7 +251,8 @@ function SheetCycle({ live, reduceMotion }: { live: boolean; reduceMotion: boole
   );
 }
 
-export function ExtinctsSlide({ reduceMotion, live = true }: { reduceMotion: boolean; live?: boolean }) {
+export function ExtinctsSlide({ reduceMotion }: { reduceMotion: boolean; live?: boolean }) {
+  const near = useContext(NearContext);
   const [panel, setPanel] = useState<Panel>(null);
   const [reading, setReading] = useState<ExtinctsReport | null>(null);
   // The reader mounts on the first open, never in the static render.
@@ -243,23 +266,43 @@ export function ExtinctsSlide({ reduceMotion, live = true }: { reduceMotion: boo
   ];
 
   return (
-    <section aria-label="The Extincts Project" data-side="creative" className="absolute inset-0 overflow-hidden">
-      <div className="slide-frame absolute inset-0 grid gap-3 [grid-template-areas:'t_t'_'r_r'_'b_l'] grid-cols-[minmax(0,1fr)_minmax(0,1fr)] grid-rows-[auto_minmax(0,0.8fr)_minmax(0,1.2fr)] landscape:gap-y-4 landscape:!pr-[calc(40svh+1.75rem)] landscape:[grid-template-areas:'t'_'r'_'b'] landscape:grid-cols-[minmax(0,1fr)] landscape:grid-rows-[auto_minmax(0,1fr)_auto] [@media(max-height:31.25rem)]:landscape:gap-y-2">
-        {/* The title. */}
-        <div className="[grid-area:t]">
-          <p className={`${META} text-neutral-500 [@media(max-height:31.25rem)]:hidden`}>Creative · 01 / 04</p>
-          <h2 className="font-graff mt-1.5 text-[clamp(1.5rem,3.4vw,3.2rem)] font-bold uppercase leading-[0.92] text-neutral-900 [@media(max-height:31.25rem)]:mt-0 [@media(max-height:31.25rem)]:text-[1.15rem]">
+    <section aria-label="The Extincts Project" data-side="creative" className="absolute inset-0 overflow-hidden" style={{ background: SKY }}>
+      {/* The key art, from the strip's foot down, fading in from the sky
+          above it; a shade under the words. */}
+      <div className="pointer-events-none absolute inset-x-0 bottom-0 top-[calc(max(2vh,0.75rem)+var(--strip-h,3.75rem))] [mask-image:linear-gradient(to_bottom,transparent,black_2.5rem)]">
+        {near && (
+          // eslint-disable-next-line @next/next/no-img-element -- the slide's ground, cropped to keep its title (wide) or its cast (tall)
+          <img
+            src={ART}
+            srcSet={`${ART_SMALL} 960w, ${ART} 1672w`}
+            sizes="100vw"
+            alt="EXMANGA key art: the cast of The Extincts Project on a snowy ridge above a city at war"
+            decoding="async"
+            className="h-full w-full object-cover object-[40%_50%] landscape:object-[100%_0%]"
+          />
+        )}
+      </div>
+      <div aria-hidden className="pointer-events-none absolute inset-0 bg-[linear-gradient(to_bottom,rgba(3,8,20,0.55),transparent_32%),linear-gradient(to_top,rgba(3,8,20,0.88),rgba(3,8,20,0.4)_42%,transparent_62%)] landscape:bg-[radial-gradient(42%_62%_at_100%_80%,rgba(3,8,20,0.82),rgba(3,8,20,0.5)_55%,transparent)]" />
+
+      {/* Wide: the reports over the buttons, a column on the right, clear of
+          the art's title. Tall: the title at the top, the art's cast between,
+          the reports and the buttons at the foot. */}
+      <div className="slide-frame absolute inset-0 grid gap-3 [grid-template-areas:'t'_'.'_'r'_'b'] grid-cols-[minmax(0,1fr)] grid-rows-[auto_minmax(0,1fr)_auto_auto] landscape:!pt-[calc(max(2vh,0.75rem)+var(--strip-h,3.75rem)+max((100svh-max(2vh,0.75rem)-var(--strip-h,3.75rem))*0.095,5.35vw)+0.75rem)] landscape:[grid-template-areas:'._r'_'._b'] landscape:grid-cols-[minmax(0,1fr)_minmax(15rem,30%)] landscape:grid-rows-[minmax(0,1fr)_auto] landscape:gap-y-4 [@media(max-height:31.25rem)]:landscape:grid-cols-[minmax(0,1fr)_minmax(15rem,46%)] [@media(max-height:31.25rem)]:landscape:gap-y-2">
+        {/* The title — the art carries its own on a wide screen. */}
+        <div className="[grid-area:t] landscape:sr-only">
+          <p className={`${META} text-white/60 [@media(max-height:31.25rem)]:hidden`}>Creative · 01 / 04</p>
+          <h2 className="font-graff mt-1.5 text-[clamp(1.5rem,3.4vw,3.2rem)] font-bold uppercase leading-[0.92] text-white [@media(max-height:31.25rem)]:mt-0 [@media(max-height:31.25rem)]:text-[1.15rem]">
             The <span style={{ color: RED }}>Extincts</span> Project
           </h2>
-          <p className="font-helv mt-1.5 text-[0.8rem] leading-snug text-neutral-600 [@media(max-height:31.25rem)]:hidden">
+          <p className="font-helv mt-1.5 text-[0.8rem] leading-snug text-white/75 [@media(max-height:31.25rem)]:hidden">
             An ongoing personal series on what we&apos;ve lost.
           </p>
         </div>
 
-        {/* The three buttons, under the reports — in a row on a wide
-            screen, a column beside Himchhaya on a tall one. On a short
-            screen (a phone on its side) they step down a size. */}
-        <div className="flex min-h-0 flex-col items-start gap-2.5 [grid-area:b] landscape:flex-row landscape:flex-wrap landscape:items-center landscape:justify-center landscape:gap-3 [@media(max-height:31.25rem)]:gap-1.5 [@media(max-height:31.25rem)]:[&_span.h-11]:h-8">
+        {/* The three buttons, under the reports — stacked on the right on a
+            wide screen; on a tall one, or a short one (a phone on its side,
+            a size down), in a row to the right. */}
+        <div className="flex min-h-0 flex-row flex-wrap items-center justify-end gap-2 [grid-area:b] landscape:flex-col landscape:items-end landscape:gap-2.5 [@media(max-height:31.25rem)]:landscape:flex-row [@media(max-height:31.25rem)]:gap-1.5 [@media(max-height:31.25rem)]:[&_span.h-11]:h-8">
           {buttons.map(([id, label], i) => (
             <PixelButton key={id} side="creative" onClick={() => setPanel(id)} ariaHaspopup="dialog">
               <span className="tabular-nums opacity-60">{i + 1}.</span> {label}
@@ -270,7 +313,7 @@ export function ExtinctsSlide({ reduceMotion, live = true }: { reduceMotion: boo
         {/* The three reports — one height for all, by their own shapes, as
             large as the cell allows (a container query) — standing on the
             buttons, so the two read as one. */}
-        <ul className="flex min-h-0 items-end justify-center gap-3 [container-type:size] [grid-area:r] sm:gap-4">
+        <ul className="flex min-h-0 items-end justify-end gap-3 [--labels:2.6rem] [container-type:size] [grid-area:r] portrait:h-[min(24svh,15rem)] sm:gap-4 [@media(max-height:31.25rem)]:[--labels:0rem]">
           {EXTINCTS_REPORTS.map((r, i) => {
             const cover = (EXTINCTS_REPORT_PAGES[r.id] ?? [])[0];
             if (!cover) return null;
@@ -286,22 +329,24 @@ export function ExtinctsSlide({ reduceMotion, live = true }: { reduceMotion: boo
                   aria-label={`Read report ${i + 1}: ${r.title}`}
                 >
                   <span
-                    className="relative block overflow-hidden rounded-md shadow-[0_14px_30px_-14px_rgba(0,0,0,0.5)] ring-1 ring-neutral-200 transition-transform duration-300 group-hover:-translate-y-1 group-focus-visible:ring-2 group-focus-visible:ring-neutral-900/50"
+                    className="relative block overflow-hidden rounded-md shadow-[0_14px_30px_-10px_rgba(0,0,0,0.8)] ring-1 ring-white/25 transition-transform duration-300 group-hover:-translate-y-1 group-focus-visible:ring-2 group-focus-visible:ring-white/70"
                     style={{
                       aspectRatio: `${cover.w} / ${cover.h}`,
                       // The three side by side fill the width, or the height
                       // less the labels, whichever runs out first.
-                      height: `min(calc(100cqh - 2.6rem), calc((100cqw - 2.25rem) / ${COVERS_WIDE.toFixed(3)}))`,
+                      height: `min(calc(100cqh - var(--labels)), calc((100cqw - 2.25rem) / ${COVERS_WIDE.toFixed(3)}))`,
                     }}
                   >
                     <Image src={cover.src} alt={`${r.title} — report cover`} fill sizes="22vw" className="object-cover" />
                   </span>
-                  {/* No wider than its cover: the width is the cover's, the words fit it. */}
-                  <span className="block w-0 min-w-full text-center">
-                    <span className={`${META} block`} style={{ color: RED }}>
+                  {/* No wider than its cover: the width is the cover's, the words fit it.
+                      On a short screen (a phone on its side) the covers are too
+                      small for words; the button still names its report. */}
+                  <span className="block w-0 min-w-full text-center [@media(max-height:31.25rem)]:hidden">
+                    <span className={`${META} block`} style={{ color: RED_ON_DARK }}>
                       Report {pad(i + 1)}
                     </span>
-                    <span className="font-graff block truncate text-[0.72rem] font-bold leading-tight text-neutral-900 sm:text-[0.82rem]">
+                    <span className="font-graff block truncate text-[0.72rem] font-bold leading-tight text-white sm:text-[0.82rem]">
                       {r.title}
                     </span>
                   </span>
@@ -313,12 +358,8 @@ export function ExtinctsSlide({ reduceMotion, live = true }: { reduceMotion: boo
 
       </div>
 
-      {/* The sheets, in turn: the full height of the screen at its right edge,
-          half of each in view (box 40% of the height wide = half a 1122 × 1402
-          sheet); on a tall screen, the lower right beside the buttons. */}
-      <div aria-label="Character sheets" className="absolute bottom-0 right-0 top-0 w-[40svh] portrait:top-auto portrait:h-[calc(100%-var(--strip-h,3.75rem)-max(2vh,0.75rem)-40svh)] portrait:w-[calc((100svh-var(--strip-h,3.75rem)-40svh)*0.4)] portrait:max-w-[50vw]">
-        <SheetCycle live={live} reduceMotion={reduceMotion} />
-      </div>
+      {/* (The sheets in turn — SheetCycle — stood at the right edge here
+          until the key art took the slide, 2026-10-17.) */}
 
       {/* The way into the whole project, bottom left. */}
       <div className="slide-corner-left absolute z-10">
