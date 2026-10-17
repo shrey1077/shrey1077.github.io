@@ -186,8 +186,14 @@ const PUSH_WINDOW_MS = 300;
 const PUSH_STEADY_PX = 15;
 const PUSH_HOLD = 0.98;
 const PUSH_RISE = 1.1;
-/** How far a finger travels before a swipe counts, px. */
-const SWIPE_PX = 24;
+/** How far a finger travels before a swipe counts: a LONG drag since
+ *  2026-10-17 (owner: "use longer drag to change slides, and allow user to
+ *  drag on the screens") — 12% of the screen's height, at least SWIPE_MIN_PX —
+ *  so a short drag moves the slide's effects (TouchFollow) without leaving it.
+ *  It was 24 px. */
+const SWIPE_SHARE = 0.12;
+const SWIPE_MIN_PX = 56;
+const swipePx = () => Math.max(SWIPE_MIN_PX, window.innerHeight * SWIPE_SHARE);
 /** Native scrolling that stops this long counts as at rest. */
 const SETTLE_MS = 140;
 /** Slide positions this close to a whole number count as on that slide. */
@@ -1066,7 +1072,7 @@ export function Flythrough({
     // to the next slide, or back, no stoppage in between"). Inside the run a
     // swipe no longer scrolls the page natively — it used to, coming to rest
     // wherever the finger let go and easing on from there. Once a finger has
-    // gone SWIPE_PX up or down, the camera flies exactly one slide, and the
+    // gone swipePx() up or down, the camera flies exactly one slide, and the
     // rest of that swipe is spent. A swipe that is mostly sideways is left
     // alone, as is everything past either end of the run (the footer) and
     // anything a dialog has (data-modal). A flight under way is never
@@ -1089,7 +1095,7 @@ export function Flythrough({
       const target = stepFrom(position(), dir);
       if (target === null) return;
       if (e.cancelable) e.preventDefault();
-      if (swipe.spent || flyingRef.current || Math.abs(dy) < SWIPE_PX) return;
+      if (swipe.spent || flyingRef.current || Math.abs(dy) < swipePx()) return;
       swipe.spent = true;
       flyTo(target);
     };

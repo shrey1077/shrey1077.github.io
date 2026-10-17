@@ -186,6 +186,8 @@ export function AzothHero({ variant = "page" }: { variant?: "page" | "slide" } =
   const raf = useRef<number | null>(null);
   const reduceMotion = useReducedMotion();
   const isTouch = useMediaQuery("(hover: none)");
+  /** A finger has touched the hero: the spotlight follows it from then on. */
+  const [fingered, setFingered] = useState(false);
   // Upright below `lg` the scene crops to its middle strip; see atPortrait.
   const portrait = useMediaQuery("(max-width: 1023px) and (orientation: portrait)");
   // Which species the strip shows. React state is fine here: it changes on
@@ -212,18 +214,40 @@ export function AzothHero({ variant = "page" }: { variant?: "page" | "slide" } =
     if (!el) return;
 
     // No cursor to follow: park the spotlight centre-stage so the second
-    // exposure is still discoverable, and let the CSS drift do the rest.
-    if (isTouch || reduceMotion) {
+    // exposure is still discoverable, and let the CSS drift do the rest —
+    // until a finger touches the hero (below).
+    if (reduceMotion || (isTouch && !fingered)) {
       const r = el.getBoundingClientRect();
       el.style.setProperty("--spot-x", `${r.width / 2}px`);
       el.style.setProperty("--spot-y", `${r.height * 0.55}px`);
-      return;
+      if (reduceMotion) return;
+      // A FINGER FINDS THEM TOO (owner, 2026-10-17: "allow user to drag on
+      // the screens"): the first touch on the hero hands the spotlight to
+      // the finger, which it then follows as it does a mouse.
+      const onFirst = (e: TouchEvent) => {
+        const t = e.touches[0];
+        if (!t) return;
+        const r2 = el.getBoundingClientRect();
+        if (t.clientX < r2.left || t.clientX > r2.right || t.clientY < r2.top || t.clientY > r2.bottom) return;
+        smooth.current.x = target.current.x = t.clientX - r2.left;
+        smooth.current.y = target.current.y = t.clientY - r2.top;
+        setFingered(true);
+      };
+      window.addEventListener("touchstart", onFirst, { passive: true });
+      return () => window.removeEventListener("touchstart", onFirst);
     }
 
     const onMove = (e: PointerEvent) => {
       const r = el.getBoundingClientRect();
       target.current.x = e.clientX - r.left;
       target.current.y = e.clientY - r.top;
+    };
+    const onTouch = (e: TouchEvent) => {
+      const t = e.touches[0];
+      if (!t || e.touches.length !== 1) return;
+      const r = el.getBoundingClientRect();
+      target.current.x = t.clientX - r.left;
+      target.current.y = t.clientY - r.top;
     };
     // The pointer is written to CSS custom properties rather than React state:
     // the mask reads them directly, so a mouse move costs one style write
@@ -265,12 +289,16 @@ export function AzothHero({ variant = "page" }: { variant?: "page" | "slide" } =
     io.observe(el);
 
     window.addEventListener("pointermove", onMove, { passive: true });
+    window.addEventListener("touchstart", onTouch, { passive: true });
+    window.addEventListener("touchmove", onTouch, { passive: true });
     return () => {
       io.disconnect();
       window.removeEventListener("pointermove", onMove);
+      window.removeEventListener("touchstart", onTouch);
+      window.removeEventListener("touchmove", onTouch);
       if (raf.current) cancelAnimationFrame(raf.current);
     };
-  }, [isTouch, reduceMotion]);
+  }, [isTouch, reduceMotion, fingered]);
 
   const mask = `radial-gradient(circle ${SPOTLIGHT_R}px at var(--spot-x, -9999px) var(--spot-y, -9999px), #000 0%, #000 40%, rgba(0,0,0,0.75) 60%, rgba(0,0,0,0.4) 75%, rgba(0,0,0,0.12) 88%, transparent 100%)`;
 
@@ -316,7 +344,7 @@ export function AzothHero({ variant = "page" }: { variant?: "page" | "slide" } =
           is a visual copy only — the page h1 is the one in the base layer. */}
       <div
         aria-hidden
-        className={`pointer-events-none absolute inset-0 z-30 ${isTouch && !reduceMotion ? "azoth-hero-drift" : ""}`}
+        className={`pointer-events-none absolute inset-0 z-30 ${isTouch && !fingered && !reduceMotion ? "azoth-hero-drift" : ""}`}
         style={{ maskImage: mask, WebkitMaskImage: mask }}
       >
         <Image src={AZOTH_HERO.reveal} alt="" fill priority={priority} sizes="100vw" className="object-cover" />
@@ -356,7 +384,7 @@ export function AzothHero({ variant = "page" }: { variant?: "page" | "slide" } =
               }}
               data-mushroom={s.id}
               className="absolute aspect-square"
-              style={{ ...footStyle(s, portrait), opacity: isTouch || reduceMotion ? 1 : 0 }}
+              style={{ ...footStyle(s, portrait), opacity: (isTouch && !fingered) || reduceMotion ? 1 : 0 }}
             >
               <Image src={s.image} alt={s.name} fill sizes="16vw" className="object-contain object-bottom" />
             </div>

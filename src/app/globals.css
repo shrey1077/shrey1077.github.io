@@ -193,6 +193,13 @@ canvas {
  * map "Helvetica" to an installed "Helvetica LT Std" — so that family is named
  * too. Visitors with neither see Arial; serving Helvetica to them would need a
  * web licence for the files. */
+/* The home page takes sideways drags as its own (TouchFollow, TataTurn;
+ * 2026-10-17): without this a finger dragged across a slide overscrolls, and
+ * Chrome reads that as "go back" and leaves the site. */
+html:has(.type-home),
+html:has(.type-home) body {
+  overscroll-behavior-x: none;
+}
 .type-home,
 .type-home :where(*) {
   font-family: Helvetica, "Helvetica Neue", "Helvetica LT Std", Arial, ui-sans-serif, sans-serif;

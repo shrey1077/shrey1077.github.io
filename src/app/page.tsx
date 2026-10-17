@@ -29,6 +29,9 @@ import { Flythrough } from "@/components/home/Flythrough";
 import { HOME_TYPE } from "@/constants/faces";
 import { SiteFooter } from "@/components/footer/SiteFooter";
 import { PortraitHint } from "@/components/home/PortraitHint";
+import { LandscapeLaptop } from "@/components/home/LandscapeLaptop";
+import { FIT_SCRIPT } from "@/components/home/landscapeFit";
+import { TouchFollow } from "@/components/home/TouchFollow";
 import fs from "node:fs";
 import path from "node:path";
 import { readCasePlates, readLogofolio, readPublicationPageSizes } from "@/content/catalogue";
@@ -86,6 +89,12 @@ export default function Home() {
     <main
       className={`w-full bg-gallery ${HOME_TYPE}`}
     >
+      {/* A phone held sideways: the laptop layout, scaled — set before the
+          first paint (LandscapeLaptop). */}
+      <script dangerouslySetInnerHTML={{ __html: FIT_SCRIPT }} />
+      <LandscapeLaptop />
+      {/* A finger dragged moves the pointer effects as a mouse does. */}
+      <TouchFollow />
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(PERSON_LD) }} />
       <Flythrough artThumbs={artThumbs} covers={covers} wall={wall}>
         <HeroStage />
