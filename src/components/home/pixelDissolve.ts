@@ -49,10 +49,30 @@ export const WINDOW = 0.36;
 // lunge. This one is under way at once and settles long and soft.
 export const FLY_EASE = [0.33, 0, 0.22, 1] as const;
 
-/** Where a move's wave comes from: the middle (a fly-through), or a side. */
-export type WaveFrom = "centre" | "below" | "below-left" | "below-right" | "left" | "right";
+/** Where a move's wave comes from: the middle, or a side — or, for a
+ *  fly-through since 2026-10-17, the RIM, the slide's edges and corners
+ *  (owner: "i can see borders of outgoing and incoming slides … the corners
+ *  of outgoing slide will start disappearing first while moving, and for
+ *  incoming slides, their corners will animate in last"): the slide going
+ *  dissolves "rim-first", from its border inward, so its edges are gone at
+ *  the start; the one coming builds "rim-last", its border the last squares
+ *  in, as it lands. The rim is the box's own (the nearer of the side and the
+ *  top or bottom), so all four edges keep the rule, not only the corners. */
+export type WaveFrom = "centre" | "rim-first" | "rim-last" | "below" | "below-left" | "below-right" | "left" | "right";
 
-const FROM: Record<Exclude<WaveFrom, "centre">, { x: number; y: number }> = {
+/** A fly-through's two halves, staggered (2026-10-17): the room going is in
+ *  front, so were it to keep its middle to the end (rim-first) the room
+ *  coming would show only as a ring round it. So the one going runs its
+ *  squares over the first OUT_SPAN of the move and the one coming over the
+ *  last stretch from IN_FROM — as the old middle leaves, the new middle is
+ *  already there, and the new border is still the last in. Each maps the
+ *  move's time-share to its own. */
+const OUT_SPAN = 0.62;
+const IN_FROM = 0.34;
+export const flyOutTime = (g: number) => Math.min(1, g / OUT_SPAN);
+export const flyInTime = (g: number) => Math.max(0, (g - IN_FROM) / (1 - IN_FROM));
+
+const FROM: Record<Exclude<WaveFrom, "centre" | "rim-first" | "rim-last">, { x: number; y: number }> = {
   below: { x: 0, y: 1 },
   "below-left": { x: -1, y: 1 },
   "below-right": { x: 1, y: 1 },
@@ -163,6 +183,10 @@ export function gridFor(w: number, h: number, cell: number = CELL): Grid {
       const cy = y[k] + CELL / 2 - h / 2;
       if (from === "centre") {
         along[k] = Math.min(1, Math.hypot(cx, cy) / half);
+      } else if (from === "rim-first" || from === "rim-last") {
+        // 1 on the border, 0 at the middle: how near the nearer edge is.
+        const rim = Math.min(1, Math.max(Math.abs(cx) / (w / 2), Math.abs(cy) / (h / 2)));
+        along[k] = from === "rim-last" ? rim : 1 - rim;
       } else {
         const d = FROM[from];
         const len = Math.hypot(d.x, d.y);
@@ -172,7 +196,9 @@ export function gridFor(w: number, h: number, cell: number = CELL): Grid {
     }
     // Blend with the drifting noise, then rank, so the squares turn at an
     // even rate however the blend is spread.
-    const mix = from === "centre" ? 0.45 : 0.32;
+    // The rim waves keep their order close (less drift), so the border is
+    // reliably the first squares out and the last in, still in squares.
+    const mix = from === "centre" ? 0.45 : from === "rim-first" || from === "rim-last" ? 0.18 : 0.32;
     const key = new Float32Array(n);
     for (let k = 0; k < n; k++) key[k] = (1 - mix) * along[k] + mix * drift[k] + (seed[k] - 0.5) * 0.05;
     const order = Array.from({ length: n }, (_, k) => k).sort((a, b) => key[a] - key[b]);

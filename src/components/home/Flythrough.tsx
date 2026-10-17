@@ -96,7 +96,7 @@ import {
 } from "framer-motion";
 import { FlightContext, HERO_SLIDES, PERSPECTIVE } from "@/components/home/flight";
 import { PixelVeil } from "@/components/home/PixelVeil";
-import { FLY_EASE, PAN_CELL, clipFor, easeTime, gridFor } from "@/components/home/pixelDissolve";
+import { FLY_EASE, PAN_CELL, clipFor, easeTime, flyInTime, flyOutTime, gridFor } from "@/components/home/pixelDissolve";
 import { FootBand, type BandPart } from "@/components/home/FootBand";
 import { PIN_OPEN_EVENT } from "@/components/home/BrainPins";
 import { SectionParticles } from "@/components/home/SectionParticles";
@@ -430,7 +430,12 @@ function Slide({
       // A slide within a whisker of its place counts as there: no squares.
       const role = d < -0.004 && d > -1 ? "out" : d > 0.004 && d < 1 && k !== FIRST_ROOM ? "in" : null;
       if (role && !reduceMotion && a < 0.999 && w && h) {
-        clip = clipFor(gridFor(w, h), easeTime(role === "out" ? -d : 1 - d), role) || "inset(50%)";
+        // The slide going loses its border first; the one coming gains its
+        // border last (pixelDissolve, "rim-first" / "rim-last"), the two
+        // halves staggered so the new middle is there as the old one goes.
+        const g = easeTime(role === "out" ? -d : 1 - d);
+        clip =
+          clipFor(gridFor(w, h), role === "out" ? flyOutTime(g) : flyInTime(g), role, role === "out" ? "rim-first" : "rim-last") || "inset(50%)";
       } else if (!role && !reduceMotion && Math.abs(d) < 0.5 && a > 0.001 && a < 0.999 && w && h) {
         // A PAN across between the tracks (owner, 2026-10-14: "the left to
         // right transition in our pixel transition effect, smaller pixels"):

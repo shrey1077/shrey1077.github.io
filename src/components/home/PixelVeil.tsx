@@ -33,7 +33,7 @@
 
 import { useEffect, useRef } from "react";
 import { useMotionValueEvent, type MotionValue } from "framer-motion";
-import { CELL, PAN_CELL, easeTime, gridFor, turned, type WaveFrom } from "@/components/home/pixelDissolve";
+import { CELL, PAN_CELL, easeTime, flyInTime, flyOutTime, gridFor, turned, type WaveFrom } from "@/components/home/pixelDissolve";
 import { RAINBOW } from "@/components/home/MoodField";
 
 /** Shares of the squares that carry a dark core, and that light solid. */
@@ -122,12 +122,23 @@ export function PixelVeil({
 
     const grid = gridFor(w, h, cell);
     const side = grid.cell;
-    const start = grid.start(from);
+    // A fly-through turns each square twice — the room going rim-first, the
+    // one coming rim-last (2026-10-17) — and a tile lights at either turn.
+    const fly = from === "centre";
+    const start = grid.start(fly ? "rim-first" : from);
+    const startIn = fly ? grid.start("rim-last") : null;
     const g = easeTime(f);
+    // Each turn on its own half of the move (staggered, as the rooms' are).
+    const gOut = fly ? flyOutTime(g) : g;
+    const gIn = flyInTime(g);
     for (let k = 0; k < grid.n; k++) {
-      const t = turned(start, k, g);
-      if (t <= 0 || t >= 1) continue;
-      const a = Math.sin(Math.PI * t); // 0 → 1 → 0, smooth at both ends
+      const t = turned(start, k, gOut);
+      const t2 = startIn ? turned(startIn, k, gIn) : 0;
+      const live = t > 0 && t < 1;
+      const live2 = t2 > 0 && t2 < 1;
+      if (!live && !live2) continue;
+      // 0 → 1 → 0, smooth at both ends; the brighter of the two turns.
+      const a = Math.max(live ? Math.sin(Math.PI * t) : 0, live2 ? Math.sin(Math.PI * t2) : 0);
       // The tile swells a little as it lights.
       const e = side * (0.72 + 0.28 * a) - 2;
       const x = grid.x[k] + (side - e) / 2;
