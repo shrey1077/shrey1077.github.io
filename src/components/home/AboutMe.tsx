@@ -47,7 +47,7 @@ const STORY: readonly string[] = [
   "I always wanted to have a formal education in design and I was fortunate to be a part of an institute like UID to fulfill that dream.",
   "From there I joined ABS Wholesale in the USA, where I worked for hundreds of American brands on their wholesale and distribution ads. I developed the complete branding identity for the company, developed two brands of its own, Luzid and Kartpipe, and made the marketing collateral for all of them.",
   "In parallel, I was developing Azoth Biotech’s identity, with its additional brands — Naturalist, MushroomWorks, MycoActives, Kavaka and MycoVeda.",
-  "Then I spent the next 2.5 years with Tata IIS: I joined as an individual contributor, was then hired as Assistant Manager, and left as Lead Manager — Graphic Designer in September 2026. There I built the identity on a strict construction grid and drew the logo system for the institute and both its campuses.",
+  "Then I spent the next 2.5 years with Tata IIS: I joined as an individual contributor, was then hired as Assistant Manager, and left as Lead Manager — Graphic Designer in September 2026. There I built the identity on a strict construction grid and redesigned the Tata IIS logo from its earlier version, setting it in Copperplate Gothic.",
   "Today I’m upskilling in AI film making and AI agents.",
 ];
 

@@ -127,7 +127,7 @@ export const LOGIC_SHOWCASE: readonly Showcase[] = [
     years: "2024 — 2026",
     points: [
       "Built the identity on a strict construction grid — proportion, spacing and type all derive from it.",
-      "Drew the logo system for the institute and its two campuses, Ahmedabad and Mumbai.",
+      "Redesigned the Tata IIS logo from its earlier version, in Copperplate Gothic.",
       "Delivered 180+ artifacts across 13 categories, and 5 films.",
       "Set the brand guidelines for the parent mark and each campus.",
     ],

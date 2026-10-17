@@ -130,7 +130,7 @@ const COLUMNS: readonly (readonly string[])[] = [
   ],
   [
     "As Lead Manager — Graphic Designer, 2024 to 2026, I refined the wordmark to bring the institute into the wider Tata identity, rebuilt on the group’s own typeface so it reads as part of the family at every size and on every surface.",
-    "I built the system on a strict construction grid, drew the logo system for the institute and both campuses — Ahmedabad’s tree of knowledge, Mumbai’s climbing S — and set the brand guidelines for each: one construction, exclusion zone and behaviour, apart only in colour and geometry.",
+    "I built the system on a strict construction grid, redesigned the Tata IIS logo from its earlier version in Copperplate Gothic, and set the brand guidelines for the institute and both campuses: one construction, exclusion zone and behaviour, apart only in colour and geometry.",
     "Then the work itself: the trainee handbook, signage and print, mockups staged in place, the social grid, photography and film.",
     "In all, 180+ artifacts across 13 categories, and five films.",
   ],
