@@ -180,7 +180,7 @@ function FilmWrap({
   const filmRef = useRef<HTMLVideoElement>(null);
   const textRef = useRef<HTMLDivElement>(null);
   const pool = useRef<Painted[]>([]);
-  const [box, setBox] = useState({ w: 0, h: 0, head: 0, ground: 0, tall: false });
+  const [box, setBox] = useState({ w: 0, h: 0, head: 0, mark: 0, strip: 0, ground: 0, tall: false });
   const [wrap, setWrap] = useState<Wrap | null>(null);
   const [frame, setFrame] = useState(0);
   // The type: read off the probe (the slide's own CSS), measured on a canvas.
@@ -201,6 +201,11 @@ function FilmWrap({
         w: el.clientWidth,
         h: el.clientHeight,
         head: headRef.current?.offsetHeight ?? 0,
+        // The wordmark itself (the head without its padding), and the strip's
+        // foot above this box's top: the slide frame clears the strip by 0.6rem
+        // (globals.css, .slide-frame).
+        mark: (headRef.current?.firstElementChild as HTMLElement | null)?.offsetHeight ?? 0,
+        strip: 0.6 * (parseFloat(getComputedStyle(document.documentElement).fontSize) || 16),
         ground: g ? g.offsetTop - el.offsetTop : el.clientHeight,
         tall: window.matchMedia("(orientation: portrait)").matches,
       });
@@ -405,7 +410,15 @@ function FilmWrap({
           ⚠ Placed by top offsets, never by a transform: a transform would make
           this a layer of its own, and the film's "multiply" would then meet
           only the empty layer — its white would stand over the grid as a box. */}
-      <div ref={headRef} className="absolute inset-x-0 top-0 pb-[clamp(0.75rem,4.5vh,2.75rem)]">
+      {/* On a wide screen the wordmark stands midway between the strip and
+          the words (owner, 2026-10-17: "bring tata iis logo in center of upper
+          tabs and lower text"); on a tall one the artwork fills that room, so
+          it keeps the top. */}
+      <div
+        ref={headRef}
+        className="absolute inset-x-0 top-0 pb-[clamp(0.75rem,4.5vh,2.75rem)]"
+        style={!box.tall && ready ? { top: Math.max(0, (box.ground - ready.reach - box.strip) / 2 - box.mark / 2) } : undefined}
+      >
         {head}
       </div>
       {/* A tall screen's artwork, between the wordmark and the words. */}
