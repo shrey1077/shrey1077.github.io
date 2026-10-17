@@ -44,6 +44,8 @@ import { BrandOpening } from "@/components/client/BrandOpening";
 import { InstituteStructure } from "@/components/client/InstituteStructure";
 import { LegacyIntro } from "@/components/client/LegacyIntro";
 import { LogoSystem } from "@/components/client/LogoSystem";
+import { ClientCase } from "@/components/client/ClientCase";
+import { HashSettle } from "@/components/experience/HashSettle";
 
 interface ClientExperienceProps {
   client: Client;
@@ -151,6 +153,17 @@ export function ClientExperience({ client, config }: ClientExperienceProps) {
     });
   }
 
+  // An agency's own clients, each a section of its own (ClientCase).
+  for (const c of config.clientSections ?? []) {
+    sections.push({
+      index: nextIndex(),
+      title: c.name,
+      anchor: c.id,
+      description: c.kind,
+      render: () => <ClientCase client={c} />,
+    });
+  }
+
   // Photography only exists as a section when the client actually keeps a
   // photography/ tree — clients whose photos live in the catalogue skip it.
   if (photography.length > 0) {
@@ -181,6 +194,9 @@ export function ClientExperience({ client, config }: ClientExperienceProps) {
 
   return (
     <ExperienceLayout currentSlug={client.slug}>
+      {/* A link to a section (#casa-playa) lands on it, and stays on it while
+          the gallery above fills in. */}
+      {config.clientSections && <HashSettle />}
       <div style={themeVars}>
       {config.legacyIntro && <LegacyIntro />}
 

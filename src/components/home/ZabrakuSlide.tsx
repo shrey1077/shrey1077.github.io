@@ -30,6 +30,7 @@
  */
 
 import { useState } from "react";
+import Link from "next/link";
 import type { MotionValue } from "framer-motion";
 import { RoomImage as Image } from "@/components/home/nearness";
 import { SplineScene, preloadSpline } from "@/components/client/SplineScene";
@@ -39,6 +40,12 @@ import type { Showcase } from "@/constants/showcase";
 import { typeVoiceClass } from "@/constants/typography";
 
 const META = `${typeVoiceClass("logic", "meta")} text-[0.58rem] tracking-[0.28em]`;
+/** The clients named under the button; ids are their sections' anchors on
+ *  the Zabraku page (clientExperiences). */
+const CLIENTS = [
+  { id: "casa-playa", name: "Casa Playa", logo: "/content/clients/zabraku-media/clients/casa-playa-grey.png", aspect: 480 / 449 },
+  { id: "rkb-entertainment", name: "RKB Entertainment", logo: "/content/clients/zabraku-media/clients/rkb-grey.png", aspect: 346 / 900 },
+] as const;
 /** The robot — the template author's scene; see SplineScene. */
 const SCENE = "https://prod.spline.design/AqtlWJlNbO-ZMkvz/scene.splinecode";
 
@@ -105,6 +112,33 @@ export function ZabrakuSlide({
             {item.report.label} <span aria-hidden>→</span>
           </PixelButton>
         </span>
+        {/* The clients, under the button (owner, 2026-10-17: "include
+            Clients: Casa Playa and RKB dark grey logos"): the two marks in
+            one dark grey (scripts/prepare-zabraku-clients.mjs), each a way to
+            its section on the Zabraku page. On a portrait screen they sit
+            over the robot, so they go light with the words. */}
+        <div className="pointer-events-auto mt-[clamp(0.25rem,2vh,1.25rem)] flex flex-col gap-2 [@media(max-height:31.25rem)]:mt-0 [@media(max-height:31.25rem)]:gap-1">
+          <p className={`${META} text-neutral-500 portrait:text-white/70 portrait:mix-blend-difference`}>Clients</p>
+          <ul className="flex items-center gap-[clamp(1rem,2.5vw,1.75rem)]">
+            {CLIENTS.map((c) => (
+              <li key={c.id}>
+                <Link
+                  href={`${item.report.href ?? "/clients/zabraku-media"}#${c.id}`}
+                  prefetch={false}
+                  aria-label={`${c.name} — on the Zabraku page`}
+                  className="block rounded-md opacity-90 outline-none transition-opacity hover:opacity-100 focus-visible:ring-2 focus-visible:ring-neutral-900/40 portrait:invert portrait:mix-blend-difference"
+                >
+                  <span
+                    className="relative block h-[clamp(2.75rem,8vh,4.5rem)] [@media(max-height:31.25rem)]:h-9"
+                    style={{ aspectRatio: String(c.aspect) }}
+                  >
+                    <Image src={c.logo} alt="" fill sizes="10rem" className="object-contain" />
+                  </span>
+                </Link>
+              </li>
+            ))}
+          </ul>
+        </div>
       </div>
     </section>
   );

@@ -24,6 +24,30 @@ export interface ClientBranch {
   logoSrc?: string;
 }
 
+/** A piece of a client's work, with its size (px) so it holds its shape. */
+export interface ClientCasePiece {
+  src: string;
+  name: string;
+  w: number;
+  h: number;
+}
+
+/** One of an agency's own clients, as a section of the agency's page. */
+export interface ClientCaseConfig {
+  /** The section's anchor (and its link from the home slide). */
+  id: string;
+  name: string;
+  /** Its mark, dark grey on clear. */
+  logo: string;
+  /** A short line above the account — what the client is. */
+  kind?: string;
+  /** What the client is, and what was made for it. */
+  text: string;
+  /** The work, in groups; `rowRem`: a piece's width, in rem, per unit of its
+   *  width ÷ height — how tall a row runs before it wraps. */
+  groups: { title: string; rowRem?: number; pieces: ClientCasePiece[] }[];
+}
+
 /** Config for a client's dedicated experience page. */
 export interface ClientExperienceConfig {
   /** A hosted Spline scene to run behind this room's hero.
@@ -52,6 +76,10 @@ export interface ClientExperienceConfig {
    *  one bound document wants its own name for it. Used by both the client
    *  page's section rail and the category page's breadcrumb, so they agree. */
   catalogueLabel?: string;
+  /** An agency's own clients, each a section of its page after the catalogue
+   *  (ClientCase; the Zabraku page's Casa Playa and RKB, 2026-10-17). The id
+   *  is the section's anchor — the home slide's client marks link to it. */
+  clientSections?: ClientCaseConfig[];
   /** Circular marks closing the page, each linking to a room elsewhere on the
    *  site that this client's work touches. Rendered by RelatedLinks. */
   relatedLinks?: {

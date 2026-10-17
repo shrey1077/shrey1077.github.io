@@ -172,6 +172,73 @@ export const CLIENT_EXPERIENCES: readonly ClientExperienceConfig[] = [
       catalogue:
         "The 2021 company portfolio in full, page by page, with the identity and event work from the same desk alongside it.",
     },
+    // Zabraku's own clients (owner, 2026-10-17: "include their sections in
+    // Zabraku page"), each linked from the home slide's dark-grey marks.
+    // Casa Playa's account and work are its page in the 2021 deck (p. 64–65;
+    // scripts/prepare-zabraku-sections.mjs cuts the pieces, phone numbers
+    // blurred); RKB's are its logo spread and case study, and the event
+    // campaigns — The After After Party carries its mark.
+    clientSections: [
+      {
+        id: "casa-playa",
+        name: "Casa Playa",
+        logo: "/content/clients/zabraku-media/clients/casa-playa-grey.png",
+        kind: "Restaurant · Bar · Grill — Vagator, Goa",
+        text: "A luxury resort in Goa that trusted us with its social media as well as its printables. Its two big weekly nights, Fry Downer and Badmaashi, needed fresh, modern work every week to bring people in — event posters, social posts and screen creatives, each night with a look of its own.",
+        groups: [
+          {
+            title: "Event posters",
+            rowRem: 13,
+            pieces: [
+              { src: "/content/clients/zabraku-media/clients/casa-playa/poster-01.webp", name: "Badmaashi — Drop On, Basand, Dyno, AK47", w: 952, h: 1353 },
+              { src: "/content/clients/zabraku-media/clients/casa-playa/poster-02.webp", name: "Badmaashi — AK47, CJ, Basand", w: 952, h: 1353 },
+              { src: "/content/clients/zabraku-media/clients/casa-playa/poster-03.webp", name: "Fry Downer — Basand, Jawad, Drop On", w: 960, h: 1353 },
+              { src: "/content/clients/zabraku-media/clients/casa-playa/poster-04.webp", name: "Badmaashi — Drop On, Saj Akhtar, Basand", w: 956, h: 1349 },
+              { src: "/content/clients/zabraku-media/clients/casa-playa/poster-05.webp", name: "Fry Downer — Loysum, Drop On, Basand", w: 956, h: 1349 },
+            ],
+          },
+          {
+            title: "Social & screens",
+            rowRem: 14,
+            pieces: [
+              { src: "/content/clients/zabraku-media/clients/casa-playa/social-posts.webp", name: "Badmaashi — social posts", w: 1400, h: 867 },
+              { src: "/content/clients/zabraku-media/clients/casa-playa/screens.webp", name: "Fry Downer and Badmaashi — screen creatives", w: 1400, h: 566 },
+            ],
+          },
+        ],
+      },
+      {
+        id: "rkb-entertainment",
+        name: "RKB Entertainment",
+        logo: "/content/clients/zabraku-media/clients/rkb-grey.png",
+        kind: "Nightlife & events — Rahul Kushwant Bhansali Entertainment",
+        text: "A nightlife and events company with a new name, Rahul Kushwant Bhansali Entertainment, and a mark to match: a champagne glass drawn on a bounding box, in black and gold. Then a year of its parties across Goa — Ohm 2.Ω, the After After Party and more — with line-ups, day bills and teasers that change their colours from night to night while the type and the sponsor rows hold.",
+        groups: [
+          {
+            title: "Identity",
+            rowRem: 22,
+            // ⚠ The two files carry each other's names: christmas-party.webp is
+            // the logo spread, rk-entertainment-case-study.webp the Christmas
+            // bill. Placed here by what they show.
+            pieces: [
+              { src: "/content/clients/zabraku-media/catalogue/Event Campaigns/christmas-party.webp", name: "The logo — the champagne glass on its bounding box, black and gold", w: 1280, h: 905 },
+            ],
+          },
+          {
+            title: "Event campaigns",
+            rowRem: 12,
+            pieces: [
+              { src: "/content/clients/zabraku-media/catalogue/Event Campaigns/ohm-2-teaser.webp", name: "Ohm 2.Ω — the announce teaser", w: 1275, h: 1275 },
+              { src: "/content/clients/zabraku-media/catalogue/Event Campaigns/ohm-2-lineup-a-to-z.webp", name: "Ohm 2.Ω — the full A–Z line-up, 12–15 August", w: 1600, h: 2844 },
+              { src: "/content/clients/zabraku-media/catalogue/Event Campaigns/ohm-2-lineup-15-aug.webp", name: "Ohm 2.Ω — the 15th August day bill", w: 1600, h: 2844 },
+              { src: "/content/clients/zabraku-media/catalogue/Event Campaigns/the-after-after-party.webp", name: "The After After Party, 20–22 November", w: 1080, h: 1920 },
+              { src: "/content/clients/zabraku-media/catalogue/Event Campaigns/phantom-halloween.webp", name: "Phantom Halloween, 29–31 October", w: 1280, h: 1280 },
+              { src: "/content/clients/zabraku-media/catalogue/Brand Identity/rk-entertainment-case-study.webp", name: "The Christmas party at Ohm, 21 December", w: 2000, h: 2828 },
+            ],
+          },
+        ],
+      },
+    ],
     footer: {
       clientName: "Zabraku Media",
       facts: ["Media · Content", "Brand identity + ongoing event campaigns"],
