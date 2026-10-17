@@ -16,6 +16,7 @@ import { SideBand } from "@/components/client/tata/SideBand";
 import { TATA_REALITY, type TataImage } from "@/constants/tataPhotos";
 import { tataPlate } from "@/constants/tataPlates";
 import { TATA_REALITY_BAND } from "@/constants/tataStory";
+import { onTataPage } from "@/constants/tataCull";
 
 const plateOf = (img: TataImage, name: string) => tataPlate(img.src, name, img);
 
@@ -25,7 +26,9 @@ export function RealityBand() {
     caption: p.caption,
     kind: p.kind,
     photo: plateOf(p.photo, p.caption),
-    design: p.design && plateOf(p.design, p.caption),
+    // A design the owner took off the page (constants/tataCull.ts) leaves
+    // its photograph standing alone.
+    design: p.design && onTataPage(p.design.src) ? plateOf(p.design, p.caption) : undefined,
   }));
   const paired = tiles.filter((t) => t.design).length;
 

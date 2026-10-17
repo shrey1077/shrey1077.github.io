@@ -21,12 +21,14 @@ import { readCatalogueCategory } from "@/content/catalogue";
 import { TATA_SECTIONS } from "@/constants/tataSections";
 import { pieceName, tataPlate } from "@/constants/tataPlates";
 import { TATA_ALSO_NOTE, TATA_DIGITAL_BAND, TATA_TOOLS } from "@/constants/tataStory";
+import { onTataPage } from "@/constants/tataCull";
 
 const SLUG = "tata-iis";
 const LABEL = "tata-body text-[0.6rem] uppercase tracking-[0.2em] text-neutral-500";
 
 function setOf(folder: string, label: string): ScreenSet {
-  const assets = (readCatalogueCategory(SLUG, folder)?.assets ?? []).filter((a) => a.kind === "image");
+  // Less the ones the owner took off the page (constants/tataCull.ts).
+  const assets = (readCatalogueCategory(SLUG, folder)?.assets ?? []).filter((a) => a.kind === "image" && onTataPage(a.url));
   return {
     label,
     href: assets.length > 0 ? `/clients/${SLUG}/catalogue/${folder}` : undefined,

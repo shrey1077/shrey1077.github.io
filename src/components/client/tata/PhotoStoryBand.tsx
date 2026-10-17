@@ -13,13 +13,17 @@
 import { PhotoStory } from "@/components/client/tata/PhotoStory";
 import { TATA_PHOTO_STORY } from "@/constants/tataPhotos";
 import { TATA_FILMS, TATA_PHOTO_ASPECTS, TATA_PHOTO_BAND } from "@/constants/tataStory";
+import { onTataPage } from "@/constants/tataCull";
 
 export function PhotoStoryBand() {
   const aspects = TATA_PHOTO_ASPECTS.map((a) => ({
     id: a.id,
     title: a.title,
     text: a.text,
-    photos: "photos" in a ? (TATA_PHOTO_STORY[a.photos] ?? []) : undefined,
+    // Less the photographs and films the owner took off the page
+    // (constants/tataCull.ts; a film by its poster).
+    photos: "photos" in a ? (TATA_PHOTO_STORY[a.photos] ?? []).filter((p) => onTataPage(p.src)) : undefined,
   }));
-  return <PhotoStory band={TATA_PHOTO_BAND} aspects={aspects} films={TATA_FILMS} />;
+  const films = TATA_FILMS.filter((f) => onTataPage(f.poster));
+  return <PhotoStory band={TATA_PHOTO_BAND} aspects={aspects} films={films} />;
 }

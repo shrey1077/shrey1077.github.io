@@ -19,11 +19,13 @@ import { readCatalogueCategory } from "@/content/catalogue";
 import { pieceName, tataPlate } from "@/constants/tataPlates";
 import { TATA_MOCKUPS_BAND } from "@/constants/tataStory";
 import { TATA_THEMES } from "@/constants/tataThemes";
+import { onTataPage } from "@/constants/tataCull";
 
 const SLUG = "tata-iis";
 
 export function MockupsBand() {
-  const assets = (readCatalogueCategory(SLUG, "mockups")?.assets ?? []).filter((a) => a.kind === "image");
+  // Less the ones the owner took off the page (constants/tataCull.ts).
+  const assets = (readCatalogueCategory(SLUG, "mockups")?.assets ?? []).filter((a) => a.kind === "image" && onTataPage(a.url));
   const plates: ThemedPlate[] = assets.map((a) => ({
     ...tataPlate(a.url, a.caption ?? pieceName(a.name)),
     theme: a.name.split("-")[0],

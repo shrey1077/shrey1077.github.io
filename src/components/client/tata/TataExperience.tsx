@@ -51,6 +51,7 @@ import {
   TATA_GUIDELINES,
 } from "@/constants/tataExperience";
 import { TATA_WORK_INTRO } from "@/constants/tataSections";
+import { onTataPage } from "@/constants/tataCull";
 import {
   TATA_COLLABORATE,
   TATA_HERO,
@@ -398,7 +399,10 @@ export function TataExperience() {
 
             {/* The band's close: the owner's industrial artwork, edge to
                 edge (2026-10-03). Decorative. Its foot fades out, so it
-                dissolves into band 02 rather than ending on a hard edge. */}
+                dissolves into band 02 rather than ending on a hard edge.
+                Off the page since the owner's cull (2026-10-17,
+                constants/tataCull.ts) — kept here, shown if it comes back. */}
+            {onTataPage(TATA_WHO_ART.src) && (
             <div
               aria-hidden
               className="pointer-events-none relative w-full"
@@ -410,6 +414,7 @@ export function TataExperience() {
             >
               <Image src={TATA_WHO_ART.src} alt="" fill sizes="100vw" className="object-cover" />
             </div>
+            )}
           </section>
 
           {/* ── 02 — the mark's change of voice: before and after, what the
@@ -500,7 +505,9 @@ export function TataExperience() {
           {/* The page's close: the owner's workshop artwork, edge to edge, just
               above the footer (2026-10-03) — the bookend to band 01's. A
               cut-out, so its spray simply comes to rest on the footer's rule.
-              Decorative. */}
+              Decorative. Off the page since the owner's cull (2026-10-17,
+              constants/tataCull.ts) — kept here, shown if it comes back. */}
+          {onTataPage(TATA_CLOSING_ART.src) && (
           <div
             aria-hidden
             className="pointer-events-none relative mt-6 w-full lg:mt-10"
@@ -508,6 +515,7 @@ export function TataExperience() {
           >
             <Image src={TATA_CLOSING_ART.src} alt="" fill sizes="100vw" className="object-cover" />
           </div>
+          )}
 
           {/* ⚠ The client's own contact block stays. The comp ends on a thin
               "TATA IIS — PORTFOLIO / SHREY SINGH" strip and drops the
