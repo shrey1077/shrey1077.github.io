@@ -305,6 +305,45 @@ export function readPublicationPages(slug: string): string[] {
     .map((f) => publicUrl("content", "publications", slug, f));
 }
 
+/** A rendered page and its size in pixels (0 × 0 if its header could not be
+ *  read — callers fall back to a usual page shape). */
+export interface PublicationPage {
+  src: string;
+  w: number;
+  h: number;
+}
+
+/** A WebP's or PNG's size, from its header alone — the pages are WebP; no
+ *  image library needed at build time. */
+function imageSize(file: string): { w: number; h: number } {
+  try {
+    const fd = fs.openSync(file, "r");
+    const b = Buffer.alloc(32);
+    fs.readSync(fd, b, 0, 32, 0);
+    fs.closeSync(fd);
+    if (b.toString("ascii", 0, 4) === "RIFF" && b.toString("ascii", 8, 12) === "WEBP") {
+      const chunk = b.toString("ascii", 12, 16);
+      if (chunk === "VP8X") return { w: 1 + b.readUIntLE(24, 3), h: 1 + b.readUIntLE(27, 3) };
+      if (chunk === "VP8 ") return { w: b.readUInt16LE(26) & 0x3fff, h: b.readUInt16LE(28) & 0x3fff };
+      if (chunk === "VP8L") return { w: 1 + (b[21] | ((b[22] & 0x3f) << 8)), h: 1 + ((b[22] >> 6) | (b[23] << 2) | ((b[24] & 0x0f) << 10)) };
+    }
+    if (b.readUInt32BE(0) === 0x89504e47) return { w: b.readUInt32BE(16), h: b.readUInt32BE(20) };
+  } catch {
+    // unreadable — the caller's usual shape stands in
+  }
+  return { w: 0, h: 0 };
+}
+
+/** One publication's pages, as readPublicationPages gives them, each with its
+ *  size — for a reader whose window takes the shape of the page in it. */
+export function readPublicationPageSizes(slug: string): PublicationPage[] {
+  const dir = path.join(process.cwd(), "public", "content", "publications", slug);
+  return listFiles(dir)
+    .filter((f) => assetKind(f) === "image")
+    .sort()
+    .map((f) => ({ src: publicUrl("content", "publications", slug, f), ...imageSize(path.join(dir, f)) }));
+}
+
 export interface LogoMark {
   slug: string;
   name: string;

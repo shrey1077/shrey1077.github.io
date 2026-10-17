@@ -113,7 +113,7 @@ import { NewsMobileSlide } from "@/components/home/NewsMobileSlide";
 import { ExtinctsSlide } from "@/components/home/ExtinctsSlide";
 import { ArtSlide, type ArtThumb } from "@/components/home/ArtSlide";
 import { AiSlide } from "@/components/home/AiSlide";
-import { WritingsSlide } from "@/components/home/WritingsSlide";
+import { WritingsSlide, type WritingPage } from "@/components/home/WritingsSlide";
 import { ShowcaseStrip } from "@/components/home/ShowcaseStrip";
 import { SectionMenu } from "@/components/home/SectionMenu";
 import { NearContext, useFirstScreenUp, usePageSettled } from "@/components/home/nearness";
@@ -517,7 +517,7 @@ const RoomBody = memo(function RoomBody({
   moving: MotionValue<number>;
   reduceMotion: boolean;
   artThumbs: ArtThumb[];
-  covers: Record<string, string[]>;
+  covers: Record<string, WritingPage[]>;
   wall: Wall;
 }) {
   return (
@@ -547,7 +547,7 @@ const RoomBody = memo(function RoomBody({
       ) : item.id === "arts-and-crafts" ? (
         <ArtSlide thumbs={artThumbs} active={live && !reduceMotion} />
       ) : item.id === "ai-projects" ? (
-        <AiSlide reduceMotion={reduceMotion} />
+        <AiSlide reduceMotion={reduceMotion} live={live} />
       ) : (
         <WritingsSlide covers={covers} />
       )}
@@ -567,7 +567,7 @@ export function Flythrough({
   /** Arts & Crafts' pieces, small (scripts/make-art-thumbs.mjs). */
   artThumbs: ArtThumb[];
   /** Each writing's first page, by slug — read at build time (app/page.tsx). */
-  covers: Record<string, string[]>;
+  covers: Record<string, WritingPage[]>;
   /** The All Projects wall's commissions and marks (app/page.tsx). */
   wall: Wall;
 }) {

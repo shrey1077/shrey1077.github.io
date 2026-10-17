@@ -31,7 +31,7 @@ import { SiteFooter } from "@/components/footer/SiteFooter";
 import { PortraitHint } from "@/components/home/PortraitHint";
 import fs from "node:fs";
 import path from "node:path";
-import { readCasePlates, readLogofolio, readPublicationPages } from "@/content/catalogue";
+import { readCasePlates, readLogofolio, readPublicationPageSizes } from "@/content/catalogue";
 import { PROJECT_STUDIES, STUDY_CONTENT_SLUG } from "@/constants/projectStudies";
 import type { Wall } from "@/components/home/AllProjectsSlide";
 import { SIX_WRITINGS } from "@/constants/showcase";
@@ -77,9 +77,10 @@ export default function Home() {
     marks: readLogofolio().map((m) => ({ slug: m.slug, name: m.name, url: m.url })),
   };
 
-  // The six writings' pages, in order — the slide's reader shows them
-  // (WritingsSlide; the first page was all it took until 2026-10-16).
-  const covers = Object.fromEntries(SIX_WRITINGS.map((slug) => [slug, readPublicationPages(slug)]));
+  // The six writings' pages, in order, with their sizes — the slide's reader
+  // shows them, its window shaped to the page in it (WritingsSlide; the first
+  // page was all it took until 2026-10-16).
+  const covers = Object.fromEntries(SIX_WRITINGS.map((slug) => [slug, readPublicationPageSizes(slug)]));
 
   return (
     <main
