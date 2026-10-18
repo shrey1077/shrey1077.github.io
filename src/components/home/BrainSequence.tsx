@@ -8,15 +8,30 @@
  * scrub window is a set of still frames, preloaded once and drawn to a canvas —
  * so scrubbing is just picking an already-decoded frame. No seeking, no lag.
  *
- * ⚠ IT SWEEPS ON ITS OWN since 2026-10-12 (owner: "instead of video moving
- * with mouse movement i want the video always moving zig zag from left to
- * right and vice versa"): the turn runs from the first frame to the last and
- * back, eased at each end, without end; any pointer movement holds it on the
- * frame it is on, and a second of stillness lets it carry on from there (see
- * idleSweep). The sweep drives the frame directly — a spring would carry it
- * on past the moment the pointer moved. Until then the pointer's X scrubbed
- * the turn, through a critically-damped spring. Reduced motion parks on the
- * middle frame.
+ * THE POINTER TURNS IT, AND STILL IT SWEEPS (owner, 2026-10-19: "i want the
+ * brain video to be linked to mouse horizontal movement, and when no motion
+ * for 1 second, it plays automatically, and when hovered again it will first
+ * play towards the mouse position and not abruptly jump to that frame"):
+ *   · the pointer moving — its place across the screen is the frame, left
+ *     edge the first, right edge the last, and the turn PLAYS there, through
+ *     a critically-damped spring at no more than FOLLOW_MAX frames a second,
+ *     never cutting to it;
+ *   · a second still (idleSweep) — the sweep takes over from that very frame,
+ *     the way the turn was going, gathering speed over RAMP_S: from the first
+ *     frame to the last and back, eased at each end, without end.
+ * A finger dragged on a touch screen moves it as the pointer does (TouchFollow).
+ *
+ * BETWEEN FRAMES, A BLEND (owner, the same day: "the brain animation is not
+ * very smooth, can we add more frames to make it smooth?"). The master holds
+ * only these 48 in the turn (1.6s at 30fps); more would have to be invented
+ * by interpolation and would double the 9.4MB. Instead the turn is drawn where
+ * it really is, between two frames: the one before at (1 − f), the one after
+ * at f, added (so the alpha blends as truly as the colour) — the steps of a
+ * whole frame at a time, which read as a stutter at the sweep's pace, become
+ * a continuous turn, for nothing more to download. BLEND_STEPS sets how finely.
+ * From 2026-10-12 until then the sweep only HELD where the pointer caught it;
+ * before that the pointer's X scrubbed the turn, with no sweep. Reduced
+ * motion parks on the middle frame.
  *
  * The canvas is tagged `data-brain`, with `data-frame` carrying the frame on
  * screen. From 2026-10-03 to 2026-10-10 BrainDock read it — the brain docked
@@ -50,7 +65,7 @@
 
 import { useEffect, useLayoutEffect, useRef } from "react";
 import { useReducedMotion } from "framer-motion";
-import { SWEEP_PERIOD, SWEEP_START, sweepAt, watchPointer } from "@/components/home/idleSweep";
+import { SWEEP_PERIOD, SWEEP_START, phaseAt, sweepAt, watchPointer } from "@/components/home/idleSweep";
 import { useFlight } from "@/components/home/flight";
 import { markBrainFramesIn, whenFirstScreenUp } from "@/components/home/nearness";
 
@@ -71,6 +86,14 @@ const IN_FLIGHT = 4;
 /** Critically-damped spring for the scrub follow (the old video's feel). */
 const STIFFNESS = 26;
 const DAMPING = 2 * Math.sqrt(STIFFNESS);
+/** Frames a second the turn may play at, heading for the pointer — a quick
+ *  play, not a cut. */
+const FOLLOW_MAX = 40;
+/** Seconds for the sweep to come up to speed when it takes over. */
+const RAMP_S = 0.8;
+/** How many blends between two frames are drawn — finer than the eye can
+ *  tell, coarse enough that a turn at rest draws nothing. */
+const BLEND_STEPS = 12;
 
 /** Opaque until the far right, then a short fade — see the note on the canvas. */
 const FEATHER = "linear-gradient(to right, #000 0%, #000 88%, transparent 100%)";
@@ -106,9 +129,21 @@ export function BrainSequence({ active = true, mode = "sweep" }: { active?: bool
     const rest = (FRAME_COUNT - 1) / 2;
     const frames: HTMLImageElement[] = [];
 
-    const draw = (img: HTMLImageElement) => {
+    /** `img`, and over it `next` at `f` (0 … 1) — a true blend of the two:
+     *  each drawn at its share and added. */
+    const draw = (img: HTMLImageElement, next?: HTMLImageElement, f = 0) => {
       ctx.clearRect(0, 0, W, H);
-      ctx.drawImage(img, 0, 0, W, H);
+      if (next && f > 0) {
+        ctx.globalAlpha = 1 - f;
+        ctx.drawImage(img, 0, 0, W, H);
+        ctx.globalCompositeOperation = "lighter";
+        ctx.globalAlpha = f;
+        ctx.drawImage(next, 0, 0, W, H);
+        ctx.globalCompositeOperation = "source-over";
+        ctx.globalAlpha = 1;
+      } else {
+        ctx.drawImage(img, 0, 0, W, H);
+      }
       // ⚠ Every frame carries a full-width grey rule in its last two rows (718
       //   and 719 — an export edge, measured 2026-10-02), which read on the
       //   landing as a hairline under the brain. The owner asked for it gone;
@@ -123,9 +158,12 @@ export function BrainSequence({ active = true, mode = "sweep" }: { active?: bool
       raf = 0,
       cur = -1;
 
-    // The sweep: how far round it has come (turns), advanced only while the
-    // pointer is still — so it holds wherever the pointer catches it.
+    // The sweep: how far round it has come (turns), advanced while the pointer
+    // is still; `following` while the pointer has the turn, and `ramp` the
+    // sweep's share of its full speed as it takes over again.
     let phase = SWEEP_START;
+    let following = false;
+    let ramp = 1;
     const pointer = reduceMotion ? null : watchPointer();
 
     // ── The frames, loaded once the first screen no longer needs the line.
@@ -205,8 +243,24 @@ export function BrainSequence({ active = true, mode = "sweep" }: { active?: bool
 
       const m = modeRef.current;
       if (m === "sweep") {
-        if (pointer && !pointer.held(t)) phase += dt / SWEEP_PERIOD;
-        target = sweepAt(phase) * (FRAME_COUNT - 1);
+        const at = pointer?.at();
+        if (pointer && at != null && pointer.held(t)) {
+          // The pointer's place across the screen is the frame.
+          following = true;
+          target = at * (FRAME_COUNT - 1);
+        } else {
+          if (following) {
+            // A second still: the sweep takes over from this very frame, the
+            // way the turn was going (or towards the far end), from rest.
+            following = false;
+            const heading = Math.abs(vel) > 0.5 ? vel > 0 : pos < rest;
+            phase = phaseAt(pos / (FRAME_COUNT - 1), heading);
+            ramp = 0;
+          }
+          ramp = Math.min(1, ramp + dt / RAMP_S);
+          phase += (ramp * dt) / SWEEP_PERIOD;
+          target = sweepAt(phase) * (FRAME_COUNT - 1);
+        }
       } else {
         // Rocking in a room: from the end that shows the most of this side,
         // eased there and back (cosine), the spring smoothing any switch.
@@ -217,29 +271,38 @@ export function BrainSequence({ active = true, mode = "sweep" }: { active?: bool
 
       if (reduceMotion && m === "sweep") {
         pos = rest;
-      } else if (m === "sweep") {
-        // Straight onto the sweep: it is smooth already, and it must stop the
-        // moment the pointer moves, not glide on.
+      } else if (m === "sweep" && !following) {
+        // Straight onto the sweep: it is smooth already. Its speed is kept, so
+        // the spring takes it up from there when the pointer moves.
+        vel = (target - pos) / dt;
         pos = target;
-        vel = 0;
       } else if (reduceMotion) {
         pos = target;
       } else {
-        // Critically-damped spring — smooth ease-in and ease-out, no overshoot.
+        // Critically-damped spring — smooth ease-in and ease-out, no overshoot
+        // — playing no faster than FOLLOW_MAX while it heads for the pointer.
         const accel = STIFFNESS * (target - pos) - DAMPING * vel;
         vel += accel * dt;
+        if (following) vel = Math.max(-FOLLOW_MAX, Math.min(FOLLOW_MAX, vel));
         pos += vel * dt;
       }
 
-      const idx = Math.max(0, Math.min(FRAME_COUNT - 1, Math.round(pos)));
-      if (idx !== cur) {
-        const img = frames[idx];
-        if (img && ready[idx]) {
-          draw(img);
-          painted = true;
-          cur = idx;
-          canvas.dataset.frame = String(idx);
-        }
+      // The frame before and the share of the way to the next, in steps.
+      const at = Math.max(0, Math.min(FRAME_COUNT - 1, pos));
+      let k = Math.floor(at);
+      let step = Math.round((at - k) * BLEND_STEPS);
+      if (step === BLEND_STEPS) {
+        k++;
+        step = 0;
+      }
+      const key = k * BLEND_STEPS + step;
+      if (key !== cur && frames[k] && ready[k]) {
+        // The next frame only once it is in; until then the one before alone.
+        const next = step > 0 && k + 1 < FRAME_COUNT && ready[k + 1] ? frames[k + 1] : undefined;
+        draw(frames[k], next, next ? step / BLEND_STEPS : 0);
+        painted = true;
+        cur = key;
+        canvas.dataset.frame = String(Math.round(at));
       }
     };
     raf = requestAnimationFrame(tick);
