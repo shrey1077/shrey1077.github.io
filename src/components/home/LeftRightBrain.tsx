@@ -53,11 +53,15 @@
  * size they were (clamp 2.6–6rem → 1.85–4.2rem), "brain" with them. The
  * lines follow on their own — they are sized off the headline's height.
  *
- * "SCROLL" over each word (owner, 2026-10-18: "add the word 'Scroll' above
- * both left and right, in same faded effect, that comes alive with left or
- * right when hovered"): set as "brain" is, faded and far back with its word,
- * and brought forward with it. It hangs above the headline rather than in it,
- * so the lines beside keep the height of "Left brain" / "Right brain".
+ * "SCROLL LEFT" / "SCROLL RIGHT" AT REST, "LEFT BRAIN" / "RIGHT BRAIN" REACHED
+ * (owner, 2026-10-18: "add the word 'Scroll' above both left and right, in
+ * same faded effect", then "'Scroll' should be of same font weight and size
+ * as that of left and right. and when hovered scroll will disappear and
+ * 'Brain' will appear with the text below"): "Scroll" is set as its word is,
+ * faded and far back with it; reaching the side, it goes, and "brain" comes
+ * in under the word with the lines. It hangs above the headline rather than
+ * in it, and "brain" keeps its room while hidden, so the lines beside keep
+ * the height of "Left brain" / "Right brain".
  */
 
 import { useEffect, useRef, useState } from "react";
@@ -104,8 +108,12 @@ const BODY_FALLBACK = "clamp(0.74rem, 0.95vw, 1rem)";
  *  painted "Right" — `bg-clip-text` type is transparent, and a shadow would
  *  show through and wash the paint out. */
 const HALO = "[text-shadow:0_0_10px_rgba(249,249,249,0.95),0_0_3px_rgba(249,249,249,0.9)]";
-/** "Scroll" over each word — the size and face of "brain" under it. */
-const SCROLL = "font-lr-grotesk pointer-events-none absolute bottom-full mb-[0.35em] block whitespace-nowrap text-[clamp(0.75rem,1.25vw,1.35rem)] font-light leading-none";
+/** "Scroll" over each word, in the word's own face, weight and size. */
+const SCROLL_SIZE = "pointer-events-none absolute bottom-full mb-[0.06em] block whitespace-nowrap text-[clamp(1.85rem,3.8vw,4.2rem)] leading-[0.9]";
+const SCROLL_LEFT = `${SCROLL_SIZE} font-lr-grotesk left-0 font-extrabold tracking-[-0.035em] text-[#9ca3af]`;
+const SCROLL_RIGHT = `${SCROLL_SIZE} face-creative right-0 font-bold tracking-[-0.03em] text-neutral-400`;
+/** "Scroll" goes the moment its side is reached, and comes back on release. */
+const scrollGone = (shown: boolean) => ({ opacity: shown ? 0 : 1, y: shown ? "-0.15em" : "0em" });
 
 type Pt = { x: number; y: number };
 
@@ -512,12 +520,7 @@ export function LeftRightBrain({
           transition={{ duration: 0.45, ease: EASE_OUT, delay: leftShown ? after : 0 }}
         />
         <motion.p ref={leftHeadRef} style={{ opacity: leftFade }} className="relative shrink-0 self-center leading-none">
-          <motion.span
-            className={`${SCROLL} left-0`}
-            initial={false}
-            animate={{ color: leftShown ? "#262626" : "#a3a3a3" }}
-            transition={{ duration: 0.4, delay: leftShown ? after : 0 }}
-          >
+          <motion.span className={SCROLL_LEFT} initial={false} animate={scrollGone(leftShown)} transition={{ duration: 0.3, ease: EASE_OUT }}>
             Scroll
           </motion.span>
           <motion.span
@@ -530,9 +533,9 @@ export function LeftRightBrain({
             {LEFT_BRAIN.word}
           </motion.span>
           <motion.span
-            className="font-lr-grotesk mt-1 block text-[clamp(0.75rem,1.25vw,1.35rem)] font-light leading-none"
+            className="font-lr-grotesk mt-1 block text-[clamp(0.75rem,1.25vw,1.35rem)] font-light leading-none text-[#262626]"
             initial={false}
-            animate={{ color: leftShown ? "#262626" : "#a3a3a3" }}
+            animate={{ opacity: leftShown ? 1 : 0 }}
             transition={{ duration: 0.4, delay: leftShown ? after : 0 }}
           >
             brain
@@ -614,12 +617,7 @@ export function LeftRightBrain({
           transition={{ duration: 0.45, ease: EASE_OUT, delay: rightShown ? after : 0 }}
         />
         <motion.p ref={rightHeadRef} style={{ opacity: rightFade }} className="relative shrink-0 self-center leading-none">
-          <motion.span
-            className={`${SCROLL} right-0`}
-            initial={false}
-            animate={{ color: rightShown ? "#3f6ad8" : "#a3a3a3" }}
-            transition={{ duration: 0.4, delay: rightShown ? after : 0 }}
-          >
+          <motion.span className={SCROLL_RIGHT} initial={false} animate={scrollGone(rightShown)} transition={{ duration: 0.3, ease: EASE_OUT }}>
             Scroll
           </motion.span>
           <span ref={rightWordRef} className="relative inline-block">
@@ -640,9 +638,9 @@ export function LeftRightBrain({
             </motion.span>
           </span>
           <motion.span
-            className="font-lr-grotesk mt-1 block text-[clamp(0.75rem,1.25vw,1.35rem)] font-light leading-none"
+            className="font-lr-grotesk mt-1 block text-[clamp(0.75rem,1.25vw,1.35rem)] font-light leading-none text-[#3f6ad8]"
             initial={false}
-            animate={{ color: rightShown ? "#3f6ad8" : "#a3a3a3" }}
+            animate={{ opacity: rightShown ? 1 : 0 }}
             transition={{ duration: 0.4, delay: rightShown ? after : 0 }}
           >
             brain
@@ -665,11 +663,15 @@ export function LeftRightBrain({
           animate={{ opacity: leftOn ? 1 : rightOn ? 0.3 : 0.75, scale: leftOn ? 1.1 : 1 }}
           transition={{ duration: 0.4, ease: EASE_OUT }}
         >
-          <span className="mb-1 block text-xs font-light sm:text-base">Scroll</span>
+          <motion.span className="block text-[1.6rem] font-extrabold tracking-[-0.03em] sm:text-[2.4rem]" initial={false} animate={{ opacity: leftOn ? 0 : 1 }} transition={{ duration: 0.3 }}>
+            Scroll
+          </motion.span>
           <span className="block text-[1.6rem] font-extrabold tracking-[-0.03em] sm:text-[2.4rem]">
             {LEFT_BRAIN.word}
           </span>
-          <span className="block text-sm font-light sm:text-lg">brain</span>
+          <motion.span className="block text-sm font-light sm:text-lg" initial={false} animate={{ opacity: leftOn ? 1 : 0 }} transition={{ duration: 0.3 }}>
+            brain
+          </motion.span>
         </motion.p>
         <motion.p
           className="origin-right text-center leading-none"
@@ -677,11 +679,21 @@ export function LeftRightBrain({
           animate={{ opacity: rightOn ? 1 : leftOn ? 0.3 : 0.75, scale: rightOn ? 1.1 : 1 }}
           transition={{ duration: 0.4, ease: EASE_OUT }}
         >
-          <span className="font-lr-grotesk mb-1 block text-xs font-light text-neutral-600 sm:text-base">Scroll</span>
+          {/* ⚠ Opacity on the painted words' layers, never an alpha: `bg-clip-text`. */}
+          <motion.span
+            className="brain-paint face-creative block bg-clip-text text-[1.6rem] font-bold leading-none tracking-[-0.03em] text-transparent sm:text-[2.4rem]"
+            initial={false}
+            animate={{ opacity: rightOn ? 0 : 1 }}
+            transition={{ duration: 0.3 }}
+          >
+            Scroll
+          </motion.span>
           <span className="brain-paint face-creative block bg-clip-text text-[1.6rem] font-bold leading-none tracking-[-0.03em] text-transparent sm:text-[2.4rem]">
             {RIGHT_BRAIN.word}
           </span>
-          <span className="font-lr-grotesk block text-sm font-light text-neutral-600 sm:text-lg">brain</span>
+          <motion.span className="font-lr-grotesk block text-sm font-light text-neutral-600 sm:text-lg" initial={false} animate={{ opacity: rightOn ? 1 : 0 }} transition={{ duration: 0.3 }}>
+            brain
+          </motion.span>
         </motion.p>
       </div>
       {/* ⚠ Stands clear of the row along the slide's foot (BrainFooter — the
