@@ -48,11 +48,24 @@
  * it). On a tall screen the art shows its cast, the title stays (the art's is
  * cropped off), and the reports and buttons stand at the foot. SheetCycle is
  * kept, unused.
+ *
+ * THE KEY ART MOVES since 2026-10-18 (owner: "use 0 to 2seconds footage of
+ * this video as a bg for extincts slide, and link it with horizontal mouse
+ * movement"): the first two seconds of the owner's Flow film of the council on
+ * the ridge — the camera pulling back from them, the title fading — as stills
+ * (scripts/prepare-extincts-council.mjs), scrubbed by the pointer across the
+ * whole slide: its left edge the first frame, its right edge the last
+ * (FilmScrub). A finger dragged across does it on a touch screen; with none,
+ * it plays there and back by itself. Cropped as the still was: its right edge
+ * and top on a wide screen, the cast on a tall one. The still (key-art.webp,
+ * key-art-960.webp) stays on disk, unused.
  */
 
-import { useContext, useEffect, useState } from "react";
+import { useEffect, useState } from "react";
+import { FilmScrub, type FilmCut } from "@/components/home/FilmScrub";
+import { useMediaQuery } from "@/hooks/useMediaQuery";
 import { usePixelPresence } from "@/components/home/pixelReveal";
-import { NearContext, RoomImage as Image } from "@/components/home/nearness";
+import { RoomImage as Image } from "@/components/home/nearness";
 import { PixelButton } from "@/components/home/PixelButton";
 import { SlidePanel } from "@/components/home/SlidePanel";
 import { ExtinctsReader } from "@/components/home/ExtinctsRoom";
@@ -67,9 +80,9 @@ const RED = "#e3262b";
 const RED_ON_DARK = "#ff5a5f";
 const pad = (n: number) => String(n).padStart(2, "0");
 
-/** The EXMANGA key art (owner's upload, 2026-10-17), and a copy for phones. */
-const ART = "/content/extincts/key-art.webp";
-const ART_SMALL = "/content/extincts/key-art-960.webp";
+/** The council on the ridge, 0–2 s of the owner's film, 25 frames
+ *  (scripts/prepare-extincts-council.mjs). */
+const COUNCIL: FilmCut = { dir: "/content/extincts/council", frames: 25, w: 1920, h: 1080, big: 1280, small: 960 };
 /** The sky along the art's top edge, left to right (read off its pixels). */
 const SKY = "linear-gradient(90deg, rgb(50,72,114), rgb(10,39,78) 45%, rgb(4,21,46))";
 
@@ -251,8 +264,8 @@ export function SheetCycle({ live, reduceMotion }: { live: boolean; reduceMotion
   );
 }
 
-export function ExtinctsSlide({ reduceMotion }: { reduceMotion: boolean; live?: boolean }) {
-  const near = useContext(NearContext);
+export function ExtinctsSlide({ reduceMotion, live = true }: { reduceMotion: boolean; live?: boolean }) {
+  const tall = useMediaQuery("(orientation: portrait)");
   const [panel, setPanel] = useState<Panel>(null);
   const [reading, setReading] = useState<ExtinctsReport | null>(null);
   // The reader mounts on the first open, never in the static render.
@@ -270,17 +283,8 @@ export function ExtinctsSlide({ reduceMotion }: { reduceMotion: boolean; live?: 
       {/* The key art, from the strip's foot down, fading in from the sky
           above it; a shade under the words. */}
       <div className="pointer-events-none absolute inset-x-0 bottom-0 top-[calc(max(2vh,0.75rem)+var(--strip-h,3.75rem))] [mask-image:linear-gradient(to_bottom,transparent,black_2.5rem)]">
-        {near && (
-          // eslint-disable-next-line @next/next/no-img-element -- the slide's ground, cropped to keep its title (wide) or its cast (tall)
-          <img
-            src={ART}
-            srcSet={`${ART_SMALL} 960w, ${ART} 1672w`}
-            sizes="100vw"
-            alt="EXMANGA key art: the cast of The Extincts Project on a snowy ridge above a city at war"
-            decoding="async"
-            className="h-full w-full object-cover object-[40%_50%] landscape:object-[100%_0%]"
-          />
-        )}
+        <FilmScrub cut={COUNCIL} live={live} reduceMotion={reduceMotion} fit="cover" focus={tall ? { x: 0.3, y: 0.5 } : { x: 1, y: 0 }} />
+        <p className="sr-only">The council of The Extincts Project on a snowy ridge above a city at war</p>
       </div>
       <div aria-hidden className="pointer-events-none absolute inset-0 bg-[linear-gradient(to_bottom,rgba(3,8,20,0.55),transparent_32%),linear-gradient(to_top,rgba(3,8,20,0.88),rgba(3,8,20,0.4)_42%,transparent_62%)] landscape:bg-[radial-gradient(42%_62%_at_100%_80%,rgba(3,8,20,0.82),rgba(3,8,20,0.5)_55%,transparent)]" />
 
