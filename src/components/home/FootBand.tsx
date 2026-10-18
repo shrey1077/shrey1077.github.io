@@ -27,7 +27,9 @@
  *
  * Each part carries its words: the larger names the room the camera is in;
  * the smaller names the room level with it on the other side, and a click on
- * it pans across. On the landing and at the footer each half is the way into
+ * it pans across. Since 2026-10-18 the larger carries every room on its side
+ * instead, as pixel pills (ShowcaseStrip — owner: "this element needs to be
+ * in the black band at bottom"); on a phone the smaller says only which way. On the landing and at the footer each half is the way into
  * its side. (The section titles in Digibra and Syne stay: logic's on black,
  * creative's on paint.) The facts that stood in its corners moved up onto the
  * brain slide (BrainFooter); the tab at the edge of the rooms (EdgeJump) is
@@ -59,6 +61,8 @@ export interface BandPart {
   sub?: string;
   /** Set: the part is a way to somewhere. */
   onGo?: () => void;
+  /** Set: the part shows this in place of its words (the rooms' pills). */
+  strip?: React.ReactNode;
 }
 
 const PAINT = RAINBOW.map((hex) => [1, 3, 5].map((i) => parseInt(hex.slice(i, i + 2), 16)));
@@ -156,26 +160,32 @@ function BandField({ share, reduceMotion }: { share: MotionValue<number>; reduce
   return <canvas ref={ref} aria-hidden className="absolute inset-0 h-full w-full" />;
 }
 
-function Part({ part, side, major }: { part: BandPart; side: "left" | "right"; major: boolean }) {
+function Part({ part, side, major, minor }: { part: BandPart; side: "left" | "right"; major: boolean; minor: boolean }) {
   const logic = side === "left";
   const face = logic ? "face-logic tracking-[0.14em]" : "face-creative tracking-[0.03em]";
+  const box = "pointer-events-auto absolute inset-y-0 flex items-center justify-center";
+  if (part.strip) return <div className={`${box} inset-x-0`}>{part.strip}</div>;
+  // The narrow part beside the pills: on a phone, only which way.
   const inner = (
-    <span className={`flex min-w-0 max-w-full flex-col items-center gap-[0.2em] px-3 text-center leading-none ${major ? "" : "transition-transform duration-200 group-hover:scale-[1.04]"}`}>
+    <span className={`flex min-w-0 max-w-full flex-col items-center gap-[0.2em] px-3 text-center leading-none ${minor ? "max-sm:px-1" : ""} ${major ? "" : "transition-transform duration-200 group-hover:scale-[1.04]"}`}>
       {part.sub && (
-        <span className={`max-w-full truncate text-[clamp(0.5rem,0.75vw,0.66rem)] uppercase tracking-[0.24em] ${logic ? "text-white/55" : "text-white/85"} [@media(max-height:31.25rem)]:hidden`}>
+        <span
+          className={`max-w-full truncate text-[clamp(0.5rem,0.75vw,0.66rem)] uppercase tracking-[0.24em] ${logic ? "text-white/55" : "text-white/85"} ${
+            minor ? "max-sm:text-[0.56rem] max-sm:tracking-[0.06em] max-sm:text-white" : ""
+          } [@media(max-height:31.25rem)]:hidden`}
+        >
           {part.sub}
         </span>
       )}
       <span
         className={`max-w-full truncate font-bold text-white ${face} ${major ? "text-[clamp(0.72rem,1.45vw,1.15rem)]" : "text-[clamp(0.62rem,1.05vw,0.9rem)]"} ${
           logic ? "" : "[text-shadow:0_1px_3px_rgba(0,0,0,0.45)]"
-        }`}
+        } ${minor ? "max-sm:hidden" : ""}`}
       >
         {part.title}
       </span>
     </span>
   );
-  const box = "pointer-events-auto absolute inset-y-0 flex items-center justify-center";
   if (!part.onGo) return <div className={`${box} inset-x-0`}>{inner}</div>;
   return (
     <button
@@ -214,10 +224,10 @@ export function FootBand({
     >
       <BandField share={share} reduceMotion={reduceMotion} />
       <motion.div className="absolute inset-y-0 left-0" style={{ width: leftW }}>
-        <Part part={left} side="left" major={major === "left"} />
+        <Part part={left} side="left" major={major === "left"} minor={major === "right"} />
       </motion.div>
       <motion.div className="absolute inset-y-0 right-0" style={{ width: rightW }}>
-        <Part part={right} side="right" major={major === "right"} />
+        <Part part={right} side="right" major={major === "right"} minor={major === "left"} />
       </motion.div>
     </nav>
   );

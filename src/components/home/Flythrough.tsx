@@ -199,6 +199,11 @@ const SETTLE_MS = 140;
 /** Slide positions this close to a whole number count as on that slide. */
 const EPS = 0.02;
 
+/** In a room, the band's part for the side the camera is on — the part with
+ *  the rooms' pills — as a share of the width; a phone's more. */
+const BAND_ROOM = 0.75;
+const BAND_ROOM_NARROW = 0.82;
+
 /** Fired to fly somewhere: a slide by index (0 = the orb), optionally
  *  switching track, or a room by its showcase id. */
 const GO_EVENT = "flythrough:go";
@@ -684,15 +689,28 @@ export function Flythrough({
   // ── The band's split (FootBand): its black part's share of the width —
   //    half on the landing and at the footer, three quarters in a logic room,
   //    a quarter in a creative one, travelling with the camera into the rooms
-  //    and with the pan between them.
+  //    and with the pan between them. The rooms' part carries their pills
+  //    (ShowcaseStrip): on a phone it takes more of the width.
   const bandShare = useMotionValue(0.5);
   const pastRef = useRef(0);
+  const narrowRef = useRef(false);
   const updateBand = useCallback(() => {
     const into = clamp01(cam.get() - BRAIN);
-    const room = 0.75 - 0.5 * clamp01(trackX.get());
+    const most = narrowRef.current ? BAND_ROOM_NARROW : BAND_ROOM;
+    const room = most - (2 * most - 1) * clamp01(trackX.get());
     bandShare.set(0.5 + (room - 0.5) * into * (1 - pastRef.current));
   }, [bandShare, cam, trackX]);
   useMotionValueEvent(trackX, "change", updateBand);
+  useEffect(() => {
+    const mq = window.matchMedia("(max-width: 639.98px)");
+    const read = () => {
+      narrowRef.current = mq.matches;
+      updateBand();
+    };
+    read();
+    mq.addEventListener("change", read);
+    return () => mq.removeEventListener("change", read);
+  }, [updateBand]);
 
   /** Read the page's place into the camera, and everything that follows it. */
   const sync = useCallback(() => {
@@ -793,18 +811,6 @@ export function Flythrough({
   // The camera lifts through a move across the plane — from the brain into a
   // column, and the pan — and settles as it lands.
   const cameraScale = useTransform([cam, trackX], ([v, tx]: number[]) => cameraLift(v, tx, reduceMotion));
-
-  // The strips ride in with their side's first room — up from the foot of
-  // the brain slide — then hold still over the rooms, and pan with the side.
-  const stripY = useTransform(cam, (v) => (reduceMotion ? "0%" : `${clamp01(FIRST_ROOM - v) * 100}%`));
-  const logicStripX = useTransform([cam, trackX], ([v, tx]: number[]) =>
-    `${((reduceMotion ? 0 : -clamp01(FIRST_ROOM - v)) - tx) * 100}%`,
-  );
-  const creativeStripX = useTransform([cam, trackX], ([v, tx]: number[]) =>
-    `${((reduceMotion ? 0 : clamp01(FIRST_ROOM - v)) + 1 - tx) * 100}%`,
-  );
-  const stripOpacity = useTransform(cam, (v) => (reduceMotion ? clamp01(v - BRAIN) : 1));
-  const stripVisibility = useTransform(cam, (v) => (v <= BRAIN + 0.002 ? "hidden" : "visible"));
 
   useEffect(() => {
     const run = runRef.current;
@@ -1165,13 +1171,21 @@ export function Flythrough({
     here && !pastRun
       ? track === "logic"
         ? {
-            left: { title: here.item.short, sub: `Projects · ${pad2(here.level + 1)} / ${pad2(LOGIC.length)}` },
+            left: {
+              title: here.item.short,
+              sub: `Projects · ${pad2(here.level + 1)} / ${pad2(LOGIC.length)}`,
+              strip: <ShowcaseStrip side="logic" items={LOGIC.filter((it) => it.id !== ALL_PROJECTS_ID)} activeId={here.item.id} onGo={goId} />,
+            },
             right: { title: acrossFromLogic.short, sub: "Creative →", onGo: () => goId(acrossFromLogic.id) },
             major: "left",
           }
         : {
             left: { title: acrossFromCreative.short, sub: "← Projects", onGo: () => goId(acrossFromCreative.id) },
-            right: { title: here.item.short, sub: `Creative · ${pad2(here.level + 1)} / ${pad2(CREATIVE.length)}` },
+            right: {
+              title: here.item.short,
+              sub: `Creative · ${pad2(here.level + 1)} / ${pad2(CREATIVE.length)}`,
+              strip: <ShowcaseStrip side="creative" items={CREATIVE} activeId={here.item.id} onGo={goId} />,
+            },
             major: "right",
           }
       : {
@@ -1185,9 +1199,11 @@ export function Flythrough({
     <FlightContext.Provider value={{ p, current, zone, reduceMotion }}>
     <div ref={runRef} className="relative w-full" style={{ height: `${(runLast + 1) * 100}svh` }}>
       <div
-        // --strip-h: the strip's height, which every slide keeps clear of
-        // (.slide-frame) — two rows of marks on a phone, one above.
-        className="sticky top-0 h-[100svh] w-full overflow-hidden bg-white [--strip-h:5.4rem] sm:[--strip-h:3.75rem]"
+        // --strip-h: the room every slide keeps clear of along the top
+        // (.slide-frame) — the sections button's row since the rooms' marks
+        // went down into the band (2026-10-18; two rows of them on a phone
+        // before).
+        className="sticky top-0 h-[100svh] w-full overflow-hidden bg-white [--strip-h:3.75rem]"
       >
         {/* The two grounds, one per track, side by side, each panning with
             its track; behind the landing both are covered entirely.
@@ -1273,32 +1289,9 @@ export function Flythrough({
           );
         })}
 
-        {/* The strips along the top — "Projects" and its marks on the left,
-            the creative rooms on the right — over the rooms, in from the
-            foot of the brain slide with the first room. */}
-        <NearContext.Provider value={pageSettled || reach >= FIRST_ROOM}>
-          <motion.div
-            className="pointer-events-none absolute inset-0 z-[120]"
-            style={{ x: logicStripX, y: stripY, opacity: stripOpacity, visibility: stripVisibility }}
-            aria-hidden={!(inRooms && track === "logic")}
-            inert={!(inRooms && track === "logic")}
-          >
-            <ShowcaseStrip side="logic" items={LOGIC.filter((it) => it.id !== ALL_PROJECTS_ID)} activeId={track === "logic" ? (here?.item.id ?? null) : null} onGo={goId} />
-          </motion.div>
-          <motion.div
-            className="pointer-events-none absolute inset-0 z-[120]"
-            style={{ x: creativeStripX, y: stripY, opacity: stripOpacity, visibility: stripVisibility }}
-            aria-hidden={!(inRooms && track === "creative")}
-            inert={!(inRooms && track === "creative")}
-          >
-            <ShowcaseStrip
-              side="creative"
-              items={CREATIVE}
-              activeId={track === "creative" ? (here?.item.id ?? null) : null}
-              onGo={goId}
-            />
-          </motion.div>
-        </NearContext.Provider>
+        {/* (The strips of the rooms' marks stood along the top here until
+            2026-10-18; they are in the band along the foot now — FootBand,
+            ShowcaseStrip.) */}
         </motion.div>
 
         {/* The glass tiles that light over the squares as every move turns
