@@ -99,7 +99,7 @@ export default async function CategoryPage({ params }: CategoryPageProps) {
       <div className="mx-auto w-full max-w-5xl">
         <Link
           href={`/clients/${slug}#catalogue`}
-          className={`${META} group inline-flex items-center gap-2 rounded text-[0.65rem] text-neutral-500 outline-none transition-colors duration-300 hover:text-neutral-900 focus-visible:text-neutral-900 focus-visible:ring-2 focus-visible:ring-neutral-900/40 focus-visible:ring-offset-2`}
+          className={`${META} group inline-flex items-center gap-2 rounded-full text-[0.65rem] text-neutral-500 outline-none transition-colors duration-300 hover:text-neutral-900 focus-visible:text-neutral-900 focus-visible:ring-2 focus-visible:ring-neutral-900/40 focus-visible:ring-offset-2`}
         >
           <span
             aria-hidden

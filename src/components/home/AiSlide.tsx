@@ -58,9 +58,9 @@ const SHOT_MS = 3600;
 type Folder = "agents" | "apps" | "videos";
 
 /** A folder, drawn small: a tab and a body, its front edge in blinking
- *  paint. Light on the dark (closed) tab, dark on the open one. */
+ *  paint. Light on the dark (open) tab, dark on the closed ones. */
 function FolderMark({ seed, open, className = "" }: { seed: number; open: boolean; className?: string }) {
-  const ink = open ? "bg-neutral-900" : "bg-white";
+  const ink = open ? "bg-white" : "bg-neutral-900";
   return (
     <span aria-hidden className={`relative block aspect-[5/4] w-[clamp(1.6rem,3.2vmin,2.2rem)] shrink-0 ${className}`}>
       <span className={`absolute left-0 top-0 h-[18%] w-[42%] rounded-t-[3px] ${ink}`} />
@@ -101,7 +101,7 @@ function VideoLibrary() {
               type="button"
               onClick={() => setI(k)}
               aria-current={k === i ? "true" : undefined}
-              className={`truncate rounded-md px-2 py-1.5 text-left text-[0.78rem] outline-none focus-visible:ring-2 focus-visible:ring-neutral-900/40 ${
+              className={`truncate rounded-full px-3 py-1.5 text-left text-[0.78rem] outline-none focus-visible:ring-2 focus-visible:ring-neutral-900/40 ${
                 k === i ? "bg-neutral-900 text-white" : "text-neutral-800 hover:bg-neutral-900/5"
               }`}
             >
@@ -142,7 +142,7 @@ function Agents() {
             type="button"
             onClick={() => setI(k)}
             aria-current={k === i ? "true" : undefined}
-            className={`flex items-center gap-2 rounded-md px-2 py-1.5 text-left outline-none focus-visible:ring-2 focus-visible:ring-neutral-900/40 portrait:gap-1.5 portrait:px-1.5 [@media(max-height:31.25rem)]:py-0 ${
+            className={`flex items-center gap-2 rounded-full px-3 py-1.5 text-left outline-none focus-visible:ring-2 focus-visible:ring-neutral-900/40 portrait:gap-1.5 portrait:px-2 [@media(max-height:31.25rem)]:py-0 ${
               k === i ? "bg-neutral-900 text-white" : "text-neutral-800 hover:bg-neutral-900/5"
             }`}
           >
@@ -273,7 +273,7 @@ function Apps({ inView, turning, reduceMotion }: { inView: boolean; turning: boo
             type="button"
             onClick={() => setI(k)}
             aria-current={k === i ? "true" : undefined}
-            className={`flex items-center gap-2 rounded-md px-2 py-1.5 text-left outline-none focus-visible:ring-2 focus-visible:ring-neutral-900/40 portrait:gap-1.5 portrait:px-1.5 [@media(max-height:31.25rem)]:py-0.5 ${
+            className={`flex items-center gap-2 rounded-full px-3 py-1.5 text-left outline-none focus-visible:ring-2 focus-visible:ring-neutral-900/40 portrait:gap-1.5 portrait:px-2 [@media(max-height:31.25rem)]:py-0.5 ${
               k === i ? "bg-neutral-900 text-white" : "text-neutral-800 hover:bg-neutral-900/5"
             }`}
           >
@@ -332,9 +332,9 @@ export function AiSlide({ reduceMotion, live = true }: { reduceMotion: boolean; 
           <p className={META}>Creative · 03 / 04</p>
           <h2 className="face-creative mt-1.5 text-[clamp(1.6rem,3.6vw,3.4rem)] font-bold leading-none text-neutral-900">AI Projects</h2>
         </div>
-        {/* The folders' tabs, then the open folder — the tab it hangs from
-            joins it, as a folder's would. */}
-        <div role="tablist" aria-label="AI Projects folders" className="flex shrink-0 items-end gap-1.5">
+        {/* The folders' tabs, then the open folder. Pills, as every button
+            (owner, 2026-10-18), the open one dark — as the Arts slide's. */}
+        <div role="tablist" aria-label="AI Projects folders" className="mb-2.5 flex shrink-0 items-stretch gap-1.5 sm:gap-2">
           {folders.map(([id, name, sub], k) => {
             const open = folder === id;
             return (
@@ -346,10 +346,10 @@ export function AiSlide({ reduceMotion, live = true }: { reduceMotion: boolean; 
                 aria-selected={open}
                 aria-controls={`ai-folder-${id}`}
                 onClick={() => setFolder(id)}
-                className={`relative flex min-w-0 items-center gap-2.5 rounded-t-xl px-3 py-2 text-left max-sm:flex-1 max-sm:self-stretch outline-none transition-colors duration-200 focus-visible:ring-2 focus-visible:ring-neutral-900/40 sm:px-4 sm:py-2.5 ${
+                className={`relative flex min-w-0 items-center gap-2.5 rounded-full px-4 py-2 text-left ring-1 max-sm:flex-1 max-sm:justify-center max-sm:text-center outline-none transition-colors duration-200 focus-visible:ring-2 focus-visible:ring-neutral-900/40 sm:px-5 sm:py-2.5 ${
                   open
-                    ? "z-[1] -mb-px bg-white text-neutral-900 shadow-[0_-1px_0_0_rgba(0,0,0,0.08),1px_0_0_0_rgba(0,0,0,0.08),-1px_0_0_0_rgba(0,0,0,0.08)]"
-                    : "bg-neutral-950 text-white hover:bg-neutral-800"
+                    ? "bg-neutral-950 text-white ring-neutral-950"
+                    : "bg-white/85 text-neutral-900 ring-neutral-900/10 hover:bg-white"
                 }`}
               >
                 {/* On a narrow screen the three need the room: no mark, no count, and
@@ -357,13 +357,13 @@ export function AiSlide({ reduceMotion, live = true }: { reduceMotion: boolean; 
                 <FolderMark seed={k + 1} open={open} className="max-sm:hidden" />
                 <span className="min-w-0">
                   <span className="face-creative block truncate text-[clamp(0.85rem,1.5vw,1.15rem)] font-bold leading-tight max-sm:line-clamp-2 max-sm:whitespace-normal max-sm:leading-[1.1]">{name}</span>
-                  <span className={`${META} mt-0.5 block truncate ${open ? "" : "!text-white/55"} max-sm:hidden [@media(max-height:31.25rem)]:hidden`}>{sub}</span>
+                  <span className={`${META} mt-0.5 block truncate ${open ? "!text-white/55" : ""} max-sm:hidden [@media(max-height:31.25rem)]:hidden`}>{sub}</span>
                 </span>
               </button>
             );
           })}
         </div>
-        <div className="relative min-h-0 flex-1 overflow-hidden rounded-2xl rounded-tl-none bg-white shadow-[0_24px_60px_-28px_rgba(0,0,0,0.35)] ring-1 ring-neutral-900/[0.08]">
+        <div className="relative min-h-0 flex-1 overflow-hidden rounded-2xl bg-white shadow-[0_24px_60px_-28px_rgba(0,0,0,0.35)] ring-1 ring-neutral-900/[0.08]">
           <div
             ref={agentsRef}
             role="tabpanel"

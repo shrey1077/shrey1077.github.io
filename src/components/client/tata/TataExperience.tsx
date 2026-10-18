@@ -174,7 +174,7 @@ export function TataExperience() {
             <div className={`${SHELL} relative flex min-h-[100svh] flex-col pt-8`}>
               <Link
                 href="/"
-                className="tata-body group inline-flex items-center gap-2 self-start rounded text-[0.7rem] uppercase tracking-[0.18em] text-neutral-500 outline-none transition-colors duration-300 hover:text-neutral-900 focus-visible:text-neutral-900 focus-visible:ring-2 focus-visible:ring-neutral-900/40 focus-visible:ring-offset-2"
+                className="tata-body group inline-flex items-center gap-2 self-start rounded-full text-[0.7rem] uppercase tracking-[0.18em] text-neutral-500 outline-none transition-colors duration-300 hover:text-neutral-900 focus-visible:text-neutral-900 focus-visible:ring-2 focus-visible:ring-neutral-900/40 focus-visible:ring-offset-2"
               >
                 <span aria-hidden className="inline-block transition-transform duration-300 group-hover:-translate-x-1">
                   ←

@@ -121,9 +121,9 @@ const CERTIFICATE = {
   alt: "Certificate of completion: Shrey Singh, the 8-Week AI Film Making Program, Videopreneur Studios",
 };
 
-/** A small action inside a fact — ink-outlined, filled on hover. */
+/** A small action inside a fact — an ink-outlined pill, filled on hover. */
 const CHIP =
-  "pointer-events-auto inline-flex items-center gap-1 rounded-[3px] border border-neutral-900/80 px-1.5 py-[0.22rem] font-graff text-[0.54rem] uppercase leading-none tracking-[0.16em] text-neutral-900 outline-none transition-colors hover:bg-neutral-950 hover:text-white focus-visible:bg-neutral-950 focus-visible:text-white";
+  "pointer-events-auto inline-flex items-center gap-1 rounded-full border border-neutral-900/80 px-2 py-[0.22rem] font-graff text-[0.54rem] uppercase leading-none tracking-[0.16em] text-neutral-900 outline-none transition-colors hover:bg-neutral-950 hover:text-white focus-visible:bg-neutral-950 focus-visible:text-white";
 
 function GlanceRow({ onCertificate }: { onCertificate: () => void }) {
   const facts: { key: string; mark: React.ReactNode; heading: string; value: React.ReactNode }[] = [

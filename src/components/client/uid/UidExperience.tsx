@@ -47,7 +47,7 @@ export function UidExperience() {
       <div className="mx-auto w-full max-w-6xl">
         <Link
           href="/"
-          className="group inline-flex items-center gap-2 rounded text-[0.7rem] text-neutral-500 outline-none transition-colors duration-200 hover:text-neutral-900 focus-visible:text-neutral-900"
+          className="group inline-flex items-center gap-2 rounded-full text-[0.7rem] text-neutral-500 outline-none transition-colors duration-200 hover:text-neutral-900 focus-visible:text-neutral-900"
         >
           <span aria-hidden className="inline-block transition-transform duration-200 group-hover:-translate-x-1">←</span>
           Back

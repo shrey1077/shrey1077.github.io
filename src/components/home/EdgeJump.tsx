@@ -61,7 +61,7 @@ export function EdgeJump({
         onClick={onGo}
         aria-label={`Across to ${label}`}
         className={`group pointer-events-auto absolute top-1/2 flex -translate-y-1/2 flex-col items-center gap-2.5 bg-white/90 px-2 py-3.5 outline-none ring-1 ring-neutral-900/15 backdrop-blur-sm transition-colors duration-200 hover:bg-neutral-950 focus-visible:bg-neutral-950 ${
-          logic ? "right-0 rounded-l-xl" : "left-0 rounded-r-xl"
+          logic ? "right-0 rounded-l-full" : "left-0 rounded-r-full"
         } ${show ? "" : "invisible"}`}
       >
         {/* The pixel arrow, pointing out across the edge. */}

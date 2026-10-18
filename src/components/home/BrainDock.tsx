@@ -114,7 +114,7 @@ function Corner({
 
         {/* The way across. */}
         <span
-          className={`dock-tab flex flex-col gap-0.5 rounded-2xl bg-neutral-950/80 px-3 py-2 text-white ring-1 ring-white/10 shadow-[0_10px_30px_rgba(0,0,0,0.3)] backdrop-blur-sm lg:px-4 lg:py-3 ${
+          className={`dock-tab flex flex-col gap-0.5 rounded-full bg-neutral-950/80 px-5 py-2 text-white ring-1 ring-white/10 shadow-[0_10px_30px_rgba(0,0,0,0.3)] backdrop-blur-sm lg:px-6 lg:py-3 ${
             logic ? "items-start text-left" : "items-end text-right"
           }`}
         >

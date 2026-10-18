@@ -20,6 +20,10 @@
  * assistive tech; the label is the button's name. Reduced motion: the squares
  * hold still (globals.css).
  *
+ * A pill, round at both ends, like every button on the site (owner,
+ * 2026-10-18: "all buttons will be having the pill shapes, ie semicircular at
+ * ends"); the squares are clipped to it.
+ *
  * Renders a Link for an app route, an <a> for anything else, a <button>
  * without an href — and, with neither href nor onClick, a dead label
  * (AI Projects' "Coming Soon").
@@ -43,7 +47,9 @@ function inks(side: PixelSide, i: number, j: number) {
   return { light: `${c}59`, dark: `${c}d9` };
 }
 
-function PixelGround({ side }: { side: PixelSide }) {
+/** The field of squares. `tone` "dark" keeps them in their hovered inks
+ *  for good — the black pills in the band (ShowcaseStrip). */
+export function PixelGround({ side, tone = "light" }: { side: PixelSide; tone?: "light" | "dark" }) {
   const ref = useRef<HTMLSpanElement>(null);
   const [grid, setGrid] = useState({ cols: 0, rows: 0 });
   useEffect(() => {
@@ -75,7 +81,7 @@ function PixelGround({ side }: { side: PixelSide }) {
               height: SQ,
               left: i * PITCH + 1,
               top: j * PITCH + 1,
-              "--lt": light,
+              "--lt": tone === "dark" ? dark : light,
               "--dk": dark,
               "--blink": `${(1.3 + r * 2.6).toFixed(2)}s`,
               "--delay": `${(-hash(j + 5, i + 13) * 4).toFixed(2)}s`,
@@ -120,14 +126,14 @@ export function PixelButton({
     side === "logic"
       ? "bg-neutral-900"
       : "bg-[linear-gradient(90deg,#ff2e8b,#ff8a00,#f5c518,#7fbf2e,#00a6a6,#3f6ad8,#7a3fb0)]";
-  const pad = size === "sm" ? "h-9 px-3.5 text-[0.6rem]" : "h-11 px-3.5 text-[0.68rem] sm:px-5";
+  const pad = size === "sm" ? "h-9 px-4 text-[0.6rem]" : "h-11 px-4 text-[0.68rem] sm:px-5";
   const face =
     side === "logic"
       ? "font-graff uppercase tracking-[0.2em]"
       : "face-creative font-bold tracking-[0.02em] text-[0.8rem]";
   const inner = (
     <span
-      className={`relative flex items-center justify-center gap-2 overflow-hidden rounded-[3px] bg-white text-neutral-900 transition-colors duration-200 ${
+      className={`relative flex items-center justify-center gap-2 overflow-hidden rounded-full bg-white text-neutral-900 transition-colors duration-200 ${
         dead ? "" : "group-hover:bg-neutral-950 group-hover:text-white group-focus-visible:bg-neutral-950 group-focus-visible:text-white"
       } ${pad}`}
     >
@@ -137,7 +143,7 @@ export function PixelButton({
       </span>
     </span>
   );
-  const shell = `group relative inline-block rounded-[4px] p-[1.5px] outline-none ${edge} ${
+  const shell = `group relative inline-block rounded-full p-[1.5px] outline-none ${edge} ${
     dead ? "cursor-default opacity-80" : "cursor-pointer"
   } focus-visible:ring-2 focus-visible:ring-neutral-900/40 focus-visible:ring-offset-2 ${className}`;
 

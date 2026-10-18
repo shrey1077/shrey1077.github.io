@@ -99,7 +99,7 @@ export function SectionMenu({
   };
 
   const row = (on: boolean) =>
-    `group flex w-full items-center gap-3 rounded-lg px-2.5 py-1.5 text-left outline-none transition-colors duration-150 focus-visible:bg-neutral-900 focus-visible:text-white ${
+    `group flex w-full items-center gap-3 rounded-full px-3.5 py-1.5 text-left outline-none transition-colors duration-150 focus-visible:bg-neutral-900 focus-visible:text-white ${
       on ? "bg-neutral-900 text-white" : "text-neutral-800 hover:bg-neutral-900 hover:text-white"
     }`;
 

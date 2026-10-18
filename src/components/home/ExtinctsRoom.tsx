@@ -62,7 +62,7 @@ export function ExtinctsRoom() {
               role="tab"
               aria-selected={on}
               onClick={() => setSection(s.id)}
-              className={`font-graff flex items-baseline gap-1.5 rounded-xl px-2.5 py-1.5 text-xs font-bold outline-none lg:gap-2 lg:px-3.5 lg:py-2 lg:text-sm transition-colors duration-200 focus-visible:ring-2 focus-visible:ring-neutral-900/40 ${
+              className={`font-graff flex items-baseline gap-1.5 rounded-full px-3 py-1.5 text-xs font-bold outline-none lg:gap-2 lg:px-4 lg:py-2 lg:text-sm transition-colors duration-200 focus-visible:ring-2 focus-visible:ring-neutral-900/40 ${
                 on ? "bg-neutral-900 text-white" : "text-neutral-600 hover:bg-neutral-900/5 hover:text-neutral-900"
               }`}
             >
@@ -238,7 +238,7 @@ export function ExtinctsReader({ report, onClose }: { report: ExtinctsReport | n
               type="button"
               onClick={onClose}
               aria-label="Close the report"
-              className={`${META} shrink-0 rounded px-2 py-1 text-xs text-white/55 outline-none transition-colors duration-300 hover:text-white focus-visible:text-white focus-visible:ring-2 focus-visible:ring-white/40`}
+              className={`${META} shrink-0 rounded-full px-2.5 py-1 text-xs text-white/55 outline-none transition-colors duration-300 hover:text-white focus-visible:text-white focus-visible:ring-2 focus-visible:ring-white/40`}
             >
               Close ✕
             </button>

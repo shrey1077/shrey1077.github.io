@@ -166,11 +166,11 @@ export function PhotoStory({
                         type="button"
                         onClick={() => setFilm(i)}
                         aria-current={i === film}
-                        className={`flex w-full cursor-pointer items-center gap-3 p-1.5 text-left outline-none ring-1 transition-colors focus-visible:ring-2 focus-visible:ring-neutral-900/40 ${
+                        className={`flex w-full cursor-pointer items-center gap-3 rounded-full p-1.5 pr-4 text-left outline-none ring-1 transition-colors focus-visible:ring-2 focus-visible:ring-neutral-900/40 ${
                           i === film ? "bg-white ring-neutral-900" : "ring-neutral-200 hover:bg-white"
                         }`}
                       >
-                        <span className="relative block h-9 w-14 shrink-0 overflow-hidden bg-neutral-900">
+                        <span className="relative block h-9 w-14 shrink-0 overflow-hidden rounded-full bg-neutral-900">
                           <Image src={f.poster} alt="" fill sizes="56px" className="object-cover" />
                         </span>
                         <span className="min-w-0">

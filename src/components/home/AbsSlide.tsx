@@ -202,7 +202,7 @@ export function AbsSlide({ item, active }: { item: Showcase; active: boolean }) 
                 aria-selected={on}
                 aria-label={b.name}
                 onClick={() => setPick(b.id)}
-                className={`group relative flex h-[calc(var(--ink)+1rem)] w-full items-center justify-center rounded-xl px-2 outline-none transition-[background-color,opacity,filter] duration-200 focus-visible:ring-2 focus-visible:ring-neutral-900/50 ${
+                className={`group relative flex h-[calc(var(--ink)+1rem)] w-full items-center justify-center rounded-full px-2 outline-none transition-[background-color,opacity,filter] duration-200 focus-visible:ring-2 focus-visible:ring-neutral-900/50 ${
                   on ? "bg-white shadow-[0_10px_30px_-18px_rgba(0,0,0,0.5)] ring-2 ring-neutral-900" : "opacity-55 grayscale hover:opacity-100 hover:grayscale-0"
                 }`}
               >

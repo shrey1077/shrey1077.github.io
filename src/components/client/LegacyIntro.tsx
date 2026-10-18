@@ -196,7 +196,7 @@ export function LegacyIntro() {
               ref={skipRef}
               type="button"
               onClick={leave}
-              className={`${typeVoiceClass("logic", "meta")} absolute bottom-6 right-6 rounded px-2 py-1 text-[0.65rem] text-neutral-500 outline-none transition-colors duration-300 hover:text-neutral-900 focus-visible:text-neutral-900 focus-visible:ring-2 focus-visible:ring-neutral-900/40 sm:bottom-10 sm:right-10`}
+              className={`${typeVoiceClass("logic", "meta")} absolute bottom-6 right-6 rounded-full px-2.5 py-1 text-[0.65rem] text-neutral-500 outline-none transition-colors duration-300 hover:text-neutral-900 focus-visible:text-neutral-900 focus-visible:ring-2 focus-visible:ring-neutral-900/40 sm:bottom-10 sm:right-10`}
             >
               Skip →
             </button>

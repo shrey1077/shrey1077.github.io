@@ -107,7 +107,7 @@ export function MediaViewer({
               type="button"
               onClick={onClose}
               aria-label="Close viewer"
-              className={`${typeVoiceClass("logic", "meta")} rounded px-2 py-1 text-xs text-neutral-500 outline-none transition-colors duration-300 hover:text-neutral-900 focus-visible:text-neutral-900 focus-visible:ring-2 focus-visible:ring-neutral-900/40`}
+              className={`${typeVoiceClass("logic", "meta")} rounded-full px-2.5 py-1 text-xs text-neutral-500 outline-none transition-colors duration-300 hover:text-neutral-900 focus-visible:text-neutral-900 focus-visible:ring-2 focus-visible:ring-neutral-900/40`}
             >
               Close ✕
             </button>
