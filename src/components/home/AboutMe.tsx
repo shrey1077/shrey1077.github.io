@@ -18,6 +18,9 @@
  * ("then i spent next 2.5 years with Tata IIS, joined as individual
  * contributor, then hired as Assistant Manager, leaving as Lead Manager-
  * Graphic Designer in Sept 2026"), with what the site already says of it.
+ * ABS's line says where the work was done (owner, 2026-10-19: "it feels like i
+ * went to USA for work, which is not the case. put USA in () and say … i
+ * worked night shifts ie in US timezones from their Delhi Office").
  *
  * The pop-up is portalled to <body> — the first slide lives in the
  * Flythrough's transformed stage, which would make a `position: fixed` box
@@ -45,7 +48,7 @@ const STORY: readonly string[] = [
   "It was there in JUIT Waknaghat campus when I first started my basic animation study for a module, and found myself hooked to the field of design.",
   "This foundation led me to various fields of design from 3D animations, VFX and graphics designing. I was lucky to find job opportunities that provided me a platform to grow upon. I had strong linguistic skills from early childhood which helped me to work for a few well-known news media houses where I was able to enhance all my skills in a better way.",
   "I always wanted to have a formal education in design and I was fortunate to be a part of an institute like UID to fulfill that dream.",
-  "From there I joined ABS Wholesale in the USA, where I worked for hundreds of American brands on their wholesale and distribution ads. I developed the complete branding identity for the company, developed two brands of its own, Luzid and Kartpipe, and made the marketing collateral for all of them.",
+  "From there I joined ABS Wholesale (USA), working night shifts on US time from its Delhi office for hundreds of American brands, on their wholesale and distribution ads. I developed the complete branding identity for the company, developed two brands of its own, Luzid and Kartpipe, and made the marketing collateral for all of them.",
   "In parallel, I was developing Azoth Biotech’s identity, with its additional brands — Naturalist, MushroomWorks, MycoActives, Kavaka and MycoVeda.",
   "Then I spent the next 2.5 years with Tata IIS: I joined as an individual contributor, was then hired as Assistant Manager, and left as Lead Manager — Graphic Designer in September 2026. There I built the identity on a strict construction grid and redesigned the Tata IIS logo from its earlier version, setting it in Copperplate Gothic.",
   "Today I’m upskilling in AI film making and AI agents.",
