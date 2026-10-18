@@ -11,10 +11,10 @@
  *   ┌────────────────────────────────┬───────────────────┐
  *   │ TATA IIS (the wordmark)        │                   │
  *   │                                │  the hero artwork │
- *   │ the institute  │  my part      │  (the Tata page's,│
+ *   │ the institute  │  its campuses │  (the Tata page's,│
  *   │ in one column  │  in the other │   bleeding right) │
- *   │ …words part ↗  │  round birds… │                   │
- *   │        ☐ the film, small      │ [View Full ... →] │
+ *   │ Position: …    │  round birds… │                   │
+ *   │ IISA  IISM     ☐ the film     │ [View Full ... →] │
  *   └────────────────────────────────┴───────────────────┘
  *   over the Tata page's own grid wash, the whole slide.
  *
@@ -26,8 +26,12 @@
  * and plays again. Black on white, drawn in `multiply`, so its white drops
  * out and the grid shows through.
  *
- * THE WORDS, two columns — the institute in one, the owner's part in the
- * other — are laid out line by line, LETTER BY LETTER, AROUND THE FILM'S INK
+ * THE WORDS, two columns, all of them the institute's (owner, 2026-10-18:
+ * "This text should only be Tata IIS and its info as was before, but more
+ * detailed, dont include my details") — the institute in one, its campuses in
+ * the other; the owner's part, which stood in the second until then, is one
+ * line under the first: "Position:" and the role. They are laid out line by
+ * line, LETTER BY LETTER, AROUND THE FILM'S INK
  * (FilmWrap): for every frame the film shows, each line asks where the boy,
  * the cage and the birds are across its height and fills only the room
  * either side of them, breaking a word where a bird cuts it. Then the birds'
@@ -36,7 +40,13 @@
  * pushed off it — up, mostly, the way the flock flies — and turned, and a
  * letter lifted into the line above jostles that line in turn.
  *
- * WHERE THE FILM SITS (owner, the next round: "need half the size of
+ * WHERE THE FILM SITS — since 2026-10-18 (owner: "the lower animation will
+ * only effect last two lines of second column") the film is let up until the
+ * highest ink of any of its frames reaches the second column's last TWO
+ * lines, and no higher; the birds' wake moves only those two lines' letters,
+ * and the first column is never touched. Before that:
+ *
+ * (owner, the next round: "need half the size of
  * animation, and more text. place it such only the bottom of text in 1st and
  * 2nd column shud be affected by text wrap"): half the block wide, its upper
  * part among the last lines and the rest under the text. Since the next
@@ -90,10 +100,15 @@ const CAMPUS_MARKS = [
  *  it exactly. They wait for the room like every picture here (nearness). */
 function CampusMarks() {
   const near = useContext(NearContext);
+  // One height for both: the room's, or less where the two side by side
+  // would be wider than the column (since 2026-10-18, when the role's line
+  // took some of the room above them and they ran up over it).
+  const across = CAMPUS_MARKS.reduce((s, m) => s + m.ink.w / m.ink.h, 0);
+  const h = `min(100cqh - 0.35rem, 93cqw / ${across.toFixed(4)})`;
   return (
-    <span className="flex h-full items-end gap-[7%] pb-[0.35rem]">
+    <span className="flex h-full items-end gap-[7%] pb-[0.35rem] [container-type:size]">
       {CAMPUS_MARKS.map((m) => (
-        <span key={m.src} className="relative block overflow-hidden" style={{ flex: `${m.ink.w / m.ink.h} 1 0`, aspectRatio: `${m.ink.w} / ${m.ink.h}` }}>
+        <span key={m.src} className="relative block shrink-0 overflow-hidden" style={{ height: `calc(${h})`, aspectRatio: `${m.ink.w} / ${m.ink.h}` }}>
           {near && (
             // eslint-disable-next-line @next/next/no-img-element -- placed by its ink, which next/image's fill cannot do
             <img
@@ -114,25 +129,25 @@ function CampusMarks() {
   );
 }
 
-/** The words, sentence by sentence — all of them already established on the
- *  Tata page or in the showcase (TATA_DESCRIPTION, TATA_WHO, the campus
- *  profiles, TATA_POWERED_BY, TATA_SYSTEM, TATA_IDENTITIES, the role's
- *  points): the institute in the first column, the owner's part in the
- *  second. */
+/** The words, sentence by sentence — the institute's own, all of them
+ *  already established on the Tata page (TATA_DESCRIPTION, TATA_WHO, the
+ *  campus profiles — the client's own paragraphs — TATA_POWERED_BY and the
+ *  campus photographs): the institute in the first column, its two campuses
+ *  in the second. Nothing of the owner's here (owner, 2026-10-18); the role
+ *  is the line under the first column. On a small screen the last sentences
+ *  go first, so the most important lead. */
 const COLUMNS: readonly (readonly string[])[] = [
   [
-    "Tata Indian Institute of Skills is a Tata Group initiative — a Section 8 company set up in partnership with the Ministry of Skill Development and Entrepreneurship to build world-class skill institutes.",
+    "Tata Indian Institute of Skills (Tata IIS) is a Tata Group initiative — a Section 8 company set up in partnership with the Ministry of Skill Development and Entrepreneurship (MSDE) to build world-class skill institutes in Ahmedabad and Mumbai.",
     "Backed by Tata values, it delivers industry-grade, outcome-driven training in emerging technical and service skills, turning India’s demographic advantage into workplace excellence.",
-    "Its two campuses each carry a voice of their own.",
-    "IIS Ahmedabad, set up with the Government of Gujarat, stands on a 20-acre campus in Nasmed village; IIS Mumbai, on a 4+ acre campus in Chunabhatti.",
-    "Both are built for job-oriented learning, with state-of-the-art infrastructure and advanced labs.",
+    "Its aim is to empower India’s youth, equipping them with the skills that professional success asks for.",
     "The institute is powered by Tata Trusts and Skill India, alongside the Government of Gujarat and the Ministry.",
   ],
   [
-    "As Lead Manager — Graphic Designer, 2024 to 2026, I refined the wordmark to bring the institute into the wider Tata identity, rebuilt on the group’s own typeface so it reads as part of the family at every size and on every surface.",
-    "I built the system on a strict construction grid, redesigned the Tata IIS logo from its earlier version in Copperplate Gothic, and set the brand guidelines for the institute and both campuses: one construction, exclusion zone and behaviour, apart only in colour and geometry.",
-    "Then the work itself: the trainee handbook, signage and print, mockups staged in place, the social grid, photography and film.",
-    "In all, 180+ artifacts across 13 categories, and five films.",
+    "IIS Ahmedabad, established with the MSDE and the Government of Gujarat, stands on a 20-acre campus in Nasmed village.",
+    "IIS Mumbai, established with the MSDE, Government of India, stands on a 4+ acre campus in Chunabhatti.",
+    "Both are built for job-oriented learning, with state-of-the-art infrastructure: advanced labs and classrooms, and workshop floors where trainees learn at the bench.",
+    "Two campuses, one institute: skills, people, progress and opportunity.",
   ],
 ];
 
@@ -140,17 +155,14 @@ const COLUMNS: readonly (readonly string[])[] = [
 const MAX_REM = 40;
 /** The gap between the columns, in ems of the text. */
 const GUTTER_EM = 1.8;
-/** How far down the film the columns end: its top part — the cage's crown
- *  and the flock rising from it — among their last lines, the rest beneath
- *  them. 0.25 since the owner's next word ("move the text further up, fix
- *  animation at current point"): the film stays standing on the band, the
- *  words lift clear of the boy (it was 0.55, down to his shoulders). */
-const OVERLAP = 0.25;
-/** And the words lifted this many lines above that (owner: "move the text 4
- *  lines height upwards", then "just move text down 2 line height", then
- *  "move text up one line") — the film stays standing on the band, so the
- *  flock meets the columns' foot and its wake reaches up into them. */
-const LIFT_LINES = 3;
+/** How many of the second column's last lines the film may touch — its wrap
+ *  and its wake (owner, 2026-10-18: "the lower animation will only effect last
+ *  two lines of second column"). Until then the columns ended a quarter of the
+ *  way down the film, lifted three lines (OVERLAP 0.25, LIFT_LINES 3). */
+const TOUCHED_LINES = 2;
+/** The gap above the line under the first column ("Position: …"), in
+ *  lines; the line itself takes one, or two where the column is narrow. */
+const POSITION_GAP = 0.75;
 
 /** The film and the words round it, under `head` (the wordmark); the
  *  campuses' marks under the first column. */
@@ -160,6 +172,7 @@ function FilmWrap({
   head,
   middle,
   campuses,
+  position,
   groundRef,
 }: {
   live: boolean;
@@ -170,6 +183,8 @@ function FilmWrap({
   middle?: React.ReactNode;
   /** What stands under the first column, on the band (the campus marks). */
   campuses?: React.ReactNode;
+  /** The line straight under the first column: the owner's role. */
+  position?: { label: string; value: string };
   /** A marker at the band's top edge, in the same frame as this box. */
   groundRef: React.RefObject<HTMLDivElement | null>;
 }) {
@@ -309,6 +324,17 @@ function FilmWrap({
     });
     return low ? Math.min(1, (low * wrap.band) / wrap.h) : 0.9;
   }, [wrap]);
+  // The highest ink in any frame, as a share of the film's height — what may
+  // reach no higher than the second column's last lines.
+  const inkTop = useMemo(() => {
+    if (!wrap) return 0;
+    let top = wrap.h;
+    for (const f of wrap.frames) {
+      const b = f.findIndex((r) => r.length > 0);
+      if (b >= 0) top = Math.min(top, b * wrap.band);
+    }
+    return top / wrap.h;
+  }, [wrap]);
   const filmW = Math.max(0, Math.min(half, (room * 0.5) / FILM_RATIO));
   const filmH = filmW * FILM_RATIO;
   const filmX = half + gutter;
@@ -321,32 +347,52 @@ function FilmWrap({
   );
 
   // THE PLAN, once per size: how many sentences fit, and where the film sits
-  // — the second column, wrapped round the film's busiest frames, ending
-  // OVERLAP of the way down it; the first leaving room under it for the
-  // campus marks. Worked out in an idle moment — a few dozen layouts — and
-  // kept.
+  // — its highest ink level with the top of the second column's last
+  // TOUCHED_LINES, the column wrapped round the film's busiest frames; the
+  // first leaving room under it for the role and the campus marks. Worked out
+  // in an idle moment — a few dozen layouts — and kept.
   const [plan, setPlan] = useState<{ key: string; filmY: number; cut: number[]; height: number; reach: number; first: number } | null>(null);
-  const planKey = `${width}|${room}|${type?.font}|${!!wrap}|${feet}`;
+  // The role's room under the first column, in lines with its gap: two lines
+  // where the column is too narrow for it in one (a phone).
+  const posRoom = !position
+    ? 0
+    : POSITION_GAP + (measure && [...`${position.label} ${position.value}`].reduce((w, c) => w + measure.m(c), 0) * 1.06 > half ? 2 : 1);
+  const planKey = `${width}|${room}|${type?.font}|${!!wrap}|${feet}|${inkTop}|${posRoom}`;
   useEffect(() => {
     if (!wrap || !type || !measure || width <= 0) return;
     const run = () => {
       const minRoom = type.size * 2;
-      const marks = type.lineH * 3.4; // the least room the campus marks need
-      const sample = wrap.frames.map((_, f) => f).filter((f) => f % 6 === 0 || f === wrap.frames.length - 1);
+      const marks = type.lineH * (3.4 + posRoom); // the least room the role and the campus marks need
+      // The film's top for a second column ending at `end`: its highest ink
+      // at the top of the last TOUCHED_LINES — less inkOf's own margin above
+      // the ink, so the line above them stays clear of it.
+      const padY = type.size * 0.15 + 1;
+      const at = (end: number) => end - TOUCHED_LINES * type.lineH + padY - inkTop * filmH;
+      const sample = wrap.frames.map((_, f) => f).filter((f) => f % 4 === 0 || f === wrap.frames.length - 1);
       const place = (cut: number[]) => {
         const cols = columnsAt(cut);
         const bare = layout(cols, type.lineH, measure.m, measure.space, () => [], minRoom).heights;
-        const lift = LIFT_LINES * type.lineH;
-        let filmY = bare[1] - OVERLAP * filmH + lift;
-        let second = bare[1];
-        for (let k = 0; k < 4; k++) {
-          second = 0;
-          for (const f of sample) second = Math.max(second, layout(cols, type.lineH, measure.m, measure.space, inkOf(wrap, f, filmX, filmY, filmW, type.size).spans, minRoom).heights[1]);
-          const next = second - OVERLAP * filmH + lift;
-          if (Math.abs(next - filmY) < 1) break;
-          filmY = next;
+        // The second column's foot with the film's top at y, round its
+        // busiest frame.
+        const foot = (y: number) => {
+          let e = 0;
+          for (const f of sample) e = Math.max(e, layout(cols, type.lineH, measure.m, measure.space, inkOf(wrap, f, filmX, y, filmW, type.size).spans, minRoom).heights[1]);
+          return e;
+        };
+        // The highest the film may stand: raised, it pushes words on and the
+        // column grows under it, so search — the lowest the film can be is
+        // with its ink under the words (no line touched); as high as the
+        // words alone would allow, it may touch too many.
+        let lo = at(bare[1]);
+        let hi = bare[1] + padY - inkTop * filmH;
+        if (at(foot(lo)) <= lo) hi = lo;
+        for (let k = 0; k < 9 && hi - lo > 0.5; k++) {
+          const mid = (lo + hi) / 2;
+          if (at(foot(mid)) <= mid) hi = mid;
+          else lo = mid;
         }
-        filmY = Math.max(0, filmY);
+        const second = foot(hi);
+        const filmY = Math.max(0, hi);
         const reach = filmY + feet * filmH;
         return { filmY, reach, first: bare[0], height: Math.max(filmY + filmH, second, bare[0]), marksFit: reach - bare[0] >= marks };
       };
@@ -371,7 +417,7 @@ function FilmWrap({
     const cancel = window.cancelIdleCallback ?? window.clearTimeout;
     const id = idle(run, { timeout: 500 });
     return () => cancel(id);
-  }, [planKey, wrap, type, measure, width, room, filmW, filmH, filmX, columnsAt, feet]);
+  }, [planKey, wrap, type, measure, width, room, filmW, filmH, filmX, columnsAt, feet, inkTop, posRoom]);
   const ready = plan && plan.key === planKey ? plan : null;
 
   // Reduced motion: the last frame, still, and the words round it.
@@ -382,7 +428,18 @@ function FilmWrap({
     if (!measure || !type || !wrap || !ready) return null;
     const ink = inkOf(wrap, shown, filmX, ready.filmY, filmW, type.size);
     const { letters } = layout(columnsAt(ready.cut), type.lineH, measure.m, measure.space, ink.spans, type.size * 2);
-    return { letters, moves: wake(letters, type.lineH, type.size, ink.nearest) };
+    const moves = wake(letters, type.lineH, type.size, ink.nearest);
+    // The wake stirs only the second column's last lines; every other letter
+    // holds still.
+    let last = -1;
+    for (const L of letters) if (L.col === 1) last = Math.max(last, L.line);
+    letters.forEach((L, i) => {
+      if (L.col === 1 && L.line > last - TOUCHED_LINES) return;
+      moves[i * 3] = 0;
+      moves[i * 3 + 1] = 0;
+      moves[i * 3 + 2] = 0;
+    });
+    return { letters, moves };
   }, [measure, type, wrap, ready, columnsAt, shown, filmX, filmW]);
 
   // The letters, drawn straight to the page: one span each, kept and reused,
@@ -404,6 +461,7 @@ function FilmWrap({
         {COLUMNS.map((c) => (
           <p key={c[0]}>{c.join(" ")}</p>
         ))}
+        {position && <p>{`${position.label} ${position.value}`}</p>}
       </div>
       {/* The wordmark at the top; the words and the film let down until the
           boy's feet meet the band.
@@ -450,9 +508,22 @@ function FilmWrap({
             style={{ left: filmX, top: ready?.filmY ?? 0, width: filmW, height: filmH }}
           />
         )}
-        {/* The campus marks, under the first column, standing on the band. */}
+        {/* The role, straight under the first column, in its type. */}
+        {position && ready && (
+          <p className="tata-flow-type absolute left-0" style={{ top: ready.first + (type?.lineH ?? 14) * POSITION_GAP, width: half }}>
+            <span className="font-bold">{position.label}</span> {position.value}
+          </p>
+        )}
+        {/* The campus marks under that, standing on the band. */}
         {campuses && ready && (
-          <div className="absolute left-0" style={{ top: ready.first + (type?.lineH ?? 14) * 0.9, width: half, height: Math.max(0, ready.reach - ready.first - (type?.lineH ?? 14) * 0.9) }}>
+          <div
+            className="absolute left-0"
+            style={{
+              top: ready.first + (type?.lineH ?? 14) * (posRoom + 0.9),
+              width: half,
+              height: Math.max(0, ready.reach - ready.first - (type?.lineH ?? 14) * (posRoom + 0.9)),
+            }}
+          >
             {campuses}
           </div>
         )}
@@ -500,6 +571,7 @@ export function TataSlide({ item, live, reduceMotion }: { item: Showcase; live: 
             reduceMotion={reduceMotion}
             groundRef={groundRef}
             campuses={<CampusMarks />}
+            position={{ label: "Position:", value: item.role }}
             middle={
               <>
                 <TataTurn live={live && tall} reduceMotion={reduceMotion} fit="student" className="absolute inset-0 mix-blend-multiply" />
