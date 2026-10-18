@@ -17,7 +17,7 @@
  */
 
 import { useCallback, useEffect, useRef, useState } from "react";
-import { motion, useAnimationControls, useReducedMotion } from "framer-motion";
+import { animate, motion, useMotionValue, useReducedMotion, useTransform } from "framer-motion";
 import { EASE_OUT } from "@/constants/motion";
 
 const V = 340; // viewBox size
@@ -94,20 +94,21 @@ const listeners = new Set<WaveFn>();
 const emitWave: WaveFn = (source, idx, amp) =>
   listeners.forEach((l) => l(source, idx, amp));
 
+/** A line, waved when `trigger` ticks: the wave's height is what animates,
+ *  and the path is drawn from it each frame. (It animated the path itself
+ *  until 2026-10-18 — framer-motion can't blend two path strings, so every
+ *  ripple wrote d="undefined" and drew nothing.) */
 function WaveLine({ seg, trigger, amp }: { seg: Seg; trigger: number; amp: number }) {
-  const controls = useAnimationControls();
-  const straight = pathFor(seg, 0);
+  const wave = useMotionValue(0);
+  const d = useTransform(wave, (a) => pathFor(seg, a));
   useEffect(() => {
     if (!trigger) return;
-    controls.start({
-      d: [straight, pathFor(seg, amp * WAVE_AMP), straight],
-      transition: { duration: 0.9, ease: EASE_OUT },
-    });
-  }, [trigger, amp, seg, straight, controls]);
+    const run = animate(wave, [0, amp * WAVE_AMP, 0], { duration: 0.9, ease: EASE_OUT });
+    return () => run.stop();
+  }, [trigger, amp, wave]);
   return (
     <motion.path
-      d={straight}
-      animate={controls}
+      d={d}
       fill="none"
       stroke="#000"
       strokeWidth={0.9}
