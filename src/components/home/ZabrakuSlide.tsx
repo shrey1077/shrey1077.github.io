@@ -27,6 +27,13 @@
  * on white and near white over the robot's dark body. That blending needs the
  * slide's own white under it, so on a portrait screen this one slide is plain
  * white, without the drifting field behind.
+ *
+ * On a landscape screen everything on the slide stands on one panel, white
+ * at half strength, rounded, between the field of falling nodes and the
+ * slide's own things (owner, 2026-10-18: "use a 50% transclucent rounded
+ * rectangle between bg falling nodes and all zabraku slide elements as a
+ * group for better visiblity"). Under the logo: where the studio is, and the
+ * years (owner, the same day).
  */
 
 import { useState } from "react";
@@ -46,6 +53,9 @@ const CLIENTS = [
   { id: "casa-playa", name: "Casa Playa", logo: "/content/clients/zabraku-media/clients/casa-playa-grey.png", aspect: 480 / 449 },
   { id: "rkb-entertainment", name: "RKB Entertainment", logo: "/content/clients/zabraku-media/clients/rkb-grey.png", aspect: 346 / 900 },
 ] as const;
+/** Where the studio is (owner, 2026-10-18: "Zabraku is based in Malviya
+ *  Nagar, New Delhi"). */
+const BASED = "Malviya Nagar, New Delhi";
 /** The robot — the template author's scene; see SplineScene. */
 const SCENE = "https://prod.spline.design/AqtlWJlNbO-ZMkvz/scene.splinecode";
 
@@ -73,6 +83,12 @@ export function ZabrakuSlide({
     // page's white came out invisible.
     <section aria-label={item.name} data-side="logic" className="absolute inset-0 overflow-hidden portrait:bg-white">
       <h2 className="sr-only">{item.name}</h2>
+      {/* The panel under it all, clear of the sections button above and the
+          band below. A portrait screen's slide is white already. */}
+      <div
+        aria-hidden
+        className="pointer-events-none absolute inset-x-2 bottom-[calc(7svh+0.75rem)] top-[calc(max(2vh,0.75rem)+var(--strip-h)+0.25rem)] rounded-[2rem] bg-white/50 sm:inset-x-4 lg:inset-x-[2.5vw] portrait:hidden"
+      />
       {/* The robot: the right side, 75% of the screen's height, centred; on a
           portrait screen the lower part, under the words. */}
       <div className="absolute right-0 top-1/2 h-[75svh] w-[min(62vw,75svh)] -translate-y-1/2 sm:right-[3vw] portrait:bottom-[calc(7svh+3.5rem)] portrait:top-auto portrait:h-[52svh] portrait:w-[80vw] portrait:translate-y-0">
@@ -104,6 +120,17 @@ export function ZabrakuSlide({
         <span className="relative block aspect-[4/1] w-[min(36vw,26rem)] portrait:w-[58vw]">
           <Image src={item.mark ?? ""} alt="Zabraku" fill sizes="(orientation: portrait) 58vw, 36vw" className="object-contain object-left" />
         </span>
+        <p className="font-helv -mt-1 text-[0.86rem] leading-snug text-neutral-700 portrait:text-white/[0.72] portrait:mix-blend-difference">
+          <span className="font-bold">{BASED}</span>
+          {item.years && (
+            <>
+              <span aria-hidden className="px-2 text-neutral-400 portrait:text-inherit">
+                ·
+              </span>
+              {item.years}
+            </>
+          )}
+        </p>
         <p className="font-helv max-w-[22rem] text-[0.86rem] leading-snug text-neutral-600 portrait:max-w-[60vw] portrait:text-white/[0.66] portrait:mix-blend-difference">
           A media house with a story-first spine — its identity, RKB Entertainment&apos;s, and a year of event campaigns.
         </p>

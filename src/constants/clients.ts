@@ -97,7 +97,7 @@ export const CLIENTS: readonly Client[] = [
     sector: "Media · Content",
     accent: "#B3264A",
     essence: "A media house with a story-first spine.",
-    location: "Malviya Nagar, Delhi",
+    location: "Malviya Nagar, New Delhi",
     // Lifted off the cover of the 2021 company portfolio, where the wordmark
     // was white and yellow on black. Measured, 72% of its ink was near-white,
     // so on the pure-white plate the board uses since 2026-08-20 it read as

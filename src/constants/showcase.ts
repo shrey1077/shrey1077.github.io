@@ -236,7 +236,7 @@ export const LOGIC_SHOWCASE: readonly Showcase[] = [
       "Four waves of event campaigns across a year-long party calendar.",
       "The 2021 company portfolio, page by page.",
     ],
-    facts: [{ label: "Based", value: "Malviya Nagar, Delhi" }],
+    facts: [{ label: "Based", value: "Malviya Nagar, New Delhi" }],
     report: { label: "View Full Project", href: "/clients/zabraku-media" },
   },
   {
