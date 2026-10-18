@@ -52,6 +52,12 @@
  * ⚠ SMALLER since 2026-10-10 (owner): "Left" / "Right" at about 70% of the
  * size they were (clamp 2.6–6rem → 1.85–4.2rem), "brain" with them. The
  * lines follow on their own — they are sized off the headline's height.
+ *
+ * "SCROLL" over each word (owner, 2026-10-18: "add the word 'Scroll' above
+ * both left and right, in same faded effect, that comes alive with left or
+ * right when hovered"): set as "brain" is, faded and far back with its word,
+ * and brought forward with it. It hangs above the headline rather than in it,
+ * so the lines beside keep the height of "Left brain" / "Right brain".
  */
 
 import { useEffect, useRef, useState } from "react";
@@ -98,6 +104,8 @@ const BODY_FALLBACK = "clamp(0.74rem, 0.95vw, 1rem)";
  *  painted "Right" — `bg-clip-text` type is transparent, and a shadow would
  *  show through and wash the paint out. */
 const HALO = "[text-shadow:0_0_10px_rgba(249,249,249,0.95),0_0_3px_rgba(249,249,249,0.9)]";
+/** "Scroll" over each word — the size and face of "brain" under it. */
+const SCROLL = "font-lr-grotesk pointer-events-none absolute bottom-full mb-[0.35em] block whitespace-nowrap text-[clamp(0.75rem,1.25vw,1.35rem)] font-light leading-none";
 
 type Pt = { x: number; y: number };
 
@@ -503,7 +511,15 @@ export function LeftRightBrain({
           animate={{ opacity: leftShown ? 1 : 0 }}
           transition={{ duration: 0.45, ease: EASE_OUT, delay: leftShown ? after : 0 }}
         />
-        <motion.p ref={leftHeadRef} style={{ opacity: leftFade }} className="shrink-0 self-center leading-none">
+        <motion.p ref={leftHeadRef} style={{ opacity: leftFade }} className="relative shrink-0 self-center leading-none">
+          <motion.span
+            className={`${SCROLL} left-0`}
+            initial={false}
+            animate={{ color: leftShown ? "#262626" : "#a3a3a3" }}
+            transition={{ duration: 0.4, delay: leftShown ? after : 0 }}
+          >
+            Scroll
+          </motion.span>
           <motion.span
             ref={leftWordRef}
             className="font-lr-grotesk inline-block text-[clamp(1.85rem,3.8vw,4.2rem)] font-extrabold leading-[0.9] tracking-[-0.035em]"
@@ -597,7 +613,15 @@ export function LeftRightBrain({
           animate={{ scaleY: rightShown ? 1 : 0.35, opacity: rightShown ? 1 : 0.25 }}
           transition={{ duration: 0.45, ease: EASE_OUT, delay: rightShown ? after : 0 }}
         />
-        <motion.p ref={rightHeadRef} style={{ opacity: rightFade }} className="shrink-0 self-center leading-none">
+        <motion.p ref={rightHeadRef} style={{ opacity: rightFade }} className="relative shrink-0 self-center leading-none">
+          <motion.span
+            className={`${SCROLL} right-0`}
+            initial={false}
+            animate={{ color: rightShown ? "#3f6ad8" : "#a3a3a3" }}
+            transition={{ duration: 0.4, delay: rightShown ? after : 0 }}
+          >
+            Scroll
+          </motion.span>
           <span ref={rightWordRef} className="relative inline-block">
             <span className="face-creative block text-[clamp(1.85rem,3.8vw,4.2rem)] font-bold leading-[0.9] tracking-[-0.03em] text-neutral-400">
               {RIGHT_BRAIN.word}
@@ -641,6 +665,7 @@ export function LeftRightBrain({
           animate={{ opacity: leftOn ? 1 : rightOn ? 0.3 : 0.75, scale: leftOn ? 1.1 : 1 }}
           transition={{ duration: 0.4, ease: EASE_OUT }}
         >
+          <span className="mb-1 block text-xs font-light sm:text-base">Scroll</span>
           <span className="block text-[1.6rem] font-extrabold tracking-[-0.03em] sm:text-[2.4rem]">
             {LEFT_BRAIN.word}
           </span>
@@ -652,6 +677,7 @@ export function LeftRightBrain({
           animate={{ opacity: rightOn ? 1 : leftOn ? 0.3 : 0.75, scale: rightOn ? 1.1 : 1 }}
           transition={{ duration: 0.4, ease: EASE_OUT }}
         >
+          <span className="font-lr-grotesk mb-1 block text-xs font-light text-neutral-600 sm:text-base">Scroll</span>
           <span className="brain-paint face-creative block bg-clip-text text-[1.6rem] font-bold leading-none tracking-[-0.03em] text-transparent sm:text-[2.4rem]">
             {RIGHT_BRAIN.word}
           </span>
