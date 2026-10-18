@@ -41,7 +41,7 @@ import type { MotionValue } from "framer-motion";
 import { RoomImage as Image } from "@/components/home/nearness";
 import { SplineScene, preloadSpline } from "@/components/client/SplineScene";
 import { PixelButton } from "@/components/home/PixelButton";
-import { BrandPlate } from "@/components/home/BrandPlate";
+import { BrandPlate, PLATE_INSET } from "@/components/home/BrandPlate";
 import { useQuietStart } from "@/components/home/quietStart";
 import type { Showcase } from "@/constants/showcase";
 import { typeVoiceClass } from "@/constants/typography";
@@ -116,7 +116,7 @@ export function ZabrakuSlide({
           z-index on this box: either would make it a layer of its own, and
           the words' `difference` blending would then meet only the empty box,
           never the robot. Centred by flex instead; above the robot by order. */}
-      <div className="pointer-events-none absolute inset-y-0 left-4 flex flex-col items-start justify-center gap-4 sm:left-8 lg:left-[5vw] portrait:justify-start portrait:pt-[calc(max(2vh,0.75rem)+var(--strip-h)+1.25rem)]">
+      <div className={`pointer-events-none absolute inset-y-0 ${PLATE_INSET} flex flex-col items-start justify-center gap-4 portrait:justify-start portrait:pt-[calc(max(2vh,0.75rem)+var(--strip-h)+1.85rem)]`}>
         <p className={`${META} text-neutral-500 portrait:text-white/70 portrait:mix-blend-difference`}>{item.sector}</p>
         <span className="relative block aspect-[4/1] w-[min(36vw,26rem)] portrait:w-[58vw]">
           <Image src={item.mark ?? ""} alt="Zabraku" fill sizes="(orientation: portrait) 58vw, 36vw" className="object-contain object-left" />

@@ -20,7 +20,7 @@ import { useQuietStart } from "@/components/home/quietStart";
 import type { MotionValue } from "framer-motion";
 import { RoomImage as Image } from "@/components/home/nearness";
 import { PixelButton } from "@/components/home/PixelButton";
-import { BrandPlate } from "@/components/home/BrandPlate";
+import { BrandPlate, PLATE_PAD, PLATE_TOP } from "@/components/home/BrandPlate";
 import type { Showcase } from "@/constants/showcase";
 import { typeVoiceClass } from "@/constants/typography";
 
@@ -61,8 +61,9 @@ export function NewsMobileSlide({
           elements with red inside and blue outside on border" — the logo's
           own red and blue), clear of the way in at the foot. */}
       <BrandPlate inner={RED} outer={BLUE} clearCorner />
-      {/* The globe, on the right — under the words on a portrait screen. */}
-      <div className="absolute bottom-[7svh] right-0 top-[calc(max(2vh,0.75rem)+var(--strip-h))] w-[58%] portrait:top-auto portrait:h-[50svh] portrait:w-full">
+      {/* The globe, on the right — under the words on a portrait screen —
+          within the plate, clear of the way in at the foot. */}
+      <div className="absolute bottom-[calc(7svh+0.75rem+2.75rem+0.6rem)] right-0 top-[calc(max(2vh,0.75rem)+var(--strip-h))] w-[58%] portrait:top-auto portrait:h-[50svh] portrait:w-full">
         {on && (
           <AsciiGlobe
             background="transparent"
@@ -75,7 +76,7 @@ export function NewsMobileSlide({
           />
         )}
       </div>
-      <div className="slide-frame is-logic pointer-events-none absolute inset-0 flex flex-col justify-center portrait:justify-start">
+      <div className={`slide-frame is-logic pointer-events-none absolute inset-0 flex flex-col justify-center portrait:justify-start ${PLATE_PAD} ${PLATE_TOP}`}>
         <div className="pointer-events-auto flex max-w-[min(40vw,30rem)] flex-col items-start gap-3.5 portrait:max-w-none">
           {/* The mark, bigger, in a white pill (owner, 2026-10-16: "make
               newsmobile logo bigger and inside a horizontal pill"). */}
