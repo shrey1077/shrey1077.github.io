@@ -32,7 +32,7 @@
  * deleted 2026-09-10; the pins have been the way in for a long time.
  */
 
-import { Fragment, useEffect, useLayoutEffect, useRef, useState } from "react";
+import { useEffect, useLayoutEffect, useRef, useState } from "react";
 import { preload } from "react-dom";
 import { motion, useMotionValue, useMotionValueEvent, useReducedMotion, useTransform } from "framer-motion";
 import { BrainSequence } from "@/components/home/BrainSequence";
@@ -46,12 +46,6 @@ import { useInViewport } from "@/hooks/useInViewport";
 import { DURATION, EASE_IN_OUT, EASE_OUT } from "@/constants/motion";
 import { CircuitBackdrop } from "@/components/home/CircuitBackdrop";
 import { BrainFooter } from "@/components/home/BrainFooter";
-import { EducationMark } from "@/components/home/HomeMarks";
-/** The degrees, each with its field written out. */
-const EDUCATION_FULL = [
-  ["B.Tech.", "Information Technology"],
-  ["M.Des.", "Visual Communication"],
-] as const;
 import { AboutMe } from "@/components/home/AboutMe";
 import { useFlight } from "@/components/home/flight";
 import { useMediaQuery } from "@/hooks/useMediaQuery";
@@ -247,8 +241,9 @@ export function HeroStage() {
   const markH = useLayoutHeight(markRef);
   const nameRef = useRef<HTMLHeadingElement>(null);
   const nameH = useLayoutHeight(nameRef);
-  // The education line under the orb (2026-10-15) — part of the stack, so it
-  // counts into the room the orb has.
+  // What stands under the orb — the About Me button (the education line stood
+  // there too, 2026-10-15 to 2026-10-19) — part of the stack, so it counts
+  // into the room the orb has.
   const eduRef = useRef<HTMLDivElement>(null);
   const eduH = useLayoutHeight(eduRef);
   const captionH = nameH + eduH;
@@ -451,11 +446,11 @@ export function HeroStage() {
             </motion.div>
           )}
 
-          {/* Education, under the pictures — on this slide only (owner,
-              2026-10-15: "Remove the Education only part from off the clock
-              section and put it under the images on 1st slide, fixed there
-              on slide 1 only"). It left the brain slide's "Off the clock"
-              row (BrainFooter) the same day. */}
+          {/* Under the pictures, the About Me button. Education stood here
+              from 2026-10-15 (owner: "put it under the images on 1st slide")
+              until 2026-10-19, when it went back to the brain slide's row of
+              facts (owner: "move the education thing from 1st slide to 2nd
+              slide" — BrainFooter). */}
           {/* Laid out from the start (the orb's room counts it), but shown
               only with the orb, fading in with it — before, it would stand
               under the name and then jump down as the orb arrived. */}
@@ -464,45 +459,12 @@ export function HeroStage() {
             className="pointer-events-none pt-[clamp(0.6rem,1.6vh,1.1rem)]"
             style={{ visibility: orbW > 0 ? "visible" : "hidden" }}
           >
-            {/* Education on the top line (owner, 2026-10-17: "Education
-                should be on top line, and Btech and m des in bold…, include
-                full form for IT and VC in light font"). */}
-            <motion.div
-              initial={reduceMotion ? false : { opacity: 0 }}
-              animate={{ opacity: orbW > 0 ? 1 : 0 }}
-              transition={{ duration: DURATION.verySlow, ease: EASE_OUT }}
-              // The degrees' line is about 30.5em long: on a narrow phone the
-              // type comes down so it keeps a 1rem gutter each side.
-              className="font-graff flex flex-col items-center gap-[0.45em] whitespace-nowrap text-[clamp(0.56rem,min(max(0.72rem,1.1vw),(100vw-2rem)/30.5),0.95rem)] leading-none text-neutral-900"
-            >
-              <p className="flex items-center gap-[0.5em]">
-                <span className="flex shrink-0 [&_svg]:size-[1.2em]">
-                  <EducationMark />
-                </span>
-                <span className="font-extrabold">Education</span>
-              </p>
-              {/* Both degrees on one line, a bar between (owner, 2026-10-18:
-                  "Keep Btech and mdes in one line separated by a |. Keep
-                  light full form in ()"). */}
-              <p data-degrees>
-                {EDUCATION_FULL.map(([degree, field], i) => (
-                  <Fragment key={degree}>
-                    {i > 0 && (
-                      <span aria-hidden className="type-light px-[0.6em] text-neutral-400">
-                        |
-                      </span>
-                    )}
-                    <span className="font-bold">{degree}</span> <span className="type-light text-neutral-600">({field})</span>
-                  </Fragment>
-                ))}
-              </p>
-            </motion.div>
             {/* About me — opens over the page (AboutMe; owner, 2026-10-16). */}
             <motion.div
               initial={reduceMotion ? false : { opacity: 0 }}
               animate={{ opacity: orbW > 0 ? 1 : 0 }}
               transition={{ duration: DURATION.verySlow, ease: EASE_OUT }}
-              className="mt-[clamp(0.6rem,1.6vh,1rem)] flex justify-center"
+              className="flex justify-center"
             >
               <AboutMe />
             </motion.div>

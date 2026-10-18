@@ -13,16 +13,21 @@
  * display in popup) add my certificate, AI agents and products", then "will
  * always be visible just below brain artwork, and above My stack and other
  * elements") — the years, the brands, and the two new skills: the
- * certificate opens over the page (CertificateDialog), the agents fly to AI
- * Projects. Under it, two faces take turns every TURN_MS, each arriving in
+ * certificate opens over the page (CertificateDialog). Since 2026-10-19
+ * (owner: "put education in at a glance section 3rd point, move 3 to 4, and
+ * move 4 ie AI agents to off the clock section"): the years, the brands, the
+ * degrees — one line, the widest column — and AI film making. Under it, two
+ * faces take turns every TURN_MS, each arriving in
  * squares (usePixelPresence) as the other leaves:
  *   · MY STACK — the tools behind the work, each mark with its name and what
  *     it is (MyStack's own TOOLS and lines; the pop-up it was is gone);
- *   · THE FACTS — Chess, Part-time, Hobbies, the words of the last two still
- *     turning over in place (AboutFacts, HobbiesRotator), as they did in the
- *     band's corners until now. (Education stood among them until the next
- *     round, the same day: it is under the orb on the first slide now —
- *     HeroStage.)
+ *   · LIFE & LEARNING — AI Agents & Products (which flies to AI Projects),
+ *     Chess, Part-time, Hobbies, the words of the last two turning over in
+ *     place (AboutFacts, HobbiesRotator), as they did in the band's corners
+ *     until now. Renamed from "Off the clock" on 2026-10-19 (owner: "rename
+ *     off the clock to something more appropriate") — the agents are work as
+ *     much as play. (Education stood among them on 2026-10-15, then under the
+ *     orb on the first slide until 2026-10-19; it is in the glance now.)
  * The section pins that stood here (BrainPins, and their wires, BrainTraces)
  * are unlinked; the band below is the way into either side now.
  *
@@ -37,7 +42,7 @@ import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
 import { RoomImage as Image } from "@/components/home/nearness";
 import { usePixelPresence } from "@/components/home/pixelReveal";
 import { GROUPS, ROLE } from "@/components/home/MyStack";
-import { AgentMark, BrandsMark, ExperienceMark, FilmMark, PartTimeMark } from "@/components/home/HomeMarks";
+import { AgentMark, BrandsMark, EducationMark, ExperienceMark, FilmMark, PartTimeMark } from "@/components/home/HomeMarks";
 import { PixelButton } from "@/components/home/PixelButton";
 import { CHESS_RATING, PART_TIME, WORD_MS } from "@/components/home/AboutFacts";
 import { CYCLE_MS, HOBBIES } from "@/components/home/HobbiesRotator";
@@ -48,6 +53,14 @@ import { HOME_TYPE } from "@/constants/faces";
 
 /** How long each face holds, ms. */
 const TURN_MS = 10000;
+
+/** The degrees, each with its field written out — the field light, in
+ *  brackets, the two on one line with a bar between (owner, 2026-10-17 and
+ *  2026-10-18, when it stood on the first slide). */
+const EDUCATION_FULL = [
+  ["B.Tech.", "Information Technology"],
+  ["M.Des.", "Visual Communication"],
+] as const;
 
 const META = `${typeVoiceClass("logic", "meta")} text-[0.52rem] tracking-[0.26em] text-neutral-500`;
 
@@ -126,7 +139,7 @@ const CHIP =
   "pointer-events-auto inline-flex items-center gap-1 rounded-full border border-neutral-900/80 px-2 py-[0.22rem] font-graff text-[0.54rem] uppercase leading-none tracking-[0.16em] text-neutral-900 outline-none transition-colors hover:bg-neutral-950 hover:text-white focus-visible:bg-neutral-950 focus-visible:text-white";
 
 function GlanceRow({ onCertificate }: { onCertificate: () => void }) {
-  const facts: { key: string; mark: React.ReactNode; heading: string; value: React.ReactNode }[] = [
+  const facts: { key: string; mark: React.ReactNode; heading: string; value: React.ReactNode; wide?: boolean }[] = [
     { key: "years", mark: <ExperienceMark />, heading: "14+ Years", value: "of experience" },
     {
       key: "brands",
@@ -137,6 +150,28 @@ function GlanceRow({ onCertificate }: { onCertificate: () => void }) {
           worked with <span aria-hidden>·</span> <span className="font-bold text-neutral-900">7+</span> developed
         </>
       ),
+    },
+    {
+      key: "education",
+      mark: <EducationMark />,
+      heading: "Education",
+      // One line, about 30.5em long: on a narrow phone the type comes down so
+      // it keeps to the row.
+      value: (
+        <span className="whitespace-nowrap text-[min(0.8rem,(100vw-2rem)/30.5)]">
+          {EDUCATION_FULL.map(([degree, field], i) => (
+            <span key={degree}>
+              {i > 0 && (
+                <span aria-hidden className="type-light px-[0.55em] text-neutral-400">
+                  |
+                </span>
+              )}
+              <span className="font-bold text-neutral-900">{degree}</span> <span className="type-light">({field})</span>
+            </span>
+          ))}
+        </span>
+      ),
+      wide: true,
     },
     {
       key: "film",
@@ -151,30 +186,14 @@ function GlanceRow({ onCertificate }: { onCertificate: () => void }) {
         </>
       ),
     },
-    {
-      key: "agents",
-      mark: <AgentMark />,
-      heading: "AI Agents & Products",
-      value: (
-        <>
-          Upskilled <span aria-hidden>·</span>
-          <button
-            type="button"
-            onClick={() => window.dispatchEvent(new CustomEvent("flythrough:go", { detail: { id: "ai-projects" } }))}
-            className={CHIP}
-          >
-            See them <span aria-hidden>→</span>
-          </button>
-        </>
-      ),
-    },
   ];
   return (
     <div className="flex flex-col gap-2">
       <p className={`${META} [@media(max-height:31.25rem)]:hidden`}>At a glance</p>
-      <ul className="grid grid-cols-2 gap-x-6 gap-y-2 lg:grid-cols-4 [@media(max-height:31.25rem)]:grid-cols-4">
+      {/* The degrees take the widest column; below `lg` a row of their own. */}
+      <ul className="grid grid-cols-2 gap-x-6 gap-y-2 lg:grid-cols-[minmax(0,1fr)_minmax(0,1.15fr)_minmax(0,2fr)_minmax(0,1fr)] [@media(max-height:31.25rem)]:grid-cols-[minmax(0,1fr)_minmax(0,1.15fr)_minmax(0,2fr)_minmax(0,1fr)]">
         {facts.map((f) => (
-          <li key={f.key} className="flex min-w-0 flex-col gap-1">
+          <li key={f.key} className={`flex min-w-0 flex-col gap-1 ${f.wide ? "col-span-2 lg:col-span-1 [@media(max-height:31.25rem)]:col-span-1" : ""}`}>
             <span className="font-graff flex min-w-0 items-center gap-[0.45em] text-[0.82rem] font-extrabold leading-none text-neutral-900">
               <span className={MARK}>{f.mark}</span>
               <span className="truncate">{f.heading}</span>
@@ -273,7 +292,24 @@ function CertificateDialog({ open, onClose, reduceMotion }: { open: boolean; onC
 }
 
 function FactsRow() {
-  const facts: { key: string; heading: string; value: React.ReactNode }[] = [
+  const facts: { key: string; heading: string; mark?: React.ReactNode; value: React.ReactNode }[] = [
+    {
+      key: "agents",
+      heading: "AI Agents & Products",
+      mark: <AgentMark />,
+      value: (
+        <>
+          Upskilled <span aria-hidden>·</span>
+          <button
+            type="button"
+            onClick={() => window.dispatchEvent(new CustomEvent("flythrough:go", { detail: { id: "ai-projects" } }))}
+            className={CHIP}
+          >
+            See them <span aria-hidden>→</span>
+          </button>
+        </>
+      ),
+    },
     {
       key: "chess",
       heading: "Chess",
@@ -303,11 +339,14 @@ function FactsRow() {
   ];
   return (
     <div className="flex h-full flex-col justify-end gap-2">
-      <p className={META}>Off the clock</p>
-      <ul className="grid grid-cols-3 gap-x-6 gap-y-2.5">
+      <p className={META}>Life &amp; Learning</p>
+      <ul className="grid grid-cols-2 gap-x-6 gap-y-2.5 lg:grid-cols-4 [@media(max-height:31.25rem)]:grid-cols-4">
         {facts.map((f) => (
           <li key={f.key} className="flex min-w-0 flex-col gap-1">
-            <span className="font-graff text-[0.82rem] font-extrabold leading-none text-neutral-900">{f.heading}</span>
+            <span className="font-graff flex items-center gap-[0.45em] text-[0.82rem] font-extrabold leading-none text-neutral-900">
+              {f.mark && <span className={MARK}>{f.mark}</span>}
+              {f.heading}
+            </span>
             <span className="font-graff flex min-w-0 items-center gap-[0.4em] text-[0.8rem] leading-tight text-neutral-600">
               {f.value}
             </span>
@@ -320,7 +359,7 @@ function FactsRow() {
 
 export function BrainFooter({ active }: { active: boolean }) {
   const reduceMotion = useReducedMotion() ?? false;
-  // Which face is up under the glance: the stack first, then off the clock.
+  // Which face is up under the glance: the stack first, then life & learning.
   // It turns only while the brain slide is on screen, and holds while the
   // certificate is open.
   const [face, setFace] = useState<"stack" | "facts">("stack");
