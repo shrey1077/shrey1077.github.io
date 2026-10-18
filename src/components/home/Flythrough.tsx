@@ -202,7 +202,7 @@ const EPS = 0.02;
 /** In a room, the band's part for the side the camera is on — the part with
  *  the rooms' pills — as a share of the width; a phone's more. */
 const BAND_ROOM = 0.75;
-const BAND_ROOM_NARROW = 0.82;
+const BAND_ROOM_NARROW = 0.8;
 
 /** Fired to fly somewhere: a slide by index (0 = the orb), optionally
  *  switching track, or a room by its showcase id. */
