@@ -20,6 +20,7 @@ import { useQuietStart } from "@/components/home/quietStart";
 import type { MotionValue } from "framer-motion";
 import { RoomImage as Image } from "@/components/home/nearness";
 import { PixelButton } from "@/components/home/PixelButton";
+import { BrandPlate } from "@/components/home/BrandPlate";
 import type { Showcase } from "@/constants/showcase";
 import { typeVoiceClass } from "@/constants/typography";
 
@@ -28,6 +29,9 @@ const AsciiGlobe = dynamic(loadGlobe, { ssr: false });
 
 const META = `${typeVoiceClass("logic", "meta")} text-[0.58rem] tracking-[0.28em] text-neutral-500`;
 const BEATS = ["Sports", "Environment", "Politics", "& more"];
+/** The logo's two colours (read off newsmobile.png), for the plate's rim. */
+const RED = "#be2126";
+const BLUE = "#2c52a4";
 
 export function NewsMobileSlide({
   item,
@@ -53,6 +57,10 @@ export function NewsMobileSlide({
   return (
     <section aria-label={item.name} data-side="logic" className="absolute inset-0 overflow-hidden">
       <h2 className="sr-only">{item.name}</h2>
+      {/* The plate under it all (owner, 2026-10-19: "put behind Newsmobile
+          elements with red inside and blue outside on border" — the logo's
+          own red and blue), clear of the way in at the foot. */}
+      <BrandPlate inner={RED} outer={BLUE} clearCorner />
       {/* The globe, on the right — under the words on a portrait screen. */}
       <div className="absolute bottom-[7svh] right-0 top-[calc(max(2vh,0.75rem)+var(--strip-h))] w-[58%] portrait:top-auto portrait:h-[50svh] portrait:w-full">
         {on && (

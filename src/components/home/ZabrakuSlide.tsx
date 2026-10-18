@@ -28,12 +28,11 @@
  * slide's own white under it, so on a portrait screen this one slide is plain
  * white, without the drifting field behind.
  *
- * On a landscape screen everything on the slide stands on one panel, white
- * at half strength, rounded, between the field of falling nodes and the
- * slide's own things (owner, 2026-10-18: "use a 50% transclucent rounded
- * rectangle between bg falling nodes and all zabraku slide elements as a
- * group for better visiblity"). Under the logo: where the studio is, and the
- * years (owner, the same day).
+ * Everything on the slide stands on one plate between the field of falling
+ * nodes and the slide's own things (owner, 2026-10-18: "for better
+ * visiblity"): since 2026-10-19 white at 80%, two corners square and two
+ * round, its double rim in the logo's yellow within its black (BrandPlate).
+ * Under the logo: where the studio is, and the years (owner, 2026-10-18).
  */
 
 import { useState } from "react";
@@ -42,6 +41,7 @@ import type { MotionValue } from "framer-motion";
 import { RoomImage as Image } from "@/components/home/nearness";
 import { SplineScene, preloadSpline } from "@/components/client/SplineScene";
 import { PixelButton } from "@/components/home/PixelButton";
+import { BrandPlate } from "@/components/home/BrandPlate";
 import { useQuietStart } from "@/components/home/quietStart";
 import type { Showcase } from "@/constants/showcase";
 import { typeVoiceClass } from "@/constants/typography";
@@ -53,6 +53,10 @@ const CLIENTS = [
   { id: "casa-playa", name: "Casa Playa", logo: "/content/clients/zabraku-media/clients/casa-playa-grey.png", aspect: 480 / 449 },
   { id: "rkb-entertainment", name: "RKB Entertainment", logo: "/content/clients/zabraku-media/clients/rkb-grey.png", aspect: 346 / 900 },
 ] as const;
+/** The logo's two colours (read off zabraku-logo.png): the yellow of its
+ *  "RA", the black of the rest. */
+const YELLOW = "#ffdb3b";
+const INK = "#262626";
 /** Where the studio is (owner, 2026-10-18: "Zabraku is based in Malviya
  *  Nagar, New Delhi"). */
 const BASED = "Malviya Nagar, New Delhi";
@@ -83,12 +87,9 @@ export function ZabrakuSlide({
     // page's white came out invisible.
     <section aria-label={item.name} data-side="logic" className="absolute inset-0 overflow-hidden portrait:bg-white">
       <h2 className="sr-only">{item.name}</h2>
-      {/* The panel under it all, clear of the sections button above and the
-          band below. A portrait screen's slide is white already. */}
-      <div
-        aria-hidden
-        className="pointer-events-none absolute inset-x-2 bottom-[calc(7svh+0.75rem)] top-[calc(max(2vh,0.75rem)+var(--strip-h)+0.25rem)] rounded-[2rem] bg-white/50 sm:inset-x-4 lg:inset-x-[2.5vw] portrait:hidden"
-      />
+      {/* The plate under it all, clear of the sections button above and the
+          band below: the logo's yellow within its black. */}
+      <BrandPlate inner={YELLOW} outer={INK} />
       {/* The robot: the right side, 75% of the screen's height, centred; on a
           portrait screen the lower part, under the words. */}
       <div className="absolute right-0 top-1/2 h-[75svh] w-[min(62vw,75svh)] -translate-y-1/2 sm:right-[3vw] portrait:bottom-[calc(7svh+3.5rem)] portrait:top-auto portrait:h-[52svh] portrait:w-[80vw] portrait:translate-y-0">
