@@ -8,18 +8,18 @@
  * scrub window is a set of still frames, preloaded once and drawn to a canvas —
  * so scrubbing is just picking an already-decoded frame. No seeking, no lag.
  *
- * THE POINTER TURNS IT, AND STILL IT SWEEPS (owner, 2026-10-19: "i want the
- * brain video to be linked to mouse horizontal movement, and when no motion
- * for 1 second, it plays automatically, and when hovered again it will first
- * play towards the mouse position and not abruptly jump to that frame"):
- *   · the pointer moving — its place across the screen is the frame, left
- *     edge the first, right edge the last, and the turn PLAYS there, through
- *     a critically-damped spring at no more than FOLLOW_MAX frames a second,
- *     never cutting to it;
- *   · a second still (idleSweep) — the sweep takes over from that very frame,
- *     the way the turn was going, gathering speed over RAMP_S: from the first
- *     frame to the last and back, eased at each end, without end.
- * A finger dragged on a touch screen moves it as the pointer does (TouchFollow).
+ * ONLY THE POINTER TURNS IT (owner, 2026-10-19: "i want the brain video to
+ * be linked to mouse horizontal movement … when hovered again it will first
+ * play towards the mouse position and not abruptly jump to that frame", then
+ * "switch off the auto movement, i want the brain artwork only to move with
+ * mouse"): the pointer's place across the screen is the frame — left edge
+ * the first, right edge the last — and the turn PLAYS there, through a
+ * critically-damped spring at no more than FOLLOW_MAX frames a second, never
+ * cutting to it. Still, it rests where it is. It opens on the middle frame,
+ * the even split. A finger dragged on a touch screen moves it as the pointer
+ * does (TouchFollow). For an hour that day it swept on by itself after a
+ * second of stillness; from 2026-10-12 it swept on its own and the pointer
+ * only held it (idleSweep); before that the pointer scrubbed it, as now.
  *
  * BETWEEN FRAMES, A BLEND (owner, the same day: "the brain animation is not
  * very smooth, can we add more frames to make it smooth?"). The master holds
@@ -27,18 +27,17 @@
  * by interpolation and would double the 9.4MB. Instead the turn is drawn where
  * it really is, between two frames: the one before at (1 − f), the one after
  * at f, added (so the alpha blends as truly as the colour) — the steps of a
- * whole frame at a time, which read as a stutter at the sweep's pace, become
- * a continuous turn, for nothing more to download. BLEND_STEPS sets how finely.
- * From 2026-10-12 until then the sweep only HELD where the pointer caught it;
- * before that the pointer's X scrubbed the turn, with no sweep. Reduced
- * motion parks on the middle frame.
+ * whole frame at a time, which read as a stutter as it turned, become a
+ * continuous turn, for nothing more to download. BLEND_STEPS sets how finely.
+ * Reduced motion parks on the middle frame.
  *
  * The canvas is tagged `data-brain`, with `data-frame` carrying the frame on
  * screen. From 2026-10-03 to 2026-10-10 BrainDock read it — the brain docked
  * beside every room was a live copy of this canvas; the rooms' circles hold
  * stills of the first and last frames now (BrainDock).
  *
- * MODES. On the landing the turn sweeps ("sweep"). The others are unused
+ * MODES. On the landing the pointer turns it ("sweep", the name it has kept
+ * from when it swept on its own). The others are unused
  * since 2026-10-10 (HeroStage passes none — "sweep" is the default): they rocked
  * the brain for the rooms' live dock through the end of the turn that faced
  * the dock's side: frames
@@ -65,7 +64,7 @@
 
 import { useEffect, useLayoutEffect, useRef } from "react";
 import { useReducedMotion } from "framer-motion";
-import { SWEEP_PERIOD, SWEEP_START, phaseAt, sweepAt, watchPointer } from "@/components/home/idleSweep";
+import { watchPointer } from "@/components/home/idleSweep";
 import { useFlight } from "@/components/home/flight";
 import { markBrainFramesIn, whenFirstScreenUp } from "@/components/home/nearness";
 
@@ -89,8 +88,6 @@ const DAMPING = 2 * Math.sqrt(STIFFNESS);
 /** Frames a second the turn may play at, heading for the pointer — a quick
  *  play, not a cut. */
 const FOLLOW_MAX = 40;
-/** Seconds for the sweep to come up to speed when it takes over. */
-const RAMP_S = 0.8;
 /** How many blends between two frames are drawn — finer than the eye can
  *  tell, coarse enough that a turn at rest draws nothing. */
 const BLEND_STEPS = 12;
@@ -158,12 +155,7 @@ export function BrainSequence({ active = true, mode = "sweep" }: { active?: bool
       raf = 0,
       cur = -1;
 
-    // The sweep: how far round it has come (turns), advanced while the pointer
-    // is still; `following` while the pointer has the turn, and `ramp` the
-    // sweep's share of its full speed as it takes over again.
-    let phase = SWEEP_START;
-    let following = false;
-    let ramp = 1;
+    // Where the pointer is across the screen — the turn's one driver.
     const pointer = reduceMotion ? null : watchPointer();
 
     // ── The frames, loaded once the first screen no longer needs the line.
@@ -217,14 +209,14 @@ export function BrainSequence({ active = true, mode = "sweep" }: { active?: bool
     const startLoading = () => {
       if (started || disposed) return;
       started = true;
-      // From the frame the turn is on, the way it is heading, to that end —
-      // then back from there to the other end: the order the sweep reaches
-      // them in.
+      // From the frame the turn is on outwards, a step either way at a time
+      // — the pointer may take it either way.
       const k = Math.max(0, Math.min(FRAME_COUNT - 1, Math.round(pos)));
-      const rising = Math.sin(2 * Math.PI * phase) >= 0;
-      const up = Array.from({ length: FRAME_COUNT - k }, (_, j) => k + j);
-      const down = Array.from({ length: k }, (_, j) => k - 1 - j);
-      queue = rising ? [...up, ...down] : [k, ...down, ...up.slice(1)];
+      queue = [k];
+      for (let d = 1; d < FRAME_COUNT; d++) {
+        if (k + d < FRAME_COUNT) queue.push(k + d);
+        if (k - d >= 0) queue.push(k - d);
+      }
       pump();
     };
     // When the first screen is up (the page loaded and the photo showing)…
@@ -243,24 +235,10 @@ export function BrainSequence({ active = true, mode = "sweep" }: { active?: bool
 
       const m = modeRef.current;
       if (m === "sweep") {
+        // The pointer's place across the screen is the frame; until it has
+        // moved, the middle.
         const at = pointer?.at();
-        if (pointer && at != null && pointer.held(t)) {
-          // The pointer's place across the screen is the frame.
-          following = true;
-          target = at * (FRAME_COUNT - 1);
-        } else {
-          if (following) {
-            // A second still: the sweep takes over from this very frame, the
-            // way the turn was going (or towards the far end), from rest.
-            following = false;
-            const heading = Math.abs(vel) > 0.5 ? vel > 0 : pos < rest;
-            phase = phaseAt(pos / (FRAME_COUNT - 1), heading);
-            ramp = 0;
-          }
-          ramp = Math.min(1, ramp + dt / RAMP_S);
-          phase += (ramp * dt) / SWEEP_PERIOD;
-          target = sweepAt(phase) * (FRAME_COUNT - 1);
-        }
+        target = at == null ? rest : at * (FRAME_COUNT - 1);
       } else {
         // Rocking in a room: from the end that shows the most of this side,
         // eased there and back (cosine), the spring smoothing any switch.
@@ -271,11 +249,6 @@ export function BrainSequence({ active = true, mode = "sweep" }: { active?: bool
 
       if (reduceMotion && m === "sweep") {
         pos = rest;
-      } else if (m === "sweep" && !following) {
-        // Straight onto the sweep: it is smooth already. Its speed is kept, so
-        // the spring takes it up from there when the pointer moves.
-        vel = (target - pos) / dt;
-        pos = target;
       } else if (reduceMotion) {
         pos = target;
       } else {
@@ -283,7 +256,7 @@ export function BrainSequence({ active = true, mode = "sweep" }: { active?: bool
         // — playing no faster than FOLLOW_MAX while it heads for the pointer.
         const accel = STIFFNESS * (target - pos) - DAMPING * vel;
         vel += accel * dt;
-        if (following) vel = Math.max(-FOLLOW_MAX, Math.min(FOLLOW_MAX, vel));
+        if (m === "sweep") vel = Math.max(-FOLLOW_MAX, Math.min(FOLLOW_MAX, vel));
         pos += vel * dt;
       }
 
