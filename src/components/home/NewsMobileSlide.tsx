@@ -20,7 +20,7 @@ import { useQuietStart } from "@/components/home/quietStart";
 import type { MotionValue } from "framer-motion";
 import { RoomImage as Image } from "@/components/home/nearness";
 import { PixelButton } from "@/components/home/PixelButton";
-import { BrandPlate, PLATE_PAD, PLATE_TOP } from "@/components/home/BrandPlate";
+import { BrandPlate, PLATE_ABOVE_FOOT, PLATE_ART_RIGHT, PLATE_FOOT, PLATE_PAD, PLATE_RIGHT, PLATE_TOP } from "@/components/home/BrandPlate";
 import type { Showcase } from "@/constants/showcase";
 import { typeVoiceClass } from "@/constants/typography";
 
@@ -59,11 +59,11 @@ export function NewsMobileSlide({
       <h2 className="sr-only">{item.name}</h2>
       {/* The plate under it all (owner, 2026-10-19: "put behind Newsmobile
           elements with red inside and blue outside on border" — the logo's
-          own red and blue), clear of the way in at the foot. */}
-      <BrandPlate inner={RED} outer={BLUE} clearCorner />
+          own red and blue), everything on it. */}
+      <BrandPlate inner={RED} outer={BLUE} />
       {/* The globe, on the right — under the words on a portrait screen —
-          within the plate, clear of the way in at the foot. */}
-      <div className="absolute bottom-[calc(7svh+0.75rem+2.75rem+0.6rem)] right-0 top-[calc(max(2vh,0.75rem)+var(--strip-h))] w-[58%] portrait:top-auto portrait:h-[50svh] portrait:w-full">
+          within the plate's rim, above the way in at the foot. */}
+      <div className={`absolute ${PLATE_ART_RIGHT} ${PLATE_ABOVE_FOOT} top-[calc(max(2vh,0.75rem)+var(--strip-h)+1rem)] w-[56%] portrait:left-[1.25rem] portrait:top-auto portrait:h-[38svh] portrait:w-auto sm:portrait:left-7`}>
         {on && (
           <AsciiGlobe
             background="transparent"
@@ -102,7 +102,7 @@ export function NewsMobileSlide({
           </ul>
         </div>
       </div>
-      <div className="absolute bottom-[calc(7svh+0.75rem)] right-4 z-10 sm:right-8 lg:right-[5vw]">
+      <div className={`absolute z-10 ${PLATE_FOOT} ${PLATE_RIGHT}`}>
         <PixelButton side="logic" href={item.report.href}>
           {item.report.label} <span aria-hidden>→</span>
         </PixelButton>

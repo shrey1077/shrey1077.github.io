@@ -41,7 +41,7 @@ import type { MotionValue } from "framer-motion";
 import { RoomImage as Image } from "@/components/home/nearness";
 import { SplineScene, preloadSpline } from "@/components/client/SplineScene";
 import { PixelButton } from "@/components/home/PixelButton";
-import { BrandPlate, PLATE_INSET } from "@/components/home/BrandPlate";
+import { BrandPlate, PLATE_ART_RIGHT, PLATE_INSET } from "@/components/home/BrandPlate";
 import { useQuietStart } from "@/components/home/quietStart";
 import type { Showcase } from "@/constants/showcase";
 import { typeVoiceClass } from "@/constants/typography";
@@ -92,7 +92,7 @@ export function ZabrakuSlide({
       <BrandPlate inner={YELLOW} outer={INK} />
       {/* The robot: the right side, 75% of the screen's height, centred; on a
           portrait screen the lower part, under the words. */}
-      <div className="absolute right-0 top-1/2 h-[75svh] w-[min(62vw,75svh)] -translate-y-1/2 sm:right-[3vw] portrait:bottom-[calc(7svh+3.5rem)] portrait:top-auto portrait:h-[52svh] portrait:w-[80vw] portrait:translate-y-0">
+      <div className={`absolute top-1/2 h-[75svh] w-[min(62vw,75svh)] -translate-y-1/2 ${PLATE_ART_RIGHT} portrait:bottom-[calc(7svh+3.5rem)] portrait:top-auto portrait:h-[52svh] portrait:w-[80vw] portrait:translate-y-0`}>
         {on && (
           <SplineScene
             url={SCENE}

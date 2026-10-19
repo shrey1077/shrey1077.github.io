@@ -146,18 +146,42 @@ export function SplineScene({
     el.style.height = "100%";
     el.style.display = "block";
     host.appendChild(el);
+    // Spline's badge stands 20px in from the corner of ITS canvas — but the
+    // canvas is grown past the box (`scale`) and slid (`offsetX`), which
+    // carried the badge out past the box's edge, where the layer cut it off
+    // (2026-10-19). It is placed 20px in from the corner of what SHOWS
+    // instead, at its own size: a point at x in the canvas shows at
+    // w/2 + tx + s(x − w/2).
+    const placeLogo = () => {
+      const logo = el.shadowRoot?.querySelector<HTMLElement>("#logo");
+      const w = host.offsetWidth;
+      const h = host.offsetHeight;
+      if (!logo || !w || !h) return;
+      const tx = (parseFloat(offsetX) / 100) * w;
+      const m = 20;
+      logo.style.right = `${w / 2 - (w / 2 - m - tx) / scale}px`;
+      logo.style.bottom = `${h / 2 - (h / 2 - m) / scale}px`;
+      logo.style.transformOrigin = "100% 100%";
+      logo.style.transform = `scale(${1 / scale})`;
+    };
     // The viewer says when its scene is in.
-    const ready = () => readyRef.current?.();
+    const ready = () => {
+      placeLogo();
+      readyRef.current?.();
+    };
     el.addEventListener("load-complete", ready);
+    const ro = new ResizeObserver(placeLogo);
+    ro.observe(host);
 
     return () => {
       // Drop the element on the way out so its WebGL context and render loop go
       // with it — the script tag stays, since re-parsing the module is wasted
       // work and custom elements can only be defined once anyway.
       el.removeEventListener("load-complete", ready);
+      ro.disconnect();
       host.replaceChildren();
     };
-  }, [url, inView, reduceMotion]);
+  }, [url, inView, reduceMotion, scale, offsetX]);
 
   if (reduceMotion) return null;
 
