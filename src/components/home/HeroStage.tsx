@@ -46,6 +46,7 @@ import { useInViewport } from "@/hooks/useInViewport";
 import { DURATION, EASE_IN_OUT, EASE_OUT } from "@/constants/motion";
 import { CircuitBackdrop } from "@/components/home/CircuitBackdrop";
 import { BrainFooter } from "@/components/home/BrainFooter";
+import { BrainHalfShade } from "@/components/home/BrainHalfShade";
 import { AboutMe } from "@/components/home/AboutMe";
 import { useFlight } from "@/components/home/flight";
 import { useMediaQuery } from "@/hooks/useMediaQuery";
@@ -342,6 +343,10 @@ export function HeroStage() {
       >
         {/* (The pins' runs into the brain, BrainTraces, stood here until
             2026-10-15, when the pins came off — see BrainFooter.) */}
+
+        {/* A shade over the half the pointer is on, under everything else on
+            the slide (owner, 2026-10-19). See BrainHalfShade. */}
+        <BrainHalfShade />
 
         {/* Left brain / Right brain — on this slide only (owner, 2026-10-03).
             ⚠ ALSO before the footage: its LINES carry no z-index, so the brain
