@@ -38,6 +38,13 @@
  * rock stays on the Azoth page only. Its strip along the foot went too:
  * the mushroom under the cursor is named in big serif italic in the lower
  * right instead.
+ * ⚠ AND SINCE 2026-10-19 THE PAGE IS DRESSED AS THE SLIDE (owner: "on azoth
+ * page, replace the top artwork with our slide artwork on main page azoth's
+ * slide"): the lockup top left, the family along the foot, the mushroom's
+ * name lower right — placed for a page (no band, no strip above) — and the
+ * hero's own "Explore" pill where the slide has its button. The big headline
+ * behind the rock and the strip of details went from the page with it; the
+ * page's h1 is kept, unseen. HeroStrip is kept, unused.
  */
 
 import { useEffect, useRef, useState } from "react";
@@ -65,6 +72,15 @@ const SLIDE_BRANDS = [
   { slug: "mycoactive", name: "MycoActives", w: 720, h: 340, size: 1.2 },
   { slug: "kavaka", name: "Kavaka", w: 720, h: 115, size: 0.62 },
 ] as const;
+
+/** Where the slide's things stand on the PAGE (2026-10-19) — no band, no
+ *  sections button: the lockup top left, the family along the foot, the
+ *  Explore pill bottom right and the mushroom's name over it. A tall screen
+ *  stands the family over the pill, as the slide does over its button. */
+const PAGE_TOP_LEFT = "left-5 top-[clamp(1.5rem,6vh,3.5rem)] sm:left-10 lg:left-[5vw]";
+const PAGE_FOOT_LEFT = "left-5 bottom-[clamp(1.5rem,5vh,3rem)] sm:left-10 lg:left-[5vw] portrait:bottom-[calc(clamp(1.5rem,5vh,3rem)+3rem+1rem)]";
+const PAGE_FOOT_RIGHT = "right-5 bottom-[clamp(1.5rem,5vh,3rem)] sm:right-10 lg:right-[5vw]";
+const PAGE_NAME = "right-5 bottom-[calc(clamp(1.5rem,5vh,3rem)+3rem+0.9rem)] sm:right-10 lg:right-[5vw]";
 
 /** Spotlight radius in px. */
 const SPOTLIGHT_R = 260;
@@ -99,7 +115,8 @@ function footStyle(s: AzothSpecies, portrait: boolean): React.CSSProperties {
  *     touch, which has no hover; and whenever the CTA has keyboard focus).
  *  Its contents swap rather than stack, so moving between mushrooms never
  *  shows two. */
-function HeroStrip({
+/** Kept, unused since 2026-10-19: the page is dressed as the slide now. */
+export function HeroStrip({
   species,
   intro,
   slide,
@@ -179,7 +196,6 @@ export function AzothHero({ variant = "page" }: { variant?: "page" | "slide" } =
   // queue ahead of the landing.
   const Image = slide ? RoomImage : NextImage;
   const priority = !slide;
-  const Headline = slide ? "p" : "h1";
   const rootRef = useRef<HTMLElement>(null);
   const target = useRef({ x: -9999, y: -9999 });
   const smooth = useRef({ x: -9999, y: -9999 });
@@ -327,16 +343,8 @@ export function AzothHero({ variant = "page" }: { variant?: "page" | "slide" } =
           the flowering ridge too. */}
       <div className="azoth-hero-zoom absolute inset-0 z-10">
         <Image src={AZOTH_HERO.base} alt={`Azoth Biotech — the landscape behind “${AZOTH_HERO.headline}”`} fill priority={priority} sizes="100vw" className="object-cover" />
-        {!slide && (
-        <div className="absolute inset-x-0 top-[16%] flex justify-center px-5 text-center">
-          <Headline
-            className="azoth-hero-anim azoth-hero-reveal font-azoth-display whitespace-nowrap text-[clamp(1.5rem,10.2vw,11.25rem)] italic leading-none text-white"
-            style={{ letterSpacing: "-0.06em", animationDelay: "0.25s" }}
-          >
-            {AZOTH_HERO.headline}
-          </Headline>
-        </div>
-        )}
+        {/* The page's h1, unseen — the lockup above says it. */}
+        {!slide && <h1 className="sr-only">Azoth Biotech — {AZOTH_HERO.headline}</h1>}
         <Image src={AZOTH_HERO.baseCut} alt="" fill priority={priority} sizes="100vw" className="object-cover" />
       </div>
 
@@ -348,18 +356,6 @@ export function AzothHero({ variant = "page" }: { variant?: "page" | "slide" } =
         style={{ maskImage: mask, WebkitMaskImage: mask }}
       >
         <Image src={AZOTH_HERO.reveal} alt="" fill priority={priority} sizes="100vw" className="object-cover" />
-        {/* The headline, BEHIND THE ROCK: a quarter smaller than the
-            client's (2026-10-02), between this exposure and its sky-cut copy. */}
-        {!slide && (
-        <div className="absolute inset-x-0 top-[16%] flex justify-center px-5 text-center">
-          <p
-            className="azoth-hero-anim azoth-hero-reveal font-azoth-display whitespace-nowrap text-[clamp(1.5rem,10.2vw,11.25rem)] italic leading-none text-white"
-            style={{ letterSpacing: "-0.06em", animationDelay: "0.25s" }}
-          >
-            {AZOTH_HERO.headline}
-          </p>
-        </div>
-        )}
         <Image src={AZOTH_HERO.revealCut} alt="" fill priority={priority} sizes="100vw" className="object-cover" />
       </div>
 
@@ -415,10 +411,16 @@ export function AzothHero({ variant = "page" }: { variant?: "page" | "slide" } =
         </div>
       </div>
 
-      {/* On the slide: the white logo, top left under the strip, with the
-          line set to its width. */}
-      {slide && (
-        <div className="azoth-hero-anim azoth-hero-fade pointer-events-none absolute left-4 top-[calc(max(2vh,0.75rem)+var(--strip-h,3.75rem)+1.25rem)] z-[50] w-[clamp(13rem,32vw,30rem)] sm:left-8 lg:left-[5vw] [@media(max-height:31.25rem)]:top-[calc(max(2vh,0.75rem)+var(--strip-h,3.75rem)+0.5rem)] [@media(max-height:31.25rem)]:w-[9.5rem]">
+      {/* The white logo, top left — on the slide under the sections button's
+          row — with the line set to its width. */}
+      {(
+        <div
+          className={`azoth-hero-anim azoth-hero-fade pointer-events-none absolute z-[50] w-[clamp(13rem,32vw,30rem)] [@media(max-height:31.25rem)]:w-[9.5rem] ${
+            slide
+              ? "left-4 top-[calc(max(2vh,0.75rem)+var(--strip-h,3.75rem)+1.25rem)] sm:left-8 lg:left-[5vw] [@media(max-height:31.25rem)]:top-[calc(max(2vh,0.75rem)+var(--strip-h,3.75rem)+0.5rem)]"
+              : PAGE_TOP_LEFT
+          }`}
+        >
           <Image src={SLIDE_LOGO.src} alt="Azoth Biotech" width={SLIDE_LOGO.w} height={SLIDE_LOGO.h} sizes="(min-width: 1024px) 32vw, 60vw" className="block h-auto w-full" />
           <svg viewBox={`0 0 ${SLIDE_LOGO.w} 26`} className="mt-[2%] block w-full overflow-visible" role="img" aria-label={AZOTH_HERO.headline}>
             <text x="0" y="19" textLength={SLIDE_LOGO.w} lengthAdjust="spacing" fontSize="17" fill="rgba(255,255,255,0.88)" style={{ textTransform: "uppercase" }}>
@@ -433,10 +435,12 @@ export function AzothHero({ variant = "page" }: { variant?: "page" | "slide" } =
           to kavaka logos at the bottom, just above black band, naturalist
           aligned left with Azoth logo at top, sizes also slightly bigger"). On
           a tall screen it stands over the button rather than beside it. */}
-      {slide && (
+      {(
         <ul
           aria-label="Brands under Azoth Biotech"
-          className="azoth-hero-anim azoth-hero-fade pointer-events-none absolute bottom-[calc(7svh+1rem)] left-4 z-[50] flex items-end gap-[clamp(0.9rem,2.4vw,2.25rem)] [--row:clamp(1.3rem,2.9vw,2.6rem)] sm:left-8 lg:left-[5vw] portrait:bottom-[calc(7svh+0.75rem+2.75rem+1rem)] [@media(max-height:31.25rem)]:[--row:1.05rem]"
+          className={`azoth-hero-anim azoth-hero-fade pointer-events-none absolute z-[50] flex items-end gap-[clamp(0.9rem,2.4vw,2.25rem)] [--row:clamp(1.3rem,2.9vw,2.6rem)] [@media(max-height:31.25rem)]:[--row:1.05rem] ${
+            slide ? "bottom-[calc(7svh+1rem)] left-4 sm:left-8 lg:left-[5vw] portrait:bottom-[calc(7svh+0.75rem+2.75rem+1rem)]" : PAGE_FOOT_LEFT
+          }`}
         >
           {SLIDE_BRANDS.map((b) => (
             <li key={b.slug} className="relative shrink-0" style={{ height: `calc(var(--row) * ${b.size})`, aspectRatio: `${b.w} / ${b.h}` }}>
@@ -446,14 +450,28 @@ export function AzothHero({ variant = "page" }: { variant?: "page" | "slide" } =
         </ul>
       )}
 
-      {slide ? (
+      {/* On the page, where the slide has its button: the way down to the
+          rest of the page. */}
+      {!slide && (
+        <a
+          href="#work"
+          className={`absolute z-[60] w-fit rounded-full bg-[#e8702a] px-7 py-3 text-sm font-medium text-white outline-none transition-all duration-300 hover:scale-[1.03] hover:bg-[#d2611f] hover:shadow-lg hover:shadow-[#e8702a]/30 focus-visible:ring-2 focus-visible:ring-white/70 active:scale-95 ${PAGE_FOOT_RIGHT}`}
+        >
+          {AZOTH_HERO.cta} <span aria-hidden>↓</span>
+        </a>
+      )}
+
+      {(
         // On the slide, no strip (owner, 2026-10-15: "remove these bands,
         // instead write the mushrooms' name in the previous font of 'Inspired
         // by Nature' … at the lower right corner just above the button, and
         // big size that accommodates all names in same size"): the name of
         // the mushroom under the cursor, in the headline's serif, one size for
         // all four — set so the longest, "Cordyceps Militaris", fits.
-        <div aria-live="polite" className="pointer-events-none absolute bottom-[calc(7svh+0.75rem+2.75rem+0.9rem)] right-4 z-[55] sm:right-8 lg:right-[5vw]">
+        <div
+          aria-live="polite"
+          className={`pointer-events-none absolute z-[55] ${slide ? "bottom-[calc(7svh+0.75rem+2.75rem+0.9rem)] right-4 sm:right-8 lg:right-[5vw]" : PAGE_NAME}`}
+        >
           <AnimatePresence mode="wait">
             {active && (
               <motion.p
@@ -470,8 +488,6 @@ export function AzothHero({ variant = "page" }: { variant?: "page" | "slide" } =
             )}
           </AnimatePresence>
         </div>
-      ) : (
-        <HeroStrip species={active} intro={!active && (hovering || isTouch)} slide={false} href="#work" />
       )}
     </section>
   );
