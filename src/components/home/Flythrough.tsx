@@ -97,7 +97,7 @@ import {
 import { FlightContext, HERO_SLIDES, PERSPECTIVE } from "@/components/home/flight";
 import { PixelVeil } from "@/components/home/PixelVeil";
 import { FLY_EASE, PAN_CELL, clipFor, easeTime, flyInTime, flyOutTime, gridFor } from "@/components/home/pixelDissolve";
-import { FootBand, type BandPart } from "@/components/home/FootBand";
+import { FootBand, RIGHTS_H, type BandPart } from "@/components/home/FootBand";
 import { PIN_OPEN_EVENT } from "@/components/home/BrainPins";
 import { SectionParticles } from "@/components/home/SectionParticles";
 import { CircuitBackdrop } from "@/components/home/CircuitBackdrop";
@@ -536,8 +536,11 @@ const RoomBody = memo(function RoomBody({
   covers: Record<string, WritingPage[]>;
   wall: Wall;
 }) {
-  return (
-    <NearContext.Provider value={near}>
+  // A slide with a rights strip over the band ends at the strip's top, so
+  // everything on it — its foot, its buttons, the boy on the band — stands
+  // clear of it (FootBand, RIGHTS_H).
+  const body = (
+    <>
       {/* Left: the project's page, on the whole slide, or its own scene.
           Right: each room its own (owner, 2026-10-15). */}
       {logic ? (
@@ -566,6 +569,17 @@ const RoomBody = memo(function RoomBody({
         <AiSlide reduceMotion={reduceMotion} live={live} />
       ) : (
         <WritingsSlide covers={covers} />
+      )}
+    </>
+  );
+  return (
+    <NearContext.Provider value={near}>
+      {logic && item.rights ? (
+        <div className="absolute inset-x-0 top-0" style={{ bottom: RIGHTS_H }}>
+          {body}
+        </div>
+      ) : (
+        body
       )}
     </NearContext.Provider>
   );
@@ -1347,7 +1361,13 @@ export function Flythrough({
 
       {/* The black band along the foot — fixed to the screen for the whole
           page, over the stage and under the dialogs (FootBand). */}
-      <FootBand share={bandShare} left={band.left} right={band.right} major={band.major} />
+      <FootBand
+        share={bandShare}
+        left={band.left}
+        right={band.right}
+        major={band.major}
+        rights={here && !pastRun && track === "logic" ? (here.item.rights ?? null) : null}
+      />
     </div>
     </FlightContext.Provider>
   );

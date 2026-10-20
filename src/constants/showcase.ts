@@ -93,6 +93,10 @@ export interface Showcase {
   facts: ShowFact[];
   /** The button. No href → not yet (AI Projects). */
   report: { label: string; href?: string };
+  /** A left slide's company, named on the black strip over the band while
+   *  it is the camera's — "© {rights}. All Rights Reserved." (owner,
+   *  2026-10-20; FootBand, RIGHTS_H). Absent → no strip. */
+  rights?: string;
 }
 
 const LOGO = "/content/logofolio";
@@ -137,6 +141,7 @@ export const LOGIC_SHOWCASE: readonly Showcase[] = [
       { label: "Based", value: "Ahmedabad · Mumbai, India" },
     ],
     report: { label: "View Full Project", href: "/clients/tata-iis" },
+    rights: "Tata IIS",
   },
   {
     id: "azoth-biotech",
@@ -171,6 +176,7 @@ export const LOGIC_SHOWCASE: readonly Showcase[] = [
       { label: "Based", value: "Noida, Uttar Pradesh" },
     ],
     report: { label: "View Full Project", href: "/clients/azoth-biotech" },
+    rights: "Azoth Biotech",
   },
   {
     id: "abs",
@@ -213,6 +219,7 @@ export const LOGIC_SHOWCASE: readonly Showcase[] = [
       { label: "Based", value: "Santa Fe Springs, California" },
     ],
     report: { label: "View Full Project", href: "/clients/abs" },
+    rights: "ABS Wholesale",
   },
   {
     id: "zabraku",
@@ -238,6 +245,7 @@ export const LOGIC_SHOWCASE: readonly Showcase[] = [
     ],
     facts: [{ label: "Based", value: "Malviya Nagar, New Delhi" }],
     report: { label: "View Full Project", href: "/clients/zabraku-media" },
+    rights: "Zabraku Media",
   },
   {
     id: "newsmobile",
@@ -266,6 +274,7 @@ export const LOGIC_SHOWCASE: readonly Showcase[] = [
       { label: "Based", value: "Gurugram, Haryana" },
     ],
     report: { label: "View Full Project", href: "/clients/newsmobile" },
+    rights: "NewsMobile",
   },
   {
     id: ALL_PROJECTS_ID,

@@ -44,7 +44,14 @@
  * only effect last two lines of second column") the film is let up until the
  * highest ink of any of its frames reaches the second column's last TWO
  * lines, and no higher; the birds' wake moves only those two lines' letters,
- * and the first column is never touched. Before that:
+ * and the first column is never touched. Since 2026-10-20 (owner: "animation
+ * bigger (still shud only effect last lines of second column)", and "move
+ * text up") the film may grow past the second column — FILM_GROW of its
+ * width, its left edge still on the column's, out to the right into the
+ * slide's other half — and as the boy still stands on the band, the bigger
+ * film lifts the words with it. ("© Tata IIS. All Rights Reserved." is on
+ * the black strip over the band — FootBand's rights strip — and the slide
+ * ends at its top, so the boy stands on that.) Before that:
  *
  * (owner, the next round: "need half the size of
  * animation, and more text. place it such only the bottom of text in 1st and
@@ -163,6 +170,10 @@ const TOUCHED_LINES = 2;
 /** The gap above the line under the first column ("Position: …"), in
  *  lines; the line itself takes one, or two where the column is narrow. */
 const POSITION_GAP = 0.75;
+/** How much wider than the second column the film may grow (owner,
+ *  2026-10-20: "animation bigger") — out to the right, where the slide has
+ *  room; a phone, which has none, keeps it the column's width. */
+const FILM_GROW = 1.5;
 
 /** The film and the words round it, under `head` (the wordmark); the
  *  campuses' marks under the first column. */
@@ -195,7 +206,7 @@ function FilmWrap({
   const filmRef = useRef<HTMLVideoElement>(null);
   const textRef = useRef<HTMLDivElement>(null);
   const pool = useRef<Painted[]>([]);
-  const [box, setBox] = useState({ w: 0, h: 0, head: 0, mark: 0, strip: 0, ground: 0, tall: false });
+  const [box, setBox] = useState({ w: 0, h: 0, head: 0, mark: 0, strip: 0, ground: 0, spare: 0, tall: false });
   const [wrap, setWrap] = useState<Wrap | null>(null);
   const [frame, setFrame] = useState(0);
   // The type: read off the probe (the slide's own CSS), measured on a canvas.
@@ -212,6 +223,10 @@ function FilmWrap({
       // The band's top edge, measured down from this box's top — by layout,
       // never by screen boxes, which carry the flight's scale.
       const g = groundRef.current;
+      // The room from this box's left to the slide's right margin — the film
+      // may run out past the box into it.
+      const frame = el.offsetParent as HTMLElement | null;
+      const frameRight = frame ? frame.clientWidth - (parseFloat(getComputedStyle(frame).paddingRight) || 0) : 0;
       setBox({
         w: el.clientWidth,
         h: el.clientHeight,
@@ -222,6 +237,7 @@ function FilmWrap({
         mark: (headRef.current?.firstElementChild as HTMLElement | null)?.offsetHeight ?? 0,
         strip: 0.6 * (parseFloat(getComputedStyle(document.documentElement).fontSize) || 16),
         ground: g ? g.offsetTop - el.offsetTop : el.clientHeight,
+        spare: frame ? frameRight - el.offsetLeft : el.clientWidth,
         tall: window.matchMedia("(orientation: portrait)").matches,
       });
       const cs = probeRef.current && getComputedStyle(probeRef.current);
@@ -306,8 +322,9 @@ function FilmWrap({
 
   // The block: two columns as wide as the column allows (to MAX_REM); the
   // film under the second, its left edge on the column's (owner: "left Align
-  // the animation with 2nd column"), as wide as the column — smaller if the
-  // room is too short for it.
+  // the animation with 2nd column"), FILM_GROW of the column's width where
+  // the slide has the room to its right — smaller if the room is too short
+  // for it.
   const width = Math.min(box.w, MAX_REM * 16);
   const gutter = (type?.size ?? 12) * GUTTER_EM;
   const half = Math.max(0, (width - gutter) / 2);
@@ -335,9 +352,9 @@ function FilmWrap({
     }
     return top / wrap.h;
   }, [wrap]);
-  const filmW = Math.max(0, Math.min(half, (room * 0.5) / FILM_RATIO));
-  const filmH = filmW * FILM_RATIO;
   const filmX = half + gutter;
+  const filmW = Math.max(0, Math.min(half * FILM_GROW, Math.max(half, box.spare - filmX), (room * 0.6) / FILM_RATIO));
+  const filmH = filmW * FILM_RATIO;
   const columnsAt = useCallback(
     (cut: number[]) => [
       { x0: 0, x1: half, words: COLUMNS[0].slice(0, cut[0]).join(" ").split(/\s+/) },

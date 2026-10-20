@@ -38,9 +38,16 @@
  * Over the stage, under the dialogs (Z_INDEX.viewer). Everything that stands
  * on the foot is placed clear of its 7svh. Reduced motion: the squares hold
  * still; the split still follows.
+ *
+ * THE RIGHTS STRIP (owner, 2026-10-20: "a fixed black band just above the
+ * pixelated black and color band", on the Tata slide, then "Similarly do for
+ * all left section slides"): over the band, the whole width, plain black, a
+ * left company slide's line, centred — "© Tata IIS. All Rights Reserved." — while it
+ * is the camera's (Showcase.rights). Those slides end at its top (Flythrough,
+ * RoomBody), so nothing of theirs stands under it.
  */
 
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import { motion, useReducedMotion, useTransform, type MotionValue } from "framer-motion";
 import { Z_INDEX } from "@/constants/design";
 import { RAINBOW } from "@/components/home/MoodField";
@@ -49,6 +56,8 @@ import { hash } from "@/components/home/pixelDissolve";
 /** The band's height — a share of the screen. ⚠ HeroStage (BAND_H), the
  *  rooms' frames (.slide-frame) and every corner button clear this. */
 export const BAND_SVH = 7;
+/** The rights strip's height, over the band. */
+export const RIGHTS_H = "clamp(1.3rem, 3svh, 1.6rem)";
 
 /** A square, CSS px, and the half-width of the pixelated edge, in squares. */
 const CELL = 7;
@@ -204,6 +213,7 @@ export function FootBand({
   left,
   right,
   major,
+  rights = null,
 }: {
   /** The black part's share of the width, 0 … 1. */
   share: MotionValue<number>;
@@ -212,11 +222,26 @@ export function FootBand({
   /** Which part is the room the camera is in; null on the landing and at
    *  the footer, where both halves are ways in. */
   major: "left" | "right" | null;
+  /** The company on the rights strip; null → no strip. */
+  rights?: string | null;
 }) {
   const reduceMotion = useReducedMotion() ?? false;
   const leftW = useTransform(share, (s) => `${s * 100}%`);
   const rightW = useTransform(share, (s) => `${(1 - s) * 100}%`);
+  // The last company named stays on the strip while it fades out.
+  const [named, setNamed] = useState(rights);
+  if (rights && rights !== named) setNamed(rights);
   return (
+    <>
+    <div
+      aria-hidden={!rights}
+      className={`pointer-events-none fixed inset-x-0 flex items-center justify-center bg-black px-4 text-center transition-opacity duration-300 ease-out ${rights ? "opacity-100" : "opacity-0"}`}
+      style={{ bottom: `${BAND_SVH}svh`, height: RIGHTS_H, zIndex: Z_INDEX.band }}
+    >
+      <p className="truncate text-[clamp(0.6rem,0.78vw,0.72rem)] tracking-[0.06em] text-white/75">
+        © {named}. All Rights Reserved.
+      </p>
+    </div>
     <nav
       aria-label="The two sides"
       className="pointer-events-none fixed inset-x-0 bottom-0 overflow-hidden bg-neutral-950 text-[clamp(0.62rem,1.05vw,0.95rem)]"
@@ -230,5 +255,6 @@ export function FootBand({
         <Part part={right} side="right" major={major === "right"} minor={major === "left"} />
       </motion.div>
     </nav>
+    </>
   );
 }
