@@ -40,12 +40,16 @@
  * Every logo is drawn by its INK — its file's padding cut off (Ink) — and
  * the one not picked is grey until the pointer finds it. A phone held upright
  * puts the coin and the two marks in a row along the top.
+ *
+ * Under the coin, the company in a paragraph (owner, 2026-10-20 —
+ * COMPANY_ABOUT); held upright, under the row.
  */
 
 import { useState } from "react";
 import { RoomImage as Image } from "@/components/home/nearness";
 import { PixelButton } from "@/components/home/PixelButton";
 import { usePixelPresence } from "@/components/home/pixelReveal";
+import { COMPANY_ABOUT } from "@/constants/companyAbout";
 import { ABS_BRANDS, type Showcase } from "@/constants/showcase";
 import { typeVoiceClass } from "@/constants/typography";
 
@@ -362,10 +366,14 @@ export function AbsSlide({ item, active }: { item: Showcase; active: boolean }) 
         <div
           role="tablist"
           aria-label="Brands"
-          className="flex w-[clamp(8rem,19vw,16rem)] shrink-0 flex-col items-start justify-between portrait:w-full portrait:flex-row portrait:items-end"
+          className="flex w-[clamp(8rem,19vw,16rem)] shrink-0 flex-col items-start justify-between portrait:w-full portrait:flex-row portrait:flex-wrap portrait:items-end"
         >
           {/* ABS, big, top left. */}
           <BrandTab brand={abs} on={pick === abs.id} size="min(clamp(4.25rem,17vw,13rem),24vh)" onPick={() => setPick(abs.id)} />
+          {/* The company, under the coin; held upright, under the row. */}
+          <p className="font-helv mb-auto mt-[clamp(0.6rem,2vh,1.25rem)] text-[clamp(0.72rem,0.86vw,0.84rem)] leading-snug text-neutral-600 portrait:order-last portrait:mb-0 portrait:w-full">
+            {COMPANY_ABOUT.abs}
+          </p>
           {/* The two brands built there, bottom left, on the band. */}
           <div className="flex flex-col gap-2 portrait:items-end">
             <p className={`${META} [@media(max-height:31.25rem)]:hidden`}>Built at ABS</p>

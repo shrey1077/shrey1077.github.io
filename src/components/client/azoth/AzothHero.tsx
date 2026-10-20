@@ -51,6 +51,7 @@ import { useEffect, useRef, useState } from "react";
 import NextImage from "next/image";
 import { RoomImage } from "@/components/home/nearness";
 import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
+import { COMPANY_ABOUT } from "@/constants/companyAbout";
 import { AZOTH_HERO, AZOTH_SPECIES, type AzothSpecies } from "@/constants/azothHero";
 import { useMediaQuery } from "@/hooks/useMediaQuery";
 
@@ -427,6 +428,13 @@ export function AzothHero({ variant = "page" }: { variant?: "page" | "slide" } =
               {AZOTH_HERO.headline}
             </text>
           </svg>
+          {/* On the slide, the company in a paragraph (owner, 2026-10-20 —
+              COMPANY_ABOUT), the lockup's width or a little more. */}
+          {slide && (
+            <p className="font-helv mt-[clamp(0.6rem,2vh,1.1rem)] w-[max(100%,min(22rem,calc(100vw-2rem)))] text-[0.86rem] leading-snug text-white/85 [text-shadow:0_1px_10px_rgba(0,0,0,0.45)] [@media(max-height:31.25rem)]:text-[0.72rem]">
+              {COMPANY_ABOUT["azoth-biotech"]}
+            </p>
+          )}
         </div>
       )}
 

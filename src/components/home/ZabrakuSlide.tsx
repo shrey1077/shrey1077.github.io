@@ -32,7 +32,8 @@
  * nodes and the slide's own things (owner, 2026-10-18: "for better
  * visiblity"): since 2026-10-19 white at 80%, two corners square and two
  * round, its double rim in the logo's yellow within its black (BrandPlate).
- * Under the logo: where the studio is, and the years (owner, 2026-10-18).
+ * Under the logo: where the studio is, and the years (owner, 2026-10-18);
+ * then the company in a paragraph (owner, 2026-10-20 — COMPANY_ABOUT).
  */
 
 import { useState } from "react";
@@ -43,6 +44,7 @@ import { SplineScene, preloadSpline } from "@/components/client/SplineScene";
 import { PixelButton } from "@/components/home/PixelButton";
 import { BrandPlate, PLATE_ART_RIGHT, PLATE_INSET } from "@/components/home/BrandPlate";
 import { useQuietStart } from "@/components/home/quietStart";
+import { COMPANY_ABOUT } from "@/constants/companyAbout";
 import type { Showcase } from "@/constants/showcase";
 import { typeVoiceClass } from "@/constants/typography";
 
@@ -116,9 +118,11 @@ export function ZabrakuSlide({
           z-index on this box: either would make it a layer of its own, and
           the words' `difference` blending would then meet only the empty box,
           never the robot. Centred by flex instead; above the robot by order. */}
-      <div className={`pointer-events-none absolute inset-y-0 ${PLATE_INSET} flex flex-col items-start justify-center gap-4 portrait:justify-start portrait:pt-[calc(max(2vh,0.75rem)+var(--strip-h)+1.85rem)]`}>
+      {/* Centred a little high, and closer set on a short screen: the
+          clients at its foot must clear the plate's round lower-left corner. */}
+      <div className={`pointer-events-none absolute inset-y-0 ${PLATE_INSET} flex flex-col items-start justify-center gap-4 landscape:pb-[min(6svh,3rem)] portrait:justify-start portrait:pt-[calc(max(2vh,0.75rem)+var(--strip-h)+1.85rem)] [@media(max-height:45rem)]:gap-3`}>
         <p className={`${META} text-neutral-500 portrait:text-white/70 portrait:mix-blend-difference`}>{item.sector}</p>
-        <span className="relative block aspect-[4/1] w-[min(36vw,26rem)] portrait:w-[58vw]">
+        <span className="relative block aspect-[4/1] w-[min(36vw,26rem,55svh)] portrait:w-[58vw]">
           <Image src={item.mark ?? ""} alt="Zabraku" fill sizes="(orientation: portrait) 58vw, 36vw" className="object-contain object-left" />
         </span>
         <p className="font-helv -mt-1 text-[0.86rem] leading-snug text-neutral-700 portrait:text-white/[0.72] portrait:mix-blend-difference">
@@ -132,8 +136,8 @@ export function ZabrakuSlide({
             </>
           )}
         </p>
-        <p className="font-helv max-w-[22rem] text-[0.86rem] leading-snug text-neutral-600 portrait:max-w-[60vw] portrait:text-white/[0.66] portrait:mix-blend-difference">
-          A media house with a story-first spine — its identity, RKB Entertainment&apos;s, and a year of event campaigns.
+        <p className="font-helv max-w-[min(30rem,34vw)] text-[0.86rem] xl:max-w-[min(36rem,40vw)] leading-snug text-neutral-600 portrait:max-w-[calc(100vw-4.5rem)] portrait:text-white/[0.66] portrait:mix-blend-difference">
+          {COMPANY_ABOUT.zabraku}
         </p>
         <span className="pointer-events-auto">
           <PixelButton side="logic" href={item.report.href}>

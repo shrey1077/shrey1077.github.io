@@ -12,15 +12,22 @@
  * left side's graphite on the slide's white, its accents in NewsMobile's red,
  * and started only once the camera has landed on the slide, stopped when it
  * leaves — it is a WebGL loop. Reduced motion: it holds still.
+ *
+ * Under the logo, the company in a paragraph (owner, 2026-10-20 —
+ * COMPANY_ABOUT), before the owner's role there. On a portrait screen that
+ * makes the words long, so the globe takes the room left UNDER them, down to
+ * the way in — measured, as the words' height is the font's and the phone's —
+ * and stands aside on a screen that leaves it too little (under MIN_GLOBE).
  */
 
 import dynamic from "next/dynamic";
-import { useEffect } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useQuietStart } from "@/components/home/quietStart";
 import type { MotionValue } from "framer-motion";
 import { RoomImage as Image } from "@/components/home/nearness";
 import { PixelButton } from "@/components/home/PixelButton";
 import { BrandPlate, PLATE_ABOVE_FOOT, PLATE_ART_RIGHT, PLATE_FOOT, PLATE_PAD, PLATE_RIGHT, PLATE_TOP } from "@/components/home/BrandPlate";
+import { COMPANY_ABOUT } from "@/constants/companyAbout";
 import type { Showcase } from "@/constants/showcase";
 import { typeVoiceClass } from "@/constants/typography";
 
@@ -32,6 +39,8 @@ const BEATS = ["Sports", "Environment", "Politics", "& more"];
 /** The logo's two colours (read off newsmobile.png), for the plate's rim. */
 const RED = "#be2126";
 const BLUE = "#2c52a4";
+/** The least room, in px, the globe is drawn in under the words. */
+const MIN_GLOBE = 112;
 
 export function NewsMobileSlide({
   item,
@@ -54,17 +63,45 @@ export function NewsMobileSlide({
   // camera's, dropped when it leaves (as the Zabraku robot).
   // After landing, once scrolling has gone quiet (useQuietStart).
   const on = useQuietStart(live, moving);
+  // Where the words end, for the globe's top on a portrait screen; and is
+  // there room for it there. Offsets, not rects: the camera's transforms
+  // would scale a rect mid-flight.
+  const sectionRef = useRef<HTMLElement>(null);
+  const wordsRef = useRef<HTMLDivElement>(null);
+  const globeRef = useRef<HTMLDivElement>(null);
+  const [globeRoom, setGlobeRoom] = useState(true);
+  useEffect(() => {
+    const s = sectionRef.current;
+    const w = wordsRef.current;
+    const g = globeRef.current;
+    if (!s || !w || !g) return;
+    const place = () => {
+      let end = w.offsetHeight;
+      for (let e: HTMLElement | null = w; e && e !== s; e = e.offsetParent as HTMLElement | null) end += e.offsetTop;
+      s.style.setProperty("--nm-words-end", `${end}px`);
+      setGlobeRoom(g.offsetHeight >= MIN_GLOBE);
+    };
+    place();
+    const ro = new ResizeObserver(place);
+    ro.observe(s);
+    ro.observe(w);
+    return () => ro.disconnect();
+  }, []);
   return (
-    <section aria-label={item.name} data-side="logic" className="absolute inset-0 overflow-hidden">
+    <section ref={sectionRef} aria-label={item.name} data-side="logic" className="absolute inset-0 overflow-hidden">
       <h2 className="sr-only">{item.name}</h2>
       {/* The plate under it all (owner, 2026-10-19: "put behind Newsmobile
           elements with red inside and blue outside on border" — the logo's
           own red and blue), everything on it. */}
       <BrandPlate inner={RED} outer={BLUE} />
-      {/* The globe, on the right — under the words on a portrait screen —
-          within the plate's rim, above the way in at the foot. */}
-      <div className={`absolute ${PLATE_ART_RIGHT} ${PLATE_ABOVE_FOOT} top-[calc(max(2vh,0.75rem)+var(--strip-h)+1rem)] w-[56%] portrait:left-[1.25rem] portrait:top-auto portrait:h-[38svh] portrait:w-auto sm:portrait:left-7`}>
-        {on && (
+      {/* The globe, on the right — under the words on a portrait screen,
+          in the room they leave — within the plate's rim, above the way in
+          at the foot. */}
+      <div
+        ref={globeRef}
+        className={`absolute ${PLATE_ART_RIGHT} ${PLATE_ABOVE_FOOT} top-[calc(max(2vh,0.75rem)+var(--strip-h)+1rem)] w-[56%] portrait:left-[1.25rem] portrait:top-[calc(var(--nm-words-end,62svh)+1rem)] portrait:w-auto sm:portrait:left-7`}
+      >
+        {on && globeRoom && (
           <AsciiGlobe
             background="transparent"
             baseColor="#1f1f1f"
@@ -77,7 +114,7 @@ export function NewsMobileSlide({
         )}
       </div>
       <div className={`slide-frame is-logic pointer-events-none absolute inset-0 flex flex-col justify-center portrait:justify-start ${PLATE_PAD} ${PLATE_TOP}`}>
-        <div className="pointer-events-auto flex max-w-[min(40vw,30rem)] flex-col items-start gap-3.5 portrait:max-w-none">
+        <div ref={wordsRef} className="pointer-events-auto flex max-w-[min(40vw,30rem)] flex-col items-start gap-3.5 portrait:max-w-none">
           {/* The mark, bigger, in a white pill (owner, 2026-10-16: "make
               newsmobile logo bigger and inside a horizontal pill"). */}
           <span className="block rounded-full bg-white px-[clamp(1.1rem,2.4vw,2rem)] py-[clamp(0.55rem,1.2vw,0.95rem)] shadow-[0_12px_30px_-18px_rgba(0,0,0,0.45)] ring-1 ring-neutral-900/12">
@@ -86,6 +123,7 @@ export function NewsMobileSlide({
             </span>
           </span>
           <p className={META}>{item.years} · Gurugram, Haryana</p>
+          <p className="font-helv text-[0.86rem] leading-snug text-neutral-600">{COMPANY_ABOUT.newsmobile}</p>
           {/* Bold Helvetica (owner, 2026-10-16: "this info in bold helvetica"). */}
           <p className="font-helv text-[clamp(1.25rem,2.6vw,2.3rem)] font-bold leading-[1.08] tracking-[-0.015em] text-neutral-900">
             Graphic Designer, Video Editor &amp; Copy Editor
