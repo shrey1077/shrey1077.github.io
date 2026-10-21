@@ -109,9 +109,12 @@ export function PixelButton({
   ariaExpanded,
   ariaControls,
   ariaHaspopup,
+  download,
 }: {
   side: PixelSide;
   href?: string;
+  /** With `href`: the file is saved, under this name, not opened. */
+  download?: string;
   onClick?: () => void;
   children: React.ReactNode;
   size?: "sm" | "md";
@@ -147,6 +150,13 @@ export function PixelButton({
     dead ? "cursor-default opacity-80" : "cursor-pointer"
   } focus-visible:ring-2 focus-visible:ring-neutral-900/40 focus-visible:ring-offset-2 ${className}`;
 
+  if (href && download) {
+    return (
+      <a href={href} download={download} className={shell} aria-label={ariaLabel}>
+        {inner}
+      </a>
+    );
+  }
   if (href) {
     const internal = href.startsWith("/") && !href.startsWith("//");
     return internal ? (

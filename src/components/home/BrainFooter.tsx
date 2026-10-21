@@ -13,7 +13,9 @@
  * display in popup) add my certificate, AI agents and products", then "will
  * always be visible just below brain artwork, and above My stack and other
  * elements") — the years, the brands, and the two new skills: the
- * certificate opens over the page (CertificateDialog). Since 2026-10-19
+ * certificate opened over the page from here until 2026-10-22, when the owner
+ * moved it to a button on the first slide (CertificateDialog; HeroStage) —
+ * AI Film Making says "Upskilled" alone now. Since 2026-10-19
  * (owner: "put education in at a glance section 3rd point, move 3 to 4, and
  * move 4 ie AI agents to off the clock section"): the years, the brands, the
  * degrees — one line, the widest column — and AI film making. Under it, two
@@ -37,19 +39,16 @@
  */
 
 import { useEffect, useRef, useState } from "react";
-import { createPortal } from "react-dom";
 import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
 import { RoomImage as Image } from "@/components/home/nearness";
 import { usePixelPresence } from "@/components/home/pixelReveal";
 import { GROUPS, ROLE } from "@/components/home/MyStack";
 import { AgentMark, BrandsMark, EducationMark, ExperienceMark, FilmMark, PartTimeMark } from "@/components/home/HomeMarks";
-import { PixelButton } from "@/components/home/PixelButton";
 import { CHESS_RATING, PART_TIME, WORD_MS } from "@/components/home/AboutFacts";
 import { CYCLE_MS, HOBBIES } from "@/components/home/HobbiesRotator";
 import { TOOLS, type Tool } from "@/constants/tools";
 import { EASE_OUT } from "@/constants/motion";
 import { typeVoiceClass } from "@/constants/typography";
-import { HOME_TYPE } from "@/constants/faces";
 
 /** How long each face holds, ms. */
 const TURN_MS = 10000;
@@ -125,20 +124,11 @@ function Turning({ items, ms }: { items: { label: string; mark?: React.ReactNode
 
 const MARK = "flex shrink-0 [&_svg]:size-[1.15em] [&_svg]:text-neutral-900";
 
-/** The certificate the owner supplied (scripts/prepare-certificate.mjs). */
-const CERTIFICATE = {
-  src: "/content/about/ai-film-making-certificate.webp",
-  pdf: "/content/about/ai-film-making-certificate.pdf",
-  w: 1800,
-  h: 1013,
-  alt: "Certificate of completion: Shrey Singh, the 8-Week AI Film Making Program, Videopreneur Studios",
-};
-
 /** A small action inside a fact — an ink-outlined pill, filled on hover. */
 const CHIP =
   "pointer-events-auto inline-flex items-center gap-1 rounded-full border border-neutral-900/80 px-2 py-[0.22rem] font-graff text-[0.54rem] uppercase leading-none tracking-[0.16em] text-neutral-900 outline-none transition-colors hover:bg-neutral-950 hover:text-white focus-visible:bg-neutral-950 focus-visible:text-white";
 
-function GlanceRow({ onCertificate }: { onCertificate: () => void }) {
+function GlanceRow() {
   const facts: { key: string; mark: React.ReactNode; heading: string; value: React.ReactNode; wide?: boolean }[] = [
     { key: "years", mark: <ExperienceMark />, heading: "14+ Years", value: "of experience" },
     {
@@ -177,14 +167,7 @@ function GlanceRow({ onCertificate }: { onCertificate: () => void }) {
       key: "film",
       mark: <FilmMark />,
       heading: "AI Film Making",
-      value: (
-        <>
-          Upskilled <span aria-hidden>·</span>
-          <button type="button" onClick={onCertificate} aria-haspopup="dialog" className={CHIP}>
-            Certificate <span aria-hidden>↗</span>
-          </button>
-        </>
-      ),
+      value: <>Upskilled</>,
     },
   ];
   return (
@@ -205,89 +188,6 @@ function GlanceRow({ onCertificate }: { onCertificate: () => void }) {
         ))}
       </ul>
     </div>
-  );
-}
-
-/**
- * The certificate, over the page. Portalled to <body>: the footer lives in
- * the Flythrough's transformed stage, which would make a `position: fixed`
- * box fixed to IT. While open it marks the root `data-modal`, which the
- * Flythrough reads to leave the wheel and the keys alone; Escape, the close
- * button or a click outside shuts it, and the focus goes back.
- */
-function CertificateDialog({ open, onClose, reduceMotion }: { open: boolean; onClose: () => void; reduceMotion: boolean }) {
-  const ref = usePixelPresence<HTMLDivElement>(open, { cell: 12, duration: 0.55, reduceMotion });
-  const panelRef = useRef<HTMLDivElement>(null);
-  const close = useRef(onClose);
-  useEffect(() => {
-    close.current = onClose;
-  });
-  const [ever, setEver] = useState(open);
-  if (open && !ever) setEver(true);
-  useEffect(() => {
-    if (!open) return;
-    const root = document.documentElement;
-    const opener = document.activeElement as HTMLElement | null;
-    root.dataset.modal = "certificate";
-    // The page behind stays put: no wheel or swipe scrolls it while open.
-    const prevOverflow = root.style.overflow;
-    root.style.overflow = "hidden";
-    panelRef.current?.focus({ preventScroll: true });
-    const onKey = (e: KeyboardEvent) => {
-      if (e.key === "Escape") close.current();
-    };
-    window.addEventListener("keydown", onKey);
-    return () => {
-      window.removeEventListener("keydown", onKey);
-      if (root.dataset.modal === "certificate") delete root.dataset.modal;
-      root.style.overflow = prevOverflow;
-      opener?.focus?.({ preventScroll: true });
-    };
-  }, [open]);
-  // Nothing until first asked for — the page is built ahead of time, and a
-  // portal there would not match it when the page comes alive.
-  if (!ever) return null;
-  return createPortal(
-    <div
-      ref={ref}
-      className={`${HOME_TYPE} fixed inset-0 z-[300] grid place-items-center bg-neutral-950/70 p-4 backdrop-blur-sm ${open ? "" : "invisible"}`}
-      aria-hidden={!open}
-      onClick={onClose}
-    >
-      <div
-        ref={panelRef}
-        role="dialog"
-        aria-modal="true"
-        aria-label="AI Film Making — certificate of completion"
-        tabIndex={-1}
-        onClick={(e) => e.stopPropagation()}
-        className="flex w-[min(92vw,64rem,calc((100svh-9rem)*16/9))] flex-col gap-3 outline-none"
-      >
-        <div
-          className="relative w-full overflow-hidden rounded-lg shadow-[0_30px_80px_-30px_rgba(0,0,0,0.8)]"
-          style={{ aspectRatio: `${CERTIFICATE.w} / ${CERTIFICATE.h}` }}
-        >
-          {ever && (
-            // eslint-disable-next-line @next/next/no-img-element -- loaded only once asked for
-            <img src={CERTIFICATE.src} alt={CERTIFICATE.alt} className="absolute inset-0 h-full w-full object-cover" />
-          )}
-        </div>
-        <div className="flex flex-wrap items-center justify-between gap-3">
-          <p className="font-helv text-[0.78rem] leading-snug text-white/80">
-            Certificate of completion · 8-Week AI Film Making Program · Videopreneur Studios
-          </p>
-          <div className="flex items-center gap-2">
-            <PixelButton side="logic" size="sm" href={CERTIFICATE.pdf}>
-              Open PDF <span aria-hidden>↗</span>
-            </PixelButton>
-            <PixelButton side="logic" size="sm" onClick={onClose} ariaLabel="Close the certificate">
-              Close ✕
-            </PixelButton>
-          </div>
-        </div>
-      </div>
-    </div>,
-    document.body,
   );
 }
 
@@ -360,15 +260,13 @@ function FactsRow() {
 export function BrainFooter({ active }: { active: boolean }) {
   const reduceMotion = useReducedMotion() ?? false;
   // Which face is up under the glance: the stack first, then life & learning.
-  // It turns only while the brain slide is on screen, and holds while the
-  // certificate is open.
+  // It turns only while the brain slide is on screen.
   const [face, setFace] = useState<"stack" | "facts">("stack");
-  const [certificate, setCertificate] = useState(false);
   useEffect(() => {
-    if (!active || certificate) return;
+    if (!active) return;
     const id = window.setInterval(() => setFace((f) => (f === "stack" ? "facts" : "stack")), TURN_MS);
     return () => window.clearInterval(id);
-  }, [active, certificate]);
+  }, [active]);
   // Its whole height, published as --brain-foot on the page, so what stands
   // above it on a phone (LeftRightBrain's hint) clears it at any size.
   const footRef = useRef<HTMLDivElement>(null);
@@ -390,7 +288,7 @@ export function BrainFooter({ active }: { active: boolean }) {
     <div ref={footRef} className="pointer-events-none absolute inset-x-0 bottom-[calc(7%+0.9rem)] z-20 px-4 sm:px-8 lg:px-[5vw]">
       {/* At a glance — always, just under the brain. */}
       <div className="mb-[clamp(0.5rem,1.8vh,1rem)] border-b border-neutral-900/10 pb-[clamp(0.5rem,1.6vh,0.9rem)] [@media(max-height:31.25rem)]:mb-1 [@media(max-height:31.25rem)]:pb-1">
-        <GlanceRow onCertificate={() => setCertificate(true)} />
+        <GlanceRow />
       </div>
       <div className="relative h-[clamp(4.5rem,13vh,6.5rem)] max-sm:h-[6.25rem] [@media(max-height:31.25rem)]:h-[3.4rem]">
         <div ref={stackRef} className={`absolute inset-0 ${face === "stack" ? "" : "invisible"}`} aria-hidden={face !== "stack"}>
@@ -400,7 +298,6 @@ export function BrainFooter({ active }: { active: boolean }) {
           <FactsRow />
         </div>
       </div>
-      <CertificateDialog open={certificate} onClose={() => setCertificate(false)} reduceMotion={reduceMotion} />
     </div>
   );
 }

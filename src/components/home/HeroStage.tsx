@@ -48,6 +48,8 @@ import { CircuitBackdrop } from "@/components/home/CircuitBackdrop";
 import { BrainFooter } from "@/components/home/BrainFooter";
 import { BrainHalfShade } from "@/components/home/BrainHalfShade";
 import { AboutMe } from "@/components/home/AboutMe";
+import { CertificateButton } from "@/components/home/CertificateDialog";
+import { PixelButton } from "@/components/home/PixelButton";
 import { useFlight } from "@/components/home/flight";
 import { useMediaQuery } from "@/hooks/useMediaQuery";
 import { SITE } from "@/constants/site";
@@ -464,14 +466,25 @@ export function HeroStage() {
             className="pointer-events-none pt-[clamp(0.6rem,1.6vh,1.1rem)]"
             style={{ visibility: orbW > 0 ? "visible" : "hidden" }}
           >
-            {/* About me — opens over the page (AboutMe; owner, 2026-10-16). */}
+            {/* About me — opens over the page (AboutMe; owner, 2026-10-16);
+                beside it since 2026-10-22 (owner: "put this resume on the site,
+                beside about me button … as download resume button, also keep
+                ai filmmaking certificate here as third button"), the resume
+                to save and the certificate, over the page as it opened from
+                the brain slide (CertificateDialog). */}
             <motion.div
               initial={reduceMotion ? false : { opacity: 0 }}
               animate={{ opacity: orbW > 0 ? 1 : 0 }}
               transition={{ duration: DURATION.verySlow, ease: EASE_OUT }}
-              className="flex justify-center"
+              className="flex flex-wrap justify-center gap-2"
             >
               <AboutMe />
+              <span className="pointer-events-auto inline-block">
+                <PixelButton side="logic" size="sm" href={SITE.resume} download="Shrey_Singh_Resume.pdf">
+                  Download resume <span aria-hidden>↓</span>
+                </PixelButton>
+              </span>
+              <CertificateButton />
             </motion.div>
           </div>
         </div>
