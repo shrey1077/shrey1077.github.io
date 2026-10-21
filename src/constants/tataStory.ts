@@ -54,9 +54,14 @@ export const TATA_HERO = {
 export interface TataBand {
   /** "01" … — fixed rather than derived, because the bands are hand-ordered. */
   number: string;
-  kicker: string;
+  /** The small line over the headline. Absent where the headline says it
+   *  alone (owner, 2026-10-22: "keep 3 as \"Handbook\" only" — and 04, 05,
+   *  08 and 09 the same way). */
+  kicker?: string;
   /** Kept as lines for the same reason as the hero's. */
   headline: string[];
+  /** A line under the headline (07's three crafts). */
+  subline?: string;
   body: string;
   /** The words set small beside the band, as in the comp. */
   rail?: string[];
@@ -280,11 +285,13 @@ export const TATA_IDENTITIES = {
  * back pages. The flipbook runs on the right-hand pages from Week 1 on. */
 export const TATA_HANDBOOK: TataBand = {
   number: "03",
-  kicker: "The handbook",
   // ⚠ NO TIME PERIOD anywhere in this band (owner, 2026-10-04: the courses
   // run three to six months, so "a year" was wrong — and any length would be
   // wrong for some of them).
-  headline: ["Their journey,", "in their hands."],
+  // The heading, plainly (owner, 2026-10-22: "I dont like your headings, keep
+  // 3 as \"Handbook\" only") — "The handbook" over "Their journey, in their
+  // hands." until then.
+  headline: ["Handbook"],
   body: "From the first batch on, every trainee has started with a handbook: the institute, set out in one place, and room to record the journey ahead.",
 };
 
@@ -370,15 +377,15 @@ export const TATA_HANDBOOK_FLIPBOOK_COPY = {
 
 export const TATA_MOCKUPS_BAND: TataBand = {
   number: "04",
-  kicker: "Mockups",
-  headline: ["Staged before", "it was made."],
+  // "Mockups" over "Staged before it was made." until 2026-10-22 (owner).
+  headline: ["Mockups"],
   body: "Before anything went to print or production, it was staged in place — signage and billboards, gates and glass, flags, caps, T-shirts and vehicles — in each of the three themes.",
 };
 
 export const TATA_PRINT_BAND: TataBand = {
   number: "05",
-  kicker: "Print",
-  headline: ["From the hand", "to the wall."],
+  // "Print" over "From the hand to the wall." until 2026-10-22 (owner).
+  headline: ["Print Collateral"],
   body: "Ink on every surface the institute owns — a calling card in the hand, a fifteen-foot board on the wall, and the whole system in between.",
 };
 
@@ -386,13 +393,17 @@ export const TATA_REALITY_BAND: TataBand = {
   number: "06",
   kicker: "Mockups to reality",
   headline: ["From screen", "to campus."],
-  body: "The same work, photographed where it now stands — standees beside their machines, posters on the corridor walls, quotations in the halls — each with its design inset, where the archive holds one.",
+  // The designs were inset in the photographs' corners until 2026-10-22
+  // (owner: "remove the subset previews"); they show under the pointer now.
+  body: "The same work, photographed where it now stands — standees beside their machines, posters on the corridor walls, quotations in the halls.",
 };
 
 export const TATA_PHOTO_BAND: TataBand = {
   number: "07",
-  kicker: "Photo / Videography, Editing",
+  // The crafts UNDER the headline, in one line (owner, 2026-10-22) — the
+  // kicker "Photo / Videography, Editing" over it until then.
   headline: ["The campus,", "on camera."],
+  subline: "Photography | Videography | Editing",
   body: "Alongside the design, the camera — on industry visits, on testimonials, and at the institute's events and across its campus — and the films cut from it, in the same three visual themes as everything else.",
 };
 
@@ -445,8 +456,8 @@ export const TATA_FILMS = [
  *  the institute's own pages"), Presentations ("the placement deck"). */
 export const TATA_DIGITAL_BAND: TataBand = {
   number: "08",
-  kicker: "Digital",
-  headline: ["On every", "screen."],
+  // "Digital" over "On every screen." until 2026-10-22 (owner).
+  headline: ["Design for Digital Platforms"],
   body: "The same system online: a social grid in three voices, mastheads for the institute’s own pages, and the placement deck.",
 };
 
@@ -484,15 +495,17 @@ export const TATA_WORK_BAND: TataBand = {
   // owner's account of the job — closing the page, beside the way to get in
   // touch.
   number: "09",
-  kicker: "The role",
-  headline: ["From identity", "to impact."],
+  // "The role" over "From identity to impact." until 2026-10-22 (owner:
+  // "Keep 9 as \"My Role\"").
+  headline: ["My Role"],
   // The band's paragraph is TATA_WORK_INTRO (tataSections.ts) — the owner's own
   // account of the job, already written and already true. Nothing here.
   body: "",
 };
 
-/** The way to get in touch, inside band 09 since 2026-10-05 (it was a band
- *  of its own, 09, until then). */
+/** The way to get in touch, inside band 09 from 2026-10-05 (it was a band
+ *  of its own, 09, until then) to 2026-10-22, when the owner took it off the
+ *  page ("remove Collaborate from 9 … remove all of it"). Kept, unused. */
 export const TATA_COLLABORATE = {
   kicker: "Let's build what's next",
   headline: "Collaborate.",
@@ -506,8 +519,8 @@ export const TATA_INDEX = [
   { href: "#brand", label: "Brand" },
   { href: "#handbook", label: "Handbook" },
   { href: "#mockups", label: "Mockups" },
-  { href: "#print", label: "Print" },
+  { href: "#print", label: "Print Collateral" },
   { href: "#reality", label: "Mockups to reality" },
   { href: "#camera", label: "Photo / Videography" },
-  { href: "#digital", label: "Digital" },
+  { href: "#digital", label: "Digital Platforms" },
 ] as const;

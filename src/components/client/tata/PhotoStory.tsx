@@ -12,9 +12,16 @@
  *
  * Any photograph opens full size in the page's MediaViewer and walks the rest
  * of its aspect from there. Films load nothing until asked (preload="none").
+ *
+ * THE ASPECTS TAKE TURNS (owner, 2026-10-22: "keep switching between the 4
+ * points ie industry visit etc. every 7 seconds"): each stays DWELL_MS, a
+ * line filling under its tab as it goes, then the next — round and round,
+ * while the band is on screen. A tab picked starts the count again. It holds
+ * while the pointer rests on the work or the keyboard is in the band, while a
+ * photograph is open, and while a film plays — none of them cut off.
  */
 
-import { useId, useState } from "react";
+import { useEffect, useId, useRef, useState } from "react";
 import Image from "next/image";
 import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
 import { MediaViewer } from "@/components/experience/MediaViewer";
@@ -47,6 +54,8 @@ const THEMES = [
 
 /** Photographs shown at once; the rest are a click away in the viewer. */
 const MOSAIC = 5;
+/** How long an aspect stays before the next takes its place. */
+const DWELL_MS = 7000;
 
 export function PhotoStory({
   band,
@@ -62,6 +71,39 @@ export function PhotoStory({
   const [active, setActive] = useState(aspects[0]?.id);
   const [viewing, setViewing] = useState<{ aspect: string; i: number } | null>(null);
   const [film, setFilm] = useState(0);
+
+  // Taking turns, and what holds them (see the header).
+  const bandRef = useRef<HTMLDivElement>(null);
+  const [inView, setInView] = useState(false);
+  const [resting, setResting] = useState(false); // the pointer, on the work
+  const [focused, setFocused] = useState(false); // the keyboard, in the band
+  const [playing, setPlaying] = useState(false);
+  const held = !inView || resting || focused || playing || viewing !== null;
+  useEffect(() => {
+    const el = bandRef.current;
+    if (!el) return;
+    const io = new IntersectionObserver(([e]) => setInView(e.isIntersecting), { threshold: 0.3 });
+    io.observe(el);
+    return () => io.disconnect();
+  }, []);
+  useEffect(() => {
+    if (held || aspects.length < 2) return;
+    const t = window.setTimeout(() => {
+      setActive((id) => aspects[(aspects.findIndex((a) => a.id === id) + 1) % aspects.length].id);
+    }, DWELL_MS);
+    return () => window.clearTimeout(t);
+  }, [active, held, aspects]);
+  const choose = (id: string) => {
+    setActive(id);
+    setPlaying(false);
+  };
+  // The keyboard in the band: held until focus leaves it.
+  const focusHold = {
+    onFocus: () => setFocused(true),
+    onBlur: (e: React.FocusEvent<HTMLElement>) => {
+      if (!e.currentTarget.contains(e.relatedTarget as Node | null)) setFocused(false);
+    },
+  };
 
   const aspect = aspects.find((a) => a.id === active) ?? aspects[0];
   const photos = aspect.photos ?? [];
@@ -79,19 +121,30 @@ export function PhotoStory({
   };
 
   const tabs = (
-    <div role="tablist" aria-orientation="vertical" aria-label="Aspects of the work">
+    <div role="tablist" aria-orientation="vertical" aria-label="Aspects of the work" {...focusHold}>
       <ol className="border-t border-neutral-300/80">
         {aspects.map((a, i) => {
           const on = a.id === aspect.id;
           return (
-            <li key={a.id} className="border-b border-neutral-300/80">
+            <li key={a.id} className="relative border-b border-neutral-300/80">
+              {/* The turn's time, filling under the aspect on show. */}
+              {on && !reduceMotion && (
+                <motion.span
+                  key={`${a.id}-${held}`}
+                  aria-hidden
+                  className="absolute inset-x-0 -bottom-px block h-px origin-left bg-neutral-900"
+                  initial={{ scaleX: 0 }}
+                  animate={{ scaleX: held ? 0 : 1 }}
+                  transition={{ duration: held ? 0 : DWELL_MS / 1000, ease: "linear" }}
+                />
+              )}
               <button
                 type="button"
                 role="tab"
                 id={`${uid}-tab-${a.id}`}
                 aria-selected={on}
                 aria-controls={`${uid}-panel`}
-                onClick={() => setActive(a.id)}
+                onClick={() => choose(a.id)}
                 className="group flex w-full cursor-pointer items-start gap-4 py-2.5 text-left outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-neutral-900/40"
               >
                 <span
@@ -135,7 +188,16 @@ export function PhotoStory({
   return (
     <SideBand band={band} id="tata-photo-title" anchor="camera" aside={tabs}>
       {/* ── The chosen aspect's work. ── */}
-      <div id={`${uid}-panel`} role="tabpanel" aria-labelledby={`${uid}-tab-${aspect.id}`} className="min-w-0">
+      <div
+        ref={bandRef}
+        id={`${uid}-panel`}
+        role="tabpanel"
+        aria-labelledby={`${uid}-tab-${aspect.id}`}
+        className="min-w-0"
+        onPointerEnter={(e) => e.pointerType === "mouse" && setResting(true)}
+        onPointerLeave={() => setResting(false)}
+        {...focusHold}
+      >
         <AnimatePresence mode="wait" initial={false}>
           <motion.div
             key={aspect.id}
@@ -154,6 +216,9 @@ export function PhotoStory({
                     controls
                     playsInline
                     preload="none"
+                    onPlay={() => setPlaying(true)}
+                    onPause={() => setPlaying(false)}
+                    onEnded={() => setPlaying(false)}
                     className={`absolute inset-0 h-full w-full ${films[film].portrait ? "object-contain" : "object-cover"}`}
                   >
                     <track kind="captions" />
@@ -164,7 +229,10 @@ export function PhotoStory({
                     <li key={f.id}>
                       <button
                         type="button"
-                        onClick={() => setFilm(i)}
+                        onClick={() => {
+                          setFilm(i);
+                          setPlaying(false);
+                        }}
                         aria-current={i === film}
                         className={`flex w-full cursor-pointer items-center gap-3 rounded-full p-1.5 pr-4 text-left outline-none ring-1 transition-colors focus-visible:ring-2 focus-visible:ring-neutral-900/40 ${
                           i === film ? "bg-white ring-neutral-900" : "ring-neutral-200 hover:bg-white"

@@ -13,10 +13,11 @@
  *                 editions (HandbookBand)
  *   04 mockups    every themed mockup, on one moving wall (MockupsBand)
  *   05 print      all sixteen subsections, one tile each (PrintBand)
- *   06 reality    every installed piece, its design inset (RealityBand)
+ *   06 reality    every installed piece, its design under the pointer (RealityBand)
  *   07 camera     photo / videography and editing, by aspect (PhotoStoryBand)
  *   08 digital    socials, website banners, the deck (DigitalBand)
- *   09 the role   the owner's account of the job, and the way to get in touch
+ *   09 my role    the owner's account of the job (Collaborate, beside it, off
+ *                 the page since 2026-10-22)
  *   marquee + TataFooter
  *
  * ⚠ 04–09 WERE RE-SET ON 2026-10-05 for the owner's "show all my work in the
@@ -53,7 +54,6 @@ import {
 import { TATA_WORK_INTRO } from "@/constants/tataSections";
 import { onTataPage } from "@/constants/tataCull";
 import {
-  TATA_COLLABORATE,
   TATA_HERO,
   TATA_CAMPUS_PROFILES,
   TATA_INDEX,
@@ -71,7 +71,6 @@ import { RealityBand } from "@/components/client/tata/RealityBand";
 import { PhotoStoryBand } from "@/components/client/tata/PhotoStoryBand";
 import { DigitalBand } from "@/components/client/tata/DigitalBand";
 import { SideBand } from "@/components/client/tata/SideBand";
-import { SITE } from "@/constants/site";
 import { ExperienceTransition } from "@/components/transition/ExperienceTransition";
 import { PartnerMarquee } from "@/components/client/tata/PartnerMarquee";
 import { TataFooter } from "@/components/client/tata/TataFooter";
@@ -436,58 +435,12 @@ export function TataExperience() {
           <PhotoStoryBand />
           <DigitalBand />
 
-          {/* ── 09 — the role: the owner's own account of the job, closing the
-              page, and the way to get in touch beside it. ── */}
+          {/* ── 09 — My Role: the owner's own account of the job, closing the
+              page. (The way to get in touch stood beside it until 2026-10-22 —
+              owner: "remove Collaborate from 9 … remove all of it".) ── */}
           <SideBand band={TATA_WORK_BAND} id="tata-role-title" anchor="role" ground="bg-white/55">
-            <div className="grid grid-cols-1 gap-x-12 gap-y-10 xl:grid-cols-[minmax(0,1.5fr)_minmax(0,1fr)]">
-              {/* Long, first-person and already written — TATA_WORK_INTRO. */}
-              <p className="tata-body max-w-[62ch] text-[0.95rem] leading-[1.75] text-neutral-700">{TATA_WORK_INTRO}</p>
-
-              <div className="border-t border-neutral-300/80 pt-5 xl:border-l xl:border-t-0 xl:pl-10 xl:pt-0">
-                <span className={KICKER}>{TATA_COLLABORATE.kicker}</span>
-                <h3 className="tata-display mt-3 text-[clamp(1.4rem,2.1vw,1.85rem)] leading-[1.12] text-neutral-900">
-                  {TATA_COLLABORATE.headline}
-                </h3>
-                <p className="tata-body mt-3 text-[0.88rem] leading-relaxed text-neutral-700">{TATA_COLLABORATE.body}</p>
-                <div className="mt-6 flex flex-wrap items-start gap-x-12 gap-y-6">
-                  <div>
-                    <span className={KICKER}>Get in touch</span>
-                    <p className="tata-body mt-3 text-[0.95rem] text-neutral-900">
-                      <a
-                        href={`mailto:${SITE.email}`}
-                        className="border-b border-neutral-300 pb-0.5 transition-colors hover:border-neutral-900"
-                      >
-                        {SITE.email}
-                      </a>
-                    </p>
-                  </div>
-                  <div>
-                    <span className={KICKER}>Follow</span>
-                    {/* ⚠ Only the two profiles the site actually knows. The comp
-                        shows four; site.ts has LinkedIn and Behance, flagged there
-                        as placeholders to replace, and inventing the other two
-                        would put dead links on a client's page. */}
-                    <ul className="mt-3 flex items-center gap-6">
-                      {[
-                        { label: "LinkedIn", href: SITE.linkedin },
-                        { label: "Behance", href: SITE.behance },
-                      ].map((l) => (
-                        <li key={l.label}>
-                          <a
-                            href={l.href}
-                            target="_blank"
-                            rel="noreferrer"
-                            className="tata-body border-b border-neutral-300 pb-0.5 text-[0.8rem] text-neutral-700 transition-colors hover:border-neutral-900 hover:text-neutral-900"
-                          >
-                            {l.label}
-                          </a>
-                        </li>
-                      ))}
-                    </ul>
-                  </div>
-                </div>
-              </div>
-            </div>
+            {/* First-person — TATA_WORK_INTRO. */}
+            <p className="tata-body max-w-[62ch] text-[0.95rem] leading-[1.75] text-neutral-700">{TATA_WORK_INTRO}</p>
           </SideBand>
 
           {/* The partner marquee, LAST — moved down from between the brand

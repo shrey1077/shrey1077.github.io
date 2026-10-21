@@ -48,7 +48,7 @@ export function SideBand({
               <p aria-hidden className="tata-display text-[clamp(2.6rem,4.6vw,4rem)] leading-[0.85] text-neutral-300">
                 {band.number}
               </p>
-              <span className={`${KICKER} lg:mt-5 lg:block`}>{band.kicker}</span>
+              {band.kicker && <span className={`${KICKER} lg:mt-5 lg:block`}>{band.kicker}</span>}
             </div>
             <h2 id={id} className="tata-display mt-4 text-[clamp(1.55rem,2.4vw,2.1rem)] leading-[1.12] text-neutral-900">
               {band.headline.map((line) => (
@@ -57,6 +57,7 @@ export function SideBand({
                 </span>
               ))}
             </h2>
+            {band.subline && <p className={`${KICKER} mt-3 whitespace-nowrap text-neutral-700`}>{band.subline}</p>}
             {band.body && (
               <p className="tata-body mt-4 max-w-[52ch] text-[0.88rem] leading-relaxed text-neutral-700">{band.body}</p>
             )}

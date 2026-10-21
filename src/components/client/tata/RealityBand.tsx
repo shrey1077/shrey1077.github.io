@@ -1,7 +1,8 @@
 /**
  * RealityBand — band 06 of the Tata IIS page: Mockups to reality (owner,
  * 2026-10-04). The work installed on campus, photographed, each piece with its
- * design where the archive holds one. The photographs are
+ * design under the pointer where the archive holds one (inset in its corner
+ * until 2026-10-22 — see RealityWall). The photographs are
  * scripts/prepare-tata-photos.mjs's.
  *
  * Since 2026-10-05 all twelve pieces stand on one wall (RealityWall) beside
@@ -40,8 +41,8 @@ export function RealityBand() {
       ground="bg-neutral-100/40"
       aside={
         <p className="tata-body text-[0.62rem] uppercase leading-[1.9] tracking-[0.2em] text-neutral-500 tabular-nums">
-          {tiles.length} pieces installed · {paired} with their design inset
-          <span className="block text-neutral-400">Point at one to swap them · click to open</span>
+          {tiles.length} pieces installed · {paired} with their design
+          <span className="block text-neutral-400">Point at one to see its design · click to open</span>
         </p>
       }
     >

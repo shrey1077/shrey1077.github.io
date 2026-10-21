@@ -37,10 +37,10 @@ export function TataBandHead({
         {band.number}
       </p>
       <div>
-        <span className={dark ? KICKER.replace("text-neutral-500", "text-white/55") : KICKER}>{band.kicker}</span>
+        {band.kicker && <span className={dark ? KICKER.replace("text-neutral-500", "text-white/55") : KICKER}>{band.kicker}</span>}
         <h2
           id={id}
-          className={`tata-display mt-4 text-[clamp(1.55rem,2.7vw,2.25rem)] leading-[1.12] ${
+          className={`tata-display ${band.kicker ? "mt-4" : ""} text-[clamp(1.55rem,2.7vw,2.25rem)] leading-[1.12] ${
             dark ? "text-white" : "text-neutral-900"
           }`}
         >
@@ -50,6 +50,7 @@ export function TataBandHead({
             </span>
           ))}
         </h2>
+        {band.subline && <p className={`${KICKER} mt-3 whitespace-nowrap`}>{band.subline}</p>}
       </div>
       <div className="max-w-[52ch]">
         <p className={`tata-body text-[0.95rem] leading-relaxed ${dark ? "text-white/70" : "text-neutral-700"}`}>

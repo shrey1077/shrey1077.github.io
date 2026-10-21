@@ -61,8 +61,10 @@ export function brandOf(assetName: string): TataBrand {
 }
 
 /** The 150-word note that opens the work — what the role actually was. */
+// A fifth shorter since 2026-10-22 (owner: "reduce the text by 20 %") —
+// 146 words to 115; git has the longer.
 export const TATA_WORK_INTRO =
-  "I joined Tata IIS as its first designer and left as Lead Manager, having built the institute's visual identity from the wordmark outward. Two campuses opened in that window — Ahmedabad and Mumbai — and each needed a dialect of its own without breaking from the parent mark. So the work ran in three voices at once: Tata IIS, IIS Ahmedabad, IIS Mumbai. I wrote the logo rulebooks, set the colour and typography law, and then applied it across everything the institute touches — visiting cards, trainee IDs, certificates, brochures, campus posters, fifteen-foot ceremony backdrops, lab boards, the social system, website banners and the films. Much of it was made alongside the people who would use it: instructors, admissions staff, the photography I shot on campus myself. What follows is that system in use, grouped by medium and read left to right in the order the brand is built.";
+  "I joined Tata IIS as its first designer and left as Lead Manager, having built the institute's visual identity from the wordmark outward. Two campuses opened in that time — Ahmedabad and Mumbai — each needing a dialect of its own without breaking from the parent mark, so the work ran in three voices at once: Tata IIS, IIS Ahmedabad, IIS Mumbai. I wrote the logo rulebooks, set the colour and typography law, and applied it to everything the institute touches — visiting cards, trainee IDs, certificates, brochures, campus posters, ceremony backdrops, lab boards, the social system, website banners and the films — much of it made alongside the people who would use it: instructors and admissions staff.";
 
 export const TATA_SECTIONS: TataSection[] = [
   {

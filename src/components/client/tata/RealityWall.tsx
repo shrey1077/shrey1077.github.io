@@ -9,9 +9,11 @@
  * for twelve photographs. Here all twelve stand in three justified rows, each
  * at its own proportions, and the band is about a screen:
  *
- *   · A piece whose design the archive holds carries it INSET in its corner,
- *     so design and reality read together without a click. Pointing at the
- *     tile swaps them — the design large, the photograph inset.
+ *   · A piece whose design the archive holds shows it under the pointer,
+ *     large, in place of the photograph. (It carried the design INSET in its
+ *     corner too until 2026-10-22, the photograph inset under the pointer —
+ *     the owner: "remove the subset previews of artworks you have used in
+ *     some images".)
  *   · A click opens the piece full size; the viewer walks every picture in
  *     the band, each design just before its photograph.
  *
@@ -106,28 +108,11 @@ export function RealityWall({ tiles }: { tiles: readonly RealityTile[] }) {
                     />
                   </span>
 
+                  {/* The design, large — shown under the pointer. */}
                   {t.design && (
-                    <>
-                      {/* The design, large — shown under the pointer. */}
-                      <span className="absolute inset-0 block bg-white opacity-0 transition-opacity duration-500 group-hover:opacity-100 group-focus-visible:opacity-100">
-                        <Image src={t.design.thumb} alt={`${t.caption} — the design`} fill sizes="300px" className="object-contain p-3" />
-                      </span>
-                      {/* The other one, inset in the corner: the design at rest,
-                          the photograph under the pointer. */}
-                      <span className="absolute bottom-2 left-2 block w-[38%] max-w-[7.5rem] shadow-[0_6px_16px_rgba(0,0,0,0.35)] ring-1 ring-white/80">
-                        <span
-                          className="relative block bg-white"
-                          style={{ aspectRatio: `${t.design.w} / ${t.design.h}` }}
-                        >
-                          <span className="absolute inset-0 block transition-opacity duration-500 group-hover:opacity-0 group-focus-visible:opacity-0">
-                            <Image src={t.design.thumb} alt="" fill sizes="120px" className="object-contain" />
-                          </span>
-                          <span className="absolute inset-0 block bg-neutral-900 opacity-0 transition-opacity duration-500 group-hover:opacity-100 group-focus-visible:opacity-100">
-                            <Image src={t.photo.thumb} alt="" fill sizes="120px" className="object-cover" />
-                          </span>
-                        </span>
-                      </span>
-                    </>
+                    <span className="absolute inset-0 block bg-white opacity-0 transition-opacity duration-500 group-hover:opacity-100 group-focus-visible:opacity-100">
+                      <Image src={t.design.thumb} alt={`${t.caption} — the design`} fill sizes="300px" className="object-contain p-3" />
+                    </span>
                   )}
 
                   {/* What it is — named under the pointer. */}
