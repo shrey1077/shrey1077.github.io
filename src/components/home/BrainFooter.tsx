@@ -13,9 +13,8 @@
  * display in popup) add my certificate, AI agents and products", then "will
  * always be visible just below brain artwork, and above My stack and other
  * elements") — the years, the brands, and the two new skills: the
- * certificate opened over the page from here until 2026-10-22, when the owner
- * moved it to a button on the first slide (CertificateDialog; HeroStage) —
- * AI Film Making says "Upskilled" alone now. Since 2026-10-19
+ * certificate opens over the page (CertificateDialog; on the first slide
+ * instead from 2026-10-22 to 2026-10-26). Since 2026-10-19
  * (owner: "put education in at a glance section 3rd point, move 3 to 4, and
  * move 4 ie AI agents to off the clock section"): the years, the brands, the
  * degrees — one line, the widest column — and AI film making. Under it, two
@@ -42,6 +41,7 @@ import { useEffect, useRef, useState } from "react";
 import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
 import { RoomImage as Image } from "@/components/home/nearness";
 import { usePixelPresence } from "@/components/home/pixelReveal";
+import { CertificateDialog } from "@/components/home/CertificateDialog";
 import { GROUPS, ROLE } from "@/components/home/MyStack";
 import { AgentMark, BrandsMark, EducationMark, ExperienceMark, FilmMark, PartTimeMark } from "@/components/home/HomeMarks";
 import { CHESS_RATING, PART_TIME, WORD_MS } from "@/components/home/AboutFacts";
@@ -128,7 +128,7 @@ const MARK = "flex shrink-0 [&_svg]:size-[1.15em] [&_svg]:text-neutral-900";
 const CHIP =
   "pointer-events-auto inline-flex items-center gap-1 rounded-full border border-neutral-900/80 px-2 py-[0.22rem] font-graff text-[0.54rem] uppercase leading-none tracking-[0.16em] text-neutral-900 outline-none transition-colors hover:bg-neutral-950 hover:text-white focus-visible:bg-neutral-950 focus-visible:text-white";
 
-function GlanceRow() {
+function GlanceRow({ onCertificate }: { onCertificate: () => void }) {
   const facts: { key: string; mark: React.ReactNode; heading: string; value: React.ReactNode; wide?: boolean }[] = [
     { key: "years", mark: <ExperienceMark />, heading: "14+ Years", value: "of experience" },
     {
@@ -167,7 +167,14 @@ function GlanceRow() {
       key: "film",
       mark: <FilmMark />,
       heading: "AI Film Making",
-      value: <>Upskilled</>,
+      value: (
+        <>
+          Upskilled <span aria-hidden>·</span>
+          <button type="button" onClick={onCertificate} aria-haspopup="dialog" className={CHIP}>
+            Certificate <span aria-hidden>↗</span>
+          </button>
+        </>
+      ),
     },
   ];
   return (
@@ -260,13 +267,15 @@ function FactsRow() {
 export function BrainFooter({ active }: { active: boolean }) {
   const reduceMotion = useReducedMotion() ?? false;
   // Which face is up under the glance: the stack first, then life & learning.
-  // It turns only while the brain slide is on screen.
+  // It turns only while the brain slide is on screen, and holds while the
+  // certificate is open.
   const [face, setFace] = useState<"stack" | "facts">("stack");
+  const [certificate, setCertificate] = useState(false);
   useEffect(() => {
-    if (!active) return;
+    if (!active || certificate) return;
     const id = window.setInterval(() => setFace((f) => (f === "stack" ? "facts" : "stack")), TURN_MS);
     return () => window.clearInterval(id);
-  }, [active]);
+  }, [active, certificate]);
   // Its whole height, published as --brain-foot on the page, so what stands
   // above it on a phone (LeftRightBrain's hint) clears it at any size.
   const footRef = useRef<HTMLDivElement>(null);
@@ -287,17 +296,25 @@ export function BrainFooter({ active }: { active: boolean }) {
   return (
     <div ref={footRef} className="pointer-events-none absolute inset-x-0 bottom-[calc(7%+0.9rem)] z-20 px-4 sm:px-8 lg:px-[5vw]">
       {/* At a glance — always, just under the brain. */}
-      <div className="mb-[clamp(0.5rem,1.8vh,1rem)] border-b border-neutral-900/10 pb-[clamp(0.5rem,1.6vh,0.9rem)] [@media(max-height:31.25rem)]:mb-1 [@media(max-height:31.25rem)]:pb-1">
-        <GlanceRow />
+      {/* The line under the glance stands as far from the rows below as
+          from the glance above (owner, 2026-10-26: "keep the current
+          distance between line and text above it, equal to its distance
+          from lower elements"). */}
+      <div className="mb-[clamp(0.5rem,1.6vh,0.9rem)] border-b border-neutral-900/10 pb-[clamp(0.5rem,1.6vh,0.9rem)] [@media(max-height:31.25rem)]:mb-1 [@media(max-height:31.25rem)]:pb-1">
+        <GlanceRow onCertificate={() => setCertificate(true)} />
       </div>
-      <div className="relative h-[clamp(4.5rem,13vh,6.5rem)] max-sm:h-[6.25rem] [@media(max-height:31.25rem)]:h-[3.4rem]">
-        <div ref={stackRef} className={`absolute inset-0 ${face === "stack" ? "" : "invisible"}`} aria-hidden={face !== "stack"}>
+      {/* The two faces in one grid cell: the cell is as tall as the taller
+          (a box of fixed height stood here until 2026-10-26, some 3rem
+          taller than either — the gap under the line). */}
+      <div className="relative grid">
+        <div ref={stackRef} className={`[grid-area:1/1] ${face === "stack" ? "" : "invisible"}`} aria-hidden={face !== "stack"}>
           <StackRow />
         </div>
-        <div ref={factsRef} className={`absolute inset-0 ${face === "facts" ? "" : "invisible"}`} aria-hidden={face !== "facts"}>
+        <div ref={factsRef} className={`[grid-area:1/1] ${face === "facts" ? "" : "invisible"}`} aria-hidden={face !== "facts"}>
           <FactsRow />
         </div>
       </div>
+      <CertificateDialog open={certificate} onClose={() => setCertificate(false)} reduceMotion={reduceMotion} />
     </div>
   );
 }

@@ -1178,8 +1178,12 @@ export function Flythrough({
   const acrossFromLogic = CREATIVE[Math.min(level, CREATIVE.length - 1)];
   const acrossFromCreative = LOGIC[Math.min(level, LOGIC.length - 1)];
   // The band's words (FootBand): in a room, the room on its side and the
-  // one level with it across; on the landing and at the footer, the way into
-  // each side.
+  // one level with it across; on the brain slide and at the footer, the way
+  // into each side; on the first slide, none (owner, 2026-10-26: "Instead of
+  // "Projects", use Brand Designs, and text in right side should be AI
+  // Design, and this shud be on second slide only and below slides, on the
+  // first slide i dont want any text on the lower pixelated band") — the
+  // sides were "Projects" and "Creative" until then.
   const pad2 = (n: number) => String(n).padStart(2, "0");
   const band: { left: BandPart; right: BandPart; major: "left" | "right" | null } =
     here && !pastRun
@@ -1187,26 +1191,28 @@ export function Flythrough({
         ? {
             left: {
               title: here.item.short,
-              sub: `Projects · ${pad2(here.level + 1)} / ${pad2(LOGIC.length)}`,
+              sub: `Brand Designs · ${pad2(here.level + 1)} / ${pad2(LOGIC.length)}`,
               strip: <ShowcaseStrip side="logic" items={LOGIC.filter((it) => it.id !== ALL_PROJECTS_ID)} activeId={here.item.id} onGo={goId} />,
             },
-            right: { title: acrossFromLogic.short, sub: "Creative →", onGo: () => goId(acrossFromLogic.id) },
+            right: { title: acrossFromLogic.short, sub: "AI Design →", onGo: () => goId(acrossFromLogic.id) },
             major: "left",
           }
         : {
-            left: { title: acrossFromCreative.short, sub: "← Projects", onGo: () => goId(acrossFromCreative.id) },
+            left: { title: acrossFromCreative.short, sub: "← Brand Designs", onGo: () => goId(acrossFromCreative.id) },
             right: {
               title: here.item.short,
-              sub: `Creative · ${pad2(here.level + 1)} / ${pad2(CREATIVE.length)}`,
+              sub: `AI Design · ${pad2(here.level + 1)} / ${pad2(CREATIVE.length)}`,
               strip: <ShowcaseStrip side="creative" items={CREATIVE} activeId={here.item.id} onGo={goId} />,
             },
             major: "right",
           }
-      : {
-          left: { title: "Projects", sub: "Left brain · Logic", onGo: () => goId(LOGIC[0].id) },
-          right: { title: "Creative", sub: "Right brain · Art", onGo: () => goId(CREATIVE[0].id) },
-          major: null,
-        };
+      : current === 0 && !pastRun
+        ? { left: { title: "" }, right: { title: "" }, major: null }
+        : {
+            left: { title: "Brand Designs", sub: "Left brain · Logic", onGo: () => goId(LOGIC[0].id) },
+            right: { title: "AI Design", sub: "Right brain · Art", onGo: () => goId(CREATIVE[0].id) },
+            major: null,
+          };
   const inRooms = current >= FIRST_ROOM && !pastRun;
 
   return (

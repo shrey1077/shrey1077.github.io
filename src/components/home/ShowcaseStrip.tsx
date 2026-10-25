@@ -177,7 +177,7 @@ export function ShowcaseStrip({
   return (
     <div
       role="group"
-      aria-label={creative ? "Creative work" : "Projects"}
+      aria-label={creative ? "AI Design" : "Brand Designs"}
       // Clear of the screen's edge as the slides are, and of the band's
       // pixelated seam on the other side.
       className={`flex h-full w-full min-w-0 items-center gap-1 sm:gap-1.5 ${
@@ -185,9 +185,9 @@ export function ShowcaseStrip({
       }`}
     >
       {/* The side's name, where there is room — the left's only: the right's
-          pills need the room for their names, and the band says "Creative"
+          pills need the room for their names, and the band says "AI Design"
           beside them anyway. */}
-      {!creative && <span className={`${typeVoiceClass("logic", "meta")} hidden shrink-0 px-2 text-[0.56rem] tracking-[0.3em] text-white/55 xl:inline`}>Projects</span>}
+      {!creative && <span className={`${typeVoiceClass("logic", "meta")} hidden shrink-0 px-2 text-[0.56rem] tracking-[0.3em] text-white/55 xl:inline`}>Brand Designs</span>}
       {items.map((it) => {
         const on = it.id === activeId;
         if (creative) {

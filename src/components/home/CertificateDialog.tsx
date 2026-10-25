@@ -4,11 +4,12 @@
  * CertificateDialog — the AI Film Making certificate, over the page, and the
  * button that opens it.
  *
- * The dialog stood in the brain slide's glance row (BrainFooter), opened by a
- * "Certificate ↗" chip beside "AI Film Making · Upskilled", from 2026-10-16
- * until 2026-10-22, when the owner moved it to the first slide: a third button
- * under the orb, beside About me and Download resume ("same pop up we have for
- * certificate, move it to this button" — HeroStage).
+ * It opens from the brain slide's glance row (BrainFooter), by the
+ * "Certificate ↗" chip beside "AI Film Making · Upskilled" — as from
+ * 2026-10-16, and again since 2026-10-26 (owner: "move the AI certificate to
+ * second slide, just like it was before"). From 2026-10-22 to 2026-10-26 it
+ * was the first slide's third button instead (CertificateButton — kept,
+ * unused).
  */
 
 import { useEffect, useRef, useState } from "react";
@@ -27,7 +28,7 @@ const CERTIFICATE = {
   alt: "Certificate of completion: Shrey Singh, the 8-Week AI Film Making Program, Videopreneur Studios",
 };
 
-/** The first slide's button, and the dialog it opens. */
+/** The first slide's button, and the dialog it opens — unused since 2026-10-26. */
 export function CertificateButton() {
   const reduceMotion = useReducedMotion() ?? false;
   const [open, setOpen] = useState(false);

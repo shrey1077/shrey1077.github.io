@@ -13,6 +13,10 @@ export const SITE = {
   /** The one word under the name on the landing's first slide (owner,
    *  2026-10-03) — `role` is the long form. */
   title: "Designer",
+  /** The line under the name — on the first slide and in About me (owner,
+   *  2026-10-26: "title under my name will be Brand Designer & AI
+   *  Generalist"; "Designer & AI Filmmaker" from 2026-10-15). */
+  tagline: "Brand Designer & AI Generalist",
   /** The edition on the landing's PORTFOLIO mark. */
   edition: "2026",
   /** Script monogram shown in the hero identity mark. */

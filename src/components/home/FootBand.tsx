@@ -13,7 +13,7 @@
  * with animation in band as well").
  *
  *   ┌──────────── black, graphite pixels ────────────▒▓░ rainbow pixels ─┐
- *   │  Tata IIS          Projects · 01 / 07           ▓░▒  Creative →     │
+ *   │  Tata IIS     Brand Designs · 01 / 07           ▓░▒  AI Design →    │
  *   └────────────────────────────────────────────────▒░▓ The Extincts …  ┘
  *
  * The whole band is a field of small squares, drawn on a canvas: the logic
@@ -174,6 +174,8 @@ function Part({ part, side, major, minor }: { part: BandPart; side: "left" | "ri
   const face = logic ? "face-logic tracking-[0.14em]" : "face-creative tracking-[0.03em]";
   const box = "pointer-events-auto absolute inset-y-0 flex items-center justify-center";
   if (part.strip) return <div className={`${box} inset-x-0`}>{part.strip}</div>;
+  // No words at all (the first slide, since 2026-10-26): the squares alone.
+  if (!part.title && !part.sub) return null;
   // The narrow part beside the pills: on a phone, only which way.
   const inner = (
     <span className={`flex min-w-0 max-w-full flex-col items-center gap-[0.2em] px-3 text-center leading-none ${minor ? "max-sm:px-1" : ""} ${major ? "" : "transition-transform duration-200 group-hover:scale-[1.04]"}`}>

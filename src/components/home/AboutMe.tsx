@@ -103,7 +103,7 @@ function AboutDialog({ open, onClose, reduceMotion }: { open: boolean; onClose: 
             <h2 id="about-me-title" className="face-logic digibra-light mt-2 text-[clamp(1.5rem,3.4vw,2.4rem)] uppercase leading-none text-neutral-900">
               {SITE.name}
             </h2>
-            <p className="mt-1.5 text-[0.85rem] text-neutral-500">{`${SITE.title} & AI Filmmaker`}</p>
+            <p className="mt-1.5 text-[0.85rem] text-neutral-500">{SITE.tagline}</p>
           </div>
           <PixelButton side="logic" size="sm" onClick={onClose} ariaLabel="Close About me">
             Close ✕

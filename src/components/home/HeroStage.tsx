@@ -48,7 +48,6 @@ import { CircuitBackdrop } from "@/components/home/CircuitBackdrop";
 import { BrainFooter } from "@/components/home/BrainFooter";
 import { BrainHalfShade } from "@/components/home/BrainHalfShade";
 import { AboutMe } from "@/components/home/AboutMe";
-import { CertificateButton } from "@/components/home/CertificateDialog";
 import { PixelButton } from "@/components/home/PixelButton";
 import { useFlight } from "@/components/home/flight";
 import { useMediaQuery } from "@/hooks/useMediaQuery";
@@ -431,11 +430,11 @@ export function HeroStage() {
               {NAME_FIRST} {NAME_REST.join(" ")}
             </span>
             <span className="sr-only"> — Visual Communication </span>
-            {/* "Designer & AI Filmmaker" since 2026-10-15 (owner: "under my
-                name say Designer & AI Filmmaker"); SITE.title, used for the
-                page's title elsewhere, is still "Designer". */}
+            {/* SITE.tagline — "Brand Designer & AI Generalist" since
+                2026-10-26 ("Designer & AI Filmmaker" from 2026-10-15); SITE.title,
+                used for the page's title elsewhere, is still "Designer". */}
             <span className="mt-1 text-[clamp(0.84375rem,1.5625vw,1.40625rem)] font-normal leading-none tracking-[0.02em] text-neutral-500">
-              {`${SITE.title} & AI Filmmaker`}
+              {SITE.tagline}
             </span>
           </h1>
 
@@ -467,11 +466,11 @@ export function HeroStage() {
             style={{ visibility: orbW > 0 ? "visible" : "hidden" }}
           >
             {/* About me — opens over the page (AboutMe; owner, 2026-10-16);
-                beside it since 2026-10-22 (owner: "put this resume on the site,
-                beside about me button … as download resume button, also keep
-                ai filmmaking certificate here as third button"), the resume
-                to save and the certificate, over the page as it opened from
-                the brain slide (CertificateDialog). */}
+                beside it since 2026-10-22, the resume to save ("Resume" since
+                2026-10-26). The certificate stood here as a third button for
+                those four days; it is back on the brain slide (owner: "only
+                two buttons here, move the AI certificate to second slide, just
+                like it was before"). */}
             <motion.div
               initial={reduceMotion ? false : { opacity: 0 }}
               animate={{ opacity: orbW > 0 ? 1 : 0 }}
@@ -481,10 +480,9 @@ export function HeroStage() {
               <AboutMe />
               <span className="pointer-events-auto inline-block">
                 <PixelButton side="logic" size="sm" href={SITE.resume} download="Shrey_Singh_Resume.pdf">
-                  Download resume <span aria-hidden>↓</span>
+                  Resume <span aria-hidden>↓</span>
                 </PixelButton>
               </span>
-              <CertificateButton />
             </motion.div>
           </div>
         </div>
