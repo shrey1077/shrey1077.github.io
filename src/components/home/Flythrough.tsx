@@ -1209,8 +1209,11 @@ export function Flythrough({
       : current === 0 && !pastRun
         ? { left: { title: "" }, right: { title: "" }, major: null }
         : {
-            left: { title: "Brand Designs", sub: "Left brain · Logic", onGo: () => goId(LOGIC[0].id) },
-            right: { title: "AI Design", sub: "Right brain · Art", onGo: () => goId(CREATIVE[0].id) },
+            // The names alone — "Left brain · Logic" and "Right brain · Art"
+            // stood over them until 2026-10-26 (owner: "remove the top line
+            // from both sides").
+            left: { title: "Brand Designs", onGo: () => goId(LOGIC[0].id) },
+            right: { title: "AI Design", onGo: () => goId(CREATIVE[0].id) },
             major: null,
           };
   const inRooms = current >= FIRST_ROOM && !pastRun;

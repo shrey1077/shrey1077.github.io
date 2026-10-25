@@ -189,8 +189,15 @@ function Part({ part, side, major, minor }: { part: BandPart; side: "left" | "ri
         </span>
       )}
       <span
-        className={`max-w-full truncate font-bold text-white ${face} ${major ? "text-[clamp(0.72rem,1.45vw,1.15rem)]" : "text-[clamp(0.62rem,1.05vw,0.9rem)]"} ${
-          logic ? "" : "[text-shadow:0_1px_3px_rgba(0,0,0,0.45)]"
+        className={`max-w-full truncate text-white ${face} ${
+          // The way into each side (the brain slide, the footer): the
+          // creative name in Syne's heaviest, a size up so it stands as tall
+          // as Digibra's "Brand Designs" beside it, over a mild shadow (owner,
+          // 2026-10-26: "make AI Design size bigger (similar to Brand
+          // Design) and boldest version, with a mild text shadow").
+          !major && !minor && !logic
+            ? "text-[clamp(0.8rem,1.35vw,1.17rem)] font-extrabold [text-shadow:0_1px_2px_rgba(0,0,0,0.35),0_0_10px_rgba(0,0,0,0.2)]"
+            : `font-bold ${major ? "text-[clamp(0.72rem,1.45vw,1.15rem)]" : "text-[clamp(0.62rem,1.05vw,0.9rem)]"} ${logic ? "" : "[text-shadow:0_1px_3px_rgba(0,0,0,0.45)]"}`
         } ${minor ? "max-sm:hidden" : ""}`}
       >
         {part.title}
