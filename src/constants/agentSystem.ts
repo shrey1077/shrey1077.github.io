@@ -17,7 +17,11 @@
  * ⚠ WHAT IS SUGGESTED is marked `suggested` and drawn dashed: the agents the
  * system still lacks, each placed under the one it would report to. Render
  * Scout is the example Alfred's own registry README gives; the rest are
- * Claude's suggestions for the owner to keep or strike.
+ * Claude's suggestions. The owner kept all seven and asked for more
+ * (2026-10-26: "keep all, suggest more"): six more — Inbox under Donna,
+ * Counsel under Andy, Story Desk and Sound Desk under Hitchcock (whose row
+ * now reads as its pipeline: script, prompts, renders, edit, sound), Client
+ * Desk under Market Guru, Web Desk under the Brand Desk.
  * ⚠ Nothing personal (public page): no health, money or calendar details of
  * the owner's own — what each agent is and does.
  */
@@ -77,8 +81,27 @@ export const AGENT_SYSTEM: readonly SystemAgent[] = [
     text: "Market Guru is the sales-and-marketing producer. It finds clients, writes the outreach, preps the calls, closes the deals and keeps the clients, and runs two product lines on the side: merchandise made from the owner's artworks, and a colouring-book series. It works from a sales playbook, shows its plans as tables, and never sounds desperate: three good recurring clients is the whole goal. It drafts everything; nothing leaves the building without the owner's yes. It sells; Hitchcock makes.",
     status: "active",
   },
-  // ── Under Hitchcock.
+  // ── Under Hitchcock, in the order a film goes: the story, the prompts,
+  // the renders, the edit, the sound.
+  {
+    id: "story-desk",
+    position: "Screenwriter",
+    name: "Story Desk",
+    parent: "hitchcock",
+    role: "Suggested · story and script",
+    text: "Turns a brief into the story before a single prompt is written: the concept, the beats, the script and its dialogue, and the shot-by-shot storyboard Hitchcock plans from, keeping every character and place consistent from the first draft to the last clip.",
+    status: "suggested",
+  },
   { id: "ray", position: "Prompt Writer", name: "Ray", parent: "hitchcock", role: "The brief desk · prompts", text: intro("ray"), status: "active" },
+  {
+    id: "render-scout",
+    position: "Render Tracker",
+    name: "Render Scout",
+    parent: "hitchcock",
+    role: "Suggested · render tracker",
+    text: "Watches every generation job across the video and image models, downloads each finished take into the right shot folder, names it, and tells Hitchcock what is ready and what failed, so no take is waited on or lost. (Alfred's own agent registry already gives it as its example.)",
+    status: "suggested",
+  },
   {
     id: "editmax",
     position: "Video Editor",
@@ -89,15 +112,24 @@ export const AGENT_SYSTEM: readonly SystemAgent[] = [
     status: "active",
   },
   {
-    id: "render-scout",
-    position: "Render Tracker",
-    name: "Render Scout",
+    id: "sound-desk",
+    position: "Sound Designer",
+    name: "Sound Desk",
     parent: "hitchcock",
-    role: "Suggested · render tracker",
-    text: "Watches every generation job across the video and image models, downloads each finished take into the right shot folder, names it, and tells Hitchcock what is ready and what failed, so no take is waited on or lost. (Alfred's own agent registry already gives it as its example.)",
+    role: "Suggested · music, voice and effects",
+    text: "Scores each film and gives it a voice: finds or generates the music, records the voiceover, lays the sound effects and ambience to the cut, and hands EditMAX a mixed track for every version and every platform.",
     status: "suggested",
   },
   // ── Under Market Guru.
+  {
+    id: "client-desk",
+    position: "Client Manager",
+    name: "Client Desk",
+    parent: "market-guru",
+    role: "Suggested · onboarding and approvals",
+    text: "Looks after every client once the deal is closed: the onboarding questions, the brief, the timeline, each round of feedback and the sign-off, so nothing is lost between Market Guru winning the work and Hitchcock or the Brand Desk delivering it.",
+    status: "suggested",
+  },
   {
     id: "social-desk",
     position: "Social Media",
@@ -126,6 +158,25 @@ export const AGENT_SYSTEM: readonly SystemAgent[] = [
     text: "Turns a closed deal into an invoice, chases the advance and the balance, files every receipt and expense as it arrives, and hands Andy clean books at the end of each month and quarter.",
     status: "suggested",
   },
+  {
+    id: "counsel",
+    position: "Contracts & Rights",
+    name: "Counsel",
+    parent: "andy",
+    role: "Suggested · contracts, licences and IP",
+    text: "Drafts the contract for every job, sets out what the client may do with the work, and keeps track of the licences behind it (fonts, music, stock, and the terms of each AI model used), so every delivery is cleared to use. It says when a real lawyer should look.",
+    status: "suggested",
+  },
+  // ── Under Donna.
+  {
+    id: "inbox",
+    position: "Inbox Manager",
+    name: "Inbox",
+    parent: "donna",
+    role: "Suggested · email and messages",
+    text: "Reads every inbox and chat first: sorts what needs the owner from what doesn't, drafts the routine replies for Donna to send on a yes, passes receipts to Ledger and new enquiries to Market Guru, and never lets a client wait a day for an answer.",
+    status: "suggested",
+  },
   // ── Under Dr. House.
   {
     id: "trainer",
@@ -144,6 +195,16 @@ export const AGENT_SYSTEM: readonly SystemAgent[] = [
     parent: "alfred",
     role: "Suggested · brand systems",
     text: "The design studio's own agent: it keeps every client's brand kit, logo files, colours and type in one place, sets out guideline documents, exports every size a campaign needs, and checks new work against the rulebook before it goes out.",
+    status: "suggested",
+  },
+  // ── Under the Brand Desk.
+  {
+    id: "web-desk",
+    position: "Web Developer",
+    name: "Web Desk",
+    parent: "brand-desk",
+    role: "Suggested · sites and landing pages",
+    text: "Builds and looks after the sites: the portfolio, a landing page for each campaign, a microsite for a client's launch, each set in the client's brand system from the Brand Desk and checked on every screen size before it goes live.",
     status: "suggested",
   },
   {

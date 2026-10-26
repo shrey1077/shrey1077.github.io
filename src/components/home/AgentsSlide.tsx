@@ -104,6 +104,18 @@ export function AgentsSlide({ reduceMotion }: { reduceMotion: boolean }) {
   const crossLinks = all.flatMap((a) => (a.links ?? []).map((l) => ({ from: a, to: nodes.get(l.to)!, label: l.label })));
 
   // The card scrolls by itself where its words outrun it (a small phone).
+  const treeRef = useRef<HTMLDivElement>(null);
+  const [treeScrolls, setTreeScrolls] = useState(false);
+  useEffect(() => {
+    const el = treeRef.current;
+    if (!el) return;
+    const look = () => setTreeScrolls(el.scrollHeight > el.clientHeight + 1);
+    look();
+    const ro = new ResizeObserver(look);
+    ro.observe(el);
+    if (el.firstElementChild) ro.observe(el.firstElementChild);
+    return () => ro.disconnect();
+  }, [rows, narrow]);
   const cardRef = useRef<HTMLElement>(null);
   const [scrolls, setScrolls] = useState(false);
   useEffect(() => {
@@ -144,10 +156,12 @@ export function AgentsSlide({ reduceMotion }: { reduceMotion: boolean }) {
 
         <div className="grid min-h-0 flex-1 grid-rows-[minmax(0,1.75fr)_minmax(0,1fr)] gap-3 overflow-hidden rounded-2xl bg-white p-3 shadow-[0_24px_60px_-28px_rgba(0,0,0,0.35)] ring-1 ring-neutral-900/[0.08] sm:p-5 landscape:grid-cols-[minmax(0,1.7fr)_minmax(0,1fr)] landscape:grid-rows-1 landscape:gap-6">
           {/* ── The tree. */}
-          {/* On a phone the rows keep a least height, and the tree scrolls in
-              its own window where they need more than there is. */}
-          <div data-own-scroll={narrow || undefined} className="relative min-h-0 overflow-y-auto overscroll-contain sm:overflow-visible">
-          <div role="group" aria-label="The agent system, as a tree" className="relative h-full" style={narrow ? { minHeight: `${rows * 2}rem` } : undefined}>
+          {/* The rows keep a least height (more on a phone, where a post
+              takes two lines), and the tree scrolls in its own window only
+              where they need more than there is — a short screen; elsewhere
+              the wheel still turns the slides. */}
+          <div ref={treeRef} data-own-scroll={treeScrolls || undefined} className="relative min-h-0 overflow-y-auto overscroll-contain pr-px">
+          <div role="group" aria-label="The agent system, as a tree" className="relative h-full" style={{ minHeight: `${rows * (narrow ? 2 : 1.6)}rem` }}>
             <svg aria-hidden viewBox="0 0 100 100" preserveAspectRatio="none" className="absolute inset-0 h-full w-full overflow-visible">
               {all.filter((n) => n.parent).map((n) => {
                 const p = nodes.get(n.parent!)!;
