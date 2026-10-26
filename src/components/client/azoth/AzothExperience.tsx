@@ -366,7 +366,7 @@ export function AzothExperience() {
               n="03"
               label="The family"
               title="One house, many fruiting bodies."
-              lead="Five lines were proposed under the parent, each with its own mark while staying inside the house's teal-and-grey grammar — sheets that show the system thinking: lockups, reverses and typography tested together, not logo by logo."
+              lead="Four lines were proposed under the parent, each with its own mark while staying inside the house's teal-and-grey grammar — sheets that show the system thinking: lockups, reverses and typography tested together, not logo by logo."
             />
             <div className="mt-14 grid grid-cols-1 lg:grid-cols-12 lg:gap-x-10">
               <div className={CONTENT}>
@@ -379,9 +379,10 @@ export function AzothExperience() {
                   </div>
                 </div>
                 <div aria-hidden className="ml-7 h-8 w-px bg-[#283078]/25" />
-                {/* Two across, three, then five — the last of an odd row
-                    takes the row, so none stands alone. */}
-                <ul className="grid grid-cols-2 gap-3 border-t border-[#283078]/25 sm:grid-cols-6 lg:grid-cols-5">
+                {/* Two across, three, then all in a row — the last of an
+                    odd row takes the row, so none stands alone. Four since
+                    Lion's Mane came off (2026-10-26): two by two, then four. */}
+                <ul className={`grid grid-cols-2 gap-3 border-t border-[#283078]/25 ${family === 4 ? "sm:grid-cols-4 lg:grid-cols-4" : "sm:grid-cols-6 lg:grid-cols-5"}`}>
                   {AZOTH_BRANDS.map((b, i) => {
                     const lastOdd = i === family - 1 && family % 2 === 1;
                     const smWide = family === 5 && i >= 3;
@@ -392,7 +393,7 @@ export function AzothExperience() {
                         <div className="flex h-full flex-col bg-white ring-1 ring-[#283078]/10">
                           <div className="flex h-32 items-center justify-center px-5">
                             {b.logo ? (
-                              <span className={`relative block w-full ${b.id === "mushroomworks" ? "h-20" : "h-14"}`}>
+                              <span className={`relative block w-full ${b.id === "mushroomworks" ? "h-24" : "h-14"}`}>
                                 <Image src={b.logo} alt={b.name} fill sizes="200px" className="object-contain" />
                               </span>
                             ) : (
@@ -403,7 +404,10 @@ export function AzothExperience() {
                               </span>
                             )}
                           </div>
-                          <div className={`mt-auto border-t ${RULE} px-4 py-4`}>
+                          {/* The words start on one line across the row, under the marks (since
+                              2026-10-26; they stood at the card's foot, so a longer
+                              card's began higher). */}
+                          <div className={`border-t ${RULE} px-4 py-4`}>
                             <p className="text-[0.95rem] font-semibold leading-snug">{b.name}</p>
                             <p className="mt-1 text-[0.86rem] leading-snug text-neutral-600">{b.caption}</p>
                             <p className={`${CAPTION} mt-3 uppercase !tracking-[0.12em]`}>{b.descriptor}</p>
@@ -415,12 +419,13 @@ export function AzothExperience() {
                 </ul>
 
                 {/* Mycoveda — off the rail, on purpose. */}
-                <div className="mt-12 grid grid-cols-1 items-center gap-6 border border-dashed border-[#283078]/30 p-6 sm:grid-cols-[12rem_1fr] sm:gap-10 sm:p-8">
-                  <span className="relative block h-12 w-full">
-                    <Image src={AZOTH_MYCOVEDA.logo} alt="Mycoveda" fill sizes="192px" className="object-contain object-left" />
+                <div className="mt-12 grid grid-cols-1 items-center gap-6 border border-dashed border-[#283078]/30 p-6 sm:grid-cols-[9rem_1fr] sm:gap-10 sm:p-8">
+                  {/* The official mark, its arch standing (2026-10-26). */}
+                  <span className="relative block h-36 w-full max-w-[9rem] sm:h-40" style={{ aspectRatio: String(AZOTH_MYCOVEDA.logoAspect) }}>
+                    <Image src={AZOTH_MYCOVEDA.logo} alt="Mycoveda" fill sizes="144px" className="object-contain object-left" />
                   </span>
                   <div>
-                    <p className={EYEBROW}>Apart — a separate client, in development</p>
+                    <p className={EYEBROW}>Apart — a separate client</p>
                     <p className={`${BODY} mt-3 max-w-[64ch]`}>{AZOTH_MYCOVEDA.note}</p>
                   </div>
                 </div>
@@ -532,7 +537,9 @@ export function AzothExperience() {
                 <p className={EYEBROW} style={{ color: mushroomworks.accent }}>
                   The system sheet
                 </p>
-                <p className="mt-3 text-[1.15rem] font-semibold leading-snug">{mushroomworks.caption}</p>
+                {/* The sheet holds the MW mark, not the gear that is the brand's
+                    official mark now (2026-10-26): its own caption. */}
+                <p className="mt-3 text-[1.15rem] font-semibold leading-snug">The MW mark — the cap that grows into an arrow.</p>
                 <p className={`${BODY} mt-3 !text-[0.95rem]`}>The mark, its lockups and its reverses, tested together on one sheet.</p>
               </div>
             </div>

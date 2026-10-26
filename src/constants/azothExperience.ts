@@ -114,7 +114,8 @@ export interface AzothBrand {
   blurb?: string;
 }
 
-/** 03 — the family: the five lines proposed under the house (catalogue,
+/** 03 — the family: the lines proposed under the house — five in the
+ *  catalogue, four on the page since Lion's Mane came off (2026-10-26) (catalogue,
  *  Sub-brands: "Mushroomworks, MycoActives, Kavaka, Lion's Mane, The
  *  Naturalist"). Lion's Mane has no standalone mark — its node is its name. */
 export const AZOTH_BRANDS: AzothBrand[] = [
@@ -133,8 +134,12 @@ export const AZOTH_BRANDS: AzothBrand[] = [
     name: "Mushroomworks",
     descriptor: "Mycelium materials — packaging & vegan leather",
     accent: AZOTH_INK.teal,
-    logo: `${BRAND}/brands/mushroomworks.png`,
-    caption: "The cap that grows into an arrow.",
+    // The official mark, the gear, since 2026-10-26 (owner: "this is the
+    // official logo for mushroomworks"; scripts/prepare-azoth-official-
+    // marks.mjs). The MW-and-arrow mark, `mushroomworks.png`, stood here
+    // until then, captioned "The cap that grows into an arrow."
+    logo: `${BRAND}/brands/mushroomworks-gear.png`,
+    caption: "A mushroom at the hub of a gear.",
     blurb:
       "Growing packaging and leather from mycelium — a brand for a material that replaces plastic and hide, told with hard numbers and clean product frames.",
   },
@@ -154,22 +159,21 @@ export const AZOTH_BRANDS: AzothBrand[] = [
     logo: `${BRAND}/brands/kavaka.png`,
     caption: "The Sanskrit name, drawn as a mark.",
   },
-  {
-    id: "lions-mane",
-    name: "Lion's Mane",
-    descriptor: "Proposed line",
-    accent: "#5b2a86",
-    logo: "",
-    caption: "The nootropic line.",
-  },
+  // Lion's Mane stood here, a proposed line with no mark of its own, until
+  // 2026-10-26 (owner: "remove this").
 ];
 
 /** Mycoveda — a separate client, not part of the Azoth family. */
 export const AZOTH_MYCOVEDA = {
   name: "Mycoveda",
-  logo: `${BRAND}/brands/mycoveda.png`,
+  /** The official mark since 2026-10-26 (owner: "this is official logo for
+   *  mycoveda"); the Devanagari-style wordmark, `mycoveda.png`, until then. */
+  logo: `${BRAND}/brands/mycoveda-lockup.png`,
+  logoAspect: 532 / 586,
+  /** What the mark is (owner: "correct with new logo and description
+   *  relevant to it"). */
   note:
-    "Mycoveda sits apart — a separate client, for whom the brand is still in development. So far the identity is where the story starts and stops: the logo is the finished piece; the rest of the world is still being built.",
+    "Mycoveda sits apart — a separate client. Its mark is an arched window onto the forest floor: mycelium branching through the upper half, a mushroom cap at its heart, and rays fanning out beneath it, the fungus as a source of light. Under it, the name in a rounded geometric hand — myco, fungi, joined to veda, knowledge.",
 };
 
 /** 04 — Naturalist's brand board, and Brain Fuel as packaged. */

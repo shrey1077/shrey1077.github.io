@@ -69,7 +69,8 @@ const SLIDE_LOGO = { src: "/content/clients/azoth-biotech/brand/marks/lockup-hor
  *  stands taller than a long wordmark. */
 const SLIDE_BRANDS = [
   { slug: "naturalist", name: "Naturalist", w: 720, h: 225, size: 0.95 },
-  { slug: "mushroomworks", name: "Mushroomworks", w: 689, h: 570, size: 1.45 },
+  // The official gear since 2026-10-26 (the MW-and-arrow mark until then).
+  { slug: "mushroomworks-gear", name: "Mushroomworks", w: 885, h: 886, size: 1.5 },
   { slug: "mycoactive", name: "MycoActives", w: 720, h: 340, size: 1.2 },
   { slug: "kavaka", name: "Kavaka", w: 720, h: 115, size: 0.62 },
 ] as const;
