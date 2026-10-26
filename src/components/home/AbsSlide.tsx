@@ -54,6 +54,19 @@ import { ABS_BRANDS, type Showcase } from "@/constants/showcase";
 import { typeVoiceClass } from "@/constants/typography";
 
 const WORK = "/content/clients/abs/work";
+/** The brands carried, as dark-grey marks lifted from the owner's own posts
+ *  (scripts/prepare-abs-brand-marks.mjs) — the four the owner named first. */
+const CARRIED = [
+  { id: "death-row-vapes", name: "Death Row Vapes" },
+  { id: "tyson-2", name: "Tyson 2.0" },
+  { id: "puffco", name: "Puffco" },
+  { id: "stundenglass", name: "Stündenglass" },
+  { id: "stiiizy", name: "Stiiizy" },
+  { id: "diamond-shruumz", name: "Diamond Shruumz" },
+  { id: "beamer", name: "Beamer" },
+  { id: "elf-bar", name: "Elf Bar" },
+  { id: "al-fakher", name: "Al Fakher" },
+] as const;
 const META = `${typeVoiceClass("logic", "meta")} text-[0.58rem] tracking-[0.28em] text-neutral-500`;
 
 /** Each folder's plates, width ÷ height, 01 … n — measured off the files. */
@@ -371,9 +384,22 @@ export function AbsSlide({ item, active }: { item: Showcase; active: boolean }) 
           {/* ABS, big, top left. */}
           <BrandTab brand={abs} on={pick === abs.id} size="min(clamp(4.25rem,17vw,13rem),24vh)" onPick={() => setPick(abs.id)} />
           {/* The company, under the coin; held upright, under the row. */}
-          <p className="font-helv mb-auto mt-[clamp(0.6rem,2vh,1.25rem)] text-[clamp(0.72rem,0.86vw,0.84rem)] leading-snug text-neutral-600 portrait:order-last portrait:mb-0 portrait:w-full">
+          <p className="font-helv mt-[clamp(0.6rem,2vh,1.25rem)] text-[clamp(0.72rem,0.86vw,0.84rem)] leading-snug text-neutral-600 portrait:order-last portrait:w-full">
             {COMPANY_ABOUT.abs}
           </p>
+          {/* The brands ABS carried, in dark grey, between the words and the
+              brands built there (owner, 2026-10-26: "include dark grey logos
+              of brands worked with"); held upright, under the words. */}
+          <div className="mb-auto mt-[clamp(0.9rem,3vh,2rem)] w-full portrait:order-last portrait:mb-0 portrait:mt-2 [@media(max-height:31.25rem)]:hidden">
+            <p className={`${META} mb-2 portrait:mb-1.5`}>Brands worked with</p>
+            <ul className="grid grid-cols-3 gap-x-[clamp(0.6rem,1.4vw,1.1rem)] gap-y-[clamp(0.45rem,1.4vh,0.9rem)] portrait:grid-cols-9 portrait:gap-x-2">
+              {CARRIED.map((b) => (
+                <li key={b.id} className="relative aspect-[2.3/1]" title={b.name}>
+                  <Image src={`/content/clients/abs/brands/${b.id}.png`} alt={b.name} fill sizes="6rem" className="object-contain opacity-90" />
+                </li>
+              ))}
+            </ul>
+          </div>
           {/* The two brands built there, bottom left, on the band. */}
           <div className="flex flex-col gap-2 portrait:items-end">
             <p className={`${META} [@media(max-height:31.25rem)]:hidden`}>Built at ABS</p>

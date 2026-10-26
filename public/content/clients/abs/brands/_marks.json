@@ -1,0 +1,47 @@
+{
+  "death-row-vapes": {
+    "name": "Death Row Vapes",
+    "w": 346,
+    "h": 420
+  },
+  "tyson-2": {
+    "name": "Tyson 2.0",
+    "w": 1278,
+    "h": 366
+  },
+  "puffco": {
+    "name": "Puffco",
+    "w": 630,
+    "h": 176
+  },
+  "stundenglass": {
+    "name": "Stündenglass",
+    "w": 1158,
+    "h": 248
+  },
+  "stiiizy": {
+    "name": "Stiiizy",
+    "w": 642,
+    "h": 410
+  },
+  "diamond-shruumz": {
+    "name": "Diamond Shruumz",
+    "w": 492,
+    "h": 226
+  },
+  "beamer": {
+    "name": "Beamer",
+    "w": 916,
+    "h": 330
+  },
+  "elf-bar": {
+    "name": "Elf Bar",
+    "w": 264,
+    "h": 320
+  },
+  "al-fakher": {
+    "name": "Al Fakher",
+    "w": 516,
+    "h": 316
+  }
+}
