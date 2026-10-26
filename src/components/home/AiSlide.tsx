@@ -2,6 +2,9 @@
 
 /**
  * AiSlide — AI Projects on the right side: two folders (owner, 2026-10-15).
+ * ⚠ UNUSED SINCE 2026-10-26: its three folders became slides of their own
+ * (VideoLibrarySlide, AgentsSlide, AppsSlide — the last renders this file's
+ * Apps). Kept whole.
  * OPEN ON THE SLIDE since the next round, the same day (owner: "expand the
  * folders, show first folder expanded, and option to switch to the other
  * one"): they no longer open over it. Two folder tabs along the top; the
@@ -242,7 +245,7 @@ function AppWindow({ id, name, inView, turning, reduceMotion }: { id: (typeof AP
   );
 }
 
-function Apps({ inView, turning, reduceMotion }: { inView: boolean; turning: boolean; reduceMotion: boolean }) {
+export function Apps({ inView, turning, reduceMotion }: { inView: boolean; turning: boolean; reduceMotion: boolean }) {
   const [i, setI] = useState(0);
   const app = APPS[i];
   const tool = TATA_TOOLS.find((t) => t.id === app.id)!;

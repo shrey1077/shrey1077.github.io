@@ -114,6 +114,10 @@ import { ExtinctsSlide } from "@/components/home/ExtinctsSlide";
 import { ArtSlide, type ArtThumb } from "@/components/home/ArtSlide";
 import { AiSlide } from "@/components/home/AiSlide";
 import { WritingsSlide, type WritingPage } from "@/components/home/WritingsSlide";
+import { VideoLibrarySlide } from "@/components/home/VideoLibrarySlide";
+import { AgentsSlide } from "@/components/home/AgentsSlide";
+import { AppsSlide } from "@/components/home/AppsSlide";
+import { PersonalProjectsSlide } from "@/components/home/PersonalProjectsSlide";
 import { ShowcaseStrip } from "@/components/home/ShowcaseStrip";
 import { SectionMenu } from "@/components/home/SectionMenu";
 import { NearContext, useFirstScreenUp, usePageSettled } from "@/components/home/nearness";
@@ -561,6 +565,18 @@ const RoomBody = memo(function RoomBody({
         ) : (
           <ProjectSlide item={item} />
         )
+      ) : // The right side since 2026-10-26: the Video Library, the agents,
+      // the apps, and the personal projects as tabs. (The Extincts, Arts &
+      // Crafts, AI Projects and Writings slides stood here until then; their
+      // files are kept.)
+      item.id === "ai-video-library" ? (
+        <VideoLibrarySlide />
+      ) : item.id === "ai-agents" ? (
+        <AgentsSlide reduceMotion={reduceMotion} />
+      ) : item.id === "ai-apps" ? (
+        <AppsSlide reduceMotion={reduceMotion} live={live} />
+      ) : item.id === "personal-projects" ? (
+        <PersonalProjectsSlide thumbs={artThumbs} covers={covers} live={live} reduceMotion={reduceMotion} />
       ) : item.id === "the-extincts-project" ? (
         <ExtinctsSlide reduceMotion={reduceMotion} live={live} />
       ) : item.id === "arts-and-crafts" ? (

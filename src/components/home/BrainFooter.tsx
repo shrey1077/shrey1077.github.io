@@ -209,7 +209,7 @@ function FactsRow() {
           Upskilled <span aria-hidden>·</span>
           <button
             type="button"
-            onClick={() => window.dispatchEvent(new CustomEvent("flythrough:go", { detail: { id: "ai-projects" } }))}
+            onClick={() => window.dispatchEvent(new CustomEvent("flythrough:go", { detail: { id: "ai-agents" } }))}
             className={CHIP}
           >
             See them <span aria-hidden>→</span>

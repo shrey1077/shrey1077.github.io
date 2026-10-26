@@ -20,6 +20,11 @@ export type NavSectionId =
   | "ai-videos"
   | "art"
   | "the-extincts-project"
+  // The right side's rooms since 2026-10-26: AI Agents, AI Apps & Software,
+  // Personal Projects (the AI Video Library keeps "ai-videos").
+  | "ai-agents"
+  | "ai-apps"
+  | "personal-projects"
   // ⚠ Off the landing since 2026-10-10 (three sections a side); kept in the
   // set so their rooms' renderers still type-check if they come back.
   | "logofolio"

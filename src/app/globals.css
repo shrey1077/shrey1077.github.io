@@ -808,3 +808,19 @@ html[data-guard] :is(img, video, svg) {
     animation: none;
   }
 }
+
+/* The AI Agents slide's lit line, back from the picked agent to the hub:
+ * its dashes flowing (AgentsSlide, 2026-10-26). Still where it can't be
+ * seen, as every blink is. */
+@keyframes agent-flow {
+  to {
+    stroke-dashoffset: -22;
+  }
+}
+.agent-flow {
+  animation: agent-flow 0.9s linear infinite;
+}
+[inert] .agent-flow,
+.invisible .agent-flow {
+  animation: none;
+}

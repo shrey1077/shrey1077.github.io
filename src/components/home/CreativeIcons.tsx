@@ -133,8 +133,66 @@ function AiVideos({ id }: { id: string }) {
   );
 }
 
+/** AI Agents (2026-10-26): a hub and three nodes on its lines — the tree. */
+function AiAgents({ id }: { id: string }) {
+  return (
+    <>
+      <defs>
+        <linearGradient id={`${id}g`} x1="3" y1="3" x2="21" y2="21" gradientUnits="userSpaceOnUse">
+          <stop stopColor={P.teal} />
+          <stop offset="1" stopColor={P.blue} />
+        </linearGradient>
+      </defs>
+      <path d="M8 12c3.5 0 4-6.5 8.4-6.5M8 12h8.4M8 12c3.5 0 4 6.5 8.4 6.5" stroke={`url(#${id}g)`} strokeWidth="1.6" strokeLinecap="round" fill="none" />
+      <circle cx="6" cy="12" r="3.4" fill={`url(#${id}g)`} />
+      <circle cx="18.2" cy="5.5" r="2.3" fill={P.pink} />
+      <circle cx="18.6" cy="12" r="2.3" fill={P.orange} />
+      <circle cx="18.2" cy="18.5" r="2.3" fill="none" stroke={P.purple} strokeWidth="1.3" strokeDasharray="1.6 1.4" />
+    </>
+  );
+}
+
+/** AI Apps (2026-10-26): an app window, the AI sparkle in it. */
+function AiApps({ id }: { id: string }) {
+  return (
+    <>
+      <defs>
+        <linearGradient id={`${id}w`} x1="3" y1="4" x2="21" y2="20" gradientUnits="userSpaceOnUse">
+          <stop stopColor={P.blue} />
+          <stop offset="1" stopColor={P.purple} />
+        </linearGradient>
+      </defs>
+      <rect x="2.6" y="4" width="18.8" height="15.6" rx="2.6" fill={`url(#${id}w)`} />
+      <rect x="2.6" y="4" width="18.8" height="4" rx="2" fill={P.pink} />
+      <circle cx="5.2" cy="6" r="0.8" fill="#fff" />
+      <circle cx="7.6" cy="6" r="0.8" fill="#fff" />
+      <path d="M12 9.8c.4 2.4 1.3 3.3 3.7 3.7-2.4.4-3.3 1.3-3.7 3.7-.4-2.4-1.3-3.3-3.7-3.7 2.4-.4 3.3-1.3 3.7-3.7z" fill={P.yellow} />
+    </>
+  );
+}
+
+/** Personal Projects (2026-10-26): three cards fanned — the three tabs. */
+function PersonalProjects({ id }: { id: string }) {
+  return (
+    <>
+      <defs>
+        <linearGradient id={`${id}p`} x1="6" y1="4" x2="20" y2="20" gradientUnits="userSpaceOnUse">
+          <stop stopColor={P.orange} />
+          <stop offset="1" stopColor={P.pink} />
+        </linearGradient>
+      </defs>
+      <rect x="3" y="7.5" width="11" height="13" rx="1.8" transform="rotate(-12 8.5 14)" fill={P.green} />
+      <rect x="6.5" y="5" width="11" height="13" rx="1.8" fill={P.teal} />
+      <rect x="10" y="3" width="11" height="13" rx="1.8" transform="rotate(10 15.5 9.5)" fill={`url(#${id}p)`} />
+    </>
+  );
+}
+
 const ICONS: Partial<Record<NavSectionId, (p: { id: string }) => React.ReactElement>> = {
   "ai-videos": AiVideos,
+  "ai-agents": AiAgents,
+  "ai-apps": AiApps,
+  "personal-projects": PersonalProjects,
   art: Art,
   publications: Publications,
   "the-extincts-project": Extincts,

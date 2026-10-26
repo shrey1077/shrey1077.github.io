@@ -109,6 +109,8 @@ export const ALL_PROJECTS_ID = "all-projects";
 /** The left side — the owner's nine, in order. Since 2026-10-16 Vivid and
  *  UID are on the All Projects wall instead (PAGE_PROJECTS), and the wall is
  *  the last room. */
+// Zabraku third and ABS fourth since 2026-10-26 (owner: "keep zabraku on
+// 3rd slide and abs on 4th").
 export const LOGIC_SHOWCASE: readonly Showcase[] = [
   {
     id: "tata-iis",
@@ -155,11 +157,11 @@ export const LOGIC_SHOWCASE: readonly Showcase[] = [
       name: "Azoth Biotech",
       logo: "/content/clients/azoth-biotech/brand/logo-azoth.png",
       children: [
-        { name: "Mycoveda", logo: "/content/clients/azoth-biotech/brand/brands/mycoveda.png" },
+        { name: "Mycoveda", logo: "/content/clients/azoth-biotech/brand/brands/mycoveda-lockup.png" },
         { name: "MycoActive", logo: "/content/clients/azoth-biotech/brand/brands/mycoactive.png" },
         { name: "Kavaka", logo: "/content/clients/azoth-biotech/brand/brands/kavaka.png" },
         { name: "Naturalist Nootropics", logo: "/content/clients/azoth-biotech/brand/brands/naturalist.png" },
-        { name: "Mushroomworks", logo: "/content/clients/azoth-biotech/brand/brands/mushroomworks.png" },
+        { name: "Mushroomworks", logo: "/content/clients/azoth-biotech/brand/brands/mushroomworks-gear.png" },
       ],
     },
     preview: { src: `${PREVIEW}/azoth-biotech.webp`, url: "shrey107.com/clients/azoth-biotech" },
@@ -177,6 +179,32 @@ export const LOGIC_SHOWCASE: readonly Showcase[] = [
     ],
     report: { label: "View Full Project", href: "/clients/azoth-biotech" },
     rights: "Azoth Biotech",
+  },
+  {
+    id: "zabraku",
+    side: "logic",
+    name: "Zabraku",
+    short: "Zabraku",
+    mark: "/content/clients/zabraku-media/zabraku-logo-dark.png",
+    sector: "Media · Content",
+    treeLabel: "Brand family",
+    tree: {
+      name: "Zabraku Media",
+      logo: "/content/clients/zabraku-media/zabraku-logo-dark.png",
+      children: [{ name: "RKB Entertainment", logo: "/content/clients/zabraku-media/rkb-logo.png", tone: "light" }],
+    },
+    preview: { src: `${PREVIEW}/zabraku.webp`, url: "shrey107.com/clients/zabraku-media" },
+    role: "Graphic Designer",
+    years: "2020 — 2024",
+    points: [
+      "The Zabraku identity — the wordmark cut into a radial line field, built to move.",
+      "A second identity, for RKB Entertainment.",
+      "Four waves of event campaigns across a year-long party calendar.",
+      "The 2021 company portfolio, page by page.",
+    ],
+    facts: [{ label: "Based", value: "Malviya Nagar, New Delhi" }],
+    report: { label: "View Full Project", href: "/clients/zabraku-media" },
+    rights: "Zabraku Media",
   },
   {
     id: "abs",
@@ -220,32 +248,6 @@ export const LOGIC_SHOWCASE: readonly Showcase[] = [
     ],
     report: { label: "View Full Project", href: "/clients/abs" },
     rights: "ABS Wholesale",
-  },
-  {
-    id: "zabraku",
-    side: "logic",
-    name: "Zabraku",
-    short: "Zabraku",
-    mark: "/content/clients/zabraku-media/zabraku-logo-dark.png",
-    sector: "Media · Content",
-    treeLabel: "Brand family",
-    tree: {
-      name: "Zabraku Media",
-      logo: "/content/clients/zabraku-media/zabraku-logo-dark.png",
-      children: [{ name: "RKB Entertainment", logo: "/content/clients/zabraku-media/rkb-logo.png", tone: "light" }],
-    },
-    preview: { src: `${PREVIEW}/zabraku.webp`, url: "shrey107.com/clients/zabraku-media" },
-    role: "Graphic Designer",
-    years: "2020 — 2024",
-    points: [
-      "The Zabraku identity — the wordmark cut into a radial line field, built to move.",
-      "A second identity, for RKB Entertainment.",
-      "Four waves of event campaigns across a year-long party calendar.",
-      "The 2021 company portfolio, page by page.",
-    ],
-    facts: [{ label: "Based", value: "Malviya Nagar, New Delhi" }],
-    report: { label: "View Full Project", href: "/clients/zabraku-media" },
-    rights: "Zabraku Media",
   },
   {
     id: "newsmobile",
@@ -438,9 +440,76 @@ export const SIX_WRITINGS = ["ethnography", "food-distribution", "design-for-pri
 /** Where "See all", after the last logo, goes. */
 export const ALL_WORKS_HREF = "/all-works";
 
-/** The right side — mirrored. The trees of Arts & Crafts are filled in from
- *  the art folders at build time (app/page.tsx), so they can't drift. */
+/** The right side, since 2026-10-26 (owner: "First right slide will be for
+ *  AI video library", "the right side second slide to be AI Agents", "THird
+ *  slide will be for AI apps and softwares", and the fourth "Personal
+ *  Projects", with the Extincts Project, the art and the publications in it
+ *  as tabs). Until then: the Extincts Project, Arts & Crafts, AI Projects
+ *  (whose three folders are the first three now) and Writings & Publications
+ *  — those entries are kept below, PERSONAL_PROJECTS and RETIRED_CREATIVE. */
 export const CREATIVE_SHOWCASE: readonly Showcase[] = [
+  {
+    id: "ai-video-library",
+    side: "creative",
+    name: "AI Video Library",
+    short: "AI Video Library",
+    sectionId: "ai-videos",
+    sector: "Films and motion, made with AI",
+    treeLabel: "The tools",
+    tree: { name: "AI Video Library" },
+    role: "AI Filmmaker",
+    points: ["Films and motion made with AI — the reel is on its way."],
+    facts: [{ label: "Status", value: "Coming soon" }],
+    report: { label: "Coming Soon" },
+  },
+  {
+    id: "ai-agents",
+    side: "creative",
+    name: "AI Agents",
+    short: "AI Agents",
+    sectionId: "ai-agents",
+    sector: "A personal AI automation system",
+    treeLabel: "The system",
+    tree: { name: "Alfred" },
+    role: "AI Generalist",
+    points: ["A hub and the agents that report to it — and the ones it still needs."],
+    facts: [],
+    report: { label: "In development" },
+  },
+  {
+    id: "ai-apps",
+    side: "creative",
+    name: "AI Apps & Software",
+    short: "AI Apps",
+    sectionId: "ai-apps",
+    sector: "Tools built with AI",
+    treeLabel: "The apps",
+    tree: { name: "AI Apps", children: [{ name: "Cerci" }, { name: "H3LEN" }] },
+    role: "AI Generalist",
+    points: ["Cerci, the certificate maker, and H3LEN, the campus in 3D — both for Tata IIS."],
+    facts: [],
+    // No href: H3LEN's own link stands on the slide, behind its sign-in.
+    report: { label: "More on the way" },
+  },
+  {
+    id: "personal-projects",
+    side: "creative",
+    name: "Personal Projects",
+    short: "Personal Projects",
+    sectionId: "personal-projects",
+    sector: "The Extincts Project, the art and the writing",
+    treeLabel: "The projects",
+    tree: { name: "Personal Projects", children: [{ name: "The Extincts Project" }, { name: "Arts & Crafts" }, { name: "Writings & Publications" }] },
+    role: "Artist, Writer & Researcher",
+    points: ["Three projects as tabs over one window."],
+    facts: [],
+    report: { label: "View Full Project", href: "/extincts" },
+  },
+];
+
+/** The Personal Projects slide's three tabs — slides of their own until
+ *  2026-10-26 — in the slide's order. */
+export const PERSONAL_PROJECTS: readonly Showcase[] = [
   {
     id: "the-extincts-project",
     side: "creative",
@@ -493,6 +562,43 @@ export const CREATIVE_SHOWCASE: readonly Showcase[] = [
     report: { label: "View Full Collection", href: "/arts-and-crafts" },
   },
   {
+    id: "writings",
+    side: "creative",
+    name: "Writings & Publications",
+    short: "Writings & Publications",
+    sectionId: "publications",
+    sector: "Field studies, essays, process books, bylines",
+    treeLabel: "On the shelf",
+    tree: {
+      name: "Writings & Publications",
+      children: [
+        {
+          name: "M.Des — UID",
+          group: true,
+          children: [{ name: "Ethnography" }, { name: "Design for Print" }, { name: "Packaging" }, { name: "Mycoveda" }, { name: "Nirvaan" }],
+        },
+        { name: "Essays", group: true, children: [{ name: "Are There Any Takers?" }, { name: "Food Distribution" }] },
+        { name: "Newsroom", group: true, children: [{ name: "NewsMobile" }] },
+      ],
+    },
+    preview: { src: `${PREVIEW}/writings.webp`, url: "shrey107.com/writings" },
+    role: "Writer & Researcher",
+    years: "2019 — 2022",
+    points: [
+      "Field study and ethnography — the block printers of Pethapur.",
+      "Essays, from a craft economy to food distribution in a disaster.",
+      "Process books for print, packaging and performance work.",
+      "Bylines and explainers from the NewsMobile newsroom.",
+    ],
+    facts: [{ label: "Documents", value: "8" }],
+    report: { label: "Read Them All", href: "/writings" },
+  },
+];
+
+/** AI Projects, the slide whose three folders became the first three right
+ *  slides on 2026-10-26. Kept whole, unused. */
+export const RETIRED_CREATIVE: readonly Showcase[] = [
+  {
     id: "ai-projects",
     side: "creative",
     name: "AI Projects",
@@ -528,38 +634,6 @@ export const CREATIVE_SHOWCASE: readonly Showcase[] = [
     ],
     facts: [{ label: "Status", value: "Coming soon" }],
     report: { label: "Coming Soon" },
-  },
-  {
-    id: "writings",
-    side: "creative",
-    name: "Writings & Publications",
-    short: "Writings & Publications",
-    sectionId: "publications",
-    sector: "Field studies, essays, process books, bylines",
-    treeLabel: "On the shelf",
-    tree: {
-      name: "Writings & Publications",
-      children: [
-        {
-          name: "M.Des — UID",
-          group: true,
-          children: [{ name: "Ethnography" }, { name: "Design for Print" }, { name: "Packaging" }, { name: "Mycoveda" }, { name: "Nirvaan" }],
-        },
-        { name: "Essays", group: true, children: [{ name: "Are There Any Takers?" }, { name: "Food Distribution" }] },
-        { name: "Newsroom", group: true, children: [{ name: "NewsMobile" }] },
-      ],
-    },
-    preview: { src: `${PREVIEW}/writings.webp`, url: "shrey107.com/writings" },
-    role: "Writer & Researcher",
-    years: "2019 — 2022",
-    points: [
-      "Field study and ethnography — the block printers of Pethapur.",
-      "Essays, from a craft economy to food distribution in a disaster.",
-      "Process books for print, packaging and performance work.",
-      "Bylines and explainers from the NewsMobile newsroom.",
-    ],
-    facts: [{ label: "Documents", value: "8" }],
-    report: { label: "Read Them All", href: "/writings" },
   },
 ];
 
