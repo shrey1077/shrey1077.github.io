@@ -382,7 +382,14 @@ export function AzothHero({ variant = "page" }: { variant?: "page" | "slide" } =
               }}
               data-mushroom={s.id}
               className="absolute aspect-square"
-              style={{ ...footStyle(s, portrait), opacity: (isTouch && !fingered) || reduceMotion ? 1 : 0 }}
+              style={{
+                ...footStyle(s, portrait),
+                opacity: (isTouch && !fingered) || reduceMotion ? 1 : 0,
+                ...(s.fade && {
+                  maskImage: `linear-gradient(to bottom, #000 ${s.fade.from}%, transparent ${s.fade.to}%)`,
+                  WebkitMaskImage: `linear-gradient(to bottom, #000 ${s.fade.from}%, transparent ${s.fade.to}%)`,
+                }),
+              }}
             >
               <Image src={s.image} alt={s.name} fill sizes="16vw" className="object-contain object-bottom" />
             </div>
@@ -413,14 +420,18 @@ export function AzothHero({ variant = "page" }: { variant?: "page" | "slide" } =
         </div>
       </div>
 
-      {/* The white logo, top left — on the slide under the sections button's
-          row — with the line set to its width. */}
+      {/* The white logo, top left, with the line set to its width. On the
+          slide, smaller and up in the sections button's row, beside it — the
+          words under it clear of the cordyceps and the rock (owner,
+          2026-10-26: "the azoth logo and text should not overlap with the
+          cordyceps or rocky artwork, make logo smaller and shift up with
+          text"; it stood under that row, at 13–30rem, until then). */}
       {(
         <div
-          className={`azoth-hero-anim azoth-hero-fade pointer-events-none absolute z-[50] w-[clamp(13rem,32vw,30rem)] [@media(max-height:31.25rem)]:w-[9.5rem] ${
+          className={`azoth-hero-anim azoth-hero-fade pointer-events-none absolute z-[50] [@media(max-height:31.25rem)]:w-[9.5rem] ${
             slide
-              ? "left-4 top-[calc(max(2vh,0.75rem)+var(--strip-h,3.75rem)+1.25rem)] sm:left-8 lg:left-[5vw] [@media(max-height:31.25rem)]:top-[calc(max(2vh,0.75rem)+var(--strip-h,3.75rem)+0.5rem)]"
-              : PAGE_TOP_LEFT
+              ? "left-4 top-[calc(max(2vh,0.75rem)+0.4rem)] w-[clamp(10rem,22vw,21rem)] sm:left-8 lg:left-[5vw] [@media(max-height:31.25rem)]:top-[calc(max(2vh,0.75rem)+0.2rem)]"
+              : `w-[clamp(13rem,32vw,30rem)] ${PAGE_TOP_LEFT}`
           }`}
         >
           <Image src={SLIDE_LOGO.src} alt="Azoth Biotech" width={SLIDE_LOGO.w} height={SLIDE_LOGO.h} sizes="(min-width: 1024px) 32vw, 60vw" className="block h-auto w-full" />
@@ -432,7 +443,7 @@ export function AzothHero({ variant = "page" }: { variant?: "page" | "slide" } =
           {/* On the slide, the company in a paragraph (owner, 2026-10-20 —
               COMPANY_ABOUT), the lockup's width or a little more. */}
           {slide && (
-            <p className="font-helv mt-[clamp(0.6rem,2vh,1.1rem)] w-[max(100%,min(22rem,calc(100vw-2rem)))] text-[0.86rem] leading-snug text-white/85 [text-shadow:0_1px_10px_rgba(0,0,0,0.45)] [@media(max-height:31.25rem)]:text-[0.72rem]">
+            <p className="font-helv mt-[clamp(0.6rem,2vh,1.1rem)] w-[max(100%,min(21rem,calc(100vw-2rem)))] text-[0.84rem] leading-snug text-white/85 [text-shadow:0_1px_10px_rgba(0,0,0,0.45)] [@media(max-height:31.25rem)]:text-[0.72rem]">
               {COMPANY_ABOUT["azoth-biotech"]}
             </p>
           )}

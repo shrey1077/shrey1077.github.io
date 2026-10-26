@@ -56,6 +56,9 @@ export interface AzothSpecies {
   color: string;
   accent: string;
   image: string;
+  /** Where the render fades out downwards, in % of its height: solid to
+   *  `from`, gone by `to` — so a flat foot doesn't sit on the ridge. */
+  fade?: { from: number; to: number };
   qualities: string[];
   bestFor: string;
 }
@@ -70,6 +73,10 @@ export const AZOTH_SPECIES: AzothSpecies[] = [
     color: "#d4620a",
     accent: "#f59e4a",
     image: `${HERO}/mushrooms/solid/cordyceps.webp`,
+    // Faded away below the roots (owner, 2026-10-26: "the lower boundary is
+    // very flat and not gelling in well with the artwork, make it fade away
+    // below the roots of cordyceps mushrooms") — the roots stand at ~58%.
+    fade: { from: 58, to: 86 },
     qualities: [
       "Supports ATP production",
       "Enhances athletic performance",

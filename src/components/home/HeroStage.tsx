@@ -48,7 +48,6 @@ import { CircuitBackdrop } from "@/components/home/CircuitBackdrop";
 import { BrainFooter } from "@/components/home/BrainFooter";
 import { BrainHalfShade } from "@/components/home/BrainHalfShade";
 import { AboutMe } from "@/components/home/AboutMe";
-import { NameWordmark } from "@/components/home/NameWordmark";
 import { PixelButton } from "@/components/home/PixelButton";
 import { useFlight } from "@/components/home/flight";
 import { useMediaQuery } from "@/hooks/useMediaQuery";
@@ -427,13 +426,12 @@ export function HeroStage() {
               my head — from first designer to Lead Manager." — and came off
               the next day, owner's call.) */}
           <h1 ref={nameRef} className="pointer-events-none flex flex-col items-center whitespace-nowrap pb-1 leading-none">
-            {/* Through Originkit's Vector Wordmark since 2026-10-26 (owner),
-                drawing only while this slide is up (NameWordmark). */}
-            <NameWordmark
-              text={`${NAME_FIRST} ${NAME_REST.join(" ")}`}
-              active={onOrb}
-              className="face-logic digibra-light text-[clamp(1.9rem,4.6vw,4rem)] uppercase leading-none text-neutral-900"
-            />
+            {/* Plain again since 2026-10-26 (owner: "Remove the effect we did
+                on name on first slide"); it went through Originkit's Vector
+                Wordmark for a day (NameWordmark — kept, unused). */}
+            <span className="face-logic digibra-light text-[clamp(1.9rem,4.6vw,4rem)] uppercase leading-none text-neutral-900">
+              {NAME_FIRST} {NAME_REST.join(" ")}
+            </span>
             <span className="sr-only"> — Visual Communication </span>
             {/* SITE.tagline — "Brand Designer & AI Generalist" since
                 2026-10-26 ("Designer & AI Filmmaker" from 2026-10-15); SITE.title,

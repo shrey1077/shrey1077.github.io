@@ -29,6 +29,11 @@ export type AgentStatus = "active" | "draft" | "suggested";
 export interface SystemAgent {
   id: string;
   name: string;
+  /** Its post in the system, as the tree names it — the name itself only in
+   *  its card, once picked (owner, 2026-10-26: "show names of agents in
+   *  description after clicking only, in the tree write their designation or
+   *  position, donna will be Personal secretary, so on"). */
+  position: string;
   /** Who it reports to; the hub has none. */
   parent?: string;
   role: string;
@@ -43,17 +48,19 @@ const intro = (id: string) => AGENTS.find((a) => a.id === id)?.intro ?? "";
 export const AGENT_SYSTEM: readonly SystemAgent[] = [
   {
     id: "alfred",
+    position: "Chief of Staff",
     name: "Alfred",
     role: "The hub · personal agent for Windows",
     text: intro("alfred"),
     status: "active",
   },
   // ── Reporting to Alfred.
-  { id: "donna", name: "Donna", parent: "alfred", role: "Executive assistant · personal secretary", text: intro("donna"), status: "active" },
-  { id: "andy", name: "Andy", parent: "alfred", role: "Chartered accountant · financial advisor", text: intro("andy"), status: "active" },
-  { id: "dr-house", name: "Dr. House", parent: "alfred", role: "A doctor AI · diagnostic thinking", text: intro("dr-house"), status: "draft" },
+  { id: "donna", position: "Personal Secretary", name: "Donna", parent: "alfred", role: "Executive assistant · personal secretary", text: intro("donna"), status: "active" },
+  { id: "andy", position: "Chartered Accountant", name: "Andy", parent: "alfred", role: "Chartered accountant · financial advisor", text: intro("andy"), status: "active" },
+  { id: "dr-house", position: "Doctor", name: "Dr. House", parent: "alfred", role: "A doctor AI · diagnostic thinking", text: intro("dr-house"), status: "draft" },
   {
     id: "hitchcock",
+    position: "Director-Producer",
     name: "Hitchcock",
     parent: "alfred",
     role: "AI film director-producer",
@@ -63,6 +70,7 @@ export const AGENT_SYSTEM: readonly SystemAgent[] = [
   },
   {
     id: "market-guru",
+    position: "Sales & Marketing",
     name: "Market Guru",
     parent: "alfred",
     role: "Client acquisition · sales and marketing",
@@ -70,9 +78,10 @@ export const AGENT_SYSTEM: readonly SystemAgent[] = [
     status: "active",
   },
   // ── Under Hitchcock.
-  { id: "ray", name: "Ray", parent: "hitchcock", role: "The brief desk · prompts", text: intro("ray"), status: "active" },
+  { id: "ray", position: "Prompt Writer", name: "Ray", parent: "hitchcock", role: "The brief desk · prompts", text: intro("ray"), status: "active" },
   {
     id: "editmax",
+    position: "Video Editor",
     name: "EditMAX",
     parent: "hitchcock",
     role: "The edit pipeline",
@@ -81,6 +90,7 @@ export const AGENT_SYSTEM: readonly SystemAgent[] = [
   },
   {
     id: "render-scout",
+    position: "Render Tracker",
     name: "Render Scout",
     parent: "hitchcock",
     role: "Suggested · render tracker",
@@ -90,6 +100,7 @@ export const AGENT_SYSTEM: readonly SystemAgent[] = [
   // ── Under Market Guru.
   {
     id: "social-desk",
+    position: "Social Media",
     name: "Social Desk",
     parent: "market-guru",
     role: "Suggested · publishing",
@@ -98,6 +109,7 @@ export const AGENT_SYSTEM: readonly SystemAgent[] = [
   },
   {
     id: "merch-ops",
+    position: "Merch Manager",
     name: "Merch Ops",
     parent: "market-guru",
     role: "Suggested · shop and print-on-demand",
@@ -107,6 +119,7 @@ export const AGENT_SYSTEM: readonly SystemAgent[] = [
   // ── Under Andy.
   {
     id: "ledger",
+    position: "Accounts Clerk",
     name: "Ledger",
     parent: "andy",
     role: "Suggested · invoices and payments",
@@ -116,6 +129,7 @@ export const AGENT_SYSTEM: readonly SystemAgent[] = [
   // ── Under Dr. House.
   {
     id: "trainer",
+    position: "Personal Trainer",
     name: "Trainer",
     parent: "dr-house",
     role: "Personal trainer · habit coach",
@@ -125,6 +139,7 @@ export const AGENT_SYSTEM: readonly SystemAgent[] = [
   // ── Reporting straight to Alfred.
   {
     id: "brand-desk",
+    position: "Brand Manager",
     name: "Brand Desk",
     parent: "alfred",
     role: "Suggested · brand systems",
@@ -133,6 +148,7 @@ export const AGENT_SYSTEM: readonly SystemAgent[] = [
   },
   {
     id: "archivist",
+    position: "Archivist",
     name: "Archivist",
     parent: "alfred",
     role: "Suggested · files and portfolio",
@@ -141,6 +157,7 @@ export const AGENT_SYSTEM: readonly SystemAgent[] = [
   },
   {
     id: "sentinel",
+    position: "Security & Spend",
     name: "Sentinel",
     parent: "alfred",
     role: "Suggested · backups, keys and spend",

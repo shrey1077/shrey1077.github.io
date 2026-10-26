@@ -36,7 +36,7 @@ import { typeVoiceClass } from "@/constants/typography";
 const META = `${typeVoiceClass("logic", "meta")} text-[0.55rem] tracking-[0.26em] text-neutral-500`;
 /** A pill's width, and where each depth's column starts, in % of the tree —
  *  wider on a narrow screen, where the names need it. */
-const WIDE = { w: 25, cols: [1, 37, 73] };
+const WIDE = { w: 28.5, cols: [0, 35.75, 71.5] };
 const NARROW = { w: 31.5, cols: [0, 34.25, 68.5] };
 const STATUS: Record<AgentStatus, string> = { active: "Active", draft: "Draft", suggested: "Suggested" };
 
@@ -90,7 +90,7 @@ function link(p: Placed, c: Placed, NODE_W: number) {
 export function AgentsSlide({ reduceMotion }: { reduceMotion: boolean }) {
   const narrow = useMediaQuery("(max-width: 639px)");
   const { w: NODE_W, cols } = narrow ? NARROW : WIDE;
-  const { nodes } = useMemo(() => place(AGENT_SYSTEM, cols), [cols]);
+  const { nodes, rows } = useMemo(() => place(AGENT_SYSTEM, cols), [cols]);
   const [pick, setPick] = useState("alfred");
   const picked = nodes.get(pick)!;
   // The line back to the hub, lit.
@@ -142,9 +142,12 @@ export function AgentsSlide({ reduceMotion }: { reduceMotion: boolean }) {
           </ul>
         </div>
 
-        <div className="grid min-h-0 flex-1 grid-rows-[minmax(0,1.25fr)_minmax(0,1fr)] gap-3 overflow-hidden rounded-2xl bg-white p-3 shadow-[0_24px_60px_-28px_rgba(0,0,0,0.35)] ring-1 ring-neutral-900/[0.08] sm:p-5 landscape:grid-cols-[minmax(0,1.7fr)_minmax(0,1fr)] landscape:grid-rows-1 landscape:gap-6">
+        <div className="grid min-h-0 flex-1 grid-rows-[minmax(0,1.75fr)_minmax(0,1fr)] gap-3 overflow-hidden rounded-2xl bg-white p-3 shadow-[0_24px_60px_-28px_rgba(0,0,0,0.35)] ring-1 ring-neutral-900/[0.08] sm:p-5 landscape:grid-cols-[minmax(0,1.7fr)_minmax(0,1fr)] landscape:grid-rows-1 landscape:gap-6">
           {/* ── The tree. */}
-          <div role="group" aria-label="The agent system, as a tree" className="relative min-h-0">
+          {/* On a phone the rows keep a least height, and the tree scrolls in
+              its own window where they need more than there is. */}
+          <div data-own-scroll={narrow || undefined} className="relative min-h-0 overflow-y-auto overscroll-contain sm:overflow-visible">
+          <div role="group" aria-label="The agent system, as a tree" className="relative h-full" style={narrow ? { minHeight: `${rows * 2}rem` } : undefined}>
             <svg aria-hidden viewBox="0 0 100 100" preserveAspectRatio="none" className="absolute inset-0 h-full w-full overflow-visible">
               {all.filter((n) => n.parent).map((n) => {
                 const p = nodes.get(n.parent!)!;
@@ -189,7 +192,7 @@ export function AgentsSlide({ reduceMotion }: { reduceMotion: boolean }) {
                   type="button"
                   onClick={() => setPick(n.id)}
                   aria-pressed={on}
-                  aria-label={`${n.name} — ${n.role}${n.status === "suggested" ? " (suggested)" : ""}`}
+                  aria-label={`${n.position}${n.status === "suggested" ? " (suggested)" : ""}`}
                   className={`absolute flex -translate-y-1/2 items-center gap-1.5 overflow-hidden rounded-full px-[clamp(0.4rem,0.9vw,0.8rem)] py-[clamp(0.2rem,0.6vh,0.4rem)] text-left max-sm:justify-center max-sm:px-1 outline-none transition-colors duration-200 focus-visible:ring-2 focus-visible:ring-neutral-900/40 ${ring} ${
                     on ? "!border-neutral-950 bg-neutral-950 text-white" : path ? "bg-neutral-100 text-neutral-900" : n.status === "suggested" ? "bg-white text-neutral-500 hover:text-neutral-900" : "bg-white text-neutral-900 hover:bg-neutral-100"
                   }`}
@@ -200,13 +203,14 @@ export function AgentsSlide({ reduceMotion }: { reduceMotion: boolean }) {
                     className={`block size-[0.5em] shrink-0 max-sm:hidden ${n.status === "suggested" ? "rounded-full border border-current" : ""}`}
                     style={n.status === "suggested" ? undefined : { backgroundColor: RAINBOW[(all.indexOf(n) * 2) % RAINBOW.length] }}
                   />
-                  <span className={`face-creative truncate font-bold leading-none ${n.depth === 0 ? "text-[clamp(0.8rem,1.35vw,1.1rem)]" : "text-[clamp(0.66rem,1.05vw,0.9rem)] max-sm:text-[0.62rem]"}`}>
+                  <span className={`face-creative line-clamp-2 font-bold leading-[1.08] max-sm:text-center max-sm:leading-[1.05] ${n.depth === 0 ? "text-[clamp(0.8rem,1.35vw,1.1rem)]" : "text-[clamp(0.62rem,0.95vw,0.84rem)] max-sm:text-[0.6rem]"}`}>
                     {n.status === "suggested" && <span aria-hidden className="max-sm:hidden">+ </span>}
-                    {n.name}
+                    {n.position}
                   </span>
                 </button>
               );
             })}
+          </div>
           </div>
 
           {/* ── The agent picked. */}
@@ -217,7 +221,7 @@ export function AgentsSlide({ reduceMotion }: { reduceMotion: boolean }) {
             className="flex min-h-0 flex-col gap-2 overflow-y-auto overscroll-contain border-t border-neutral-900/10 pt-3 landscape:border-l landscape:border-t-0 landscape:pl-6 landscape:pt-0 [@media(max-height:42rem)]:gap-1"
           >
             <div className="flex flex-wrap items-center gap-2">
-              <p className={META}>{picked.role}</p>
+              <p className={META}>{picked.position}</p>
               <span
                 className={`${META} rounded-full px-2 py-0.5 !tracking-[0.18em] ${
                   picked.status === "suggested" ? "border border-dashed border-neutral-400" : picked.status === "draft" ? "border border-dotted border-neutral-500" : "bg-neutral-900 !text-white"
@@ -227,6 +231,7 @@ export function AgentsSlide({ reduceMotion }: { reduceMotion: boolean }) {
               </span>
             </div>
             <h3 className="face-creative text-[clamp(1.4rem,3vw,2.6rem)] font-bold leading-none text-neutral-900 [@media(max-height:42rem)]:text-[1.25rem]">{picked.name}</h3>
+            <p className="font-helv -mt-0.5 text-[0.78rem] text-neutral-500">{picked.role}</p>
             <p className="font-helv text-[clamp(0.74rem,1.1vw,0.92rem)] leading-snug text-neutral-700 landscape:leading-relaxed [@media(max-height:42rem)]:text-[0.7rem] [@media(max-height:42rem)]:leading-[1.35]">
               {picked.text}
             </p>
@@ -283,7 +288,7 @@ function Chip({ agent, onPick }: { agent: SystemAgent; onPick: (id: string) => v
         agent.status === "suggested" ? "border border-dashed border-neutral-400" : "border border-neutral-900/40"
       }`}
     >
-      {agent.name}
+      {agent.position}
     </button>
   );
 }

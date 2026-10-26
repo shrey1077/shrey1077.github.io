@@ -1,6 +1,9 @@
 "use client";
 
 /**
+ * ⚠ UNUSED SINCE 2026-10-26, the day it went in (owner: "Remove the effect we
+ * did on name on first slide"). Kept whole, with VectorWordmark.
+ *
  * NameWordmark — the name on the first slide, drawn through Originkit's
  * Vector Wordmark (owner, 2026-10-26: "i want my name on first slide to have
  * this effect in the same font as now").

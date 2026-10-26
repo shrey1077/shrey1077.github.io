@@ -119,8 +119,11 @@ export function ZabrakuSlide({
           the words' `difference` blending would then meet only the empty box,
           never the robot. Centred by flex instead; above the robot by order. */}
       {/* Centred a little high, and closer set on a short screen: the
-          clients at its foot must clear the plate's round lower-left corner. */}
-      <div className={`pointer-events-none absolute inset-y-0 ${PLATE_INSET} flex flex-col items-start justify-center gap-4 landscape:pb-[min(6svh,3rem)] portrait:justify-start portrait:pt-[calc(max(2vh,0.75rem)+var(--strip-h)+1.85rem)] [@media(max-height:45rem)]:gap-3`}>
+          clients at its foot must clear the plate's round lower-left corner.
+          On a desktop screen (xl) an inch further in from the plate's edge
+          (owner, 2026-10-26: "move all this a bit more like an inch for the
+          desktop 16:9 22 inch screen" — ~96px at 1920). */}
+      <div className={`pointer-events-none absolute inset-y-0 ${PLATE_INSET} flex flex-col xl:left-[10vw] items-start justify-center gap-4 landscape:pb-[min(6svh,3rem)] portrait:justify-start portrait:pt-[calc(max(2vh,0.75rem)+var(--strip-h)+1.85rem)] [@media(max-height:45rem)]:gap-3`}>
         <p className={`${META} text-neutral-500 portrait:text-white/70 portrait:mix-blend-difference`}>{item.sector}</p>
         <span className="relative block aspect-[4/1] w-[min(36vw,26rem,55svh)] portrait:w-[58vw]">
           <Image src={item.mark ?? ""} alt="Zabraku" fill sizes="(orientation: portrait) 58vw, 36vw" className="object-contain object-left" />
