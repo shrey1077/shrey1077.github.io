@@ -33,7 +33,8 @@ export const SITE = {
   /** The site's own domain (GoDaddy → GitHub Pages, 2026-10-02). */
   website: "https://shrey107.com",
   /** Full URLs so they can be used directly as hrefs. */
-  linkedin: "https://www.linkedin.com/in/shrey-singh",
+  /** The owner's own (2026-11-02); "/in/shrey-singh", a placeholder, until then. */
+  linkedin: "https://www.linkedin.com/in/shrey-singh-0ba03545/",
   behance: "https://www.behance.net/shrey-singh",
   /** Served from /public — add the file when ready. */
   resume: "/resume.pdf",

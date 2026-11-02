@@ -50,7 +50,7 @@ const LINKS: { label: string; value: string; href: string; external: boolean; ic
   },
   { label: "Phone", value: SITE.phone, href: `tel:${SITE.phone.replace(/[^\d+]/g, "")}`, external: false },
   { label: "Website", value: SITE.website.replace(/^https?:\/\//, ""), href: SITE.website, external: true },
-  { label: "LinkedIn", value: "/shrey-singh", href: SITE.linkedin, external: true },
+  { label: "LinkedIn", value: "/shrey-singh-0ba03545", href: SITE.linkedin, external: true },
   { label: "Behance", value: "/shrey-singh", href: SITE.behance, external: true },
   { label: "Resume", value: "Download PDF", href: SITE.resume, external: true },
 ].filter((l) => l.value);
