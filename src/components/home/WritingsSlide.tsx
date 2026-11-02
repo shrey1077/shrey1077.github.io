@@ -78,7 +78,11 @@ export function WritingsSlide({ covers }: { covers: Record<string, WritingPage[]
   const [page, setPage] = useState(1);
   const [shaped, setShaped] = useState(0);
   const shapedRef = useRef(0);
-  shapedRef.current = shaped;
+  // Kept in step after each render, not during it (React's rule: a ref is
+  // written outside render), and before the layout effects below read it.
+  useLayoutEffect(() => {
+    shapedRef.current = shaped;
+  }, [shaped]);
   const settle = useRef(0);
   const r = ratioOf(pages[shaped]);
   // As large as the box allows, at the page's proportions — with the count
