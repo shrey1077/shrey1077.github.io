@@ -24,6 +24,14 @@
  * the line flowing, and fills the card beside the tree. The one cross-link —
  * Market Guru sells what Hitchcock makes — is a dashed line between them.
  * On a portrait screen the card stands under the tree.
+ *
+ * PRIVATE since 2026-11-02 (owner: the agents "should be password protected
+ * with shrey107 as password" — the whole slide, as a simple gate): until the
+ * password is given the window holds a lock, and nothing of the system shows.
+ * Only the password's SHA-256 is in the code, never the word; once given it
+ * holds for the browser session (sessionStorage). A simple gate by the
+ * owner's choice: the agents' words still ship with the page, for anyone who
+ * reads its code.
  */
 
 import { useEffect, useMemo, useRef, useState } from "react";
@@ -39,6 +47,85 @@ const META = `${typeVoiceClass("logic", "meta")} text-[0.55rem] tracking-[0.26em
 const WIDE = { w: 28.5, cols: [0, 35.75, 71.5] };
 const NARROW = { w: 31.5, cols: [0, 34.25, 68.5] };
 const STATUS: Record<AgentStatus, string> = { active: "Active", draft: "Draft", suggested: "Suggested" };
+/** The password's SHA-256 (the word itself is not kept here). */
+const PASS_SHA256 = "194c2467008aafe3e76c4bcc6b1b876452c22180d3de8c84a1385fd945662ac3";
+/** Unlocked for the rest of the browser session. */
+const UNLOCK_KEY = "agents-unlocked";
+
+async function sha256(text: string): Promise<string> {
+  const buf = await crypto.subtle.digest("SHA-256", new TextEncoder().encode(text));
+  return [...new Uint8Array(buf)].map((b) => b.toString(16).padStart(2, "0")).join("");
+}
+
+/** The window, locked: a padlock, a word on why, and the way in. */
+function AgentsLock({ onOpen }: { onOpen: () => void }) {
+  const [value, setValue] = useState("");
+  const [wrong, setWrong] = useState(false);
+  const [busy, setBusy] = useState(false);
+  const submit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (busy || !value) return;
+    setBusy(true);
+    const ok = (await sha256(value.trim())) === PASS_SHA256;
+    setBusy(false);
+    if (!ok) {
+      setWrong(true);
+      setValue("");
+      return;
+    }
+    try {
+      sessionStorage.setItem(UNLOCK_KEY, "1");
+    } catch {
+      // No storage (a private window): open for this visit only.
+    }
+    onOpen();
+  };
+  return (
+    <div className="grid min-h-0 flex-1 place-items-center rounded-2xl bg-white p-6 shadow-[0_24px_60px_-28px_rgba(0,0,0,0.35)] ring-1 ring-neutral-900/[0.08]">
+      <form onSubmit={submit} className="flex w-full max-w-sm flex-col items-center gap-3 text-center">
+        <svg aria-hidden viewBox="0 0 48 48" className="size-14">
+          <path d="M15 21v-6a9 9 0 0 1 18 0v6" fill="none" stroke="#171717" strokeWidth="3.2" strokeLinecap="round" />
+          <rect x="9" y="21" width="30" height="22" rx="5" fill="#171717" />
+          {[0, 1, 2, 3].map((k) => (
+            <rect key={k} x={14 + k * 5.5} y="35" width="3.6" height="3.6" fill={RAINBOW[(k * 2) % RAINBOW.length]} />
+          ))}
+          <rect x="22.5" y="26" width="3" height="6" rx="1.5" fill="#fff" />
+        </svg>
+        <p className="face-creative text-[clamp(1.3rem,2.6vw,2rem)] font-bold leading-none text-neutral-900">Private</p>
+        <p className="font-helv text-[0.86rem] leading-snug text-neutral-600">The agent system is private. Enter the password to see it.</p>
+        <div className="mt-1 flex w-full gap-2">
+          <label htmlFor="agents-pass" className="sr-only">
+            Password
+          </label>
+          <input
+            id="agents-pass"
+            type="password"
+            autoComplete="off"
+            value={value}
+            onChange={(e) => {
+              setValue(e.target.value);
+              setWrong(false);
+            }}
+            aria-invalid={wrong}
+            aria-describedby="agents-pass-msg"
+            placeholder="Password"
+            className="font-helv min-w-0 flex-1 rounded-full border border-neutral-900/25 bg-white px-4 py-2.5 text-[0.9rem] text-neutral-900 outline-none transition-colors focus:border-neutral-900 focus-visible:ring-2 focus-visible:ring-neutral-900/30"
+          />
+          <button
+            type="submit"
+            disabled={busy || !value}
+            className="face-creative rounded-full bg-neutral-950 px-5 text-[0.86rem] font-bold text-white outline-none transition-opacity focus-visible:ring-2 focus-visible:ring-neutral-900/40 disabled:opacity-40"
+          >
+            Unlock
+          </button>
+        </div>
+        <p id="agents-pass-msg" aria-live="polite" className="font-helv h-4 text-[0.78rem] text-[#c0392b]">
+          {wrong ? "That's not it. Try again." : ""}
+        </p>
+      </form>
+    </div>
+  );
+}
 
 interface Placed extends SystemAgent {
   depth: number;
@@ -92,6 +179,17 @@ export function AgentsSlide({ reduceMotion }: { reduceMotion: boolean }) {
   const { w: NODE_W, cols } = narrow ? NARROW : WIDE;
   const { nodes, rows } = useMemo(() => place(AGENT_SYSTEM, cols), [cols]);
   const [pick, setPick] = useState("alfred");
+  const [unlocked, setUnlocked] = useState(false);
+  useEffect(() => {
+    let had = false;
+    try {
+      had = sessionStorage.getItem(UNLOCK_KEY) === "1";
+    } catch {
+      // No storage: locked.
+    }
+    // eslint-disable-next-line react-hooks/set-state-in-effect -- read once, after hydration, so the page built ahead of time (locked) matches
+    if (had) setUnlocked(true);
+  }, []);
   const picked = nodes.get(pick)!;
   // The line back to the hub, lit.
   const lit = useMemo(() => {
@@ -115,7 +213,7 @@ export function AgentsSlide({ reduceMotion }: { reduceMotion: boolean }) {
     ro.observe(el);
     if (el.firstElementChild) ro.observe(el.firstElementChild);
     return () => ro.disconnect();
-  }, [rows, narrow]);
+  }, [rows, narrow, unlocked]);
   const cardRef = useRef<HTMLElement>(null);
   const [scrolls, setScrolls] = useState(false);
   useEffect(() => {
@@ -127,7 +225,7 @@ export function AgentsSlide({ reduceMotion }: { reduceMotion: boolean }) {
     const ro = new ResizeObserver(look);
     ro.observe(el);
     return () => ro.disconnect();
-  }, [pick]);
+  }, [pick, unlocked]);
 
   const parent = picked.parent ? nodes.get(picked.parent) : undefined;
   const works = [
@@ -143,8 +241,8 @@ export function AgentsSlide({ reduceMotion }: { reduceMotion: boolean }) {
             <p className={META}>AI Design · 02 / 04</p>
             <h2 className="face-creative mt-1.5 text-[clamp(1.6rem,3.6vw,3.4rem)] font-bold leading-none text-neutral-900">AI Agents</h2>
           </div>
-          {/* The key. */}
-          <ul className="flex flex-wrap items-center justify-end gap-x-4 gap-y-1 max-sm:hidden">
+          {/* The key — once open. */}
+          <ul className={`flex flex-wrap items-center justify-end gap-x-4 gap-y-1 max-sm:hidden ${unlocked ? "" : "invisible"}`}>
             <li className={`${META} flex items-center gap-1.5`}>
               <span aria-hidden className="block h-2.5 w-5 rounded-full bg-neutral-900" /> {counts.active} built
             </li>
@@ -154,6 +252,7 @@ export function AgentsSlide({ reduceMotion }: { reduceMotion: boolean }) {
           </ul>
         </div>
 
+        {unlocked ? (
         <div className="grid min-h-0 flex-1 grid-rows-[minmax(0,1.75fr)_minmax(0,1fr)] gap-3 overflow-hidden rounded-2xl bg-white p-3 shadow-[0_24px_60px_-28px_rgba(0,0,0,0.35)] ring-1 ring-neutral-900/[0.08] sm:p-5 landscape:grid-cols-[minmax(0,1.7fr)_minmax(0,1fr)] landscape:grid-rows-1 landscape:gap-6">
           {/* ── The tree. */}
           {/* The rows keep a least height (more on a phone, where a post
@@ -284,6 +383,9 @@ export function AgentsSlide({ reduceMotion }: { reduceMotion: boolean }) {
             </dl>
           </article>
         </div>
+        ) : (
+          <AgentsLock onOpen={() => setUnlocked(true)} />
+        )}
       </div>
       <div className="slide-corner-left absolute z-10">
         <PixelButton side="creative">The system — in development</PixelButton>
