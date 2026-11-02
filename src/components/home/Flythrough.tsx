@@ -555,7 +555,7 @@ const RoomBody = memo(function RoomBody({
         ) : item.id === "azoth-biotech" ? (
           <AzothSlide item={item} />
         ) : item.id === "abs" ? (
-          <AbsSlide item={item} active={live && !reduceMotion} />
+          <AbsSlide item={item} active={live && !reduceMotion} live={live} soon={soon} reduceMotion={reduceMotion} />
         ) : item.id === "zabraku" ? (
           <ZabrakuSlide item={item} live={live} soon={soon} moving={moving} />
         ) : item.id === "newsmobile" ? (

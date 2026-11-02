@@ -45,8 +45,10 @@
  * COMPANY_ABOUT); held upright, under the row.
  */
 
-import { useState } from "react";
-import { RoomImage as Image } from "@/components/home/nearness";
+import { useContext, useState } from "react";
+import { RoomImage as Image, NearContext } from "@/components/home/nearness";
+import { StackedCarousel } from "@/components/originkit/StackedCarousel";
+import { useMediaQuery } from "@/hooks/useMediaQuery";
 import { PixelButton } from "@/components/home/PixelButton";
 import { usePixelPresence } from "@/components/home/pixelReveal";
 import { COMPANY_ABOUT } from "@/constants/companyAbout";
@@ -175,8 +177,49 @@ function compose(all: Plate[]): { rows: number; placed: Placed[] } {
   return { rows, placed };
 }
 
-/** ABS's wall: the oxblood panel in its gold rim, and the pieces rising. */
-function Wall({ all, shown, active }: { all: Plate[]; shown: boolean; active: boolean }) {
+/** ABS's wall: the oxblood panel in its gold rim, and in it, since
+ *  2026-11-02, the posts as Originkit's Stacked Carousel (owner: "Use this
+ *  code for ABS pics display on main page slide of ABS") — a deck of square
+ *  cards drifting towards the camera, the one under the pointer turned flat
+ *  to it. Built a step ahead (`soon`), so its posts are in by the time the
+ *  camera lands, and let go a step after; it draws only while the slide is
+ *  the camera's (`live`). The Tetris wall that stood here is kept below,
+ *  unused (TetrisWall). */
+function Wall({ all, shown, live, soon, reduceMotion }: { all: Plate[]; shown: boolean; live: boolean; soon: boolean; reduceMotion: boolean }) {
+  const ref = usePixelPresence<HTMLDivElement>(shown, { cell: 12, duration: 0.6, reduceMotion });
+  const near = useContext(NearContext);
+  const tall = useMediaQuery("(orientation: portrait)");
+  return (
+    <div ref={ref} aria-hidden={!shown} className={`absolute inset-0 ${shown ? "" : "invisible"}`}>
+      {/* The rim: the coin's gold, lit and shaded round the edge. */}
+      <div className="h-full rounded-[clamp(1.25rem,2.4vw,2.25rem)] bg-[linear-gradient(135deg,#f6e27a_0%,#e5a623_18%,#bb792f_38%,#ef9e26_58%,#e9de76_76%,#c98a2b_100%)] p-[clamp(6px,0.75vw,11px)] shadow-[0_24px_60px_-28px_rgba(110,16,24,0.7)]">
+        {/* The ground: the coin's oxblood, lit from the upper left. */}
+        <div className="relative h-full overflow-hidden rounded-[calc(clamp(1.25rem,2.4vw,2.25rem)-clamp(6px,0.75vw,11px))] bg-[radial-gradient(ellipse_at_28%_18%,#ae424a_0%,#a42833_34%,#941b22_66%,#6e1018_100%)]">
+          <p className="sr-only">ABS Wholesale — {all.length} posts of its work.</p>
+          {near && (soon || live) && shown && (
+            <StackedCarousel
+              images={all}
+              cardWidth={420}
+              cardHeight={420}
+              gap={70}
+              speed={38}
+              // Set at an angle across a wide panel, the deck receding from
+              // the lower left; straight up a tall one (a phone held upright).
+              camera={tall ? { tilt: 50, angle: 0 } : { tilt: 42, angle: -24 }}
+              mat="#5c0d16"
+              active={live && shown}
+              reduceMotion={reduceMotion}
+            />
+          )}
+        </div>
+      </div>
+    </div>
+  );
+}
+
+/** The Tetris wall (2026-10-18 to 2026-11-02): the pieces rising in three
+ *  columns. Kept whole, unused. */
+export function TetrisWall({ all, shown, active }: { all: Plate[]; shown: boolean; active: boolean }) {
   const ref = usePixelPresence<HTMLDivElement>(shown, { cell: 12, duration: 0.6, reduceMotion: !active });
   const { rows, placed } = compose(all);
   return (
@@ -331,7 +374,7 @@ function BrandTab({ brand, on, size, onPick }: { brand: Brand; on: boolean; size
   );
 }
 
-export function AbsSlide({ item, active }: { item: Showcase; active: boolean }) {
+export function AbsSlide({ item, active, live = active, soon = live, reduceMotion = false }: { item: Showcase; active: boolean; live?: boolean; soon?: boolean; reduceMotion?: boolean }) {
   const [luzid, kartpipe] = ABS_BRANDS;
   const brands: Brand[] = [
     {
@@ -416,7 +459,7 @@ export function AbsSlide({ item, active }: { item: Showcase; active: boolean }) 
 
         <div className="flex min-h-0 min-w-0 flex-1 flex-col gap-3">
           <div className="relative min-h-0 flex-1">
-            <Wall all={abs.plates} shown={pick === abs.id} active={active} />
+            <Wall all={abs.plates} shown={pick === abs.id} live={live} soon={soon} reduceMotion={reduceMotion} />
             {built.map((b) => (
               <BrandRow key={b.id} brand={b} shown={pick === b.id} active={active} />
             ))}
