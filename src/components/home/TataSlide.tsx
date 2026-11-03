@@ -167,6 +167,15 @@ const GUTTER_EM = 1.8;
  *  two lines of second column"). Until then the columns ended a quarter of the
  *  way down the film, lifted three lines (OVERLAP 0.25, LIFT_LINES 3). */
 const TOUCHED_LINES = 2;
+/** The film's foot, faded: since 2026-11-03 the block stands clear of the
+ *  band on a desktop screen (TataSlide), and the frame's lower edge — which
+ *  crops the boy as the camera moves in — would show as a line across his
+ *  legs. */
+const FILM_FOOT_FADE: React.CSSProperties = {
+  maskImage: "linear-gradient(to bottom, #000 84%, transparent 99%)",
+  WebkitMaskImage: "linear-gradient(to bottom, #000 84%, transparent 99%)",
+};
+
 /** The gap above the line under the first column ("Position: …"), in
  *  lines; the line itself takes one, or two where the column is narrow. */
 const POSITION_GAP = 0.75;
@@ -510,7 +519,7 @@ function FilmWrap({
         {reduceMotion ? (
           near && (
             // eslint-disable-next-line @next/next/no-img-element -- a still in the film's own box
-            <img src={LAST_FRAME} alt="" className="absolute mix-blend-multiply" style={{ left: filmX, top: ready?.filmY ?? 0, width: filmW, height: filmH }} />
+            <img src={LAST_FRAME} alt="" className="absolute mix-blend-multiply" style={{ left: filmX, top: ready?.filmY ?? 0, width: filmW, height: filmH, ...FILM_FOOT_FADE }} />
           )
         ) : (
           <video
@@ -522,7 +531,7 @@ function FilmWrap({
             preload={near ? "auto" : "none"}
             disablePictureInPicture
             className="absolute mix-blend-multiply"
-            style={{ left: filmX, top: ready?.filmY ?? 0, width: filmW, height: filmH }}
+            style={{ left: filmX, top: ready?.filmY ?? 0, width: filmW, height: filmH, ...FILM_FOOT_FADE }}
           />
         )}
         {/* The role, straight under the first column, in its type. */}
@@ -578,10 +587,15 @@ export function TataSlide({ item, live, reduceMotion }: { item: Showcase; live: 
       {/* The left: the wordmark, then the words with the film among their
           last lines. On a tall screen, the upper part, clear of the artwork
           below; on a short one (a phone on its side) wider, the artwork being
-          small there. */}
-      <div className="slide-frame is-logic absolute inset-0 flex">
-        {/* The band's top edge (FootBand: 7svh), where the boy stands. */}
-        <div ref={groundRef} aria-hidden className="pointer-events-none absolute inset-x-0 bottom-[7svh] h-0" />
+          small there. On a desktop screen, further in from the edge and up
+          off the band (owner, 2026-11-03: "our text, logos and artwork at
+          bottom should be in the area covered by the screenshot, ie move
+          right and up") — ~170px further in at 1920 (14vw; 9vw on a smaller
+          laptop, so the columns keep their width), and 8vh higher. */}
+      <div className="slide-frame is-logic absolute inset-0 flex xl:!pl-[9vw] 2xl:!pl-[14vw]">
+        {/* Where the boy stands: the band's top edge (FootBand: 7svh) — on a
+            desktop screen 8vh above it, since 2026-11-03. */}
+        <div ref={groundRef} aria-hidden className="pointer-events-none absolute inset-x-0 bottom-[7svh] h-0 lg:landscape:bottom-[calc(7svh+8vh)]" />
         <div className="flex min-h-0 w-[54%] flex-col portrait:w-full [@media(max-height:31.25rem)]:landscape:w-[72%]">
           <FilmWrap
             live={live}
