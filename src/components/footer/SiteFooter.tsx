@@ -51,7 +51,6 @@ const LINKS: { label: string; value: string; href: string; external: boolean; ic
   { label: "Phone", value: SITE.phone, href: `tel:${SITE.phone.replace(/[^\d+]/g, "")}`, external: false },
   { label: "Website", value: SITE.website.replace(/^https?:\/\//, ""), href: SITE.website, external: true },
   { label: "LinkedIn", value: "/shrey-singh-0ba03545", href: SITE.linkedin, external: true },
-  { label: "Behance", value: "/shrey-singh", href: SITE.behance, external: true },
   { label: "Resume", value: "Download PDF", href: SITE.resume, external: true },
 ].filter((l) => l.value);
 
@@ -78,6 +77,10 @@ export function SiteFooter() {
           </p>
           <p className="mt-2 text-[0.72rem] font-normal uppercase tracking-[0.2em] text-neutral-400">
             {SITE.role}
+          </p>
+          {/* Where (2026-11-03). */}
+          <p className="mt-1 text-[0.72rem] font-normal uppercase tracking-[0.2em] text-neutral-400">
+            Based in {SITE.city}, {SITE.country}
           </p>
         </div>
 

@@ -55,7 +55,9 @@ const PERSON_LD = {
   url: SITE.website,
   image: `${SITE.website}/og/og-image.jpg`,
   description: SITE_DESCRIPTION,
-  sameAs: [SITE.linkedin, SITE.behance].filter(Boolean),
+  sameAs: [SITE.linkedin],
+  // Where the owner is based — for a search near it (2026-11-03).
+  address: { "@type": "PostalAddress", addressLocality: SITE.city, addressRegion: SITE.region, addressCountry: "IN" },
 };
 
 export default function Home() {

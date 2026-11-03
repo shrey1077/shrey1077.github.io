@@ -67,7 +67,6 @@ export function ExperienceFooter({ clientName, clientFacts = [] }: ExperienceFoo
             <ul className={`${typeVoiceClass("logic", "meta")} mt-3 space-y-2 text-[0.65rem]`}>
               {[
                 { label: "LinkedIn", href: SITE.linkedin },
-                { label: "Behance", href: SITE.behance },
                 { label: "Resume", href: SITE.resume },
               ].map((link) => (
                 <li key={link.label}>
