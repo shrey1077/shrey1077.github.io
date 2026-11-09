@@ -177,6 +177,19 @@ export function SplineScene({
       // Drop the element on the way out so its WebGL context and render loop go
       // with it — the script tag stays, since re-parsing the module is wasted
       // work and custom elements can only be defined once anyway.
+      // ⚠ Taken out of the page, the viewer DRAWS ON (measured 2026-11-10: its
+      // render loop and texture uploads ran on every slide after Zabraku's):
+      // it has to be told to unload, and its scene to stop, first.
+      const viewer = el as HTMLElement & { unload?: () => void; _spline?: { stop?: () => void; dispose?: () => void } };
+      try {
+        viewer._spline?.stop?.();
+      } catch {}
+      try {
+        viewer.unload?.();
+      } catch {}
+      try {
+        viewer._spline?.dispose?.();
+      } catch {}
       el.removeEventListener("load-complete", ready);
       ro.disconnect();
       host.replaceChildren();

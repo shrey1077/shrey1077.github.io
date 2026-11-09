@@ -14,12 +14,12 @@ import { AzothHero } from "@/components/client/azoth/AzothHero";
 import { PixelButton } from "@/components/home/PixelButton";
 import type { Showcase } from "@/constants/showcase";
 
-export function AzothSlide({ item }: { item: Showcase }) {
+export function AzothSlide({ item, live = true }: { item: Showcase; live?: boolean }) {
   const href = item.report.href ?? "/clients/azoth-biotech";
   return (
     <section aria-label={item.name} data-side="logic" className="absolute inset-0 overflow-hidden bg-black">
       <h2 className="sr-only">{item.name}</h2>
-      <AzothHero variant="slide" />
+      <AzothHero variant="slide" live={live} />
       <div className="absolute bottom-[calc(7svh+0.75rem)] right-4 z-[60] sm:right-8 lg:right-[5vw]">
         <PixelButton side="logic" href={href}>
           {item.report.label} <span aria-hidden>→</span>

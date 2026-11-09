@@ -192,7 +192,10 @@ export function HeroStrip({
   );
 }
 
-export function AzothHero({ variant = "page" }: { variant?: "page" | "slide" } = {}) {
+/** `live`: the spotlight moves only while this is the slide in view
+ *  (speed fix, 2026-11-10 — on the home page every slide overlaps the
+ *  window, so being on screen alone kept it running on all of them). */
+export function AzothHero({ variant = "page", live = true }: { variant?: "page" | "slide"; live?: boolean } = {}) {
   const slide = variant === "slide";
   // On the home page the pictures wait for their slide, and nothing jumps the
   // queue ahead of the landing.
@@ -271,24 +274,37 @@ export function AzothHero({ variant = "page" }: { variant?: "page" | "slide" } =
     // the mask reads them directly, so a mouse move costs one style write
     // instead of a re-render. Declared here so the loop can reference itself
     // without the hook-ordering problem a self-calling useCallback creates.
+    // Every measurement is read before anything is written, and nothing is
+    // written that hasn't changed (speed fix, 2026-11-10): a write before a
+    // read made the browser lay the whole page out again, once per mushroom,
+    // every frame, and a write of the same value restyled the scene for
+    // nothing while the pointer was still.
+    const spot = { x: "", y: "" };
+    const shown = new Map<string, string>();
     const tick = () => {
       smooth.current.x += (target.current.x - smooth.current.x) * EASE;
       smooth.current.y += (target.current.y - smooth.current.y) * EASE;
-      el.style.setProperty("--spot-x", `${smooth.current.x.toFixed(1)}px`);
-      el.style.setProperty("--spot-y", `${smooth.current.y.toFixed(1)}px`);
+      const r = el.getBoundingClientRect();
+      const rects = [...mushRefs.current].map(([id, node]) => [id, node, node.getBoundingClientRect()] as const);
+      const x = `${smooth.current.x.toFixed(1)}px`;
+      const y = `${smooth.current.y.toFixed(1)}px`;
+      if (x !== spot.x) el.style.setProperty("--spot-x", (spot.x = x));
+      if (y !== spot.y) el.style.setProperty("--spot-y", (spot.y = y));
       // Each mushroom, whole: full inside the spotlight's core, gone past
       // its edge — measured from the plant's middle, a little low.
-      const r = el.getBoundingClientRect();
-      for (const [id, node] of mushRefs.current) {
-        const q = node.getBoundingClientRect();
+      const now = performance.now();
+      for (const [id, node, q] of rects) {
         const d = Math.hypot(q.left + q.width / 2 - r.left - smooth.current.x, q.top + q.height * 0.6 - r.top - smooth.current.y);
         const t = Math.max(0, Math.min(1, (d - SPOTLIGHT_R * 0.35) / (SPOTLIGHT_R * 0.45)));
         const lit = 1 - t * t * (3 - 2 * t);
-        const now = performance.now();
         if (lit > 0.9 || activeRef.current === id) foundAt.current.set(id, now);
         const since = now - (foundAt.current.get(id) ?? -Infinity);
         const held = since < FOUND_HOLD_MS ? 1 : Math.max(0, 1 - (since - FOUND_HOLD_MS) / FOUND_FADE_MS);
-        node.style.opacity = Math.max(lit, held).toFixed(3);
+        const o = Math.max(lit, held).toFixed(2);
+        if (shown.get(id) !== o) {
+          shown.set(id, o);
+          node.style.opacity = o;
+        }
       }
       raf.current = requestAnimationFrame(tick);
     };
@@ -303,7 +319,7 @@ export function AzothHero({ variant = "page" }: { variant?: "page" | "slide" } =
       if (v) raf.current = requestAnimationFrame(tick);
       else if (raf.current) cancelAnimationFrame(raf.current);
     };
-    const io = new IntersectionObserver(([e]) => run(e.isIntersecting));
+    const io = new IntersectionObserver(([e]) => run(e.isIntersecting && live));
     io.observe(el);
 
     window.addEventListener("pointermove", onMove, { passive: true });
@@ -316,7 +332,7 @@ export function AzothHero({ variant = "page" }: { variant?: "page" | "slide" } =
       window.removeEventListener("touchmove", onTouch);
       if (raf.current) cancelAnimationFrame(raf.current);
     };
-  }, [isTouch, reduceMotion, fingered]);
+  }, [isTouch, reduceMotion, fingered, live]);
 
   const mask = `radial-gradient(circle ${SPOTLIGHT_R}px at var(--spot-x, -9999px) var(--spot-y, -9999px), #000 0%, #000 40%, rgba(0,0,0,0.75) 60%, rgba(0,0,0,0.4) 75%, rgba(0,0,0,0.12) 88%, transparent 100%)`;
 
