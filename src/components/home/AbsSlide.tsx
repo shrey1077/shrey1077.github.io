@@ -47,7 +47,7 @@
 
 import { useContext, useState } from "react";
 import { RoomImage as Image, NearContext } from "@/components/home/nearness";
-import { StackedCarousel } from "@/components/originkit/StackedCarousel";
+import { DepthGallery } from "@/components/originkit/DepthGallery";
 import { useMediaQuery } from "@/hooks/useMediaQuery";
 import { PixelButton } from "@/components/home/PixelButton";
 import { usePixelPresence } from "@/components/home/pixelReveal";
@@ -178,13 +178,17 @@ function compose(all: Plate[]): { rows: number; placed: Placed[] } {
 }
 
 /** ABS's wall: the oxblood panel in its gold rim, and in it, since
- *  2026-11-02, the posts as Originkit's Stacked Carousel (owner: "Use this
- *  code for ABS pics display on main page slide of ABS") — a deck of square
- *  cards drifting towards the camera, the one under the pointer turned flat
- *  to it. Built a step ahead (`soon`), so its posts are in by the time the
- *  camera lands, and let go a step after; it draws only while the slide is
- *  the camera's (`live`). The Tetris wall that stood here is kept below,
- *  unused (TetrisWall). */
+ *  2026-11-10, the posts as Originkit's Depth Gallery (owner: "change ABS
+ *  main page slide picture slider with this slider … with our current abs
+ *  pics") — a corridor flown through a post at a time, each whole in its own
+ *  shape, left and right of centre in turn; straight down the middle on a
+ *  tall panel (a phone held upright), where there is no room to the sides
+ *  and no pointer to push them, so each post is as big as the panel allows.
+ *  Built a step ahead (`soon`), so its first posts are in by the time the
+ *  camera lands, and let go a step after; it moves only while the slide is
+ *  the camera's (`live`). The Stacked Carousel that stood here from
+ *  2026-11-02 is kept, unused (originkit/StackedCarousel), and the Tetris
+ *  wall before it below (TetrisWall). */
 function Wall({ all, shown, live, soon, reduceMotion }: { all: Plate[]; shown: boolean; live: boolean; soon: boolean; reduceMotion: boolean }) {
   const ref = usePixelPresence<HTMLDivElement>(shown, { cell: 12, duration: 0.6, reduceMotion });
   const near = useContext(NearContext);
@@ -197,19 +201,7 @@ function Wall({ all, shown, live, soon, reduceMotion }: { all: Plate[]; shown: b
         <div className="relative h-full overflow-hidden rounded-[calc(clamp(1.25rem,2.4vw,2.25rem)-clamp(6px,0.75vw,11px))] bg-[radial-gradient(ellipse_at_28%_18%,#ae424a_0%,#a42833_34%,#941b22_66%,#6e1018_100%)]">
           <p className="sr-only">ABS Wholesale — {all.length} posts of its work.</p>
           {near && (soon || live) && shown && (
-            <StackedCarousel
-              images={all}
-              cardWidth={420}
-              cardHeight={420}
-              gap={70}
-              speed={38}
-              // Set at an angle across a wide panel, the deck receding from
-              // the lower left; straight up a tall one (a phone held upright).
-              camera={tall ? { tilt: 50, angle: 0 } : { tilt: 42, angle: -24 }}
-              mat="#5c0d16"
-              active={live && shown}
-              reduceMotion={reduceMotion}
-            />
+            <DepthGallery images={all} spread={tall ? 0 : 5} pointer={tall ? 0 : 5} mat="#5c0d16" active={live && shown} reduceMotion={reduceMotion} />
           )}
         </div>
       </div>
