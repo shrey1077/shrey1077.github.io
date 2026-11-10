@@ -49,3 +49,8 @@ jobs:
       - name: Deploy to GitHub Pages
         id: deploy
         uses: actions/deploy-pages@v4
+        with:
+          # The site is ~355 MB (mostly the Tata IIS films); from 2026-11-09
+          # GitHub took longer than the default 10 minutes to sync it and the
+          # deploy was cancelled three times. 30 minutes.
+          timeout: 1800000
