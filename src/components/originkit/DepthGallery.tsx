@@ -14,10 +14,14 @@
  *   · each picture stands WHOLE in its own shape, fitted inside the box —
  *     `cardWidth` × `cardHeight`, or, left out, worked out from the frame —
  *     so a post with words on it loses nothing to a crop;
- *   · the WHEEL is left to the page — on this site it turns the slides — and
- *     a finger's swipe too; the corridor moves on by itself, a picture every
- *     `hold` seconds, and a mouse drag scrubs it (up flies in, as Originkit's
- *     wheel-down did), coming to rest on a picture when let go;
+ *   · the corridor moves on by itself, a picture every `hold` seconds; and
+ *     INSIDE the frame the wheel, a finger's swipe and a mouse drag fly it
+ *     (owner, 2026-11-10: "if you scroll inside the red rounded box, it will
+ *     move between pics, and when we scroll outside that box then it move
+ *     between main page slides") — the frame is `data-own-scroll`, so the
+ *     page's Flythrough leaves them to it. Down (or a swipe up) flies in, as
+ *     Originkit's wheel did; let go, it comes to rest on the next picture the
+ *     way it was going, never half-way between two;
  *   · the pictures are fetched a few ahead of the camera, not all at once;
  *   · it draws only while `active` (its slide on screen, the tab seen), and
  *     sets its first frame even when not, so it is there as the camera lands;
@@ -116,6 +120,12 @@ const MARGIN = 0.06;
 const REACH = [-1, 0, 1, 2, 3];
 /** After a drag, the corridor waits this many holds before moving on. */
 const AFTER_DRAG = 1.5;
+/** The wheel has stopped when no turn has come for this long, ms. */
+const WHEEL_IDLE = 160;
+/** A scroll or drag shorter than this share of a slot goes back where it
+ *  began; longer, on to the next picture the way it went. One notch of a
+ *  mouse wheel (~0.2 slot) is enough. */
+const SETTLE_MIN = 0.1;
 
 const clamp = (v: number, min: number, max: number) => Math.min(max, Math.max(min, v));
 /** Positive modulo: a corridor scrolled backwards still lands on a plate. */
@@ -154,6 +164,7 @@ interface Frame {
   spreadPx: number;
   ease: number;
   dragToSlot: number;
+  wheelToSlot: number;
   pointerAmount: number;
   driftAmount: number;
   breathTilt: number;
@@ -173,6 +184,8 @@ interface Motion {
   pointer: { x: number; y: number };
   nextStep: number;
   dragging: boolean;
+  /** Where the corridor stood when a scroll or drag began. */
+  from: number;
   focus: number;
 }
 
@@ -210,6 +223,7 @@ export function DepthGallery({
     pointer: { x: 0, y: 0 },
     nextStep: 0,
     dragging: false,
+    from: 0,
     focus: -1,
   });
   const frame = useRef<Frame | null>(null);
@@ -263,7 +277,8 @@ export function DepthGallery({
   // The box is what the plate in focus measures on screen, so each plate is
   // cut oversize by the perspective divide it takes at the focus distance.
   const scaleK = (perspective + gap) / perspective;
-  const dragToSlot = ((WHEEL_MIN + (clamp(sensitivity, 0, 10) / 10) * WHEEL_RANGE) / WHEEL_SPAN) * DRAG_GAIN;
+  const wheelToSlot = (WHEEL_MIN + (clamp(sensitivity, 0, 10) / 10) * WHEEL_RANGE) / WHEEL_SPAN;
+  const dragToSlot = wheelToSlot * DRAG_GAIN;
   const breathOn = reduceMotion ? 0 : clamp(breath, 0, 10) / 5;
 
   const next: Frame = {
@@ -273,6 +288,7 @@ export function DepthGallery({
     spreadPx: spreadShare * boxW,
     ease: 0.16 - (clamp(smoothing, 0, 10) / 10) * 0.135,
     dragToSlot,
+    wheelToSlot,
     pointerAmount: reduceMotion ? 0 : (clamp(pointer, 0, 10) / 10) * 0.11 * boxW,
     driftAmount: reduceMotion ? 0 : (clamp(drift, 0, 10) / 10) * 0.035 * boxH,
     breathTilt: breathOn * BREATH_TILT_DEG,
@@ -336,6 +352,7 @@ export function DepthGallery({
         current.current -= laps;
         target.current -= laps;
         m.previous -= laps;
+        m.from -= laps;
       }
       const position = current.current;
 
@@ -400,29 +417,57 @@ export function DepthGallery({
     };
   }, [active, size, count]);
 
-  /* ---- the mouse: a drag scrubs (a finger's swipe is the page's), and the
-   *  pointer pushes the plates */
+  /* ---- inside the frame: the wheel and a drag (mouse or finger) fly the
+   *  corridor, and the pointer pushes the plates */
   useEffect(() => {
     const node = containerRef.current;
     if (!node) return;
     const m = motion.current;
     let id: number | null = null;
     let lastY = 0;
+    let idle = 0;
+
+    /** A scroll or drag begins: the corridor stops moving on by itself. */
+    const begin = () => {
+      if (!m.dragging) m.from = target.current;
+      m.dragging = true;
+    };
+    /** …and ends: on to the next picture the way it went, or back. */
+    const settle = () => {
+      m.dragging = false;
+      const d = target.current - m.from;
+      target.current = Math.abs(d) < SETTLE_MIN ? Math.round(m.from) : d > 0 ? Math.ceil(target.current - 1e-6) : Math.floor(target.current + 1e-6);
+      const f = frame.current;
+      m.nextStep = f?.hold ? performance.now() + f.hold * AFTER_DRAG : 0;
+    };
+
+    const onWheel = (e: WheelEvent) => {
+      const f = frame.current;
+      if (!f || e.ctrlKey) return;
+      e.preventDefault();
+      begin();
+      const delta = e.deltaMode === 1 ? e.deltaY * 16 : e.deltaMode === 2 ? e.deltaY * window.innerHeight : e.deltaY;
+      target.current += delta * f.wheelToSlot;
+      window.clearTimeout(idle);
+      idle = window.setTimeout(settle, WHEEL_IDLE);
+    };
 
     const onDown = (e: PointerEvent) => {
-      if (e.pointerType === "touch" || e.button !== 0 || id !== null) return;
+      if (e.button !== 0 || id !== null) return;
       id = e.pointerId;
       lastY = e.clientY;
-      m.dragging = true;
+      begin();
       node.setPointerCapture(e.pointerId);
       node.style.cursor = "grabbing";
     };
     const onMove = (e: PointerEvent) => {
-      if (e.pointerType === "touch") return;
-      const box = node.getBoundingClientRect();
-      if (box.width && box.height) {
-        pointerTarget.current.x = ((e.clientX - box.left) / box.width) * 2 - 1;
-        pointerTarget.current.y = -(((e.clientY - box.top) / box.height) * 2 - 1);
+      // A finger doesn't hover, so only a mouse pushes the plates.
+      if (e.pointerType !== "touch") {
+        const box = node.getBoundingClientRect();
+        if (box.width && box.height) {
+          pointerTarget.current.x = ((e.clientX - box.left) / box.width) * 2 - 1;
+          pointerTarget.current.y = -(((e.clientY - box.top) / box.height) * 2 - 1);
+        }
       }
       if (id !== e.pointerId) return;
       const dy = e.clientY - lastY;
@@ -434,11 +479,7 @@ export function DepthGallery({
     const onUp = (e: PointerEvent) => {
       if (id !== e.pointerId) return;
       id = null;
-      m.dragging = false;
-      // At rest on a picture, never half-way between two.
-      target.current = Math.round(target.current);
-      const f = frame.current;
-      m.nextStep = f?.hold ? performance.now() + f.hold * AFTER_DRAG : 0;
+      settle();
       if (node.hasPointerCapture(e.pointerId)) node.releasePointerCapture(e.pointerId);
       node.style.cursor = "";
     };
@@ -447,12 +488,15 @@ export function DepthGallery({
       pointerTarget.current.y = 0;
     };
 
+    node.addEventListener("wheel", onWheel, { passive: false });
     node.addEventListener("pointerdown", onDown);
     node.addEventListener("pointermove", onMove);
     node.addEventListener("pointerup", onUp);
     node.addEventListener("pointercancel", onUp);
     node.addEventListener("pointerleave", onLeave);
     return () => {
+      window.clearTimeout(idle);
+      node.removeEventListener("wheel", onWheel);
       node.removeEventListener("pointerdown", onDown);
       node.removeEventListener("pointermove", onMove);
       node.removeEventListener("pointerup", onUp);
@@ -464,7 +508,10 @@ export function DepthGallery({
   return (
     <div
       ref={containerRef}
-      className={`relative h-full w-full cursor-grab select-none overflow-hidden ${className}`}
+      // Its own scroll: the page's Flythrough leaves the wheel and a swipe
+      // that begin in here to it, and the browser doesn't pan the page.
+      data-own-scroll
+      className={`relative h-full w-full cursor-grab touch-none select-none overflow-hidden ${className}`}
       style={style}
     >
       {/* Film grain over the ground, under the plates. */}
