@@ -85,6 +85,7 @@ import { PixelButton } from "@/components/home/PixelButton";
 import type { Showcase } from "@/constants/showcase";
 import { useMediaQuery } from "@/hooks/useMediaQuery";
 import { TataTurn } from "@/components/home/TataTurn";
+import { typeVoiceClass } from "@/constants/typography";
 import { FILM, FILM_RATIO, FIRST, HOLD_MS, LAST_FRAME, inkOf, layout, loadWrap, paintLetters, wake, type Painted, type Wrap } from "@/components/film/setFree";
 
 // The Tata page's own files (TATA_GRID, TATA_GUIDELINES.wordmark, TATA_HERO.art
@@ -579,8 +580,38 @@ export function TataSlide({ item, live, reduceMotion }: { item: Showcase; live: 
           <Image src={GRID} alt="" fill sizes="100vw" className="object-cover opacity-70" />
         </div>
       ) : (
-        <div aria-hidden className="pointer-events-none absolute inset-0">
+        <div aria-hidden className="pointer-events-none absolute inset-0 [container-type:size]">
           <TataTurn live={live} reduceMotion={reduceMotion} fit="cover" />
+          {/* The way in to the turn (owner, 2026-11-13: 'say "Explore more"
+              in the same font and size as "Scroll Left" text on the main
+              page. and below it small font in all caps "Hover here"'): in
+              the white wedge right of the student's back, where its torn
+              edge cuts in furthest. Placed in the frame's own pixels — the
+              frame is 1920 × 1080, drawn to cover the slide — right-aligned
+              at its x 1900 and from its y 470, and kept on screen where the
+              frame is cropped. Stacked as "Scroll" stands over "Left": at that
+              size the two words side by side are wider than the white. On a
+              touch screen a finger drags the turn, so it says so. Squarer
+              than 3:2 (a tablet on its side) the frame is cut so far in
+              that no white is left there, and it stays off. */}
+          <div
+            data-tata-explore
+            className="absolute text-right [@media(max-aspect-ratio:3/2)]:hidden"
+            style={{
+              right: "max(1.5cqw, calc(50cqw - max(100cqw, 177.78cqh) * 0.4896))",
+              top: "calc(50cqh - max(56.25cqw, 100cqh) * 0.0648)",
+            }}
+          >
+            <p className="font-lr-grotesk text-[clamp(1.85rem,3.8vw,4.2rem)] font-extrabold leading-[0.9] tracking-[-0.035em] text-[#9ca3af]">
+              Explore
+              <br />
+              more
+            </p>
+            <p className={`${typeVoiceClass("logic", "meta")} mt-3 text-[0.58rem] uppercase tracking-[0.3em] text-neutral-500`}>
+              <span className="[@media(hover:none)]:hidden">Hover here</span>
+              <span className="hidden [@media(hover:none)]:inline">Drag here</span>
+            </p>
+          </div>
         </div>
       )}
 
