@@ -72,12 +72,12 @@ function StackRow() {
   return (
     <div className="flex h-full flex-col justify-end gap-2">
       <p className={META}>My Stack</p>
-      <ul className="grid grid-cols-5 gap-x-3 gap-y-2.5 lg:grid-cols-9 lg:gap-x-4 [@media(max-height:31.25rem)]:grid-cols-9">
+      <ul className="grid grid-cols-5 gap-x-3 gap-y-2.5 short-phone:gap-y-1 lg:grid-cols-9 lg:gap-x-4 [@media(max-height:31.25rem)]:grid-cols-9">
         {ORDERED.map((t) => {
           const h = Math.round(24 * (t.scale ?? 1));
           return (
             <li key={t.id} className="flex min-w-0 items-center gap-2.5">
-              <span className="grid h-8 w-10 shrink-0 place-items-center">
+              <span className="grid h-8 w-10 shrink-0 place-items-center short-phone:h-7">
                 <Image src={t.src} alt="" width={Math.round(h * t.aspect)} height={h} style={{ height: h, width: "auto" }} />
               </span>
               <span className="min-w-0 max-sm:hidden [@media(max-height:31.25rem)]:hidden">
@@ -128,9 +128,19 @@ const MARK = "flex shrink-0 [&_svg]:size-[1.15em] [&_svg]:text-neutral-900";
 const CHIP =
   "pointer-events-auto inline-flex items-center gap-1 rounded-full border border-neutral-900/80 px-2 py-[0.22rem] font-graff text-[0.54rem] uppercase leading-none tracking-[0.16em] text-neutral-900 outline-none transition-colors hover:bg-neutral-950 hover:text-white focus-visible:bg-neutral-950 focus-visible:text-white";
 
+/** THE GLANCE IN TWO SIDES (owner, 2026-11-17: "on second page, both views,
+ *  arrange the "50 + brands" element and Ai film making element on the right
+ *  side (text also aligned right)"): the years and the degrees on the left,
+ *  the brands and the film making on the right, set flush right.
+ *    · A phone: two columns — years | brands, then degrees | film making; the
+ *      degrees one under the other (one line across the row until then, the
+ *      film making a row of its own under it — a row shorter now, which also
+ *      helps the foot clear the brain on a short phone).
+ *    · `lg` (and a short landscape screen): four across — years, degrees,
+ *      brands, film making (it was years, brands, degrees, film making). */
 function GlanceRow({ onCertificate }: { onCertificate: () => void }) {
-  const facts: { key: string; mark: React.ReactNode; heading: string; value: React.ReactNode; wide?: boolean }[] = [
-    { key: "years", mark: <ExperienceMark />, heading: "14+ Years", value: "of experience" },
+  const facts: { key: string; mark: React.ReactNode; heading: string; value: React.ReactNode; right?: boolean; order: string }[] = [
+    { key: "years", mark: <ExperienceMark />, heading: "14+ Years", value: "of experience", order: "lg:order-1 [@media(max-height:31.25rem)]:order-1" },
     {
       key: "brands",
       mark: <BrandsMark />,
@@ -140,19 +150,22 @@ function GlanceRow({ onCertificate }: { onCertificate: () => void }) {
           worked with <span aria-hidden>·</span> <span className="font-bold text-neutral-900">7+</span> developed
         </>
       ),
+      right: true,
+      order: "lg:order-3 [@media(max-height:31.25rem)]:order-3",
     },
     {
       key: "education",
       mark: <EducationMark />,
       heading: "Education",
-      // One line, about 30.5em long: on a narrow phone the type comes down so
-      // it keeps to the row.
+      // One line on `lg`, about 30.5em long; on a phone the two degrees one
+      // under the other, each ~12.7em — the type size that kept the one line
+      // to a phone's row keeps each to its half now.
       value: (
         <span className="whitespace-nowrap text-[min(0.8rem,(100vw-2rem)/30.5)]">
           {EDUCATION_FULL.map(([degree, field], i) => (
-            <span key={degree}>
+            <span key={degree} className="block lg:inline [@media(max-height:31.25rem)]:inline">
               {i > 0 && (
-                <span aria-hidden className="type-light px-[0.55em] text-neutral-400">
+                <span aria-hidden className="type-light hidden px-[0.55em] text-neutral-400 lg:inline [@media(max-height:31.25rem)]:inline">
                   |
                 </span>
               )}
@@ -161,7 +174,7 @@ function GlanceRow({ onCertificate }: { onCertificate: () => void }) {
           ))}
         </span>
       ),
-      wide: true,
+      order: "lg:order-2 [@media(max-height:31.25rem)]:order-2",
     },
     {
       key: "film",
@@ -175,20 +188,22 @@ function GlanceRow({ onCertificate }: { onCertificate: () => void }) {
           </button>
         </>
       ),
+      right: true,
+      order: "lg:order-4 [@media(max-height:31.25rem)]:order-4",
     },
   ];
   return (
     <div className="flex flex-col gap-2">
       <p className={`${META} [@media(max-height:31.25rem)]:hidden`}>At a glance</p>
-      {/* The degrees take the widest column; below `lg` a row of their own. */}
-      <ul className="grid grid-cols-2 gap-x-6 gap-y-2 lg:grid-cols-[minmax(0,1fr)_minmax(0,1.15fr)_minmax(0,2fr)_minmax(0,1fr)] [@media(max-height:31.25rem)]:grid-cols-[minmax(0,1fr)_minmax(0,1.15fr)_minmax(0,2fr)_minmax(0,1fr)]">
+      {/* The degrees take the widest column on `lg`. */}
+      <ul className="grid grid-cols-2 gap-x-4 gap-y-2 sm:gap-x-6 lg:grid-cols-[minmax(0,1fr)_minmax(0,2fr)_minmax(0,1.15fr)_minmax(0,1fr)] [@media(max-height:31.25rem)]:grid-cols-[minmax(0,1fr)_minmax(0,2fr)_minmax(0,1.15fr)_minmax(0,1fr)]">
         {facts.map((f) => (
-          <li key={f.key} className={`flex min-w-0 flex-col gap-1 ${f.wide ? "col-span-2 lg:col-span-1 [@media(max-height:31.25rem)]:col-span-1" : ""}`}>
-            <span className="font-graff flex min-w-0 items-center gap-[0.45em] text-[0.82rem] font-extrabold leading-none text-neutral-900">
+          <li key={f.key} className={`flex min-w-0 flex-col gap-1 ${f.order} ${f.right ? "items-end text-right" : ""}`}>
+            <span className={`font-graff flex min-w-0 items-center gap-[0.45em] text-[0.82rem] font-extrabold leading-none text-neutral-900 ${f.right ? "justify-end" : ""}`}>
               <span className={MARK}>{f.mark}</span>
               <span className="truncate">{f.heading}</span>
             </span>
-            <span className="font-graff flex min-w-0 items-center gap-[0.4em] whitespace-nowrap text-[0.8rem] leading-tight text-neutral-600 max-sm:text-[0.72rem]">
+            <span className={`font-graff flex min-w-0 items-center gap-[0.4em] whitespace-nowrap text-[0.8rem] leading-tight text-neutral-600 max-sm:text-[0.72rem] ${f.right ? "justify-end" : ""}`}>
               {f.value}
             </span>
           </li>
@@ -247,7 +262,7 @@ function FactsRow() {
   return (
     <div className="flex h-full flex-col justify-end gap-2">
       <p className={META}>Life &amp; Learning</p>
-      <ul className="grid grid-cols-2 gap-x-6 gap-y-2.5 lg:grid-cols-4 [@media(max-height:31.25rem)]:grid-cols-4">
+      <ul className="grid grid-cols-2 gap-x-6 gap-y-2.5 short-phone:gap-y-1.5 lg:grid-cols-4 [@media(max-height:31.25rem)]:grid-cols-4">
         {facts.map((f) => (
           <li key={f.key} className="flex min-w-0 flex-col gap-1">
             <span className="font-graff flex items-center gap-[0.45em] text-[0.82rem] font-extrabold leading-none text-neutral-900">
@@ -294,13 +309,13 @@ export function BrainFooter({ active }: { active: boolean }) {
   const factsRef = usePixelPresence<HTMLDivElement>(face === "facts", { cell: 8, duration: 0.7, reduceMotion });
 
   return (
-    <div ref={footRef} className="pointer-events-none absolute inset-x-0 bottom-[calc(7%+0.9rem)] z-20 px-4 sm:px-8 lg:px-[5vw]">
+    <div ref={footRef} className="pointer-events-none absolute inset-x-0 bottom-[calc(7%+0.9rem)] z-20 px-4 short-phone:bottom-[calc(7%+0.45rem)] sm:px-8 lg:px-[5vw]">
       {/* At a glance — always, just under the brain. */}
       {/* The line under the glance stands as far from the rows below as
           from the glance above (owner, 2026-10-26: "keep the current
           distance between line and text above it, equal to its distance
           from lower elements"). */}
-      <div className="mb-[clamp(0.5rem,1.6vh,0.9rem)] border-b border-neutral-900/10 pb-[clamp(0.5rem,1.6vh,0.9rem)] [@media(max-height:31.25rem)]:mb-1 [@media(max-height:31.25rem)]:pb-1">
+      <div className="mb-[clamp(0.5rem,1.6vh,0.9rem)] border-b border-neutral-900/10 pb-[clamp(0.5rem,1.6vh,0.9rem)] [@media(max-height:31.25rem)]:mb-1 [@media(max-height:31.25rem)]:pb-1 short-phone:mb-1.5 short-phone:pb-1.5">
         <GlanceRow onCertificate={() => setCertificate(true)} />
       </div>
       {/* The two faces in one grid cell: the cell is as tall as the taller

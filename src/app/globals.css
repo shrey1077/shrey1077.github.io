@@ -1,5 +1,11 @@
 @import "tailwindcss";
 
+/* A SHORT PHONE (2026-11-17): portrait, 46rem (736px) tall or less — a
+ * 390 × 664 iPhone with Safari's bars, a 375 × 667 SE, a 360 × 640 Android.
+ * There the brain slide's foot (BrainFooter) closes up so it clears the
+ * brain artwork. `short-phone:` in a class. */
+@custom-variant short-phone (@media (orientation: portrait) and (max-height: 46rem));
+
 /*
  * Global base styles.
  *
