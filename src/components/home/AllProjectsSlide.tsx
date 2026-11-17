@@ -166,9 +166,9 @@ export function AllProjectsSlide({ item, wall }: { item: Showcase; wall: Wall })
       <div className="slide-frame is-logic absolute inset-0 flex flex-col">
         <div className="mb-3 flex shrink-0 items-end justify-between gap-4 [@media(max-height:31.25rem)]:mb-2">
           <div>
-            <p className={`${META} [@media(max-height:31.25rem)]:hidden`}>Projects · Everything</p>
+            <p className={`${META} [@media(max-height:31.25rem)]:hidden`}>Brand Designs · AI Design · Everything</p>
             <h2 className="face-logic mt-1 text-[clamp(1.4rem,3vw,2.6rem)] leading-none text-neutral-900 [@media(max-height:31.25rem)]:text-[1.15rem]">
-              All Projects
+              {item.name}
             </h2>
           </div>
           <p className={`${META} shrink-0 tabular-nums`}>{tiles.length} marks</p>

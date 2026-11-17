@@ -281,11 +281,14 @@ export const LOGIC_SHOWCASE: readonly Showcase[] = [
   {
     id: ALL_PROJECTS_ID,
     side: "logic",
-    name: "All Projects",
-    short: "All Projects",
+    // "All Works" since 2026-11-17 (owner: "on further scroll one common
+    // section will appear saying all works"): the end of the home page's one
+    // path, for both sides.
+    name: "All Works",
+    short: "All Works",
     sector: "Every project, as a wall of marks",
     treeLabel: "Projects",
-    tree: { name: "All Projects" },
+    tree: { name: "All Works" },
     role: "",
     points: [],
     facts: [],
@@ -440,14 +443,15 @@ export const SIX_WRITINGS = ["ethnography", "food-distribution", "design-for-pri
 /** Where "See all", after the last logo, goes. */
 export const ALL_WORKS_HREF = "/all-works";
 
-/** The right side, since 2026-10-26 (owner: "First right slide will be for
- *  AI video library", "the right side second slide to be AI Agents", "THird
- *  slide will be for AI apps and softwares", and the fourth "Personal
- *  Projects", with the Extincts Project, the art and the publications in it
- *  as tabs). Until then: the Extincts Project, Arts & Crafts, AI Projects
- *  (whose three folders are the first three now) and Writings & Publications
- *  — those entries are kept below, PERSONAL_PROJECTS and RETIRED_CREATIVE. */
-export const CREATIVE_SHOWCASE: readonly Showcase[] = [
+/** The right side from 2026-10-26 to 2026-11-17 (owner: "First right slide
+ *  will be for AI video library", "the right side second slide to be AI
+ *  Agents", "THird slide will be for AI apps and softwares", and the fourth
+ *  "Personal Projects", with the Extincts Project, the art and the
+ *  publications in it as tabs). Kept whole; the right side now is
+ *  CREATIVE_SHOWCASE, below. Before it: the Extincts Project, Arts & Crafts,
+ *  AI Projects and Writings & Publications — PERSONAL_PROJECTS and
+ *  RETIRED_CREATIVE. */
+export const CREATIVE_UNTIL_NOV: readonly Showcase[] = [
   {
     id: "ai-video-library",
     side: "creative",
@@ -593,6 +597,30 @@ export const PERSONAL_PROJECTS: readonly Showcase[] = [
     facts: [{ label: "Documents", value: "8" }],
     report: { label: "Read Them All", href: "/writings" },
   },
+];
+
+/** The right side since 2026-11-17 (owner: "show Ai videos section … then
+ *  right again to Ai Agents and apps (merge the two, yes) … then right again
+ *  to extincts project … the right to Arts and Crafts section (new)"), each
+ *  level with a left slide: the home page's one path runs across from a left
+ *  slide to the right one level with it, then down to the next left. AI Apps
+ *  is merged into the agents' slide; Personal Projects' tabs are slides of
+ *  their own again (the Extincts Project, Arts & Crafts) — Writings &
+ *  Publications, its third, is on no slide now (its page, /writings, stays). */
+export const CREATIVE_SHOWCASE: readonly Showcase[] = [
+  CREATIVE_UNTIL_NOV[0],
+  {
+    ...CREATIVE_UNTIL_NOV[1],
+    name: "AI Agents & Apps",
+    short: "AI Agents & Apps",
+    sector: "A personal AI automation system, and tools built with AI",
+    points: [
+      "A hub and the agents that report to it — and the ones it still needs.",
+      "Cerci, the certificate maker, and H3LEN, the campus in 3D — both for Tata IIS.",
+    ],
+  },
+  PERSONAL_PROJECTS[0],
+  PERSONAL_PROJECTS[1],
 ];
 
 /** AI Projects, the slide whose three folders became the first three right

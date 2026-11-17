@@ -53,8 +53,10 @@
  * size they were (clamp 2.6–6rem → 1.85–4.2rem), "brain" with them. The
  * lines follow on their own — they are sized off the headline's height.
  *
- * "SCROLL LEFT" / "SCROLL RIGHT" AT REST, "LEFT BRAIN" / "RIGHT BRAIN" REACHED
- * (owner, 2026-10-18: "add the word 'Scroll' above both left and right, in
+ * (Until 2026-11-17 the words read "Scroll Left" / "Scroll Right" at rest —
+ * off since, as the home page has one path now: owner, "remove the 'scroll
+ * left' and 'scroll right' text (keep the left/right brain as it is)".)
+ * "LEFT BRAIN" / "RIGHT BRAIN" REACHED, as before (owner, 2026-10-18: "add the word 'Scroll' above both left and right, in
  * same faded effect", then "'Scroll' should be of same font weight and size
  * as that of left and right. and when hovered scroll will disappear and
  * 'Brain' will appear with the text below"): "Scroll" is set as its word is,
@@ -108,12 +110,6 @@ const BODY_FALLBACK = "clamp(0.74rem, 0.95vw, 1rem)";
  *  painted "Right" — `bg-clip-text` type is transparent, and a shadow would
  *  show through and wash the paint out. */
 const HALO = "[text-shadow:0_0_10px_rgba(249,249,249,0.95),0_0_3px_rgba(249,249,249,0.9)]";
-/** "Scroll" over each word, in the word's own face, weight and size. */
-const SCROLL_SIZE = "pointer-events-none absolute bottom-full mb-[0.06em] block whitespace-nowrap text-[clamp(1.85rem,3.8vw,4.2rem)] leading-[0.9]";
-const SCROLL_LEFT = `${SCROLL_SIZE} font-lr-grotesk left-0 font-extrabold tracking-[-0.035em] text-[#9ca3af]`;
-const SCROLL_RIGHT = `${SCROLL_SIZE} face-creative right-0 font-bold tracking-[-0.03em] text-neutral-400`;
-/** "Scroll" goes the moment its side is reached, and comes back on release. */
-const scrollGone = (shown: boolean) => ({ opacity: shown ? 0 : 1, y: shown ? "-0.15em" : "0em" });
 
 type Pt = { x: number; y: number };
 
@@ -520,9 +516,6 @@ export function LeftRightBrain({
           transition={{ duration: 0.45, ease: EASE_OUT, delay: leftShown ? after : 0 }}
         />
         <motion.p ref={leftHeadRef} style={{ opacity: leftFade }} className="relative shrink-0 self-center leading-none">
-          <motion.span className={SCROLL_LEFT} initial={false} animate={scrollGone(leftShown)} transition={{ duration: 0.3, ease: EASE_OUT }}>
-            Scroll
-          </motion.span>
           <motion.span
             ref={leftWordRef}
             className="font-lr-grotesk inline-block text-[clamp(1.85rem,3.8vw,4.2rem)] font-extrabold leading-[0.9] tracking-[-0.035em]"
@@ -617,9 +610,6 @@ export function LeftRightBrain({
           transition={{ duration: 0.45, ease: EASE_OUT, delay: rightShown ? after : 0 }}
         />
         <motion.p ref={rightHeadRef} style={{ opacity: rightFade }} className="relative shrink-0 self-center leading-none">
-          <motion.span className={SCROLL_RIGHT} initial={false} animate={scrollGone(rightShown)} transition={{ duration: 0.3, ease: EASE_OUT }}>
-            Scroll
-          </motion.span>
           <span ref={rightWordRef} className="relative inline-block">
             <span className="face-creative block text-[clamp(1.85rem,3.8vw,4.2rem)] font-bold leading-[0.9] tracking-[-0.03em] text-neutral-400">
               {RIGHT_BRAIN.word}
@@ -651,25 +641,31 @@ export function LeftRightBrain({
 
       {/* Below `lg` (phones, tablets): the blocks can't stand beside the
           brain, so the headlines sit above it and the reached side's lines
-          set in the open band beneath it. A tap on a side reaches it. */}
+          set under them, still above the brain. A tap on a side reaches it. */}
       {/* ⚠ Placed BELOW the wordmark — its top (3.2%), its size
           (max(1.9rem, 4.6vw)) and its edition line (~2.4rem), all from HeroStage —
           so the headlines clear it at every width now that it is twice the
           size it was. */}
-      <div aria-hidden className="absolute inset-x-0 top-[calc(3.2%+max(1.9rem,4.6vw)+2.4rem)] flex justify-between px-5 sm:px-12 lg:hidden">
+      {/* ⚠ THE LINES SIT UNDER THE HEADLINES, ABOVE THE BRAIN (owner,
+          2026-11-17: "the black/colored text of left/right sides is coming
+          over the brain artwork, instead make it smaller and shift it up so it
+          doesnt come over brain artwork and stays readable against the
+          current whitish bg"). Until then they stood at the foot, over the
+          brain's lower half; the headlines were 1.6rem and 0.8rem lower. The
+          band between the edition line and the brain's top is ~110px on a
+          390 × 664 phone: headline row + five lines at 0.74rem fit it. */}
+      <div className="absolute inset-x-0 top-[calc(3.2%+max(1.9rem,4.6vw)+1.6rem)] px-5 sm:px-12 lg:hidden">
+      <div aria-hidden className="flex items-start justify-between">
         <motion.p
           className="font-lr-grotesk origin-left text-center leading-none text-neutral-900"
           initial={false}
           animate={{ opacity: leftOn ? 1 : rightOn ? 0.3 : 0.75, scale: leftOn ? 1.1 : 1 }}
           transition={{ duration: 0.4, ease: EASE_OUT }}
         >
-          <motion.span className="block text-[1.6rem] font-extrabold tracking-[-0.03em] sm:text-[2.4rem]" initial={false} animate={{ opacity: leftOn ? 0 : 1 }} transition={{ duration: 0.3 }}>
-            Scroll
-          </motion.span>
-          <span className="block text-[1.6rem] font-extrabold tracking-[-0.03em] sm:text-[2.4rem]">
+          <span className="block text-[1.3rem] font-extrabold tracking-[-0.03em] sm:text-[2rem]">
             {LEFT_BRAIN.word}
           </span>
-          <motion.span className="block text-sm font-light sm:text-lg" initial={false} animate={{ opacity: leftOn ? 1 : 0 }} transition={{ duration: 0.3 }}>
+          <motion.span className="block text-[0.62rem] font-light sm:text-sm" initial={false} animate={{ opacity: leftOn ? 1 : 0 }} transition={{ duration: 0.3 }}>
             brain
           </motion.span>
         </motion.p>
@@ -680,28 +676,18 @@ export function LeftRightBrain({
           transition={{ duration: 0.4, ease: EASE_OUT }}
         >
           {/* ⚠ Opacity on the painted words' layers, never an alpha: `bg-clip-text`. */}
-          <motion.span
-            className="brain-paint face-creative block bg-clip-text text-[1.6rem] font-bold leading-none tracking-[-0.03em] text-transparent sm:text-[2.4rem]"
-            initial={false}
-            animate={{ opacity: rightOn ? 0 : 1 }}
-            transition={{ duration: 0.3 }}
-          >
-            Scroll
-          </motion.span>
-          <span className="brain-paint face-creative block bg-clip-text text-[1.6rem] font-bold leading-none tracking-[-0.03em] text-transparent sm:text-[2.4rem]">
+          <span className="brain-paint face-creative block bg-clip-text text-[1.3rem] font-bold leading-none tracking-[-0.03em] text-transparent sm:text-[2rem]">
             {RIGHT_BRAIN.word}
           </span>
-          <motion.span className="font-lr-grotesk block text-sm font-light text-neutral-600 sm:text-lg" initial={false} animate={{ opacity: rightOn ? 1 : 0 }} transition={{ duration: 0.3 }}>
+          <motion.span className="font-lr-grotesk block text-[0.62rem] font-light text-neutral-600 sm:text-sm" initial={false} animate={{ opacity: rightOn ? 1 : 0 }} transition={{ duration: 0.3 }}>
             brain
           </motion.span>
         </motion.p>
       </div>
-      {/* ⚠ Stands clear of the row along the slide's foot (BrainFooter — the
-          band's 7%, its own 0.9rem lift and its height: 6.25rem on a phone,
-          3.4rem on a short screen). It sat over the scroll cue's place until
-          2026-10-15, when that row took the foot and the cue left the brain
-          slide. */}
-      <div className="font-lr-serif absolute inset-x-5 bottom-[calc(7%+0.9rem+var(--brain-foot,6.25rem)+0.9rem)] text-[0.95rem] leading-[1.3] sm:inset-x-12 sm:text-[1.15rem] lg:hidden [@media(max-height:31.25rem)]:bottom-[calc(7%+0.9rem+var(--brain-foot,3.4rem)+0.6rem)]">
+      {/* (Until 2026-11-17 the lines stood clear of the row along the slide's
+          foot — BrainFooter, published as --brain-foot — and so over the
+          brain. They are under the headlines now; see above.) */}
+      <div className="font-lr-serif mt-1.5 text-[0.74rem] leading-[1.3] sm:mt-3 sm:text-[1rem]">
         <AnimatePresence mode="wait" initial={false}>
           {leftOn || rightOn ? (
             <motion.div
@@ -737,6 +723,7 @@ export function LeftRightBrain({
             </motion.p>
           )}
         </AnimatePresence>
+      </div>
       </div>
     </div>
     </>

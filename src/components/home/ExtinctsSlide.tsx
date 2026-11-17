@@ -294,7 +294,7 @@ export function ExtinctsSlide({ reduceMotion, live = true }: { reduceMotion: boo
       <div className="slide-frame absolute inset-0 grid gap-3 [grid-template-areas:'t'_'.'_'r'_'b'] grid-cols-[minmax(0,1fr)] grid-rows-[auto_minmax(0,1fr)_auto_auto] landscape:!pt-[calc(max(2vh,0.75rem)+var(--strip-h,3.75rem)+max((100svh-max(2vh,0.75rem)-var(--strip-h,3.75rem))*0.095,5.35vw)+0.75rem)] landscape:[grid-template-areas:'._r'_'._b'] landscape:grid-cols-[minmax(0,1fr)_minmax(15rem,30%)] landscape:grid-rows-[minmax(0,1fr)_auto] landscape:gap-y-4 [@media(max-height:31.25rem)]:landscape:grid-cols-[minmax(0,1fr)_minmax(15rem,46%)] [@media(max-height:31.25rem)]:landscape:gap-y-2">
         {/* The title — the art carries its own on a wide screen. */}
         <div className="[grid-area:t] landscape:sr-only">
-          <p className={`${META} text-white/60 [@media(max-height:31.25rem)]:hidden`}>Creative · 01 / 04</p>
+          <p className={`${META} text-white/60 [@media(max-height:31.25rem)]:hidden`}>AI Design · 03 / 04</p>
           <h2 className="font-graff mt-1.5 text-[clamp(1.5rem,3.4vw,3.2rem)] font-bold uppercase leading-[0.92] text-white [@media(max-height:31.25rem)]:mt-0 [@media(max-height:31.25rem)]:text-[1.15rem]">
             The <span style={{ color: RED }}>Extincts</span> Project
           </h2>

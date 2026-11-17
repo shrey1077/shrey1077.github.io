@@ -174,7 +174,22 @@ function link(p: Placed, c: Placed, NODE_W: number) {
   return `M${x1} ${p.y} C${mx} ${p.y} ${mx} ${c.y} ${x2} ${c.y}`;
 }
 
-export function AgentsSlide({ reduceMotion }: { reduceMotion: boolean }) {
+/** Inside AI Agents & Apps (AgentsAppsSlide, 2026-11-17) the slide takes that
+ *  slide's title, its tabs beside the key, and — on the Apps tab — the apps'
+ *  window in place of the agents'. On its own, as it was. */
+export function AgentsSlide({
+  reduceMotion,
+  title = "AI Agents",
+  meta = "AI Design · 02 / 04",
+  tabs,
+  swap,
+}: {
+  reduceMotion: boolean;
+  title?: string;
+  meta?: string;
+  tabs?: React.ReactNode;
+  swap?: React.ReactNode;
+}) {
   const narrow = useMediaQuery("(max-width: 639px)");
   const { w: NODE_W, cols } = narrow ? NARROW : WIDE;
   const { nodes, rows } = useMemo(() => place(AGENT_SYSTEM, cols), [cols]);
@@ -234,15 +249,17 @@ export function AgentsSlide({ reduceMotion }: { reduceMotion: boolean }) {
   ];
 
   return (
-    <section aria-label="AI Agents" data-side="creative" className="absolute inset-0 overflow-hidden">
+    <section aria-label={title} data-side="creative" className="absolute inset-0 overflow-hidden">
       <div className="slide-frame absolute inset-0 flex flex-col">
         <div className="mb-3 flex shrink-0 items-end justify-between gap-4 [@media(max-height:31.25rem)]:sr-only">
           <div>
-            <p className={META}>AI Design · 02 / 04</p>
-            <h2 className="face-creative mt-1.5 text-[clamp(1.6rem,3.6vw,3.4rem)] font-bold leading-none text-neutral-900">AI Agents</h2>
+            <p className={META}>{meta}</p>
+            <h2 className="face-creative mt-1.5 text-[clamp(1.6rem,3.6vw,3.4rem)] font-bold leading-none text-neutral-900">{title}</h2>
           </div>
-          {/* The key — once open. */}
-          <ul className={`flex flex-wrap items-center justify-end gap-x-4 gap-y-1 max-sm:hidden ${unlocked ? "" : "invisible"}`}>
+          <div className="flex flex-col items-end gap-2">
+          {tabs}
+          {/* The key — once open, and on the agents. */}
+          <ul className={`flex flex-wrap items-center justify-end gap-x-4 gap-y-1 max-sm:hidden ${unlocked && !swap ? "" : "invisible"}`}>
             <li className={`${META} flex items-center gap-1.5`}>
               <span aria-hidden className="block h-2.5 w-5 rounded-full bg-neutral-900" /> {counts.active} built
             </li>
@@ -250,9 +267,10 @@ export function AgentsSlide({ reduceMotion }: { reduceMotion: boolean }) {
               <span aria-hidden className="block h-2.5 w-5 rounded-full border border-dashed border-neutral-500" /> {counts.suggested} suggested
             </li>
           </ul>
+          </div>
         </div>
 
-        {unlocked ? (
+        {swap ?? (unlocked ? (
         <div className="grid min-h-0 flex-1 grid-rows-[minmax(0,1.75fr)_minmax(0,1fr)] gap-3 overflow-hidden rounded-2xl bg-white p-3 shadow-[0_24px_60px_-28px_rgba(0,0,0,0.35)] ring-1 ring-neutral-900/[0.08] sm:p-5 landscape:grid-cols-[minmax(0,1.7fr)_minmax(0,1fr)] landscape:grid-rows-1 landscape:gap-6">
           {/* ── The tree. */}
           {/* The rows keep a least height (more on a phone, where a post
@@ -385,7 +403,7 @@ export function AgentsSlide({ reduceMotion }: { reduceMotion: boolean }) {
         </div>
         ) : (
           <AgentsLock onOpen={() => setUnlocked(true)} />
-        )}
+        ))}
       </div>
       <div className="slide-corner-left absolute z-10">
         <PixelButton side="creative">The system — in development</PixelButton>

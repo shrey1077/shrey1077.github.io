@@ -65,6 +65,23 @@
  * The camera is a real translateZ under perspective, and every position and
  * clip is written through motion values — no React work per frame.
  *
+ * ONE PATH (owner, 2026-11-17: "for portfolio i want one navigation direction
+ * only … on scrolling from 2nd page we go to > tata will be first then instead
+ * of going down move right and show Ai videos section … then move diagonally
+ * down to Azoth, then right again to Ai Agents and apps … then diagonally
+ * down to zabraku, then right again to extincts project > diagonally down to
+ * ABS, the right to Arts and Crafts … then diagonally down to newsmobile and
+ * on further scroll one common section will appear saying all works. below
+ * which will be the footer"). The two columns stand level with each other,
+ * and a scroll walks them in one zigzag: from the brain to the left's first;
+ * from a left room ACROSS to the right one level with it (the pan); from a
+ * right room DOWN AND ACROSS to the next left one (the pan, the arriving room
+ * rising in from below as the going one rises away — `diag`); NewsMobile and
+ * All Works, the left's last two, straight down. Back up retraces it. The
+ * pointer no longer picks a side on the brain slide (its "Scroll Left" and
+ * "Scroll Right" are gone), and All Works is both sides' end — the band
+ * splits evenly there, as on the brain slide.
+ *
  * SWITCHING SIDE is sideways: a pan — this room slides off one way, the other
  * side's slides in from the other. The sections menu and the arrow keys ← →
  * do it; the keys to the room level with this one, or the other side's last
@@ -112,10 +129,11 @@ import { ZabrakuSlide } from "@/components/home/ZabrakuSlide";
 import { NewsMobileSlide } from "@/components/home/NewsMobileSlide";
 import { ExtinctsSlide } from "@/components/home/ExtinctsSlide";
 import { ArtSlide, type ArtThumb } from "@/components/home/ArtSlide";
+import { ArtsCraftsSlide } from "@/components/home/ArtsCraftsSlide";
+import { AgentsAppsSlide } from "@/components/home/AgentsAppsSlide";
 import { AiSlide } from "@/components/home/AiSlide";
 import { WritingsSlide, type WritingPage } from "@/components/home/WritingsSlide";
 import { VideoLibrarySlide } from "@/components/home/VideoLibrarySlide";
-import { AgentsSlide } from "@/components/home/AgentsSlide";
 import { AppsSlide } from "@/components/home/AppsSlide";
 import { PersonalProjectsSlide } from "@/components/home/PersonalProjectsSlide";
 import { ShowcaseStrip } from "@/components/home/ShowcaseStrip";
@@ -136,6 +154,8 @@ const FIRST_ROOM = HERO_SLIDES;
 const BRAIN = FIRST_ROOM - 1;
 /** The last slide of a side's run. */
 const lastFor = (t: Track) => FIRST_ROOM + roomsOf(t).length - 1;
+/** All Works, both sides' end — the left's last. */
+const ALL_WORKS_K = FIRST_ROOM + LOGIC.findIndex((it) => it.id === ALL_PROJECTS_ID);
 
 interface Room {
   item: Showcase;
@@ -296,6 +316,7 @@ function Slide({
   side = 0,
   pan,
   heading = "logic",
+  diag,
   reduceMotion,
   current,
   className = "",
@@ -318,6 +339,8 @@ function Slide({
   /** The track a pan is heading for — so a room knows, mid-pan, whether it
    *  is the column going or the one arriving. */
   heading?: Track;
+  /** On a pan that also moves a level (ONE PATH): 1 down, −1 up, 0 none. */
+  diag?: MotionValue<number>;
   reduceMotion: boolean;
   /** The slide the camera is on — the only one that takes the pointer. */
   current: boolean;
@@ -329,8 +352,13 @@ function Slide({
   const lastClip = useRef("none");
   const still = useMotionValue(0);
   const offset = pan ?? still;
+  const drop = diag ?? still;
   const room = kind === "room";
   const slot = () => slotOf(warpRef.current, index, track);
+  const headingRef = useRef(heading);
+  useEffect(() => {
+    headingRef.current = heading;
+  }, [heading]);
 
   // Across the plane, in screen sizes. A slide the warp passes over is sent
   // well off (and hidden below).
@@ -340,10 +368,14 @@ function Slide({
     if (!room) return reduceMotion ? 0 : (tx > 0.5 ? -1 : 1) * clamp01(v - k);
     return reduceMotion ? o : o + side * clamp01(FIRST_ROOM - v);
   });
-  const posY = useTransform([cam, warpTick], ([v]: number[]) => {
+  const posY = useTransform([cam, offset, drop, warpTick], ([v, o, dg]: number[]) => {
     const k = slot();
     if (reduceMotion || k === null) return 0;
-    return room ? clamp01(FIRST_ROOM - v) : -clamp01(v - k);
+    if (!room) return -clamp01(v - k);
+    // Down and across (ONE PATH): the side arriving rises in from below as it
+    // slides in, the side going rises away above — the other way going up.
+    const arriving = (side === 1) === (headingRef.current === "creative");
+    return clamp01(FIRST_ROOM - v) + (dg ? (arriving ? 1 : -1) * dg * Math.abs(o) : 0);
   });
   const x = useTransform(posX, (q) => `${q * 100}%`);
   const y = useTransform(posY, (q) => `${q * 100}%`);
@@ -396,10 +428,6 @@ function Slide({
     ro.observe(el);
     return () => ro.disconnect();
   }, []);
-  const headingRef = useRef(heading);
-  useEffect(() => {
-    headingRef.current = heading;
-  }, [heading]);
   const applyClip = () => {
     const el = outerRef.current;
     if (!el) return;
@@ -468,7 +496,7 @@ function Slide({
             arriving ? "in" : "out",
             toCreative ? "right" : "left",
             -o * w,
-            0,
+            -posY.get() * h,
             cameraLift(v, trackX.get(), reduceMotion),
           ) || "inset(50%)";
       }
@@ -565,14 +593,14 @@ const RoomBody = memo(function RoomBody({
         ) : (
           <ProjectSlide item={item} />
         )
-      ) : // The right side since 2026-10-26: the Video Library, the agents,
-      // the apps, and the personal projects as tabs. (The Extincts, Arts &
-      // Crafts, AI Projects and Writings slides stood here until then; their
-      // files are kept.)
+      ) : // The right side since 2026-11-17: the Video Library, the agents and
+      // the apps as one, the Extincts Project, Arts & Crafts. (The apps and
+      // the personal projects' tabs stood here from 2026-10-26; the AI
+      // Projects and Writings slides before that; their files are kept.)
       item.id === "ai-video-library" ? (
         <VideoLibrarySlide />
       ) : item.id === "ai-agents" ? (
-        <AgentsSlide reduceMotion={reduceMotion} />
+        <AgentsAppsSlide reduceMotion={reduceMotion} live={live} />
       ) : item.id === "ai-apps" ? (
         <AppsSlide reduceMotion={reduceMotion} live={live} />
       ) : item.id === "personal-projects" ? (
@@ -580,6 +608,9 @@ const RoomBody = memo(function RoomBody({
       ) : item.id === "the-extincts-project" ? (
         <ExtinctsSlide reduceMotion={reduceMotion} live={live} />
       ) : item.id === "arts-and-crafts" ? (
+        <ArtsCraftsSlide item={item} thumbs={artThumbs} live={live} soon={soon} reduceMotion={reduceMotion} />
+      ) : item.id === "arts-and-crafts-rows" ? (
+        // The rows that played the art until 2026-11-17, kept.
         <ArtSlide thumbs={artThumbs} active={live && !reduceMotion} />
       ) : item.id === "ai-projects" ? (
         <AiSlide reduceMotion={reduceMotion} live={live} />
@@ -647,6 +678,8 @@ export function Flythrough({
     },
     [reduceMotion, trackX],
   );
+  // The level a pan also moves (ONE PATH): set for its length, then 0.
+  const diag = useMotionValue(0);
   const logicPan = useTransform(trackX, (v) => -v);
   const creativePan = useTransform(trackX, (v) => 1 - v);
   const logicGroundX = useTransform(trackX, (v) => `${-v * 100}%`);
@@ -728,7 +761,9 @@ export function Flythrough({
     const into = clamp01(cam.get() - BRAIN);
     const most = narrowRef.current ? BAND_ROOM_NARROW : BAND_ROOM;
     const room = most - (2 * most - 1) * clamp01(trackX.get());
-    bandShare.set(0.5 + (room - 0.5) * into * (1 - pastRef.current));
+    // At All Works, both sides' end, the split goes back to half.
+    const common = trackX.get() < 0.5 ? clamp01(cam.get() - (ALL_WORKS_K - 1)) : 0;
+    bandShare.set(0.5 + (room - 0.5) * into * (1 - pastRef.current) * (1 - common));
   }, [bandShare, cam, trackX]);
   useMotionValueEvent(trackX, "change", updateBand);
   useEffect(() => {
@@ -858,17 +893,8 @@ export function Flythrough({
 
     const onLanding = () => position() < FIRST_ROOM - 0.5;
 
-    // On the brain slide the way down is the visitor's: the half the pointer
-    // is over (the Left brain or the Right) picks the column. Nothing of
-    // either column is on screen yet, so the track is simply set.
-    let pointerX = -1;
-    const onPointer = (e: PointerEvent) => {
-      pointerX = e.clientX;
-    };
-    const pickSide = (x: number) => {
-      if (Math.abs(position() - BRAIN) > EPS) return;
-      switchTrack(x > window.innerWidth / 2 ? "creative" : "logic", true);
-    };
+    // (On the brain slide the half the pointer was over picked the column
+    // until 2026-11-17; the way down is the one path now — see nextStop.)
 
     const scrollTop = (k: number) => geomRef.current.top + k * geomRef.current.step;
 
@@ -991,16 +1017,49 @@ export function Flythrough({
       start(() => {
         setFlying(true);
         if (b !== a) setWarp({ a, b, ta, tb, pan: true, A: a, B: a });
+        diag.set(Math.sign(b - a));
         setArriving(roomAt(b, tb) ?? null);
         switchTrack(tb, false, () => {
           measure();
           window.scrollTo({ top: scrollTop(b), behavior: "instant" });
+          diag.set(0);
           setWarp(null);
           setFlying(false);
           landedAt = performance.now();
           land();
         });
       });
+    };
+
+    /** The next stop on the ONE PATH from where the page is, `dir` 1 on, −1
+     *  back; null to let the page scroll natively. On the landing, or between
+     *  two slides, the plain step (from the brain, onto the left); in a room,
+     *  the zigzag. */
+    const nextStop = (dir: number): { k: number; t: Track } | null => {
+      const pos = position();
+      const t = trackRef.current;
+      const n = Math.round(pos);
+      if (n < FIRST_ROOM || Math.abs(pos - n) > EPS || pos > runLastRef.current + 0.6) {
+        const k = stepFrom(pos, dir);
+        if (k === null) return null;
+        return { k, t: k >= FIRST_ROOM && n < FIRST_ROOM ? "logic" : t };
+      }
+      const level = n - FIRST_ROOM;
+      if (dir > 0) {
+        if (t === "logic") {
+          if (level < CREATIVE.length) return { k: n, t: "creative" };
+          return n < lastFor("logic") ? { k: n + 1, t: "logic" } : null;
+        }
+        return n + 1 <= lastFor("logic") ? { k: n + 1, t: "logic" } : null;
+      }
+      if (t === "creative") return { k: n, t: "logic" };
+      if (level === 0) return { k: BRAIN, t };
+      return level - 1 < CREATIVE.length ? { k: n - 1, t: "creative" } : { k: n - 1, t: "logic" };
+    };
+    /** Take a stop: down the side the camera is on, or across (goTo). */
+    const take = (s: { k: number; t: Track }) => {
+      if (s.k < FIRST_ROOM || s.t === trackRef.current) flyTo(s.k);
+      else goTo(s.k, s.t);
     };
 
     const goToId = (id: string) => {
@@ -1048,14 +1107,13 @@ export function Flythrough({
       lastWheel = now;
       const dir = Math.sign(e.deltaY);
       if (!dir) return;
-      const target = stepFrom(position(), dir);
-      if (target === null) return;
+      const stop = nextStop(dir);
+      if (stop === null) return;
       if (canScrollInside(e.target, run, dir)) return;
       e.preventDefault();
       if (flyingRef.current || gestureSpent) return;
       gestureSpent = true;
-      if (dir > 0) pickSide(e.clientX);
-      flyTo(target);
+      take(stop);
     };
 
     const onKey = (e: KeyboardEvent) => {
@@ -1081,12 +1139,11 @@ export function Flythrough({
             ? -1
             : 0;
       if (!dir) return;
-      const target = stepFrom(position(), dir);
-      if (target === null) return;
+      const stop = nextStop(dir);
+      if (stop === null) return;
       e.preventDefault();
       if (flyingRef.current) return;
-      if (dir > 0 && pointerX >= 0) pickSide(pointerX);
-      flyTo(target);
+      take(stop);
     };
 
     // Native scrolling that comes to rest between two slides is eased onto the
@@ -1118,8 +1175,6 @@ export function Flythrough({
       touching = true;
       const t = e.touches[0];
       swipe = t && e.touches.length === 1 ? { x: t.clientX, y: t.clientY, spent: false } : null;
-      // On the brain slide, the half the finger lands on picks the column.
-      if (t) pickSide(t.clientX);
     };
     const onTouchMove = (e: TouchEvent) => {
       if (!swipe || reduceMotion || modal() || ownScroll(e.target) || e.touches.length !== 1) return;
@@ -1128,12 +1183,12 @@ export function Flythrough({
       const dx = swipe.x - t.clientX;
       const dir = Math.sign(dy);
       if (!dir || (!swipe.spent && Math.abs(dx) > Math.abs(dy))) return;
-      const target = stepFrom(position(), dir);
-      if (target === null) return;
+      const stop = nextStop(dir);
+      if (stop === null) return;
       if (e.cancelable) e.preventDefault();
       if (swipe.spent || flyingRef.current || Math.abs(dy) < swipePx()) return;
       swipe.spent = true;
-      flyTo(target);
+      take(stop);
     };
     const onTouchEnd = () => {
       touching = false;
@@ -1165,7 +1220,6 @@ export function Flythrough({
     window.addEventListener("touchstart", onTouchStart, { passive: true });
     window.addEventListener("touchmove", onTouchMove, { passive: false });
     window.addEventListener("touchend", onTouchEnd, { passive: true });
-    window.addEventListener("pointermove", onPointer, { passive: true });
     window.addEventListener(PIN_OPEN_EVENT, onPin);
     window.addEventListener(GO_EVENT, onGo);
     return () => {
@@ -1177,11 +1231,10 @@ export function Flythrough({
       window.removeEventListener("touchstart", onTouchStart);
       window.removeEventListener("touchmove", onTouchMove);
       window.removeEventListener("touchend", onTouchEnd);
-      window.removeEventListener("pointermove", onPointer);
       window.removeEventListener(PIN_OPEN_EVENT, onPin);
       window.removeEventListener(GO_EVENT, onGo);
     };
-  }, [reduceMotion, switchTrack, extendReach, measure, position, sync, trackX, warpTick, setFlying]);
+  }, [reduceMotion, switchTrack, extendReach, measure, position, sync, trackX, warpTick, setFlying, diag]);
 
   const goId = (id: string) => window.dispatchEvent(new CustomEvent<GoDetail>(GO_EVENT, { detail: { id } }));
   const goHome = () => window.dispatchEvent(new CustomEvent<GoDetail>(GO_EVENT, { detail: { k: BRAIN } }));
@@ -1201,8 +1254,9 @@ export function Flythrough({
   // first slide i dont want any text on the lower pixelated band") — the
   // sides were "Projects" and "Creative" until then.
   const pad2 = (n: number) => String(n).padStart(2, "0");
+  const atAllWorks = here?.item.id === ALL_PROJECTS_ID;
   const band: { left: BandPart; right: BandPart; major: "left" | "right" | null } =
-    here && !pastRun
+    here && !pastRun && !atAllWorks
       ? track === "logic"
         ? {
             left: {
@@ -1309,6 +1363,7 @@ export function Flythrough({
               side={logic ? -1 : 1}
               pan={logic ? logicPan : creativePan}
               heading={track}
+              diag={diag}
               reduceMotion={reduceMotion}
               current={live}
             >
@@ -1316,7 +1371,7 @@ export function Flythrough({
                 item={item}
                 logic={logic}
                 live={live}
-                soon={track === t && Math.abs(current - index) <= 1}
+                soon={current >= BRAIN && Math.abs(current - index) <= 1}
                 near={pageSettled || index <= reach}
                 moving={movingMV}
                 reduceMotion={reduceMotion}

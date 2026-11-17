@@ -28,6 +28,22 @@
  * slide's own white under it, so on a portrait screen this one slide is plain
  * white, without the drifting field behind.
  *
+ * THE ROBOT'S BOX KEEPS THE WHEEL AND THE FINGER (owner, 2026-11-17: "when
+ * we move or scroll inside the bounded box it shud not scroll up or down to
+ * respective slides, rather when scrolled outside the box thats when slide
+ * transition shud occur. so on mobile view it ll be possible to inteact with
+ * robot by dragging. include drag here to interact message in both views with
+ * faint text and arrows on both sides of the robot"): the box is
+ * `data-own-scroll` (the Flythrough leaves it alone), `touch-none` (a finger
+ * drags the robot instead of panning the page) and cancels the wheel itself —
+ * the page's own scroll is the camera, so an uncancelled wheel would still
+ * move it. Outside the box the slides change as anywhere else. ⚠ The box,
+ * not the plate: the plate fills nearly the whole screen, so on it nothing
+ * would be left to change slides with. Once the robot is drawing, a faint
+ * "← Drag here to interact →" runs along the box: over the head on a
+ * landscape screen, under the feet on a portrait one (the words stand by the
+ * head there, and the "Built with Spline" badge at the foot).
+ *
  * Everything on the slide stands on one plate between the field of falling
  * nodes and the slide's own things (owner, 2026-10-18: "for better
  * visiblity"): since 2026-10-19 white at 80%, two corners square and two
@@ -36,7 +52,7 @@
  * then the company in a paragraph (owner, 2026-10-20 — COMPANY_ABOUT).
  */
 
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import type { MotionValue } from "framer-motion";
 import { RoomImage as Image } from "@/components/home/nearness";
@@ -82,6 +98,20 @@ export function ZabrakuSlide({
   const [ready, setReady] = useState(false);
   if (!on && ready) setReady(false);
 
+  // The wheel over the robot is the robot's: cancelled, so the page — whose
+  // scroll is the camera — stays put (the Flythrough skips it already, by
+  // `data-own-scroll`). A pinch-zoom (ctrl) is left to the browser.
+  const boxRef = useRef<HTMLDivElement>(null);
+  useEffect(() => {
+    const box = boxRef.current;
+    if (!box) return;
+    const keep = (e: WheelEvent) => {
+      if (!e.ctrlKey) e.preventDefault();
+    };
+    box.addEventListener("wheel", keep, { passive: false });
+    return () => box.removeEventListener("wheel", keep);
+  }, []);
+
   return (
     // ⚠ White under everything on a portrait screen: a slide is a layer of
     // its own, so the words' `difference` blending (below) can only meet what
@@ -94,7 +124,11 @@ export function ZabrakuSlide({
       <BrandPlate inner={YELLOW} outer={INK} />
       {/* The robot: the right side, 75% of the screen's height, centred; on a
           portrait screen the lower part, under the words. */}
-      <div className={`absolute top-1/2 h-[75svh] w-[min(62vw,75svh)] -translate-y-1/2 ${PLATE_ART_RIGHT} portrait:bottom-[calc(7svh+3.5rem)] portrait:top-auto portrait:h-[52svh] portrait:w-[80vw] portrait:translate-y-0`}>
+      <div
+        ref={boxRef}
+        data-own-scroll
+        className={`absolute top-1/2 h-[75svh] w-[min(62vw,75svh)] -translate-y-1/2 touch-none ${PLATE_ART_RIGHT} portrait:bottom-[calc(7svh+3.5rem)] portrait:top-auto portrait:h-[52svh] portrait:w-[80vw] portrait:translate-y-0`}
+      >
         {on && (
           <SplineScene
             url={SCENE}
@@ -111,6 +145,16 @@ export function ZabrakuSlide({
             className="font-graff pointer-events-none absolute inset-0 grid place-items-center text-center text-[clamp(0.7rem,1.2vw,0.95rem)] uppercase tracking-[0.24em] text-neutral-500"
           >
             <span className="animate-pulse">Sending Robot from future…</span>
+          </p>
+        )}
+        {ready && (
+          <p
+            aria-hidden
+            className="font-graff pointer-events-none absolute inset-x-[11%] top-[2%] flex items-center justify-between gap-3 text-[clamp(0.56rem,0.85vw,0.72rem)] uppercase leading-none tracking-[0.24em] text-neutral-400/80 portrait:inset-x-0 portrait:top-full portrait:mt-1.5 portrait:px-[2%] [@media(min-aspect-ratio:19/10)]:inset-x-[16%] [@media(min-aspect-ratio:19/10)]:top-[5%]"
+          >
+            <span className="text-[1.6em] tracking-normal">←</span>
+            <span>Drag here to interact</span>
+            <span className="text-[1.6em] tracking-normal">→</span>
           </p>
         )}
       </div>
